@@ -1,25 +1,57 @@
-##练习1-3
-请修改温度转换程序，使之能在转换表的顶部打印一个标题
+#第一章 导言
+## 1.1 入门
 
-##练习1-4
-编写一个程序打印摄氏问题转换相应华式问题的转换表
+## 1.2 变量与算术表达式
 
-##练习1-6
-验证布尔表达式getchar() != EOF的取值是0还是1
->当有字符可读时，getchar()不会返回文件结束符(即EOF)，所以<code>getchar() != EOF</code>的取值为真,变量c将被赋值为1.当程序遇到文件结束符时，表达式取值为假，此时，变量c将被赋值为0，程序将会结束。
+## 1.3 for语句
 
-##练习1-9
-编写一个将输入复制到输出的程序，并将其中连续的多个空格用一个空格代替
+##1.4. 符号常量
+define指令可以把符号名（或称为符号常量）定义为一个特定的字符串：#define 名字 替换文字
 
-##练习1-12
-编写一个程序，打印输入中单词长度的直方图。
+##1.5 字符输入/输出
+输入/输出都是按照字符流的方式处理。
 
-##备注
-<table>
-<tr><td>%d</td><td>print as decimal integer</td>  
-<tr><td>%6d</td><td>print as decimal integer, at least 6 characters wide </td>
-<tr><td>%f</td><td>   print as floating point  </td>
-<tr><td>%6f</td> <td> print as floating point, at least 6 characters wide </td> 
-<tr><td>%.2f</td><td>  print as floating point, 2 characters after decimal point </td> 
-<tr><td>%6.2f</td><td>    print as floating point, at least 6 wide and 2 after decimal point</td>
-</table> 
+Each time it is called, <code>getchar</code> reads the next input character from a text stream and returns that as its value. 
+The function <code>putchar</code> prints a character each time
+
+
+###1.5.1 文件复制
+伪代码:
+
+	读一个字符
+	while(该字符不是文件结束指示符)
+		输出刚读入的字符
+		读下一个字符
+code:
+
+	int c;
+	c = getchar();
+	while (c != EOF) {
+		putchar(c);
+		c = getchar();
+	}
+
+转化为：
+
+	int c;
+	while (c = getchar() != EOF)
+	{
+		putchar(c);
+	}
+
+
+###1.5.2 字符计数
+
+###1.5.3 行计数
+
+###1.5.4 单词计数
+
+##1.6 数组
+
+##1.7 函数
+
+##1.8 参数——传值调用
+
+##1.9 字符数组
+
+##1.10 外部变量与作用域 
