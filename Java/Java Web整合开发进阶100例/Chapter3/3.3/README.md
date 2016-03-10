@@ -1,0 +1,7 @@
+3.3 使用Action类控制导航业务数据
+
+1. Struts2中每一个具体的Action类其实都是将Struts1种的FormBean类和Action类代码放在一起
+2. Action类中最主要的方法为execute方法，Struts1种共有四个参数。返回一个ActionForward对象。而在Struts2种为了不侵入Servlet的类和方法，同时为了更好地解耦，符合现在Web项目松耦合开发，所以这四个参数都已经不用了。Struts2中返回的也是一个普通字符串，此字符串内容就是之前所述的导航页面的唯一标识。
+3. 代码中用户名和密码两个变量通过get方法得到JSP页面上输入的值内容，
+4. 用户名变量的值在实际项目中有可能会被用到，因此把它放入session属性中。该session和Hibernate中的session是两回事，它是HTTP请求中的session对象。
+5. Action类的每一个实例都是和struts.xml中每一个<action>元素对应。这些struts.xml中的配置信息其实都是在系统开始运行时读入内存，以供系统运行时使用。比如此代码中通过name中的“Login”提交请求信息，control层将信息传递给LoginAction处理，LoginAction实例的execute方法被调用，将所对应的Form数据传入LoginAction，然后进行相应业务逻辑处理。
