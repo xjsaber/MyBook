@@ -1,0 +1,68 @@
+关于Spring中applicationContext.xml路径问题 (2009-02-24 09:01:02)转载▼
+标签： 杂谈 	分类： Spring
+昨天在学习Spring的时候遇到一个比较基本的问题，我在applicationContext.xml中设置了一个bean：
+   <bean id="HelloWorld" class="action.HelloWorld">
+     <property name="msg">
+      <value>HelloWorld in applicationContext.xml</value>
+     </property>
+   </bean>
+test的代码：
+package test;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.FileSystemXmlApplicationContext;
+import action.HelloWorld;
+public class TestHelloWorld {
+  
+ public static void main(String[] args){
+    
+   ApplicationContext actx = new FileSystemXmlApplicationContext("applicationContext.xml");
+   HelloWorld HelloWorld = (HelloWorld)actx.getBean("HelloWorld");
+   System.out.println(HelloWorld.getMsg())
+ }
+}
+在用test进行测试的时候，编译不过，提示是系统找不到指定的文件，代码如下：
+Exception in thread "main" org.springframework.beans.factory.BeanDefinitionStoreException: IOException parsing XML document from file [D:\大学学习\大四\实验室的任务\workspace\SpringTest\applicationContext.xml]; nested exception is java.io.FileNotFoundException: applicationContext.xml (系统找不到指定的文件。)
+Caused by: java.io.FileNotFoundException: applicationContext.xml (系统找不到指定的文件。)
+ at java.io.FileInputStream.open(Native Method)
+ at java.io.FileInputStream.<init>(Unknown Source)
+ at org.springframework.core.io.FileSystemResource.getInputStream(FileSystemResource.java:85)
+ at org.springframework.beans.factory.xml.XmlBeanDefinitionReader.loadBeanDefinitions(XmlBeanDefinitionReader.java:297)
+ at org.springframework.beans.factory.xml.XmlBeanDefinitionReader.loadBeanDefinitions(XmlBeanDefinitionReader.java:280)
+ at org.springframework.beans.factory.support.AbstractBeanDefinitionReader.loadBeanDefinitions(AbstractBeanDefinitionReader.java:131)
+ at org.springframework.beans.factory.support.AbstractBeanDefinitionReader.loadBeanDefinitions(AbstractBeanDefinitionReader.java:147)
+ at org.springframework.beans.factory.support.AbstractBeanDefinitionReader.loadBeanDefinitions(AbstractBeanDefinitionReader.java:173)
+ at org.springframework.context.support.AbstractXmlApplicationContext.loadBeanDefinitions(AbstractXmlApplicationContext.java:112)
+ at org.springframework.context.support.AbstractXmlApplicationContext.loadBeanDefinitions(AbstractXmlApplicationContext.java:79)
+ at org.springframework.context.support.AbstractRefreshableApplicationContext.refreshBeanFactory(AbstractRefreshableApplicationContext.java:101)
+ at org.springframework.context.support.AbstractApplicationContext.obtainFreshBeanFactory(AbstractApplicationContext.java:389)
+ at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:324)
+ at org.springframework.context.support.FileSystemXmlApplicationContext.<init>(FileSystemXmlApplicationContext.java:93)
+ at org.springframework.context.support.FileSystemXmlApplicationContext.<init>(FileSystemXmlApplicationContext.java:77)
+ at org.springframework.context.support.FileSystemXmlApplicationContext.<init>(FileSystemXmlApplicationContext.java:67)
+ at test.TestHelloWorld.main(TestHelloWorld.java:19)
+后来我把 ApplicationContext actx = new FileSystemXmlApplicationContext("applicationContext.xml");改为 ApplicationContext actx = new FileSystemXmlApplicationContext("src/applicationContext.xml");，加了个src/，就能正常工作了。
+由于以前参考师姐的代码没遇到要加上src这个路径的问题，昨晚没想通，今早一来再看代码，发现师姐用的不是FileSystemXmlApplicationContext，而是ClassPathXmlApplicationContext，于是又明白了点东西。
+ 
+    对于ClassPathXmlApplicationContext()，classpath: 前缀是不需要的，默认就是指项目的classpath路径下面（src下面）；如果要使用绝对ClassPathXmlApplicationContext()路径，需要加上file: 前缀表示这是绝对路径；
+   对于FileSystemXmlApplicationContext（），默认表示的是两种：
+     1，没有盘符的是项目工作路径， 即项目的根目录；
+     2，有盘符表示的是文件绝对路径。
+     3，如果要使用classpath路径，需要前缀classpath:      
+例如：
+用ClassPathXmlApplicationContext()：
+1、ApplicationContext factory=new ClassPathXmlApplicationContext("classpath:applicationContext.xml");
+ 
+2、ApplicationContext factory=new ClassPathXmlApplicationContext("applicationContext.xml");
+ 
+3、ApplicationContext factory=new ClassPathXmlApplicationContext("file:D:\大学学习\大四\实验室的任务\workspace\SpringTest\src\applicationContext.xml");
+ 
+用FileSystemXmlApplicationContext（）：
+1、 ApplicationContext factory=new FileSystemXmlApplicationContext("src/applicationContext.xml");    
+ 
+2、ApplicationContext factory=new FileSystemXmlApplicationContext("classpath:applicationContext.xml");
+ 
+3、ApplicationContext factory=new FileSystemXmlApplicationContext("file:D:\大学学习\大四\实验室的任务\workspace\SpringTest\src\applicationContext.xml");
+ 
+4、ApplicationContext factory=new FileSystemXmlApplicationContext("D:\大学学习\大四\实验室的任务\workspace\SpringTest\src\applicationContext.xml");
+ 
+为了和师姐保持统一，我还是老老实实使用ClassPathXmlApplicationContext吧~
