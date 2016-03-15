@@ -2,19 +2,19 @@
 
 http://jinnianshilongnian.iteye.com/blog/1508589
 
-【第一章】 Spring概述 ——跟我学Spring3 01
+【第一章】 Spring概述 ——跟我学Spring3
 
-【第二章】 IoC 之 2.1 IoC基础 ——跟我学Spring3 02
+【第二章】 IoC 之 2.1 IoC基础 ——跟我学Spring3
 
-【第二章】 IoC 之 2.2 IoC 容器基本原理 ——跟我学Spring3 03
+【第二章】 IoC 之 2.2 IoC 容器基本原理 ——跟我学Spring3
 
-【第二章】 IoC 之 2.3 IoC的配置使用——跟我学Spring3 04
+【第二章】 IoC 之 2.3 IoC的配置使用——跟我学Spring3
 
-【第三章】 DI 之 3.1 DI的配置使用 ——跟我学spring3 05
+【第三章】 DI 之 3.1 DI的配置使用 ——跟我学spring3
 
-【第三章】 DI 之 3.2 循环依赖 ——跟我学spring3 06
+【第三章】 DI 之 3.2 循环依赖 ——跟我学spring3
 
-【第三章】 DI 之 3.3 更多DI的知识 ——跟我学spring3 07
+【第三章】 DI 之 3.3 更多DI的知识 ——跟我学spring3
 
 【第三章】 DI 之 3.4 Bean的作用域 ——跟我学spring3
 
