@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SPA Chapter1 section 1.2.5</title>
+    <style type="text/css">
+        body {
+            width : 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #777;
+        }
+        #spa {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            bottom: 8px;
+            right: 8px;
+            -webkit-border-radius: 8px 8px 0 8px;
+            -moz-border-radius: 8px 8px 0 8px;
+            border-radius: 8px 8px 0 8px;
+            background-color: #fff;
+        }
+        .spa-slider {
+            position: absolute;
+            bottom: 0;
+            right: 2px;
+            width: 300px;
+            height: 16px;
+            cursor: pointer;
+            border-radius: 8px 0 0 0;
+            background-color: #f00;
+        }
+    </style>
+    <script type="text/javascript" src="jquery-2.2.2.js"></script>
+    <script type="text/javascript">
+        /* jslint browser : true, continue : true,
+         * devel : true, indent : 2, maxerr : 50,
+         * newcap : true, nomen : true, plusplus : true,
+         * regexp : true, sloppy : true, vars : true,
+         * white : true
+         * */
+
+        /* global jQuery*/
+        // Module /spa/
+        // Provides chat slider capability
+        //
+        var spa = (function ( $ ) { //将代码封装在spa名字空间内。
+            //Module scope variables
+            var
+                    // Set constants
+                    //在使用之前声明所有的变量。把模块的配置值保存在configMap中，把模块的状态值保存在stateMap中。
+                    configMap = {
+                        extended_height : 434,
+                        extended_title : "Click to retract",
+                        retracted_height : 16,
+                        retracted_title : 'Click to extend',
+                        template_html : '<div class="spa_slider"><\/div>'
+                    },
+                    // Declare all other modules scope variables
+                    $chatSlider,
+                    toggleSlider, onClickSlider, initModule;
+
+            // DOM method /toggleSlider/
+            // alternates slider height
+            // 添加收起聊天模块的代码。检测滑块
+            toggleSlider = function () {
+                slider_height = $chatSlider.height();
+
+                // extend slider if fully retracted
+                if ( slider_height === configMap.retracted_height ) {
+                    $chatSlider
+                            .animate({ height : configMap.extended_height })
+                            .attr( 'title' , configMap.retracted_height );
+                    return true;
+                }
+                // do not take action if slider is in transition
+                return false;
+            }
+
+            // Event handle /onClickSlider/
+            // receives click event and calls toggleSlider
+            // 把所有的事件处理程序聚集在一个区块中。保持小而专注的处理程序是很好的做法。
+            // 它们应该调用其他方法来更新显示或者修改业务逻辑
+            onClickSlider = function ( event ) {
+                toggleSlider();
+                return false;
+            }
+
+            // Public method /initModule/
+            // sets initial state and provides features
+            // 把所有的公开方法聚集在一个区块中
+            initModule = function ( $container ) {
+                // render HTML
+                // 添加滑块模板的HTML代码，来填充$container
+                $container.html( configMap.template_html );
+                //查找聊天模块div，把它保存到模块作用域变量$chatSlider中。模块作用域变量对spa名字空间内的所有函数可见。
+                $chatSlider = $container.find( '.spa-slider' );
+                // initialize slider height and title
+                // bind the user click event to the event handle
+                // 设置聊天滑块的标题，在滑块上面绑定点击事件处理程序onClickSlider
+                $chatSlider
+                        .attr( 'title', configMap.retracted_title )
+                        .click( onClickSlider );
+
+                return true;
+            };
+
+            //通过返回spa名字空间中的对象，导出公开方法。我们只导出了一个方法： initModule
+            return { initModule : initModule };
+        }( jQuery));
+
+        // Start spa once DOM is ready
+        //
+        jQuery(document).ready(
+                function () {
+                    spa.initModule( jQuery('#spa') );
+                }
+        );
+    </script>
+</head>
+<body>
+    <div id="spa">
+    </div>
+</body>
+</html>
