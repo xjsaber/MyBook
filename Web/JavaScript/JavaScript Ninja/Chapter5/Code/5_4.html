@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>5_4_使用闭包模拟私有变量</title>
+</head>
+<body>
+    <ul id="results"></ul>
+    <style>
+        #results li.pass {color: green;}
+        #results li.fail {color: red;}
+    </style>
+    <script type="text/javascript">
+        /**
+         * 代码显示，即便我们没有对该变量直接赋值，通过方法我们将该变量增加到1了。我们可以操作feints的值，
+         * 是因为即便是该构造器执行完并且已经没有作用域了，feints变量
+         * 还是会绑定在feint()方法声明创建的闭包上（将其想象成被保护气泡），并且可以在feint()方法内进行使用
+         * @constructor
+         */
+        function  Ninja() {
+            var feints = 0;
+
+            this.getFeints = function () {
+                return feints;
+            };
+            this.feint = function () {
+                feints++;
+            };
+        }
+        var ninja = new Ninja();
+        ninja.feint();
+        assert(ninja.getFeints() == 1,
+            "We 're able to access the internal feint count.");
+        assert(ninja.feints == undefined,
+            "And the private data is inaccessible to us.");
+
+        function assert(value, desc) {
+            var li = document.createElement('li');
+            li.className = value ? "pass" : "fail";
+            li.appendChild(document.createTextNode(desc));
+            document.getElementById("results").appendChild(li);
+        }
+    </script>
+</body>
+</html>

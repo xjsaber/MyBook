@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <ul id="results"></ul>
+    <div id="first"></div>
+    <div id="second"></div>
+    <style>
+        #results li.pass {color: green;}
+        #results li.fail {color: red;}
+    </style>
+    <script type="text/javascript">
+        function assert(value, desc) {
+            var li = document.createElement('li');
+            li.className = value ? "pass" : "fail";
+            li.appendChild(document.createTextNode(desc));
+            document.getElementById("results").appendChild(li);
+        }
+        var elems = {
+            /**
+             * 保存元素的个数。如果我们要假装成是数组。那就需要保存元素项的个数
+             */
+            length: 0,
+            /**
+             * 实现将元素添加到集合的方法。Array的原型中的一个方法可以做到
+             * @param elem 元素
+             */
+            add: function (elem) {
+                Array.prototype.push.call(this, elem);
+            },
+            /**
+             * 实现一个gather()方法，根据id值查找元素
+             * @param id 元素的id
+             */
+            gather: function (id) {
+                this.add(document.getElementById(id));
+            }
+        }
+        elems.gather("first");
+        assert(elems.length == 1 && elems[0].nodeType, "Verify that we have an element in our stash");
+        elems.gather("second");
+        assert(elems.length == 2 && elems[1].nodeType, "Verify the other insertion");
+    </script>
+</body>
+</html>

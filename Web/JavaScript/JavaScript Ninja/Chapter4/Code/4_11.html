@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>4_11</title>
+</head>
+<body>
+    <ul id="results"></ul>
+    <div id="first"></div>
+    <div id="second"></div>
+    <style>
+        #results li.pass {color: green;}
+        #results li.fail {color: red;}
+    </style>
+    <script type="text/javascript">
+        function assert(value, desc) {
+            var li = document.createElement('li');
+            li.className = value ? "pass" : "fail";
+            li.appendChild(document.createTextNode(desc));
+            document.getElementById("results").appendChild(li);
+        }
+        /**
+         * 实现一个方法查找最小值
+         * @param array
+         * @returns {number}
+         */
+        function smallest(array) {
+            return Math.min.apply(Math, array);
+        }
+        /**
+         * 实现一个方法查找最大值
+         * @param array
+         * @returns {number}
+         */
+        function largest(array) {
+            return Math.max.apply(Math, array);
+        }
+        assert(smallest([0, 1, 2, 3]) == 0, "Located the smallest value.");
+        assert(largest([0, 1, 2, 3]) == 3, "Located the largest value.");
+    </script>
+</body>
+</html>
