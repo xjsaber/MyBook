@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>5_18_利用即时函数妥善处理迭代问题</title>
+</head>
+<body>
+    <div>DIV 0</div>
+    <div>DIV 1</div>
+    <script type="text/javascript">
+        var divs = document.getElementsByTagName("div");
+
+        for (var i = 0; i < divs.length; i++)( function (n) {
+            divs[n].addEventListener("click", function () {
+                alert("divs #" + n + " was clicked.");
+            }, false);
+        })(i)
+    </script>
+</body>
+</html>

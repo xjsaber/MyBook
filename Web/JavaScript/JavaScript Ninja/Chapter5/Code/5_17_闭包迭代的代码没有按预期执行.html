@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>5_17_闭包迭代的代码没有按预期执行</title>
+</head>
+<body>
+    <div>DIV 0</div>
+    <div>DIV 1</div>
+    <script type="text/javascript">
+        var divs = document.getElementsByTagName("div");
+
+        for (var i = 0; i < divs.length; i++){
+            divs[i].addEventListener("click", function () {
+                alert("divs #" + i + "was clicked.");
+            }, false);
+        }
+    </script>
+</body>
+</html>
