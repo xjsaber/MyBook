@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>6_1_使用原型方法创建一个新实例</title>
+</head>
+<body>
+    <ul id="results"></ul>
+    <style>
+        #results li.pass {color: green;}
+        #results li.fail {color: red;}
+    </style>
+    <script type="text/javascript">
+        function Ninja() {}
+        Ninja.prototype.swingSword = function () {
+          return true;
+        };
+        var ninja1 = new Ninja();
+        assert(ninja1 === undefined,
+            "No instance of Ninja created");
+
+        var ninja2 = new Ninja();
+        assert(ninja2 &&
+            ninja2.swingSword &&
+            ninja2.swingSword(),
+            "Instance exists and method is callable.");
+        function assert(value, desc) {
+            var li = document.createElement('li');
+            li.className = value ? "pass" : "fail";
+            li.appendChild(document.createTextNode(desc));
+            document.getElementById("results").appendChild(li);
+        }
+    </script>
+</body>
+</html>
