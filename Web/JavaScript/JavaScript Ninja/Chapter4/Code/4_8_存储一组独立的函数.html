@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>4_8_存储一组独立的函数</title>
+</head>
+<body>
+    <ul id="results"></ul>
+    <style>
+        #results li.pass {color: green;}
+        #results li.fail {color: red;}
+    </style>
+    <script type="text/javascript">
+        var store = {
+            nextId: 1,
+            cache: {},
+            add: function (fn) {
+                if (!fn.id){
+                    fn.id = store.nextId++;
+                    return !!(store.cache[fn.id] = fn);
+                }
+            }
+        };
+        function ninja() {}
+        assert(store.add(ninja),
+            "Function was safely added.");
+        assert(!store.add(ninja), "But it was only added once.");
+        
+        function assert(value, desc) {
+            var li = document.createElement('li');
+            li.className = value ? "pass" : "fail";
+            li.appendChild(document.createTextNode(desc));
+            document.getElementById("results").appendChild(li);
+        }
+    </script>
+</body>
+</html>

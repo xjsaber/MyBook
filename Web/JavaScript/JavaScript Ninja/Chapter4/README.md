@@ -23,17 +23,64 @@
     	return isPalindrome(text.substr(1, text.length - 2));
     }
 
+#### 关于递归 ####
+有两个条件：引用自身，并且有终止条件。
+
 ### 4.2.2 方法中的递归 ###
 
+	var ninja = {
+        chirp: function (n) {
+            return n > 1 ? ninja.chirp(n - 1) + "-chirp" : "chirp";
+        }
+    }
+    assert(ninja.chirp(3) == "chirp-chirp-chirp",
+        "An object property isn't too confusing, either.");
+这里将递归函数定义成一个匿名函数，并将其引用到ninja对象的chirp属性。在函数内，我们通过对象的ninja.chirp()属性递归调用了函数自身。
+
+### 4.2.3 引用的丢失问题 ###
+一个进行递归调用的对象属性引用。与函数的实际名称不同，这种医用可能是暂时的，这种依赖方式会导致我们很混乱。
+        var ninja = {
+            chirp: function (n) {
+                return n > 1 ? ninja.chirp(n - 1) + "-chirp" : "chirp";
+            }
+        }
+        var samurai = { chirp: ninja.chirp };
+        ninja = {};
+如果ninja消失，samurai依然可以通过samurai.chirp属性进行引用，会出现严重的问题。
+我们可以通过在匿名函数中不再使用显式的ninja引用，而是使用函数上下文（this）进行引用，示例如下：
+
+	var ninja = {
+		chirp: function(n){
+			return n > 1 ? this.chirp(n - 1) + "-chirp" : "chirp";
+		}		
+	}
+PS:当一个函数作为方法被调用时，函数上下文指的是调用该方法的那个对象。调用ninja.chirp()时，this对象引用的是ninja；而调用samurai.chirp()时，this对象引用的则是samurai，都很好用。
+### 4.2.4 内联命名函数 ###
+
+### 4.2.5 callee属性 ###
+
+
 ## 4.3 将函数视为对象 ##
-	
+JS最重要的特性之一是将函数作为第一型对象。函数可以有属性，也可以有方法，可以分配给变量和属性，也可以享有所有普通对象所拥有的特性，而且还有一个超级特性：**它们可以被调用**。
+
 	var obj = {};
 	var fn = function(){};
 	assert(obj && fn, "Both the object and function exist.");
+与可以将对象赋值给变量一样，我们也可以将函数赋值给变量。同样，也可以将函数赋值给对象的一个属性，从而创建一个方法。
+
+另一个惊讶的特性是，和其他对象一样，可以给函数添加属性：
+
+	var obj = {};
+	var fn = function(){};
+	obj.prop = "hitsuke (distraction)";
+	fn.prop = "tanuki(climbing)";
 
 ### 4.3.1 函数存储 ###
 
+PS：!!构造是一个可以将任意JavaScript表达式转化为其等效布尔值的简单方式。
 ### 4.3.2 自记忆函数 ###
+缓存记忆（memoization）是构建函数的过程，这种函数能够记住先前计算的结果。
+#### 缓存记忆昂贵的计算结果 ####
 优点
 * 在函数调用获取之前计算结果的时候，最终用户享有性能优势。
 * 发生在幕后，完全无缝，最终用户和页面开发人员都无需任何特殊操作或为此作任何额外的初始化工作。

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>5_8_给时间处理程序绑定特定的上下文</title>
+</head>
+<body>
+    <ul id="results"></ul>
+    <button id="test">Click Me!</button>
+    <style>
+        #results li.pass {color: green;}
+        #results li.fail {color: red;}
+    </style>
+    <script type="text/javascript">
+        /**
+         * 定义一个binding函数，封装了一个其他对象上的方法
+         */
+        function bind(context, name) {
+            return function () {
+                return context[name].apply(context, arguments);
+            }
+        }
+        /**
+         *
+         * @type {{clicked: boolean, click: button.click}}
+         */
+        var button = {
+            /**
+             * 声明一个对象保存button的状态，用于跟踪button是否被单击过
+             */
+            clicked: false,
+            /**
+             * 定义一个方法作为click事件处理程序。由于它是一个对象方法，所以在函数内部使用this获取该对象
+             */
+            click: function () {
+                this.clicked = true;
+                assert(button.clicked, "The button has been clicked");
+                console.log(this);
+            }
+        };
+        var elem = document.getElementById("test");
+        elem.addEventListener("click", bind(button, "click"), false);
+        function assert(value, desc) {
+            var li = document.createElement('li');
+            li.className = value ? "pass" : "fail";
+            li.appendChild(document.createTextNode(desc));
+            document.getElementById("results").appendChild(li);
+        }
+    </script>
+</body>
+</html>
