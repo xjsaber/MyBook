@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>6_7_尝试用原型实现继承</title>
+</head>
+<body>
+    <ul id="results"></ul>
+    <style>
+        #results li.pass {color: green;}
+        #results li.fail {color: red;}
+    </style>
+    <script type="text/javascript">
+        function Person() {}
+        Person.prototype.dance = function () {};
+
+        function Ninja() {}
+
+        Ninja.prototype = { dance: Person.prototype.dance };
+        var ninja = new Ninja();
+        assert(ninja instanceof Ninja, "ninja receives functionality from the Ninja prototype");
+        assert(ninja instanceof Person, "... the Person prototype");
+        assert(ninja instanceof Object, "... and the Object prototype");
+
+        function assert(value, desc) {
+            var li = document.createElement('li');
+            li.className = value ? "pass" : "fail";
+            li.appendChild(document.createTextNode(desc));
+            document.getElementById("results").appendChild(li);
+        }
+    </script>
+</body>
+</html>

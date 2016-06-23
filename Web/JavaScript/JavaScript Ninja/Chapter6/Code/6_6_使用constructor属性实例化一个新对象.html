@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>6_6_使用constructor属性实例化一个新对象</title>
+</head>
+<body>
+    <ul id="results"></ul>
+    <style>
+        #results li.pass {color: green;}
+        #results li.fail {color: red;}
+    </style>
+    <script type="text/javascript">
+        function Ninja() {}
+        var ninja = new Ninja();
+        var ninja2 = new ninja.constructor();
+
+        assert(ninja2 instanceof Ninja, "It's a Ninja!");
+
+        assert(ninja != ninja2,
+                "But not the same Ninja!");
+
+        function assert(value, desc) {
+            var li = document.createElement('li');
+            li.className = value ? "pass" : "fail";
+            li.appendChild(document.createTextNode(desc));
+            document.getElementById("results").appendChild(li);
+        }
+    </script>
+</body>
+</html>
