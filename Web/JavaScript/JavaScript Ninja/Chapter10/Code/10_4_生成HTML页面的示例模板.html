@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>10_4_生成HTML页面的示例模板</title>
+</head>
+<body>
+    <style>
+        #results li.pass {color: green;}
+        #results li.fail {color: red;}
+    </style>
+    <script type="text/tmpl" id="colors" >
+    <p>Here's a list of <%=items.length %> item:</p>
+    <ul>
+        <% for (var i = 0; i < items.length; i++){ %>
+            <li style="color:<%= colors[i % colors.length] %>">
+                <%= items[i] %>
+            </li>
+        <% } %>
+    </ul>
+    and here's another...
+    </script>
+    <script type="text/tmpl" id="colors2">
+        <p>Here's a list of <%= items.length %> items:</p>
+        <ul>
+            <% for (var i = 0; i < items.length; i++){
+                print("<li style='color:", colors[i % colors.length], "'>", items[i], "</li>");
+            } %>
+        </ul>
+    </script>
+    <script type="text/javascript" src="tmpl.js"></script>
+    <script type="text/javascript">
+        var colorArray = ['red', 'green', 'blue', 'orange'];
+        var items = [];
+        for (var i = 0; i < 10000; i++){
+            items.push("test");
+        }
+
+        function replaceContent(name) {
+            document.getElementById("content").innerHTML = tmpl(name, {colors: colorArray, items: items});
+        }
+
+        window.onload = function () {
+            assert( tmpl("Hello, <%= name%>!", {name: "world"}) == "Hello, world !", "Do simple variable inclusion." );
+            var hello = tmpl("Hello, <%=name%>!");
+            assert( hello({name: "world"}) == "Hello, world !", "Use a pre-compiled templates." );
+            console.log(tmpl("Hello, <%= name%>!", {name: "world"}));
+            console.log(tmpl(hello({name: "world"})));
+        }
+
+        function assert(value, desc) {
+            var li = document.createElement('li');
+            li.className = value ? "pass" : "fail";
+            li.appendChild(document.createTextNode(desc));
+            document.getElementById("results").appendChild(li);
+        }
+    </script>
+    <input type="button" value="Run Colors" onclick="replaceContent('colors')"/>
+    <input type="button" value="Run Colors2" onclick="replaceContent('colors2')"/>
+    <p id="content">Replaced Content will go here</p>
+    <ul id="results"></ul>
+</body>
+</html>
