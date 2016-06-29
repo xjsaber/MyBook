@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>9_8_创建一个在页面加载后才执行的脚本标签类型</title>
+</head>
+<body>
+<ul id="results"></ul>
+<style>
+    #results li.pass {color: green;}
+    #results li.fail {color: red;}
+</style>
+<script type="text/javascript">
+    window.onload = function () {
+        var scripts = document.getElementsByTagName("script");
+        for (var i = 0; i < scripts.length; i++){
+            globalEval(scripts[i].innerHTML);
+        }
+    };
+    function globalEval(data) { //定义一个全局eval函数
+        data = data.replace(/^\s*|\s*$/g, "");
+        if (data){
+            var head = document.getElementsByTagName("head")[0] ||
+                            document.documentElement,
+                    script = document.createElement("script"); //创建一个script节点
+            script.type = "text/javascript";
+            script.text = data;
+
+            head.appendChild(script);   //将script节点附加到DOM上
+            head.removeChild(script);   //再去除它
+        }
+    }
+    function assert(value, desc) {
+        var li = document.createElement('li');
+        li.className = value ? "pass" : "fail";
+        li.appendChild(document.createTextNode(desc));
+        document.getElementById("results").appendChild(li);
+    }
+</script>
+<script type="x/onload">
+    assert(true, "Executed on page load");
+</script>
+</body>
+</html>
