@@ -33,3 +33,42 @@ char类型用于表示单个字符。通常用来表示字符常量。
 ## 3.5 运算符 ##
 
 ### 3.5.7 括号与运算符级别 ###
+
+### 3.5.8 枚举类型 ###
+
+## 3.6 字符串 ##
+Java字符串就是Unicode字符序列。
+
+### 3.6.1 子串 ###
+String类的substring方法可以从一个较大的字符串提取一个子串。
+
+### 3.6.2 拼接 ###
+
+### 3.6.3 不可变字符串 ###
+String类对象称为不可变字符串
+### 3.6.4 检测字符串是否相等 ###
+
+    s.equals(t)
+千万不要使用==运算符测试字符串的相等性
+
+### 3.6.5 空串与Null串 ###
+空串“”是长度为0的字符串。
+if(str.length() == 0)
+或
+if*str.equals(""))
+
+### 3.6.6 代码点与代码单元 ###
+Java字符串由char序列组成。
+
+### 3.6.7 字符串API ###
+
+### 3.6.8 阅读联机API文档 ###
+
+### 3.6.9 构建字符串 ###
+
+	StringBuilder sb = new StringBuilder();
+	//每次需要添加一部分内容时，就调用append方法
+	sb.append(ch); //appends a single character
+	sb.append(str); //appends a string
+	//
+	String completedString = builder.toString();
