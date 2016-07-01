@@ -62,6 +62,31 @@ Java字符串由char序列组成。
 
 ### 3.6.7 字符串API ###
 
+* char charAt(int index)
+* int codePointAt(int index)
+* int offsetByCodePoints(int startIndex, int cpCount)
+* int compareTo(String other)
+* boolean endsWith(String suffix)
+* boolean equals(Object other)
+* boolean equalsIgnoreCase(String other)
+* int indexOf(String str)
+* int indexOf(String str, int fromIndex)
+* int indexOf(int cp)
+* int indexOf(int cp, int fromIndex)
+* int lastIndexOf(String str)
+* int lastIndexOf(String str, int fromIndex)
+* int lastIndexOf(int cp)
+* int lastIndexOf(int cp, int fromIndex)
+* int length()
+* int codePointCount(int startIndex, int endIndex)
+* String replace(CharSequence oldString, CharSequence newString)
+* boolean startsWith(String prefix)
+* String substring(int beginIndex)
+* String substring(int beginIndex, int endIndex)
+* String toLowerCase()
+* String toUpperCase()
+* String trim()
+
 ### 3.6.8 阅读联机API文档 ###
 
 ### 3.6.9 构建字符串 ###
@@ -72,3 +97,60 @@ Java字符串由char序列组成。
 	sb.append(str); //appends a string
 	//
 	String completedString = builder.toString();
+
+Java.langStringBuilder 5.0
+
+* StringBuilder() 构造一个空的字符串构建器
+* int length() 返回构建起或缓冲器中的代码单元数量。
+* StringBuilder append(String str)
+* StringBuilder append(char c)
+* StringBuilder appendCodePoint(int cp)
+* void setCharAt(int i, char c)
+* StringBuilder insert(int offset, String str)
+* StringBuilder insert(int offset, Char c)
+* StringBuilder delete(int startIndex, int endIndex)
+* String toString()
+
+## 3.7 输入输出 ##
+
+### 3.7.1 读取输入 ###
+
+* 标准输出流 System.out.println
+* 标准输入流 System.in 要想通过控制台进行输入，首先需要构造一个Scanner对象，并与“标准输入流”System.in关联。`Scanner in = new Scanner(System.in)`
+
+Java.util.Scanner5.0
+
+* Scanner(InputStream in)
+* String nextLine()
+* String next()
+* itn nextInt()
+* double nextDouble
+* boolean hasNext()
+* boolean hasNextInt()
+* boolean hasNextDouble()
+
+Java.lang.System1.0
+
+* static Console console() 
+
+Java.io.Console 6
+
+* static char[] readPassword(String prompt, Object...args)
+* static String readLine(String prompt, Object...args)
+
+### 3.7.2 格式化输出 ###
+double x = 10000.0 / 3.0
+System.out.print(x);
+
+
+| 标志        | 目的           | 举例  |
+| ------------- |:-------------:| -----:|
+| 0      | 数字前面补0 | 003333.33 |
+| (      | 将负数括在括号内      | (3333.33) |
+| . | 添加分组分隔符      |  3,333.33   |
+| #(对于f格式) | 包含小数点      |  3,333.   |
+| #(对于x或0格式) | 添加前缀0x或0 |  3,333   |
+| $ | 给定被格式化的参数索引。例如.%1$d, %1$x将以十进制和十六进制格式化打印第1个参数      |  159 9F  |
+| < | 格式化前面说明的数值。例如，%d%<x以十进制和十六进制打印同一个数值      |  159 9F  |
+
+可以用静态的String.format方法创建一个格式化的字符串，而不打印输出:String message = String.format("Hello, %s.Next year，you'll be %d", name, age);
