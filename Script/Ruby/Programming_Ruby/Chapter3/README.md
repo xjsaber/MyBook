@@ -1,44 +1,52 @@
-# 第3章 类、对象和变量 #
-## 2.1 Ruby是一门面向对象语言 ##
+# 第3章 类、对象和变量 Classes,Objects,and Variables #
 
-## 2.2 Ruby的一些基本知识 ##
-
-## 2.3 数组和散列表 ##
-数组(arrays)和散列表（hashes）是被索引的收集（indexed collections）。
-使用数组字面量（array literal）——即方括号之间放一组元素——可以创建和初始化
-
-## 2.4 控制结构 ##
-如果if或while语句的程序体只是一个表达式，Ruby的语句修饰符（statement modifiers）是一种有用的快捷方式。
-
-	if radiation > 3000
-	  puts "Danger, Will Robinson"
+	class Song
+	  def initialize(name, artist, duration)
+		@name = name
+		@artist = artist
+		@duration = duration
+	  end
 	end
-用语句修饰符重新编写了同样这个例子
+initialize是一个特殊的方法。当你调用Song.new创建一个新的Song对象时，Ruby首先分配一些内存来保存未初始化的对象，然后调用对象的
+initizlize方法，并把调用new时所使用的参数传入该方法。
 
-	puts "Danger, While Robinason" if radiation > 3000
-同样地，下面是while循环语句
+initialize遵循了局部变量的命名的约定，即以小写字母开头。
 
-	square = 2
-	while square < 1000
-	  square = square*square
+每个Song对象带有自己的歌曲名、演唱者和时长，这意味着我们需要将这些值作为实例变量（instance variables）保存在对象中。对象内的所有方法都可以访问实例对象，每个对象都有实例变量的拷贝。
+
+在Ruby中，实例变量就是一个由@开头的名字。
+
+inspect方法（可以发送给任何对象）默认将对象的ID和实例变量格式化。
+to_s可以发送给任何一个想要输出字符串表示的对象。
+
+## 3.1 继承和消息 Inheritance and Messages ##
+挤成允许你创建一个类，作为另一个类的精炼（refinement）和特化（specialization）。
+类定义一行中的“< Song”告诉Ruby，KaraokeSone是Song的子类（subclass）。
+
+## 3.2 对象和属性 Objects and Attribute ##
+一个对象的外部可见部分被称为其属性（attribute）。
+
+### 3.2.1 可写的属性 Writable Attributes ###
+在Ruby中，访问对象属性就像访问其他变量一样，在Ruby中，你可以通过创建一个名字以等号结尾的方法来达成这一目标。
+
+	class Song
+	  def duration = (new_duration)
+		@duration = new_duration
+	  end
 	end
-用语句修饰符，这个语句变得更简洁了。
-
-	square = 2
-	square = square * square while square < 1000
-
-## 2.5 正则表达式 ##
-字符类（character classes）如\s，它匹配空白字符（空格符、制表符、回车换行符等等）；\d匹配任何数字；还有\w，它匹配会出现在一个词内的任何字符。一个点（.）匹配几乎任意字符。
-
-## 2.6 Block和迭代器 ##
-	def call_block
-	  puts "Start of method"
-	  yield
-	  yield
-	  puts "End of method"
+	song = Song.new("Bicyclops", "Flect", 260)
+	song.duration ->260
+	song.duration = 257 # set attribute with updated value
+	song.duration ->256
+	#同理
+	class Song
+	  attr_writer :duration
 	end
+	song...
+	song.duration = 257
 
-	call_block {puts "In the block"}
+### 3.2.2 虚拟属性 Virtual Attribute ###
+这类属性访问的方法并不必须是对象实例变量的简单包装（wrapper）。
 
-## 2.7 读/写文件 ##
+
 
