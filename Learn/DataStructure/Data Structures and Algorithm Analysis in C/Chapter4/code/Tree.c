@@ -1,11 +1,29 @@
 //
-// Created by xjsaber on 2016/8/3.
+// Created by xjsaber on 2016/8/4.
 //
-typedef struct TreeNode *PtrToNode;
+#ifdef _Tree_H
+struct TreeNode;
+typedef struct TreeNode *Position;
+typedef struct TreeNode *SearchTree;
+
+SearchTree MakeEmpty(SearchTree T);
+#endif _Tree_H
+
+//
 struct TreeNode
 {
     ElementType Element;
-    PtrToNode FirstChild;
-    PtrToNode NextSibling;
+    SearchTree Left;
+    SearchTree Right;
 };
 
+SearchTree
+MakeEmpty(SearchTree T)
+{
+    if (T != null){
+        MakeEmpty( T->left );
+        MakeEmpty( T->right );
+        MakeEmpty( T );
+    }
+    return null;
+}
