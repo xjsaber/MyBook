@@ -114,5 +114,6 @@ SearchTree Insert(ElementType X, SearchTree T)
     {
         T->Right = Insert(X, T->Right);
     }
-    return nullptr;
+    /* Else X is in the tree already; we'll do nothing */
+    return T;
 }
