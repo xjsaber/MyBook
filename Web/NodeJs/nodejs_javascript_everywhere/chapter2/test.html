@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<script>
+    function a (){
+        console.log(this.hello == "world");//true
+    }
+    var b = a.bind({hello: '123'});
+    b();
+</script>
+</body>
+</html>
