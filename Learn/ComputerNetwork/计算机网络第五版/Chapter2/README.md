@@ -58,4 +58,20 @@
 
 最基本的复用就是频分复用FDM（Frequency Division Multiplexing）和时分复用TDM（Time Division Multiplexing）。
 
+在进行通信是，复用器（multiplexer）总是和分用器（demultiplexer）成对地使用。复用器（用户共享的告诉信道），分用器（把高速信道传送过来的数据进行分用）。
+
+### 2.4.2 波分复用 ###
+波分复用WDM（Wavelenght Division Multiplexer）就是光的频分复用。
+
+### 2.4.3 码分复用 ###
+码分复用CDM（Code Division Multiplexing）
+
+向量S（-1-1-1+1+1-1+1+1），同时设向量T为（-1-1+1-1+1+1+1-1）,这相当于T站的码片序列为0010110.
+
+## 2.5 数字传输系统 ##
+1.脉码调制PCM体制
+
+2.同步光纤网SONET和同步数字序列SDH
+
+
 
