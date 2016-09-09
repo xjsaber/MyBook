@@ -1,215 +1,110 @@
-# chapter2 JavaScript概览 #
+# chapter3 Node编程基础 #
 
-## JavaScript基础 ##
+## 3.1 Node功能的组织和重用 ##
 
-### 类型 ###
+### 3.1.1 创建模块 ###
+典型的模块是一个包含exports对象属性定义的文件，这些属性可以是任意类型的数据，比如：字符串、对象和函数。
 
-* 基本类型包括number、 boolean、 string、 null以及undefined。
-* 复杂类型包括array、 function以及object。
+### 3.2.1 用回调处理一次性事件 ###
+回调是一个函数，它被当作参数传给异步函数，它描述了异步操作完成之后要做什么。
+template.html
 
-### 类型的困惑 ###
+### 3.2.2 用事件发射器处理重复性事件 ###
+
+	socket.on("data", handleData);
+
+#### 1. 事件发射器示例 ####
+echo服务器就是个处理重复性事件的简单例子。当你给它发送数据时，它会把那个数据发回来。
+
+
+	var net = require("net");
 	
-	var a = 'woot';
-	var b = new String('woot');
-	a + b; // 'woot woot'
-对这两个变量使用typeof和instanceof操作符
-	
-	typeof a; // 'string'
-	typeof b; // 'object'
-	a instanceof String; // false
-	b instanceof String; // true
-并且使用==操作符绑定时两者相等，而使用===操作符判定时并不相同:
+	var server = net.createServer(function(socket){
+		socket.on("data", function(data){
+			socket.write(data);
+		});
+	});	
+	server.listen(8888);
 
-	a == b; //true
-	a === b; //false
-	
-typeof不会把null识别为类型为null
+#### 2.响应只应该发生一次的事件 ####
+监听器可以被定义成持续不断地响应事件。
 
-### THIS、FUNCTION#CALL以及FUNCTION#APPLY ###
-	function a() {
-		window == this;
+用 once 方法响应单次事件
+
+#### 3. 创建事件发射器：一个PUB/SUB的例子 ####
+
+#### 4. 扩展事件监听器：文件监视器 ####
+如果你想在事件发射器的基础上构建程序，可以创建一个新的JavaScript类的继承事件发射器。
+
+	function Watcher(watchDir, processedDir) {
+		this.watchDir = watchDir;
+		this.processedDir = processdDir;
 	}
-this的值是全局对象，使用.call和.apply方法改变this的值。
 
-### 函数的参数数量 ###
-参数数量，该属性指明函数声明时可接收的参数数量。
-
-	var a = function (a, b, c);
-	a.length == 3; //true
-
-### 闭包 ###
-在某个作用域钟定义的变量只能在该作用域或其内部作用域（该作用域钟定义的作用域）钟才能访问到：
+### 3.2.3 异步开发的难题 ###
+事件轮询的条件、程序变量，以及其他随着程序逻辑执行而发生变化的资源。
 	
-	var a = 5;
-	function woot() {
-		a == 5; //true
-		var a == 6;
-		function test(){
-			a == 6; //true
+	function asyncFunction(callbaack) {
+		setTimeout(ballback, 200);
+	}
+	var color = "blue";
+
+	(function(color) { 
+		asyncFunction(function() {
+			console.log("The color is " + color)'
+		})
+	})(color);
+	color = "green";
+
+## 3.3 异步逻辑的顺序化 ##
+在异步程序的执行过程中，有些任务可能会随时发生，跟程序中的其他部分在做什么没有关系。
+![图3-9](img/图3-9.png)
+
+### 3.3.1 什么时候使用串行流程控制 ###
+可以使用回调让几个异步任务按顺序执行，单如果任务很多，必须组织一下，否则过多的回调嵌套会把代码搞得很乱。
+	
+	setTimeout(function(){
+		console.log("first");
+		setTimeout(function(){
+			console.log("next");
+			setTimeout(function(){
+				console.log("last");
+			}, 100);
+		}, 500);
+	}, 1000);
+
+你也可以用Nimble这样的流程控制工具执行这些任务。Nimble用起来简单直接，并且
+它的代码量很小（经过缩小化和压缩后只有837个字节）。下面这个命令是用来安装Nimble的：
+
+	var flow = require("nimble");
+	
+	flow.series([
+		function(callback){
+			setTimeout (function(){
+				console.log("first");
+				callback();
+			}, 1000);
+		},
+		function(callback){
+			setTimeout (function(){
+				console.log("next");
+				callback();
+			}, 500);
+		},
+		function(callback){
+			setTimeout (function(){
+				console.log("last");
+				callback();
+			}, 100);
 		}
-		test();
-	}
-	woot();
+		]);
 
-JavaScript中没有class关键字。类只能通过函数来定义：
-	
-	function Animal() {}
-要给所有Animal的实例定义函数，可以通过prototype属性来完成：
+### 3.3.2 实现串行化流程控制 ###
 
-	Animal.prototype.eat = function (food) {
-		//eat method
-	}
-在prototype的函数内部，this并非像普通函数那样指向global对象，而是指向通过该类创建的实例对象：
-	
-	function Animal (name) {
-		this.name = name;
-	}
-	Animal.prototype.getName() {
-		return this.name;
-	};
-	var animal = new Animal('duck');
-	a.getNam() == 'duck'; //true
+### 3.3.3 实现并行化流程控制 ###
+让异步并行执行，仍然是要把任务放到数组中，但任务的存放顺序无关紧要。
 
-### 继承 ###
-JavaScript有基于原型的继承的特点。通常，可以通过以下方式来模拟类继承。
+### 3.3.4 利用社区里的工具 ###
 
-定义一个要继承自Animal的构造器：
+## 3.4 小结 ##
 
-	function Ferret () {};
-要定义继承链，首先创建一个Animal对象，然后将其赋值给Ferret.prototype。
-
-	//实现继承
-	Ferret.prototype = new Animal();
-随后，可以为子类定义属性和方法：
-
-	//为所有ferrets实例定义type属性
-	Ferret.prototype.type = 'domestic';
-还可以通过prototype来重写和调用父类函数：
-
-	Ferret.prototype.eat = function(food) {
-		Animal.prototype.eat.call(this. food);
-		// ferret特有的逻辑写在这里
-	}
-
-### TRY {} CATCH {} ###
-当函数抛出错误时，代码就停止执行了：
-
-	function (){
-		throw new Error('h1');
-		console.log('h1'); //这里永远不会被执行到
-	}
-若使用try/catch则可以进行错误处理，并让代码继续执行下去
-	
-	function() {
-		var a = 5;
-		try {
-			a();	
-		} catch(e) {
-			e instanceof Error; // true
-		}
-
-		console.log('you got here!');
-	}
-
-## V8中的JavaScript ##
-
-### OBJECT#KEYS ###
-要想获取下述对象的键（a和c）：
-	
-	var a = {a : 'b', c: 'd'};
-通常会使用如下迭代的方式：
-	
-	for (var i in a) { }
-通过对键进行迭代，可以将它们收集到一个数组中。不过，如果采用如下方式对Object.prototype进行过扩展:
-	
-	Object.prototype.c = 'd';
-为了避免在迭代过程中把c也获取到，就需要使用hasOwnProperty来进行检查：
-
-	for (var i in a) {
-		if (a.hasOwnProperty(i)) {}
-	}
-在V8种，要获取对象上所有的自有键，还有更简单的方法：
-	
-	var a = { a: 'b', c: 'd'};
-	Object.keys(a); // ['a', 'c']
-
-### ARRAY#ISARRAY ###
-对数组使用typeof操作符会返回object。
-Array.isArray对数组返回true，对其他值则返回false：
-	
-	Array.isArray(new Array); //true
-	Array.isArray([]); //true
-	Array.isArray(null) //false
-	Array.isArray(arguments) // false
-
-### 数组方法 ###
-要遍历数组，可以使用forEach(类似jQuery的$.each):
-	
-	//会打印出1,2,3
-	[1, 2, 3].forEach(function (v)) {
-		console.log(v);
-	});
-要过滤数组元素，可以使用filter(类似jQuery的$.grep):
-	
-	//会返回[1,2]
-	[1, 2, 3].forEach(function (v)) {
-		return v < 3;
-	});
-要改变数组中的每个元素的值，可以使用map(类似jQuery的$.map):
-	
-	//会返回[10,20,30]
-	[5, 10, 15].forEach(function (v)) {
-		return v * 3;
-	});
-V8还提供了一些不太常用的方法，如reduce、 reduceRight以及lastIndexOf。
-
-### 字符串方法 ###
-要移除字符串首末的空格，可以使用
-
-	' hello '.trim(); // 'hello'
-### JSON ###
-V8提供了JSON.stringify和JSON.parse方法来对JSON数据进行解码和编码。
-
-	var obj = JSON.parse('{"a": "b"}');
-	obj.a == 'b'; //true
-
-### FUNCTION#BIND ###
-.bind(类似jQuery的$.proxy)允许改变对this的引用：
-
-	function a (){
-		this.hello == 'world'; //true
-	}
-	var b = a.bind({hello: 'world'});
-	b();
-
-### FUNCTION#NAME ###
-V8还选择支持非标准的函数属性名
-
-	var a = function woot() {};
-	a.name == 'woot'; // true
-当有错误抛出时，V8会显示一个堆栈追踪的信息，会告诉你时哪个函数调用导致了错误的发生：
-	
-	> var woot = function() {throw new Error();};
-	> woot()
-	Error
-		at [object Context]:1:32
-在上述例子中，V8无法为函数引用指派名字。然而，如果对函数进行命名，v8就能在显示堆栈信息时将名字显示出来：
-
-为函数命名有助于调试，因此，推荐始终对函数进行命名。
-
-### _PROTO_(继承) ###
-_proto_使得定义继承链变得更加容易：
-
-	function Animal() {}
-	function Ferret() {}
-	Ferret.prototype._proto_ = Animal.prototype;
-可免去如下的工作：
-
-* 像上一章节介绍的，借助中间构造器。
-* 借助OOP的工具类库。无须再引入第三方模块来进行基于原型继承的声明。
-
-### 存取器 ###
-可以调用方法来定义属性，访问属性就使用_defineGetter_、设置属性就使用_defineSetter_。
-
-## 小结 ##
-V8威武
