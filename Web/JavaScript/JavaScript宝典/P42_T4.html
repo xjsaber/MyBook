@@ -1,0 +1,24 @@
+<html>
+<head>
+<title>Sum Maker</title>
+<script type="text/javascript">
+<!--
+function addIt(){
+	var value1 = document.getElementById("inputA").value;
+	var value2 = document.getElementById("inputB").value;
+	document.getElementById("output").value = parseInt(value1) + parseInt(value2);
+	}
+-->
+</script>
+</head>
+
+<body>
+<form name="adder">
+	<input type="text" name="inputA" id="inputA" value="0" size="4" /><br/>		
+	<input type="text" name="inputB" id="inputB" value="0" size="4" />	
+	<input type="button" value="Add" onclick="addIt()" />	
+	<hr/>
+	<input type="text" name="output" id="output" size="6"/>
+</form>
+</body>
+</html>

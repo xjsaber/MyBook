@@ -1,0 +1,20 @@
+<html>
+<head>
+<title>A SubDocument</title>
+<script type="text/javascript">
+<!-- start
+function newWindow(){
+	window.open("P102_11-1.html","sub","height=200,width=200");
+}
+
+-->
+</script>
+</head>
+
+<body>
+<form onsubmit="return false">
+Enter text to be copied to the main window:
+<input type="text" onchange="opener.document.forms[0].entry.value = this.value">
+</form>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<html>
+<head>
+<title>Example 11.6 Anchors对象的遍历</title>
+</head>
+<body>
+  <h1>
+	<label id="title">123</label>
+  </h1>
+  <hr/>
+    <a name="a1">1</a>
+	<a name="a2">2</a>
+	<a name="a3">3</a>
+	<a>4</a>
+	<a>5</a>
+  <script type="text/javascript">
+  <!--
+	  function dwn(s){
+		document.write(s + "<br/>");
+	  }
+	  //要注意的是，只有name属性的a标签才会被加入anchors
+	  for(var i=0; i<document.anchor.length; i++){
+		dwn(document.anchors[i].name);
+	  }
+  -->
+  </script>
+</body>
+</html>

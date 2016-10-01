@@ -1,0 +1,40 @@
+<html>
+<head>
+</head>
+
+<body>
+  <form id="form1" runat="server">
+    <div style=" height:600px;">
+      <table style="width:100px; position:absolute; left:50px; top:50px; height: 84px;" 
+        border="1px" onmousedown="mousedown()" onmousemove="f_move()" =>
+        <tr><td style="background-color:Orange;cursor:move" align="center"></td></tr>
+        <tr><td style="background-color:Blue;height:60px;" align="center" ></td></tr>
+      </table>
+    </div>
+  </form>
+<script type="txt/javascript">
+<!--
+var currentMoveObj = null;
+var relLeft = null;
+var relTop = null;
+function mousedown(obj)
+{
+  currentMoveObj = obj;
+  currentMoveObj.setCapture();
+  currentMoveObj.style.position = "absolute";
+  relLeft = event.x - currentMoveObj.style.pixelLeft;
+  relTop = event.y - currentMoveObj.style.pixelTop;
+} 
+  window.document.attachEvent("onmouseup",function(){
+    currentMoveObj.releaseCapture();
+    currentMoveObj = null;  
+  })
+function f_move(obj)
+{
+  currentMoveObj.style.pixelLeft = event.x - relLeft;
+  currentMoveObj.style.pixelTop = event.y - relTop;
+}
+-->
+</script>
+</body>
+</html>

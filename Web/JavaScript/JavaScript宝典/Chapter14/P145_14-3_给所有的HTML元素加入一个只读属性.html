@@ -1,0 +1,21 @@
+<html>
+  <head>
+    <title>accessKey Property</title>
+	<script type="text/javascript">
+	function modify(){
+		var newElem = document.createElement("p");
+		newElem.id = "newP";
+		var newText = document.createTextNode("This is the second paragraph.");
+		newElem.appendChild(newText);
+		document.body.appendChild(newElem);
+		document.getElementById("emphasis1").childNodes[0].nodeValue = "first";
+	}
+	</script>
+  </head>
+  <body>
+		<button onclick="modify()">Add/Replace Text</button>
+		
+		<p id="paragraph1">This is the <em id="emphasis1">one and only
+		</em> paragraph on the page.</p>
+  </body>
+</html>

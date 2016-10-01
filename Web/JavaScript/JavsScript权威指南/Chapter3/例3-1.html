@@ -1,0 +1,16 @@
+<script type="text/javascript">
+//First we illustrate copting by value
+var n = 1; // Variable n holds the value 1
+var m = n; // Copy by value: variable m holds a distinct value 1
+
+// Here's a function we'll use to illustrate passing by value
+// as we'll see, the function dosen't work the way we'd like it to
+function add_to_total(total, x)
+{
+	total = total + x;
+	alert(total);
+}
+
+add_to_total(n, m);
+if( n == 1) m = 2;
+</script>

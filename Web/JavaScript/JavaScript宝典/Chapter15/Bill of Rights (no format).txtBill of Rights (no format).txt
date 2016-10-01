@@ -1,0 +1,5 @@
+classid="clsid:333C7BC4-460F-11D0-BC04-0080C7055A83">
+		<param name="DataURL" value="Bill of Rights.txt" />
+		<param name="UseHeader" value="True" />
+		<param name="FieldDelim" value="&#09;" />
+	</object> <object id="rights_raw"

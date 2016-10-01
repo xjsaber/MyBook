@@ -1,0 +1,26 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<title>Example-5.1</title>
+</head>
+
+<body>
+<script type="text/javascript">
+<!--
+	var str = "www.google.com"
+	var pos = str.indexOf(".");
+	alert (pos);
+	document.write(str.substring(pos+1) + "<br/>");  //substring获取从指定索引位置开始的子串。
+	var parts = str.split(".");  //split分割字符串。
+	document.write(parts[2] + "<br/>");
+	pos = str.search("google");  //search匹配字符串，返回匹配处索引
+	document.write(pos + "<br/>");
+	str = str.replace("google","baidu");
+	document.write(str);
+-->
+</script>
+</body>
+
+</html>

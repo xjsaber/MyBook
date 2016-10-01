@@ -1,0 +1,36 @@
+<html>
+<head>
+<title>Image Object</title>
+<script type="text/javascript">
+<!-- start
+var imageLibrary = new Array();
+imageLibrary["image1"] = new Image(120,90);
+imageLibrary["image1"].src = "desk1.gif";
+imageLibrary["image2"] = new Image(120,90);
+imageLibrary["image2"].src = "desk2.gif";
+imageLibrary["image3"] = new Image(120,90);
+imageLibrary["image3"].src = "desk3.gif";
+imageLibrary["image4"] = new Image(120,90);
+imageLibrary["image4"].src = "desk4.gif";
+
+function loadCached(list){
+	var img = list.options[list.selectedIndex].value;
+	document.thumbnail.src = imageLibrary[img].src
+}
+-->
+</script>
+</head>
+
+<body>
+<h2>Image Object</h2>
+<img src="desk1.gif" name="thumbnail" height="90" width="120"/>
+<form>
+  <select name="cached" onchange="loadCached(this)">
+    <option value="image1"/>Bands
+	<option value="image2"/>Clips
+	<option value="image3"/>Lamp
+	<option value="image4"/>Erasers
+  </select>
+</form>
+</body>
+</html>

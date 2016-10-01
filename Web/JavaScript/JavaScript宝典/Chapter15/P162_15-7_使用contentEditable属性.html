@@ -1,0 +1,32 @@
+<html>
+  <head>
+    <title> π”√contentEditable</title>
+	<style type="text/css">
+	.normal {color: black}
+	.editing {color: red}
+	</style>
+	<script type="text/javascript">
+	function toggleEdit(){
+		var newState = !editableText.isContentEditable;
+		editableText.contentEditable = newState;
+		editableText.className = (newState) ? "editing" : "normal";
+		editBtn.innerText = (newState) ? "Disable Editing" : "Enable Editing";
+	}
+	</script>
+  </head>
+  <body>
+	<h1>Poetry Editor</h1>
+	<hr />
+	<p>Turn on editing to modify the following text:</p>
+	<div id="noneditableText">
+		Roses are red.<br />
+		Violets are blue.
+	</div>
+	<div id="editableText">
+		Line 3,<br />
+		Line 4.
+	</div>
+	<p><button id="editBtn" onclick="toggleEdit()"
+		onfocus="this.blur()">Enable Editing</button></p>
+  </body>
+</html>

@@ -1,0 +1,24 @@
+<html>
+<head>
+<title>Example 11.11 对话框阻塞程序进程</title>
+</head>
+<body>
+  <h1>
+    <div id="time"></div>
+	<button id="Button2" onclick="opennew()">打开</button>
+	<button id="Button1"onclick="alert()">alert</button>
+  </h1>
+  <hr/>
+  <script type="text/javascript">
+  <!--
+	//设定一个定时器，显示时钟
+	setInterval("time.innerHTML = new Date();", 1000);
+	  function opennew(){
+	    var w = window.open("","main","z-look=yes,alwaysRaised=yes,height=200,width=400,status=no");
+		w.document.write("<center>I&nbsp;&nbsp;D&nbsp;&nbsp;:<input/><br/>密码：<input/><br/></center>");
+		w.focus();
+	  }
+  -->
+  </script>
+</body>
+</html>

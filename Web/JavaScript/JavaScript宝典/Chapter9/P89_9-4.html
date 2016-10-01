@@ -1,0 +1,28 @@
+<html>
+<head>
+<title>Select Navigation</title>
+<script type="text/javascript">
+<!--
+	
+		
+	function goThere(list){
+		//var list = document.forms[0].urlList;
+		location.href = list.options[list.selectedIndex].value;
+	}
+	
+-->
+</script>
+</head>
+
+<body>
+<form>
+Choose a place to go:
+<select name="urlList" onchange="goThere(this)" >
+	<option selected value="index.html"/>Home Page
+	<option value="store.html"/>Shop Our Store
+	<option value="policies.html"/>Shipping Policies
+	<option value="http://www.google.com"/>Search the web
+</select>
+</form>
+</body>
+</html>

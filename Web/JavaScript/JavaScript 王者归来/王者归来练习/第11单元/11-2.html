@@ -1,0 +1,20 @@
+<html>
+<head>
+<title>Example 11.2</title>
+</head>
+<body>
+  <h1>
+    <script type="text/javascript">
+      var w = {};
+	  function createWin()
+	  {
+	    w = window.open();
+		w.document.write("<button onclick='window.close()'>关闭这个窗口</button");
+	  }
+    </script>
+	<button onclick='createWin()'>点击创建一个新窗口</button>
+	<button onclick='alert(w.closed)'></button>
+  </h1>
+  <hr/>
+</body>
+</html>

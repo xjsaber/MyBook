@@ -1,0 +1,32 @@
+<html>
+<head>
+<title>Example 11.4 document对象的使用</title>
+</head>
+<body>
+  <h1>
+    Input your name: <input type="text" id="name" value=""/>
+	<button onclick="Greeting()">Greeting</button>
+  </h1>
+  <hr/>
+  <script type="text/javascript">
+  <!--
+  function Greeting(){
+    var newWin = window.open();
+	var name = document.getElementById("name");
+	with(newWin.document)
+	{
+	  write("Hello,");
+	  write(name.value);
+	  write("<br/>")
+	  write("How do you do.");
+	  write("<br/>");
+	  write("Some notes for you:<br/><textarea style='width:280;height:100'>");
+	  writeln("Here is another...");
+	  write("</textarea></br>");
+	  write("<button onclick='self.close()'>Good Bye</button>");
+	}
+  }
+  -->  
+  </script>
+</body>
+</html>

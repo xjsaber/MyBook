@@ -1,0 +1,40 @@
+<html>
+  <head>
+    <title>innerHTML and innerText Properties</title>
+	<style type="text/css">
+	h1 {font-size:18px; font-weight:400; color:gray}
+	</style>
+	<script type="text/javascript">
+	function setGroupLabelAsText(form){
+		var content = form.textInput.value;
+		if (content) {
+			document.getElementById("label1").innerText = content;
+		}
+	}
+	function setGroupLabelAsHTML(form){
+		var content = form.HTMLInput.value;
+		if (content){
+			document.getElementById("label1").innerHTML = content;
+		}
+	}
+	</script>
+  </head>
+  <body>
+	<form>
+		<p><input type="text" name="HTMLInput" 
+		value="&lt;I&gt;First&lt;/I&gt; Article &lt;SPAN
+		CLASS='small'&gt;(of ten)&lt;/span&gt;"
+		size="50" /> <input type="button" value="Change Heading HTML"
+		onclick="setGroupLabelAsText(this.form)" /></P>
+		<p><input type="text" name="textInput" 
+		value="&lt;I&gt;First&lt;/I&gt; Article &lt;SPAN
+		CLASS='small'&gt;(of ten)&lt;/span&gt;"
+		size="50" /> <input type="button" value="Change Heading HTML"
+		onclick="setGroupLabelAsHTML(this.form)" /></P>
+	</form>
+	<h1 id="label1">
+		ARTICLE I
+	</h1>
+	<p>11111111111111111111111111111111111111</p>
+  </body>
+</html>

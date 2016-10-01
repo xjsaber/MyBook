@@ -1,0 +1,33 @@
+<html>
+  <head>
+    <title>…Ë÷√className Ù–‘</title>
+	<style type="text/css">
+	.special {font-size:16pt; color:red}
+	</style>
+	<script type="text/javascript">
+	function toggleSpecialStyle(elemID){
+		var elem = (document.all) ? document.all(elemID) :
+			document.getElementById(elemID);
+		if (elem.className == "") {
+			elem.className = "special";
+		}else {
+			elem.className = "";
+		}
+	}
+	</script>
+  </head>
+  <body>
+	<h1>className Property Lab</h1>
+	<hr/>
+	<form name="input">
+		<input type="button" value="Toggle Class Name"
+		onclick="toggleSpecialStyle('head1')" />
+	</form>
+	<br/>
+	
+	<h1 id="head1" >ARTICLE I</h1>
+	<p>11111111111</p>
+	<h1>ARTICLE II</h1>
+	<p>22222222222</p>
+  </body>
+</html>

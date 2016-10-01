@@ -1,0 +1,23 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<title>Example-5.10</title>
+</head>
+
+<body>
+<script type="text/javascript">
+	var a = 110, b = "50", c =40, d="123.95";
+	var c1 = a + b;  //自动转换，结果为"11050"
+	var c2 = a - b;  //自动转换，结果为60
+	var c3 = a + parseInt(b) ;  //b强制转换为整型，通过parseInt()方法，表达式结果为160
+	var c4 = a.toString() + c.toString();
+		//a、c通过toString()方法转换为字符串，表达式结果为11040
+	var c5 = a + parseFloat(d);
+		//d强制转换为浮点型，通过parseFloat方法，表达式结果为243.95
+	document.write(c1+"<br/>"+c2+"<br/>"+c3+"<br/>"+c4+"<br/>"+c5);
+</script>
+</body>
+
+</html>

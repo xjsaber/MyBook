@@ -1,0 +1,38 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<title>Example-5.12 </title>
+</head>
+
+<body>
+<script type="text/javascript">
+<!--
+	function dwn(s)
+	{
+	  document.write(s + "<br/>");
+	}
+	function Double(value)
+	{
+	  this.valueOf = function()  //重新定义valueof方法
+	  {
+	    return value;
+	  }
+	  this.doubleValue = this.valueOf;
+	  this.toString = function()
+	  {
+		return "jsDouble" + this.valueOf();
+	  }
+	}
+	var d = new Double(10.11);
+	dwn(d);
+	dwn(String(d));
+	dwn(d + 10);
+	dwn(d + "abc");
+	dwn(d.doubleValue);
+-->
+</script>
+</body>
+
+</html>

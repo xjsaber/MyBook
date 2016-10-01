@@ -1,0 +1,5 @@
+D:\快盘\编程\javascript\JavaScript 王者归来\javascript王者\bin\javascript王者.dll
+D:\快盘\编程\javascript\JavaScript 王者归来\javascript王者\bin\javascript王者.pdb
+D:\快盘\编程\javascript\JavaScript 王者归来\javascript王者\obj\Debug\ResolveAssemblyReference.cache
+D:\快盘\编程\javascript\JavaScript 王者归来\javascript王者\obj\Debug\javascript王者.dll
+D:\快盘\编程\javascript\JavaScript 王者归来\javascript王者\obj\Debug\javascript王者.pdb

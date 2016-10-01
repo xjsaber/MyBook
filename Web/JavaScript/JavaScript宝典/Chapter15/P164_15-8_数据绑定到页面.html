@@ -1,0 +1,63 @@
+<html>
+  <head>
+    <title>Data Binding</title>
+	<style type="text/css">
+	#display {width:500px; border:10px rodge blue; padding:20px}
+	.hiddenControl {display:none}
+	</style>
+	<script type="text/javascript">
+	function nextField(){
+		var elem = document.getElementById("display");
+		var fieldName = elem.dataFld;
+		var currFieldNum = parseInt(fieldName.substring(7,
+			fieldName.length),10);
+		currFieldNum = (currFieldNum == 10) ? 1 : ++currFieldNum;
+		elem.dataFld = "Article" + currFieldNum;
+	}
+	function prevField() {
+		var elem = document.getElementById("display");
+		var fieldName = elem.dataFld;
+		var currFieldNum = parseInt(fieldName.substring(7,
+			fieldName.length),10);
+		currFieldNum = (currFieldNum == 1) ? 10 : ++currFieldNum;
+		elem.dataFld = "Article" + currFieldNum;
+	}
+	function toggleComplete(){
+		if (document.getElementById("buttonWrapper").className == "") {
+			document.getElementById("display").dataSrc = "#rights_raw";
+			document.getElementById("display").dataFld = "column1";
+			document.getElementById("display").dataFormatAs = "text";
+			document.getElementById("buttonWrapper").className = "hiddenControl";
+		}
+		else {
+			document.getElementById("display").dataSrc = "#rights_html";
+			document.getElementById("display").dataFld = "Article1";
+			document.getElementById("display").dataFormatAs = "HTML";
+			document.getElementById("buttonWrapper").className = "";
+		}
+	}
+	</script>
+  </head>
+  <body>
+	<h1>U.S. Bill of Rights</h1>
+	<form>
+		<input type="button" value="Toggle Complete/Individual"
+		onclick="toggleComplete()" /> <span id="buttonWrapper" class=""><input
+		type="button" value="Prev" onclick="prevField()" /> <input
+		type="button" value="Next" onclick="nextField()" /> </span>
+	</form>
+	<div id="display" datasrc="#rights_html" datafld="Article1"
+	dataformatas="HTML">
+	</div>
+	<object id="rights_html"
+	classid="clsid:333C7BC4-460F-11D0-BC04-0080C7055A83">
+		<param name="DataURL" value="Bill of Rights.txt" />
+		<param name="UseHeader" value="True" />
+		<param name="FieldDelim" value="&#09;" />
+	</object> <object id="rights_raw"
+	classid="clsid:333C7BC4-460F-11D0-BC04-0080C7055A83">
+		<param name="DataURL" value="Bill of Rights (no format).txt" />
+		<param name="FieldDelim" value="\" />
+		<param name="RowDelim" value="\" />
+  </body>
+</html>
