@@ -1,0 +1,25 @@
+<html>
+<head>
+<title>My First Script</title>
+<style type="text/css">
+.highlight { color: red}
+</style>
+<script type="text/javascript">
+function showBrowserType(){
+	document.getElementById("readout").innerHTML =
+	"Your browser says it is: " +
+	"<span class='highlight'>" +
+	navigator.userAgent + "</span>.<hr />";
+}
+window.onload = showBrowserType;
+</script>
+</head>
+
+<body>
+<h1>Let's Script...</h1>
+<hr />
+<h1>Let's Script...</h1>
+<hr />
+<div id="readout"></div>
+</body>
+</html>

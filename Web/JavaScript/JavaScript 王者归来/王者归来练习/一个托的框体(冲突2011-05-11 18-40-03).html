@@ -1,0 +1,60 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<title>无标题 1</title>
+</head>
+
+<body>
+ <form id="form1" runat="server">
+    <div style=" height:600px;">
+      <table onselectstart="return false" style="width:100px; position:absolute; left:131px; top:89px; height: 84px;" 
+        border="1px" ondargstart="a(this)" ondarg="b(this)" >
+        <tr><td style="background-color:Orange;cursor:move" align="center"></td></tr>
+        <tr><td style="background-color:Blue;height:60px;" align="center" ></td></tr>
+      </table>
+    </div>
+  </form>
+<script type="text/javascript">
+<!--
+var currentMoveObj = null;
+var relLeft ;
+var relTop ;
+function mousedown(obj)
+{
+  currentMoveObj = obj;
+  currentMoveObj.setCapture();
+  currentMoveObj.style.position = "absolute";
+  relLeft = event.x - currentMoveObj.style.pixelLeft;
+  relTop = event.y - currentMoveObj.style.pixelTop;
+} 
+  window.document.attachEvent("onmouseup",function(){
+    currentMoveObj.releaseCapture();
+    currentMoveObj = null;  
+  })
+function f_move(obj)
+{
+  if(currentMoveObj !=null)
+  {
+    currentMoveObj.style.pixelLeft = event.x - relLeft;
+    currentMoveObj.style.pixelTop = event.y - relTop;
+  }
+}
+var xx=0,yy=0;
+function a(v)
+{
+xx=event.x-v.offsetLeft;
+yy=event.y-v.offsetTop;
+}
+function b(v)
+{
+v.style.left=event.x-xx;
+v.style.top=event.y-yy;
+}
+
+-->
+</script>
+</body>
+
+</html>

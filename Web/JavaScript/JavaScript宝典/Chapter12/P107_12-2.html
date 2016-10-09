@@ -1,0 +1,62 @@
+<html>
+<head>
+<title>Slide Show/Image Rollovers</title>
+<script type="text/javascript">
+<!-- start
+if(document.images){
+	var offImgArray = new Array();
+	offImgArray["first"] = new Image(136,70);
+	offImgArray["prev"] = new Image(136,70);
+	offImgArray["next"] = new Image(136,70);
+	offImgArray["last"] = new Image(136,70);
+	offImgArray["first"].src = "images/firstoff.png";
+	offImgArray["prev"].src = "images/firstoff.png";
+	offImgArray["next"].src = "images/firstoff.png";
+	offImgArray["last"].src = "images/firstoff.png";
+	
+}
+	function imageOn(imgName){
+		if(document.images){
+			document.images[imgName].style.cursor = "pointer";
+			document.images[imgName].src = onImgArray[imgName].src;
+		}
+	}
+	
+	function imageOff(imgName){
+		if(document.images){
+			document.images[imgName].style.cursor = "default";
+			document.images[imgName].src = offImgArray[imgName].src;
+		}
+	}
+	
+	function setMsg(msg){
+		window.status = msg;
+		return true;
+	}
+	
+	function goFirst(){
+	
+	}
+-->
+</script>
+<style type="text/css">
+	div#controller img {height: 70px; width: 136px; padding: 5px}
+</style>
+<script type="text/javascript">
+
+</script>
+</head>
+
+<body>
+<h2>Image Object</h2>
+<img src="desk1.gif" name="thumbnail" height="90" width="120"/>
+<form>
+  <select name="cached" onchange="loadCached(this)">
+    <option value="image1"/>Bands
+	<option value="image2"/>Clips
+	<option value="image3"/>Lamp
+	<option value="image4"/>Erasers
+  </select>
+</form>
+</body>
+</html>

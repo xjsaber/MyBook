@@ -1,0 +1,19 @@
+<script type="text/javascript">
+function Circle(radius){
+	this.r = radius;
+}
+Circle.PI = 3.1415926;
+Circle.prototype.area = function() { return Circle.PI * this.r * this.r;}
+Circle.max = function(a,b){
+	if(a.r > b.r) return a
+	else return b;
+}
+var c =new Circle(1.0);
+c.r = 2.2;
+var a = c.area();
+var x = Math.exp(Circle.PI);
+var d = new Circle(1.2);
+var bigger = Circle.max(c,d);
+alert(c.r);alert(a);alert(x);alert(d.r);alert(bigger.r);
+
+</script>

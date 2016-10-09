@@ -1,0 +1,72 @@
+<html>
+<head>
+<title>Sum Maker</title>
+<script type="text/javascript">
+<!--
+/*
+function checkName(){
+	var planet = new arrat(3);
+	planet[0].name = "Ë®ĞÇ"
+	planet[1].name = "½ğĞÇ"
+	planet[2].name = "µØÇò"
+	planet[3].name = "»ğĞÇ"
+	planet[0].distance = "36"
+	planet[1].distance = "67"
+	planet[2].distance = "93"
+	planet[3].distance = "141"
+	planet[0].diameter = "3100"
+	planet[1].diameter = "7700"
+	planet[2].diameter = "7920"
+	planet[3].diameter = "4200"
+	for(var i = 0; i<planet.length; i++)
+	{
+	  if(planet[i].name == document.getElementById("inputA").value)
+	  continue;
+	  document.write(planet[i].name + "_" + planet[i].distance + "_" + planet[i].diameter);
+	}
+	}
+*/
+	var planet = new Array(4);
+	planet[0] = "Ë®ĞÇ";
+	planet[1] = "½ğĞÇ";
+	planet[2] = "µØÇò";
+	planet[3] = "»ğĞÇ";
+	
+	var distance = new Array(4);
+	distance[0] = "36";
+	distance[1] = "67";
+	distance[2] = "93";
+	distance[3] = "141";
+	
+	var diameter = new Array(4);
+	diameter[0] = "3100";
+	diameter[1] = "7700";
+	diameter[2] = "7920";
+	diameter[3] = "4200";
+	
+	function getPlanetData(){
+	var selectedPlanet = document.getElementById("entry").value;
+	for (var i=0; i<planet.length; i++)
+	{
+		if( planet[i] == selectedPlanet)
+		continue;
+		var msg = planet[i] + " is " + distance[i];
+		msg += " from the Sun and ";
+		msg += diameter[i] + " in diameter";		
+	}
+	document.getElementById("output").value = msg;
+}
+
+-->
+</script>
+</head>
+
+<body>
+<form name="entryForm">
+	<input type="text" name="entry" id="entry" /><br/>		
+	<input type="button" value="Look Up a Planet" onclick="getPlanetData()" />	
+	<hr/>
+	<input type="text" name="output" id="output" size="70"/>
+</form>
+</body>
+</html>

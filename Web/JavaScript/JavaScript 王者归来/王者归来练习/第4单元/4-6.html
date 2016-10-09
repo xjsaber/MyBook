@@ -1,0 +1,42 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<title>Example-4.6</title>
+<script type="text/javascript">
+<!--
+//count定义骰子的数量，side定义每个骰子的面数
+function dice(count, side)
+{
+  //Math.random() 是得到一个0-1之间随机数。
+  //Math.floor(i) 是得到一个数的整数部分
+   var ench = Math.floor(Math.random()*6); 
+  return function()
+  {
+	var score = 0;
+	for(var i=0; i<count; i++)
+	{
+	  score += Math.ceil(Math.random() * side); //0-1随机数*side ＝ 最后分数	  
+	}
+	return score + ench;
+  }
+}
+  var d1 = dice(2,6);
+  var d2 = dice(1,20);
+  for(var i=0; i<20; i++)
+  {
+    document.write(d1());
+	document.write(","+d2());
+	document.write("<br/>");
+  }  
+  document.write ("<p>             小时候的梦想");
+-->
+</script>
+</head>
+
+<body>
+
+</body>
+
+</html>

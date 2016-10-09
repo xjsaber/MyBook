@@ -1,0 +1,30 @@
+<html>
+<head>
+<title>Example 7.1</title>
+</head>
+<body>
+  <h1>
+    <script type="text/javascript">
+      <!--
+          function dwn(s)
+		  {
+		    document.write(s + "<br/>");
+		  }
+		  function classA(){
+			this.a = 1;
+		  }
+		  function classB(){
+			this.b = 2;
+		  }
+		  classB.prototype = new classA();
+		  var objB  = new classB();
+		  
+		  dwn("a" in objB);
+		  dwn(objB.hasOwnProperty("a"));
+		  dwn(objB.hasOwnProperty("b"));
+      -->
+    </script>
+  </h1>
+  <hr/>
+</body>
+</html>

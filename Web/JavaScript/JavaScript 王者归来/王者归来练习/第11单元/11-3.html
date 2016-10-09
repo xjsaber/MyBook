@@ -1,0 +1,20 @@
+<html>
+<head>
+<title>Example 11.3</title>
+</head>
+<body>
+  <h1>
+    <script type="text/javascript">
+	  function createWin()
+	  {
+	    var w = window.open();
+	    w.document.write(document.getElementTagName("textarea")[0].innerText 
+		|| document.getElementTagName("textarea")[0].textContent);
+	  }
+    </script>
+	<textarea style="width:400px;height:500px"></textarea><br/>
+	<button onclick='createWin()'>´´½¨´°¿Ú</button>
+  </h1>
+  <hr/>
+</body>
+</html>

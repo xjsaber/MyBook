@@ -1,0 +1,33 @@
+<html>
+<head>
+<title>Select Navigation</title>
+<script type="text/javascript">
+<!--	
+		
+	function checkForm(form){
+		for( var i = 0; i<form.elments.length; i++)
+		{
+			if(form.elements[i].type == "text" && form.elements[i].value == ""){
+				alert("Fill out ALL fields.");
+				return false;
+			}
+		}
+		return true;
+	}	
+	
+-->
+</script>
+</head>
+
+<body>
+<form onsubmit="return checkForm(this)">
+Please enter all requested information:<br/>
+First Name:<input type="text" name="firstName"><br/>
+Last Name:<input type="text" name="lastName"><br/>
+Rank:<input type="text" name="rank"><br/>
+Serial Number:<input type="text" name="serialNumber"><br/>
+
+<input type="submit"/>
+</form>
+</body>
+</html>

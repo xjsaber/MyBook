@@ -1,0 +1,28 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<title>Example-4.5</title>
+</head>
+
+<body>
+<script type="text/javascript">
+<!--
+function step(a)
+{
+  return function(x)
+  {
+    return x+a; //内层的闭包可以访问外层的局部参数a
+  }
+}
+var b = step(10);
+alert(b(20));
+var c = step(20);
+var c = step(20);
+alert(c(20));
+-->
+</script>
+</body>
+
+</html>

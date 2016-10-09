@@ -1,0 +1,51 @@
+<html>
+<head>
+<title>Example 9.1</title>
+</head>
+<body>
+  <h1>
+    <script type="text/javascript">
+      <!--
+        function dwn(s){
+		  document.write(s + "<br/>");
+		}
+		
+		{
+		function checkNum(str){
+		  return str.match(/\D/)==null;
+		}
+		
+		dwn(checkNum("1231231231"));  //true
+		dwn(checkNum("12312312312sa3"));  //false
+		}
+		
+		//查询包含字符串的功能
+		{
+		function searchScript(str){
+		  if(str.search(/Script/i) == -1)
+			dwn("String no found");
+		  else dwn("String found");
+		}
+		
+		searchScript("111Script2222");
+		searchScript("123");
+		}
+		
+		//匹配包含Script的脚本
+		function matchScript(str){
+			var matchArray = str.match(/Script/gi);
+			for(var i = 0; i<matchArray.length; i++){
+			  dwn("Match found: " + matchArray[i]);
+			}
+		}
+		matchScript("JavaScript & VBScript");
+		matchScript("51js");
+      -->
+    </script>
+    <noscript>
+      您的游览器不支持javascript， 请你检查游览器版本和安全设置， 谢谢！
+    </noscript>
+  </h1>
+  <hr/> 
+</body>
+</html>

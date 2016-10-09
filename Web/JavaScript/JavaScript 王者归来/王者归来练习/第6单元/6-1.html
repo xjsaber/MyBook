@@ -1,0 +1,35 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<title>Example-6.1 (1) 声明式函数定义与函数表达式</title>
+</head>
+
+<body>
+<script type="text/javascript">
+<!--
+	function dwn(s)
+	{
+		document.write(s + "<br/>")
+	}
+	function t1()  //声明式函数
+	{
+		dwn("t1");
+	}
+	t1();
+	function t1()  //再次声明函数
+	{
+		dwn("new t1");
+	}
+	t1();
+	t1 = function()  //用函数表达式给t1重新赋值
+	{
+		dwn("new new t1");
+	}
+	t1();
+-->
+</script>
+</body>
+
+</html>

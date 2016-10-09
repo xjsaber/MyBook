@@ -1,0 +1,24 @@
+<html>
+<head>
+<title>Select Navigation</title>
+<script type="text/javascript">
+<!--
+	function setColor(list){
+		var newColor = list.options[list.selectedIndex].value;
+		document.bgColor = newColor;
+	}
+
+-->
+</script>
+</head>
+
+<body bg="red">
+<form name="accessories"  >
+	<select name="urlList" onchange="setColor(this)">
+	  <option id="red" selected value="red">Stop</option>
+	  <option id="yellow" value="yellow">Gaution</option>
+	  <option id="green" value="green">Go</option>
+	</select>
+</form>
+</body>
+</html>

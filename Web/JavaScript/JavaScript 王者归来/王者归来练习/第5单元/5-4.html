@@ -1,0 +1,36 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<title>Example-5.4</title>
+</head>
+
+<body>
+<script type="text/javascript">
+<!--
+	function Point(x, y){
+	//通过构造函数参数初始化x，y属性的值
+	this.x = x;
+	this.y = y;
+	this.getDistance = function(){
+	  return Math.sqrt(this.x*this.x + this.y*this.y);
+	}
+	//重写toString方法
+	this.toString = function(){
+	    return "(" + this.x + "," + this.y + ")";
+	  }
+	}
+	//构造Point对象
+	var PointA = new Point(1,2);
+	var PointB = new Point(3,4);
+	var PointC = new Point(2,-4);
+	
+	document.write(PointA + "<br/>");
+	document.write(PointB.getDistance() + "<br/>");
+	document.write(PointC);
+-->
+</script>
+</body>
+
+</html>

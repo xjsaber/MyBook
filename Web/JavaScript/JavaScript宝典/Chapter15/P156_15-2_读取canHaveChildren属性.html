@@ -1,0 +1,57 @@
+<html>
+  <head>
+    <title>∂¡»°canHaveChildren Ù–‘</title>
+	<script type="text/javascript">
+	function colorAll() {
+		var elems = document.getElementsByTagName("*");
+		for (var i = 0; i < elems.length; i++) {
+			elems[i].style.color = "red";
+		}
+	}
+	function colorChildBearing() {
+		var elems = document.getElementsByTagName("*");
+		for (var i = 0; i<elems.length; i++) {
+			if (elems[i].canHaveChildren) {
+				elems[i].style.color = "red";
+			}
+		}
+	}
+	</script>
+  </head>
+  <body>
+	<h1>canHaveChildren Property Lab</h1>
+	<hr/>
+	<form name="input">
+		<input type="button" value="Color All Elements"
+		onclick="colorAll()" /><br />
+		<input type="button" value="Reset" onclick="history.go(0)" /><br/>
+		<input type="button" value="Color Only Elements That Can Have Children"
+		onclick="colorChildBearing()"/>
+	</form>
+	<br/>
+	<hr/>
+	<form name="output">
+		<input type="checkbox" checked="checked" />Your basic checkbox
+		<input type="text" name="access2" value="Some textbox text." />
+	</form>
+	<table id="myTable" cellpadding="10" border="2">
+		<tr>
+			<th>Quantity</th>
+			<th>Description</th>
+			<th>Price</th>
+		</tr>
+		<tbody>
+			<tr>
+				<td width="100">4</td>
+				<td>Primary Widget</td>
+				<td>$14.96</td>
+			</tr>
+			<tr>
+				<td>10</td>
+				<td>Primary Widget</td>
+				<td>$14.96</td>
+			</tr>
+		</tbody>
+	</table>
+  </body>
+</html>

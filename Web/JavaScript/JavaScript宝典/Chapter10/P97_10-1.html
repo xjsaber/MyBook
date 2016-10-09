@@ -1,0 +1,29 @@
+<html>
+<head>
+<title>Sum Maker</title>
+<script type="text/javascript">
+<!--
+function nextWeek(){
+	var todayInMS = today.getTime();
+	var nextWeekInMS = todayInMS + (60 * 60 * 24 * 7 * 1000);
+	return new Date(nextWeekInMS);
+}
+-->
+</script>
+</head>
+
+<body>
+<form name="entryForm">
+	Today is:
+<script type="text/javascript">
+var today = new Date();
+document.write(today);
+</script>
+<br/>
+Next week will be:
+<script type="text/javascript">
+document.write(nextWeek());
+</script>
+</form>
+</body>
+</html>

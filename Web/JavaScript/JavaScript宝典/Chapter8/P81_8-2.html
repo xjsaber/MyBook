@@ -1,0 +1,22 @@
+<html>
+<head>
+<title>Writing to Same Doc</title>
+<script type="text/javascript">
+<!--
+function reWrite(){
+	var newContent = "<html><head><title>A New Doc</title></head>";
+	newContent += "<body bgcolor='aqua'><h1>This document is brand new.</h1>";
+	newContent += "Click the Back button to see original document. ";
+	newContent += "</body></html>";
+	document.write(newContent);
+}
+-->
+</script>
+</head>
+
+<body>
+<form name="entryForm">
+	<input type="button" value="Replace Content" onclick="reWrite()" /><br/>		
+</form>
+</body>
+</html>

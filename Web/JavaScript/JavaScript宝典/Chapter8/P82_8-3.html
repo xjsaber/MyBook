@@ -1,0 +1,31 @@
+<html>
+<head>
+<title>Writing to Subwindow</title>
+<script type="text/javascript">
+<!--
+function makeNewWindow(){
+	newWindow = window.open("","","status,height=200,width=300")
+}
+
+function subWrite(){
+	if( newWindow.closed){
+		makeNewWindow();
+	}
+	newWindow.focus();
+	var newContent = "<html><head><title>A New Doc</title></head>";
+	newContent += "<body bgcolor='coral'><h1>This document is brand new.</h1>";
+	newContent += "Click the Back button to see original document. ";
+	newContent += "</body></html>";
+	newWindow.document.write(newContent);
+	//newWindow.document.close();
+}
+-->
+</script>
+</head>
+
+<body onload="makeNewWindow()">
+<form name="entryForm">
+	<input type="button" value="Replace Content" onclick="subWrite()" /><br/>		
+</form>
+</body>
+</html>

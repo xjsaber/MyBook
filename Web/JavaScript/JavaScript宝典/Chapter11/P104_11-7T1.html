@@ -1,0 +1,12 @@
+<html>
+<head>
+<title>A SubDocument</title>
+</head>
+
+<body>
+<form onsubmit="return false">
+Enter text to be copied to the main window:
+<input type="text" onchange="opener.document.forms[0].entry.value = this.value">
+</form>
+</body>
+</html>

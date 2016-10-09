@@ -1,0 +1,29 @@
+<html>
+<head>
+<title>Example 10.1 全文关键词搜索代码</title>
+</head>
+<body>
+  <h1>
+    <script type="text/javascript">
+      <!--
+          document.write("Hello World!");
+      -->
+    </script>
+    <noscript>
+      您的游览器不支持javascript， 请你检查游览器版本和安全设置， 谢谢！
+    </noscript>
+  </h1>
+  <hr/>
+  <div id="content">
+	www.51js.com<br/>
+	bbs.51js.com<br/>
+	xxx.com<br/>
+  </div>
+  <p>第一个例子展示了document.write是游览器提供的一个方法，用来向document文档
+     对象输出内容，至于是文档对象，在书中第三部分将有详细介绍</p>
+  <script type="text/javascript">
+    var str = content.innerHTML;
+	content.innerHTML = str.replace(/(51js)/g,"<font color='red'>$1</font>");
+  </script>  
+</body>
+</html>

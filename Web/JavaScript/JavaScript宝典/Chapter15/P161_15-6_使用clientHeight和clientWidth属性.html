@@ -1,0 +1,27 @@
+<html>
+  <head>
+    <title>clientHeight and clientWidht Properties</title>
+	<script type="text/javascript">
+	function showLogo(){
+		var paragraphW = document.getElementById("myDIV").clientWidth;
+		var paragraphH = document.getElementById("myDIV").clientHeight;
+		var paragraphTop = (document.getElementById("myDIV").clientTop) ?
+			document.getElementById("myDiv").clientTop :
+			document.getElementById("myDiv").offsetTop ;
+		var logoW = document.getElementById("logo").style.pixelWidth;
+		document.getElementById("logo").style.pixelLeft = (paragraphW - logoW) / 2;
+		document.getElementById("logo").style.pixelTop = paragraphTop + paragraphH;
+		document.getElementById("logo").style.visibility = "visible";
+	}
+	</script>
+  </head>
+  <body>
+	<button onclick="showLogo()">Position and Show Logo Art</button>
+	<div id="logo" style="position:absolute; width:120px; visibility:hidden">
+		<img alt="image" src="logo.gif" />
+	</div>
+	<div id="myDIV" style="width:200px">
+		<p>1111111111111111111111111111111111</p>
+	</div>
+  </body>
+</html>

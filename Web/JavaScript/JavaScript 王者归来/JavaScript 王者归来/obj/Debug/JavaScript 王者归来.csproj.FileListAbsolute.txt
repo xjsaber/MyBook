@@ -1,0 +1,10 @@
+X:\编程\javascript\JavaScript 王者归来\JavaScript 王者归来\bin\JavaScript 王者归来.dll
+X:\编程\javascript\JavaScript 王者归来\JavaScript 王者归来\bin\JavaScript 王者归来.pdb
+X:\编程\javascript\JavaScript 王者归来\JavaScript 王者归来\obj\Debug\ResolveAssemblyReference.cache
+X:\编程\javascript\JavaScript 王者归来\JavaScript 王者归来\obj\Debug\JavaScript 王者归来.dll
+X:\编程\javascript\JavaScript 王者归来\JavaScript 王者归来\obj\Debug\JavaScript 王者归来.pdb
+D:\快盘\编程\javascript\JavaScript 王者归来\JavaScript 王者归来\bin\JavaScript 王者归来.dll
+D:\快盘\编程\javascript\JavaScript 王者归来\JavaScript 王者归来\bin\JavaScript 王者归来.pdb
+D:\快盘\编程\javascript\JavaScript 王者归来\JavaScript 王者归来\obj\Debug\ResolveAssemblyReference.cache
+D:\快盘\编程\javascript\JavaScript 王者归来\JavaScript 王者归来\obj\Debug\JavaScript 王者归来.dll
+D:\快盘\编程\javascript\JavaScript 王者归来\JavaScript 王者归来\obj\Debug\JavaScript 王者归来.pdb
