@@ -54,46 +54,10 @@ new Number([value]) 生成Number类实例
 ## 3.5 布尔型 ##
 
 ### 3.5.1 布尔值 ###
+布尔类（Boolean类）是一种布尔型的包装类型。其地位以及使用方法和String类以及Number类相同。
 
-## 3.6 null型 ##
-对null值进行typeof运算得到的结果也是“object”。
+### 3.5.2 布尔类（Boolean类） ###
 
-## 3.7 undefined型 ##
-undefined型只能够取undefined这一个值。对undefined值进行typeof运算，其结果为“undefined”。
+### 3.5.3 Boolean类的功能 ###
 
-ECMAScript的第五版中undefined变为只读变量。
 
-undefined值是一种有着非常高的潜在出错风险的语言特性，所以在
-
-## 3.9 数据类型转换 ##
-
-### 3.9.1 从字符串值转换为数值 ###
-
-### 3.9.2 从数值转换为字符串值 ###
-
-### 3.9.4 转换为布尔型 ###
-
-* 数值0
-* 数值NaN
-* null值
-* undefined值
-* 字符串值"（空字符串值）
-
-### 3.9.5 其他数据类型转换 ###
-
-| --: | -- | -- |
-| true | 1 | 'true' |
-| false | 0 | 'false' |
-| null值 | 0	 | 'null' |
-| undefined值 | NaN | 'undefined' |
-
-### 3.9.6 从Object类型转换位基本数据类型 ###
-
-### 3.9.7 从基本数据类型转换为Object类型 ###
-
-|--:|:--|
-| 字符串型 | String对象 |
-| 数值型 | Number对象 |
-| 布尔型 | Boolean对象 |
-| null | Error对象 |
-| undefined型 | Error对象 |
