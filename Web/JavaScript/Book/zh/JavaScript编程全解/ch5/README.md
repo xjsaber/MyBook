@@ -113,8 +113,50 @@
 * 在最外层代码中，this引用引用的是全局对象。
 * 在函数内，this引用根据函数调用方式的不同而有所不同。
 
-|--:|:--|
+| --:|:-- |
 | 构造函数调用 | 所生成的对象 |
 | 方法调用 | 接收方对象 |
 | apply或是call调用 | 由apply或call的参数指定的对象 |
 | 其他方式的调用 | 全局对象 |
+
+### 5.14.2 this引用的注意点 ###
+其他的接收方对象调用某个函数，或是在没有接收方对象的情况下，this引用的操作是不同的。
+
+在方法内部调用方法的情况
+
+	// 从doit方法内调用doit2方法时，必须通过this引用，以this/doit2()的方式实现
+	js > var obj = {
+		x: 3,
+		doit: function() { print('doit is called.' + this.x); this.doit2(); },
+		doit2: function() { print('doit2 is called.' + this.x);}
+	};
+	js> obj.doit();
+	doit is called. 3
+	doit2 is called. 3
+
+## 5.15 apply与call ##
+在Function对象中包含apply与call这两种方法，通过它们调用的函数的this引用，可以指向任意特定对象。也就是说，可以理解位它们能够显式地指定接收方对象。
+
+	js> function f() { print(this.x); }
+	js> var obj = { x: 4 };
+	js> f.apply(obj); //通过apply调用函数f。函数内地this引用引用了对象obj
+	js> f.call(obj); //通过call调用函数f。
+	// 将接收方对象指定为另一个对象并进行方法调用
+	js> var obj = {
+		x: 3,
+		doit: function() { print('method is called.' = this.x); }
+	};
+	js> var obj2 = { x: 4};
+	js> obj.doit.apply(obj2); //通过apply调用obj doit方法。方法内地this引用引用了对象obj2
+	
+
+## 5.16 原型继承 ##
+
+	//
+	function MyClass(x, y) {
+		this.x = x;
+		this.y = y;
+	}
+	MyClass.prototype.show = function() {
+		print(this.x, this.y);
+	}
