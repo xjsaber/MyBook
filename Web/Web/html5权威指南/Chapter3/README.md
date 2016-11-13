@@ -111,6 +111,7 @@ HTML文档的元数据部分可以用来向浏览器提供文档的一些信息�
 			I like <code>apples</code> and oranges.
 		</body>
 	</html>
+body元素告诉浏览器该向用户显示文档的哪个部分。
 
 ### 3.3.4 父元素、子元素、后代元素和兄弟元素 ###
 HTML文档中元素之间有明确的关系。包含另一个元素的元素是被包含元素的*父元素*。
@@ -121,10 +122,20 @@ HTML5规范将元素分为三大类：元数据元素（metadata element）、�
 
 ## 3.4 使用HTML实体 ##
 
+表3-3 常用HTML实体
+
+|字符|实体名称|实体编号|
+| -- |:------:| -----:|
+|<|&lt|$#60|
+|>|&gt|$#62|
+|&|&amp|$#30|
+
 ## 3.5 HTML5全局属性 ##
+每种元素都能规定自己的属性，这种属性称为局部属性（local attribute）
+全局属性（global attribute），用来配置所有元素的共有的行为。
 
 ### 3.5.1 accesskey属性 ###
-使用accesskey属性可以设定有一个或几个用来选择页面上的元素的快捷键。
+使用accesskey属性可以设定有一个或几个用来选择页面上的元素的**快捷键**。
 
 代码清单3-14 使用accesskey属性
 	
@@ -190,6 +201,7 @@ spellcheck属性用来表明浏览是否应该对元素的内容进行拼写检�
 
 代码清单3-23 使用spellcheck属性
 
+	<textarea spellcheck="true">This is some mispelled text</textarea>
 ### 3.5.12 style属性 ###
 style属性用来直接在元素身上定义CSS样式
 
