@@ -95,46 +95,8 @@
 * 不要使用with结构
 * 最小化重复表达式的判断
 
+尽可能减少 document.write()方法生成页面内容
+
 #### 讨论 ####
 	
-## 2.9 创建Date对象 ##
-
-#### 问题 ####
-
-#### 解答 ####
-
-	var myDate = new Date(yyyy, mm, dd, hh, mm, ss);
-	var myDate = new Date(yyyy, mm, dd);
-	var myDate = new Date("monthName dd, yyyy hh:mm:ss");
-	var myDate = new Date("monthName dd, yyyy");
-	var myDate = new Date(epochMilliseconds);
-
-#### 讨论 ####
-
-## 2.10 过去或将来日期的计算 ##
-#### 问题 ####
-
-#### 解答 ####
-
-#### 讨论 ####
-
-## 2.11 计算两个日期之间的天数 ##
-#### 问题 ####
-
-
-#### 解答 ####
-把两个日期作为参数传递给这个函数`daysBetween()`，从而获得表示两个日期之间的天数和整数。
-#### 讨论 ####
-
-#### 请参照 ####
-
-
-## 2.12 验证日期 ##
-#### 问题 ####
-
-
-#### 解答 ####
-
-#### 讨论 ####
-
 #### 请参照 ####
