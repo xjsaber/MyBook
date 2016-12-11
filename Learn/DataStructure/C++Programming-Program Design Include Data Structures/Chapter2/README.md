@@ -28,3 +28,43 @@ double：C++中double型数据用于
 ### 2.3.1 运算符优先级 ###
 
 ## 2.4 表达式 ##
+cout << "Hello there.";
+cout << endl << "My name is Goofy."
+
+Hello there.
+My name is Goofy.
+
+## 2.8 预处理指令 ##
+	
+	#include <headerFileName>
+
+![C++程序的执行过程](img/2016-12-10_10-02-39.jpg)
+
+### 2.8.1 cin和cout与名字空间 ###
+
+	#include <iostream>
+	using namespace std;
+### 2.8.2 在程序中使用string数据类型 ###
+
+	#include <string>
+
+## 2.9 程序的风格和形式 ##
+预处理指令和程序
+
+### 2.9.1 main函数 ###
+
+### 2.9.2 语法 ###
+
+### 2.9.3 空格符的使用 ###
+
+### 2.9.4 分号、大括号和逗号 ###
+
+### 2.9.5 语义规则 ###
+
+### 2.9.6 形式和风格 ###
+
+### 2.9.7 说明文档 ###
+
+## 2.10 其他赋值语句 ##
+
+## 2.11 程序范例：长度转换 ##
