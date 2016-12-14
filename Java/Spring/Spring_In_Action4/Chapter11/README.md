@@ -1,14 +1,10 @@
-# 第三部分 #
+# 第11章 使用对象-关系映射持久化数据 #
 
-第10章 JDBC
+* 借助上下文Session，编写不依赖于Spring的Repository
+* 通过Spring使用JPA
+* 借助Spring Data实现自动化的JPA Repository
 
-第11章 “通过对象-关系映射持久化数据”
-
-
-
-# 第10章 通过Spring和JDBC征服数据库 #
-
-## 10.1 Spring的数据访问哲学 ##
+## 11.1 在Spring中集成Hibernate ##
 数据访问的功能都放到一个或多个专注于此项任务的组件中。（data access object，DAO）或Repository
 
 #### 1. 展现了设计数据访问层的合理方式 ####
