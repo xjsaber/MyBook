@@ -21,10 +21,15 @@
 ### 3.3.3 char类型 ###
 char类型用于表示单个字符。通常用来表示字符常量。
 
-### 3.3.4 boolean类型 ###
+### 3.3.4 Unicode和chat类型 ###
+
+### 3.3.5 boolean类型 ###
+
 
 ## 3.4 变量 ##
 在Java中，每一个变量属于一种类型（type）。在声明变量时，变量所属的类型位于变量名之前。
+
+### 3.4.1 变量初始化 ###
 
 ### 3.4.2常量 ###
 利用关键字final指示常量。
@@ -64,10 +69,12 @@ char类型用于表示单个字符。通常用来表示字符常量。
 	double x = 9.997;
 	int nx = (int) x;
 ### 3.5.7 括号与运算符级别 ###
+&("and") |("or") ^("xor") ~("not")
 
-### 3.5.8 枚举类型 ###
+### 3.5.9 枚举类型 ###
 	
 	enum Size {SMAILL, MEDIUM, LARGE, EXTRA_LARGE};
+
 ## 3.6 字符串 ##
 Java字符串就是Unicode字符序列。
 
@@ -87,18 +94,20 @@ String类对象称为不可变字符串
 千万不要使用==运算符测试字符串的相等性
 
 ### 3.6.5 空串与Null串 ###
-空串“”是长度为0的字符串。
+空串""是长度为0的字符串。
 	if(str.length() == 0)
 	或
-	if*str.equals(""))
+	if(str.equals(""))
 
 ### 3.6.6 代码点与代码单元 ###
 Java字符串由char序列组成。
 
+s.charAt(n)将返回位置n的代码单元
 	String greeting = "Hello";
 	char first = greeting.charAt(0); // first is 'H'
 	char last = greeting.charAt(4); // last is 'o'
-### 3.6.7 字符串API ###
+
+### 3.6.7 String API ###
 
 * char charAt(int index)
 * int codePointAt(int index)
@@ -199,7 +208,9 @@ System.out.print(x);
 
 	Scanner in = new Scanner(Paths.get("myfile.txt"));
 ## 3.8 控制流程 ##
+
 ### 3.8.1 块作用域 ###
+块（即复合语句）是指由一对大括号刮起来的若干条简单的Java语句。块确定了变量的作用域。
 ### 3.8.2 条件语句 ###
 
 ### 3.8.3 循环 ###
