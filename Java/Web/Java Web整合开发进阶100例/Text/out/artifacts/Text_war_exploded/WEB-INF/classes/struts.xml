@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.3//EN"
+        "http://struts.apache.org/dtds/struts-2.3.dtd">
+<struts>
+    <!--Action所在包定义-->
+    <package name="C02" extends="struts-default" >
+    <!--全局导航页面定义-->
+        <global-results>
+            <result name="global">login.jsp</result>
+        </global-results>
+        <!--Action名字，类以及导航页面定义-->
+        <!--通过Action类处理才导航的Action定义-->
+        <action name="Login"
+            class="com.example.struts.action.LoginAction">
+            <result name="input">login.jsp</result>
+            <result name="success">success.jsp</result>
+        </action>
+        <!--直接导航的Action定义-->
+        <action name="index">
+            <result>login.jsp</result>
+        </action>
+    </package>
+</struts>
