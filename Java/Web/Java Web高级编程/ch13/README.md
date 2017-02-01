@@ -10,53 +10,119 @@
 
 #### 2.HTTP请求方法限制 ####
 
-### 12.1.2 面向切面编程 ###
-负责实例化和依赖注入，通过封装注入依赖的实例，使用其他行为对方法调用进行装饰。
-### 12.1.3 数据访问和事务管理 ###
-对Java Persistent APJ（JPA）和对象关系映射的广泛支持。
-### 12.1.4 应用程序消息 ###
-Spring Framework提供了一个松耦合的消息系统，它使用的是发布-订阅模式：系统中的组件通过订阅消息，声明它对该消息感兴趣，然后这些消息的生产者将会发布该消息，而无须关心谁对消息感兴趣。使用Spring Framework时，一个由Spring管理的bean可以通过实现一个通用接口订阅特定的消息类型，其他由Spring管理的对象可以发布这些消息到Spring Framework中，然后由Spring Framework将消息发送到已订阅的bean中。该系统也可以被扩展和配置为跨应用程序的群几种发布消息。
+### 13.1.2 指定控制器方法参数 ###
 
-### 12.1.5 Web应用程序和模型-视图-控制器模式 ###
-提供了一个模型-视图-控制器（MVC）模式框架，简化创建交互式Web应用程序的过程。
+#### 1.标准Servlet类型 ####
 
-模型将以Map<String, Object>的形式从控制器传递到视图，控制器返回的视图或视图名称将使Spring把模型转发到合适的JSP视图。
-## 12.2 使用SpringFramework的原因 ##
+* HttpServletRequest 用于使用请求属性
+* HttpServletResponse 用于操作响应
+* HttpSession 用于操作HTTP会话对象
+* InputStream或者Reader用于读取请求正文，但不能同时使用两者。在完成对它的处理之后不应该关闭该对象。
+* OutputStream或者Writer用于编写响应正文，但不能同时使用两者。在完成对它的处理之后不应该关闭该对象。
+* org.springframework.web.context.request.WebRequest 用于请求属性和HTTP会话对象的操作。
 
-### 12.2.1 逻辑代码分组 ###
+#### 2.注解请求属性 ####
+required=false(可选参数)
+defaultValue=""（默认值为空白）不填的话，默认值为null
 
-### 12.2.2 使用同一个代码库的多个用户界面 ###
- 
+通过在Map<String, String>或者org.springframework.util.MultiValueMap<String, String>类型的单个参数上标注@RequestPram，也可以获得Map中的所有请求参数值。
 
-## 12.3 了解应用上下文 ##
+@RequestHeader的工作方式与@RequestParam一致，它提供了对请求头的值的访问。它指定了一个必须的（默认）或者可选的请求头，用作相应方法的参数值。
 
-一个应用上下文管理着一组bean、执行业务逻辑的Java对象、执行任务、持久化和获取持久化数据、响应HTTP请求等。由Spring管理的bean可以自动进行依赖注入、消息通知、定时方法执行、bean验证和执行其他关键的Spring服务。
 
-一个Spring应用程序至少需要一个应用上下文。
+#### 3.输入绑定表单对象 ####
+Spring Framework允许指定一个表单对象（也称为命令对象）作为控制器方法的参数。表单对象是含有设置和读取方法的简单POJO。他们不必事先实现任何特殊接口，也不需要使用任何特殊的注解对控制器方法参水进行标记，Spring将把它识别为一个表单对象。
 
-ApplicationContext
-* ConfigurableApplicationContext使可配置的，而基本的ApplicationContext是只读的。
-* org.springframework.web.context.WebApplicationContext和ConfigurableWebApplicationContext接口被设计用于Servlet容器中运行的JavaEE Web应用程序，它们提供了对底层ServletContext和ServletConfig（如果可以的话）的访问
-* 具体类ClassPathXmlApplicationContext和FileSystemXmlApplicationContext被设计用于在独立运行的应用程序中从XML文件加载Spring配置，而XmlWebApplicationContext被设计用于在JavaEE Web应用程序中实现相同的目标。
-* 如果需要使用Java而不是使用XML以编程方式对Spring进行配置，那么AnnotationConfigApplication和AnnotationConfigWebApplicationContext类分别可用于独立运行的应用程序和JavaEE Web应用程序中
+Spring将在类中寻找方法名为set开头的方法。然后它将使用参数名称把请求参数映射到表单对象属性。Spring也可以自动验证表单对象的细节，避免在控制器方法中内嵌验证逻辑。
 
-每个DispatcherServlet实例都有自己的应用上下文，其中包含了对Web应用程序的Servlet
-## 12.4 启动Spring Framework ##
+#### 4.请求正文转换和实体 ####
 
-### 12.4.1 使用部署描述符启动Spring(XML启动) ###
-传统的Spring Framework应用程序总是使用JavaEE部署描述符启动Spring。
 
-1. 创建DispatcherServlet的一个实例。
-2. 以contextConfigLocation启动参数的形式为它提供配置文件。
-3. 指示Spring在启动时加载它
+#### 5.Multipart请求数据 ####
+请求的Content-Type为multipart/form-data，并且它包含了被提交的每个表单字段的一部分。请求的每个部分都由指定的边界分隔开，它们都有一个值为form-data的Content-Disposition和匹配表单输入名称的名字。
 
-ContextLoaderListener将在Web应用程序启动时被初始化（因为它实现了ServletContextListener，所以它将在所有的Servlet之前初始化），然后从contextCOnfigLocation上下文初始化参数指定的
-rootContext.xml文件中加载根应用上下文，并启动根应用上下文。
+#### 6.模型类型 ####
+控制器方法可以有单个类型为Map<String, Ojbect>、org.springframework.ui.ModelMap或org.springframework.ui.Model的非标注参数。这些类型之一的方法参数代表了Spring传入到视图中用于渲染的模型，并且可以在方法的执行时向其中添加任意的特性。
 
-### 12.4.2 在初始化器中使用编程的方式启动Spring（Java启动） ###
-监听器的contextInitizlized方法可能在其他监听器之后调用。JavaEE6中天加了一个新的接口ServletContainerInitializer。实现了ServletContainerInitializer。实现了ServletCOntainerInitializer接口的类将在应用程序开始启动时，并在所有监听器启动之前调用它们的onStartup方法。 
+### 13.1.3 为控制器方法选择有效的返回类型 ###
+方法参数通常与请求内容相关，返回类型通常与响应相关。
 
-## 12.5 配置Sprng Framework ##
+#### 1.模型类型 ####
+控制器方法可以返回一个Map<String, Object>、ModelMap或Model。Spring可以将该返回类型识别为模型，并使用已配置的org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator（默认为org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator）自动确定视图。
+
+#### 2.视图类型 ####
+控制器方法可以返回许多不同的视图类型。
+接口org.springframework.web.servlet.View（或者任意实现了View的类）表示方法将返回一个显式的视图对象。
+
+#### 3.响应正文实体 ####
+正如请求正文可以包含HTTP实体（请求实体）一样，响应正文也可以包含HTTP实体（响应实体）。控制器方法可以返回HttpEntity<?>或者org.springframework.http.ResponseEntity<?>，Spring将把实体中的正文对象转换为正确的响应内容（基于协商的内容类型，使用适合的HTTP消息转换器进行转换）。
+
+HttpEntity允许设置响应正文和各种不同的头。ResponseEntity继承了HttpEntity，并添加了设置响应状态代码的能力，响应状态代码的类型应为org.springframework.http.HttpStatus。
+
+@ReponseBody（正文对象）、@ResponseStatus（状态码，如果不使用@ReponseStatus的话，默认值为200 OK）
+
+#### 4.任意返回类型 ####
+控制器方法可以返回任何其他对象。Spring将假设该对象是模型中的一个特性。它将使用返回类型类名称的驼峰命名法版本作为模型特性名称，除非该方法注解了@ModelAttribute，此时Spring将使用注解中指定的名称作为特性名。
+
+#### 5.异步类型 ####
+控制器方法可以返回java.util.concurrent.Callable<?>或org.springframework.web.context.request.async.DeferredResult<?>。
+
+## 13.2 使用SpringFramework的模型和视图模式 ##
+Spring Framework的MVC架构名称的来源是因为它依赖于模型-视图-控制器（MVC）设计模式。
+
+控制器将操作模型的数据（用户感兴趣的信息），并将模型传递给视图，而视图将以某种有用的方式对模型进行渲染。用户只会知道与视图进行交互，但在执行某种操作时不回知道它在与控制器交互。Servlet可被认为是一个控制器，在请求到达时将代表用户执行操作。Servlet将操作HttpServletRequest特性形式的模型，然后将模型传递给视图JSP用于渲染。
+
+Spring将再继续执行两个步骤，将模型从请求中完全分离开（Map<String, Object>、ModelMap或Model），并提供可以通过无限多种方式实现的高级View接口。
+
+* InternalResouceView和JstlView分别实现传统的JSP和JSTL增强JSP视图。它们负责将模型特性转换成请求特性，并将请求转发到正确的JSP。
+* FreeMarketView（支持FreeMarker模板引擎）
+* VelocityView（支持Apache Velocity模板引擎）
+* TilesView（支持Apache Tiles模板引擎）
+
+* 当控制器方法返回一个View、或者ModelAndView（将View的实现传入到ModelAndView构造器中）的实现时，Spring将直接使用该View，并且不需要额外的逻辑用于判断如何向客户端展示模型。
+* 如果控制器方法返回了一个字符串视图名称或者使用字符串视图名称构造的ModelAndView，Spring必须使用已配置的org.springframework.web.servlet.ViewResolver将视图名称解析成一个真正的视图。
+* 如果方法返回的是模型或者模型特性，Spring首先必须使用已配置的RequesstToViewNameTranslator隐式地将请求转换成视图名称，然后使用ViewResolver解析已命名地视图。
+* 当控制器方法返回地是响应实体ResponseEntity或者HttpEntity时，Spring将使用内容协商决定将实体展示到哪个视图中。
+
+### 13.2.1 使用显式的视图和视图名称 ###
+Model-View-Controller项目将采用编程的方式配置和启动：使用WebApplicationInitializer启动Spring Framework，它配置了两个@Configuration类：RootContextConfiguration和ServletContextConfiguration。
+
+#### 1.使用重定向视图 ####
+显式返回的最常见视图就是org.springframework.web.servlet.view.RedirectView，它用于将客户端请求发送到一个不同的URL上。如果URL以某种协议（http：//、https://等）或者网络前缀（//）开头，它将被认为式一个绝对URL。如果
+
+#### 2.配置视图解析 ####
+创建一个视图解析器（在派发器servlet应用上下文中实例化一个框架bean），此时，应该使用InternalResourceViewResolver，将把视图名称转换成JSP文件名。
+
+	InternalResourceViewResolver resolver = new InternalResourceViewResolver();
+	resolver.setViewClass(JstlView.class);
+	resolver.setPrefix("/WEB-INF/jsp/view/");
+	resolver.setSuffix(".jsp");
+视图解析器将使用前缀/WEB-INF/jsp/view加上视图名称再加上.jsp的方式构造JSP文件名。
+
+要将bean命名为viewResolver，因此必须将@Bean方法命名为viewResolver。
+
+#### 3.创建JSP视图 ####
+JSP视图通过JstlView显式出了模型的内容。
+
+### 13.2.2 使用同一个代码库的多个用户界面 ###
+RequestToViewnameTranslator bean和ViewResolver。
+
+#### 1.配置视图名称转换 ####
+可以在需要地时候创建自己地RequestToViewNameTranslator,但是默认地DefaultRequestToViewNameTranslator通常是足够地。它将去除Web应用上下文URL和URL结尾的任何文件扩展名。
+#### 2.使用@ModelAttribute ####
+注解@ModelAttribute将告示Spring返回的User应该被添加到模型的特性健currentUser上。
+
+## 13.2.3 返回响应实体 ##
+
+### 1.配置消息转换器 ###
+当服务器收到包含了请求正文的POST或PUT请求时，该正文通常被称为HTTP实体或请求实体，但也可以被称为消息。该消息可能是任意一种格式，它们必须被转换成控制器方法可以处理的某种类型的Java对象。这将根据请求的Content-Type头实现。
+
+## 13.3 使用表单对象简化开发 ##
+
+## 13.4 更新客户支持应用开发程序 ##
+
+### 13.4.1 启用Multipart支持 ###
+
 
 ### 12.5.1 创建XML配置 ###
 
