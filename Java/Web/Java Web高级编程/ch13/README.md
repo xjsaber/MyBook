@@ -117,41 +117,59 @@ RequestToViewnameTranslator bean和ViewResolver。
 ### 1.配置消息转换器 ###
 当服务器收到包含了请求正文的POST或PUT请求时，该正文通常被称为HTTP实体或请求实体，但也可以被称为消息。该消息可能是任意一种格式，它们必须被转换成控制器方法可以处理的某种类型的Java对象。这将根据请求的Content-Type头实现。
 
+ByteArrayHttpMessageConverter、StringHttpMessageConverter、FormHttpMessageConverter和SourceHttpMessageConverter是所有Spring会自动配置的转换器。按照它们通常出现的顺序进行配置。**顺序非常重要。**因为有得转换器有更宽的MIME类型和Java类型范围，这可能会屏蔽我们希望使用的转换器。
+
+配置类中注入的org.springframework.oxm.Marshaller、org.springframework.oxm.Unmarshaller和ObjectMapper
+
+为了配置这些bean并在应用程序中共享，在RootContextConfiguration中创建。因为org.springframework.oxm.jaxb.Jaxb2Marshaller既是Marshaller也是Unmarshaller。，所以它将同时负责两个任务。`
+
+### 2.配置内容协商 ###
+内容协商是客户端向服务器传达一个优先使用的响应内容类型的列表（按照优先级顺序），然后服务器将从其中选择一个合适的内容类型（如果没有合适的就是用默认类型）的过程。
+
+分析清楚客户端希望使用的数据格式。如果请求包含了一个请求实体，那么它也会有该实体的Content-Type，但这并非必须是客户端希望返回的响应格式（尽管通常是这样）。然后还有Accpt头，用于表示客户端希望接收的响应格式。
+
+1. 寻找请求URL上的文件扩展名。如果它包含了文件扩展名（例如.html、.xml、.json等），那么它将根据该扩展名决定被请求的格式。如果它未包含文件扩展名，或者如果文件扩展名不能被识别，那么它将继续执行下一步。
+2. 接下来Spring将寻找名为format的请求参数。如果它存在，那么它将使用被请求的格式（html、xml、json等）。如果format参数不存在或不被识别，它将继续执行下一步。
+3. Spring将使用Accept头确定希望返回的响应格式。
+
+### 3.使用@ResponseBody ###
+使用@ReonseBody，它将触发已配置的内容协商策略。
+
+Jaxb2Marshaller可以将User对象转换成它的XML表示，这是因为User类上填加了@javax.xml.bind.annotation.XmlRootElement注解。
 ## 13.3 使用表单对象简化开发 ##
 
+### 13.3.1 在模型中添加表单对象 ###
+将表单对象和业务对象分隔开。
+
+### 13.3.2 使用Spring Framework <form>标签 ###
+
+	<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+
+* <form:errors>等同于一个<span>，它将被关联到自动表单对象验证
+* <form:label>表示字段的标签文本，它等同于<label>
+* <form:hidden>等同于<input type="hidden">
+* <form:input>等同于<input type="text">
+* 
+* <form:textarea>等同于<textarea>
+* <form:checkbox>等同于<input type="checkbox">，它可以支持多种类型的属性，例如boolean、Boolean和数字类型
+* <form:checkboxes>等同于<input type="checkbox">，它可以支持多种类型的属性，例如boolean、Boolean和数字类型
+* <form:radiobutton>等同于<input type="radio">。通常，需要将两个或多个该标签绑定到相同的路径（表单对象属性），Spring将根据属性值自动选择正确的标签。
+* <form:checkboxes>等同于<form:checkboxes>一样，<form:radiobuttons>等同于<from:radiobuttons>。它们有着相同的items、itemValue和itemLabel特性，用于帮助生成单选按钮。<form:radiobuttons>和<form:checkboxes>都非常有利于枚举派生出字段。
+* <form:select>等同于一个<select>下拉列表或多选框。它可以与<form:option>和<form:options>一起使用。它将根据下拉列表被绑定到的路径的值自动选择正确的选项。
+* <form:option>将被嵌套在一个<form:select>中，等同于<option>
+* <form:options>如同<form:checkboxes>和<form:radiobuttons>一样，有items、itemValue和itemLabel特性
+
+### 13.3.3 获得被提交的表单数据 ###
+   
 ## 13.4 更新客户支持应用开发程序 ##
 
 ### 13.4.1 启用Multipart支持 ###
+Configuration类已经被移除，该类是一个ServletContextListener，它以编程的发过誓配置了LoggingFilter和AuthenticationFilter。Bootstrap类都是对过滤器（之前在Configurator中）进行配置的。
+
+### 13.4.2 将Servlet转换成Spring MVC控制器 ###
+
+### 13.4.3 创建自定义下载视图 ###
+
+## 13.5 小结 ##
 
 
-### 12.5.1 创建XML配置 ###
-
-    <mvc:annotation-driven />
-
-    <bean name="greetingServiceImpl" class="com.wrox.GreetingServiceImpl" />
-
-    <bean name="helloController" class="com.wrox.HelloController">
-        <property name="greetingService" ref="greetingServiceImpl" />
-    </bean>
-
-将告诉Spring实例化GreetingServiceImpl和HelloCOntroller，并将greetingServiceImpl bean注入到helloController bean的greetingService属性中。
-
-元素`<mvc:annotation-driven />`将指示Spring使用请求映射到控制器方法上。使用`<mvc:annotation-driven />`元素实际上会在幕后创建出特定的bean。
-
-### 12.5.2 创建混合配置 ###
-混合配置的核心时组件扫描和注解配置的概念。通过使用组件扫描，Spring将扫描通过特定注解指定的包查找类。所有标注了@org.springframework.stereotype.Component的类（在这些包中），都将变成由Spring管理的bean，这意味着Spring将实例化他们并注入他们的依赖。
-
-任何标注了@Component的注解都将变成组件注解，标注了@Controller、@Repository和@Service的类也将成为Spring管理的bean。
-
-@org.springframework.beans.factoryannotation.Autowired。可以为任何私有、保护和公开字段或者接受一个或多个参数的公开设置方法标注@Autowired。@Autowired声明了S-pring应该都在实例化应该在实例化之后注入的依赖，并且它也可以用于标注构造器。
-
-Spring无法为依赖找到匹配的bean，它将抛出并记录一个异常，然后启动失败；如果它为依赖找到多个匹配的bean，它也将抛出并记录一个异常，然后启动失败，可以使用@org.springframework.beans.factory.annotation.Qualifier或@org.springframework.context.annotation.Primary注解避免第二个问题。@Qualifier可以指定应该使用的额bean的名字，也可以使用@Primary标记一个组件标注的bean，表示在出现多个符合依赖的候选bean时应该优先使用它。
-
-## 12.6 使用bean definition profile ##
-
-### 12.6.1 了解profile的工作远离 ###
-
-### 12.6.2 考虑反模式和安全问题 ###
-
-## 12.7 小结 ##
-Spring Framework，bean，应用上下文和派发器Servlet，讲解了依赖注入（DI）和反转控制（IoC）、面向切面编程、事务管理、发布-订阅应用程序消息和Spring的MVC框架。
