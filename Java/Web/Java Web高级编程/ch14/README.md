@@ -29,27 +29,12 @@ Spring MVC控制器，可以使用它替换Servlet。
 ## 14.2 使用根应用上下文代替Web应用上下文 ##
 
 ### 14.2.1 在多用户界面中重用根应用上下文 ###
+通常根据不同的用户界面讲共享相同的服务。通过这种方式，业务逻辑将在所有的用户之间保持不变。为了实现这一点，不应该在Web应用上下文中管理服务和仓库，而是应该在根应用上下文中，是所有Web应用上下文的父亲。所有这些服务和仓库都将被控制各种不同用户界面的Web应用上下文所继承。如果希望使用为Web应用程序编写的服务和仓库编写桌面应用程序，那么可以使用相同的根应用上下文配置，然后使用不同的机制启动。
 
+组件扫描基于两个准则进行工作：包扫描和类过滤。
 
-#### 1.使用重定向视图 ####
-显式返回的最常见视图就是org.springframework.web.servlet.view.RedirectView，它用于将客户端请求发送到一个不同的URL上。如果URL以某种协议（http：//、https://等）或者网络前缀（//）开头，它将被认为式一个绝对URL。如果
+### 13.2.2 将业务逻辑从控制器移动到服务 ###
 
-#### 2.配置视图解析 ####
-创建一个视图解析器（在派发器servlet应用上下文中实例化一个框架bean），此时，应该使用InternalResourceViewResolver，将把视图名称转换成JSP文件名。
-
-	InternalResourceViewResolver resolver = new InternalResourceViewResolver();
-	resolver.setViewClass(JstlView.class);
-	resolver.setPrefix("/WEB-INF/jsp/view/");
-	resolver.setSuffix(".jsp");
-视图解析器将使用前缀/WEB-INF/jsp/view加上视图名称再加上.jsp的方式构造JSP文件名。
-
-要将bean命名为viewResolver，因此必须将@Bean方法命名为viewResolver。
-
-#### 3.创建JSP视图 ####
-JSP视图通过JstlView显式出了模型的内容。
-
-### 13.2.2 使用同一个代码库的多个用户界面 ###
-RequestToViewnameTranslator bean和ViewResolver。
 
 #### 1.配置视图名称转换 ####
 可以在需要地时候创建自己地RequestToViewNameTranslator,但是默认地DefaultRequestToViewNameTranslator通常是足够地。它将去除Web应用上下文URL和URL结尾的任何文件扩展名。
