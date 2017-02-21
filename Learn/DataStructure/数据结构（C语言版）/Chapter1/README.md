@@ -6,6 +6,21 @@
 
 ## 1.3 抽象数据类型的表示和实现 ##
 
+> elemtype必须是具体的数值类型，比如int,double......书上的一般是伪码，不能直接当程序运行的
+> elemtype在VC中没有这种类型，所以在使用它之前对其定义如 
+> typedef int ElemType将ElemType定义为整型的数据类型
+> typedef int Status
+> 数据结构里讲的Status都是它。
+> overflow
+>       一般用于exit的参数中，比如创建指针时，一般判断一下内存是否分配成功，不成功一般调 
+>      用exit(overflow);
+>  
+> infeasible 其意思是不可行的，一般在某个判断中，如果什么什么不可行，就会return infeasible
+> 例如：求后继元素时，如果是最后一个元素，则求其后继是不可行的，此时就会return infeasible
+> 数据结构中error，overflow旳返回值这个没有特别的规定，可以根据程序的意图，或自己的习惯来定义。比如经常将error=0，overflow=-1
+
+Triplet
+
 ## 1.4 算法和算法分析 ##
 
 ### 1.4.1 算法 ### 
