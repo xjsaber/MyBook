@@ -5,6 +5,33 @@
 
 ## 14.1 什么是线程 ##
 
+1)
+	//
+	public interface Runnable{
+		void run();
+	}
+	//
+	class MyRunnable implements Runnable{
+		public void run() {
+			task code
+		}
+	}
+	// 创建一个类对象
+	Runnable runnable = new MyRunnable();
+	// 由Runnable创建一个Thread对象
+	Thread thread = new Thread(r);
+	// 启动线程
+	t.start()
+
+** 已经不推荐 **
+应该从运行机制上减少需要并行运行的人物数量。如果有很多人物，要为每个任务创建一个独立的线程所付出的代价太大了。可以使用*线程池*来解决这个问题
+	class MyThread extends Thread{
+		public void run(){
+			task code
+		}
+	}
+
+PS：直接调用Thread类火Runnable对象的run方法，只会执行同一个线程中的任务，而不会启动新线程。
 
 ## 14.2 中断线程 ##
 
