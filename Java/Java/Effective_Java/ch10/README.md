@@ -1,6 +1,10 @@
-# Effective Java #
+# 第10章 并发 #
 
-第1章 引言
+## 第66条：同步访问共享的可变的数据 ##
+synchronized
+
+Java语言规范保证读或者写一个变量是原子的（atomic），除非这个变量的类型为long或double。
+
 
 第2章 创建和销毁对象
 
