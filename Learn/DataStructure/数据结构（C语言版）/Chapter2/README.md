@@ -4,7 +4,9 @@
 **线性表**是最常用且最简单的一种数据结构。
 
 ADT List {
-	
+	InitList(&L)
+	DestoryList(&L)
+	ClearList(&L)
 }
 
 算法2.2
