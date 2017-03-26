@@ -57,4 +57,11 @@ Java泛型转换：
 不能用类型参数代替基本类型。因此，没有Pair<double>，只有Pair<Double>。当然，其原因时类型擦除。Pair类型含有Object类型，而Object不能存储double值。Java只有8中基本类型，当包装类型（wrapper type）不能接收替换时，可以使用独立的类和方法处理它们。
 
 ### 12.6.2 运行时类型查询只适用于原始类型 ###
+getClass方法总是返回原始类型
 
+	Pair<String> stringPair = ...;
+	Pair<Employee> employee = ...;
+	if (stringPair.getClass() == employeePair.getClass()) //true
+
+### 12.6.3 不能创建参数化类型的数组 ###
+### 12.6.4 Varargs警告 ###
