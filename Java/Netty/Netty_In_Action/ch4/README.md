@@ -1,6 +1,8 @@
-# 第三章：Netty核心概念  #
+# 第四章：Transports（传输）  #
 
-## 3.1 Netty Crash Course ##
+## 4.1 案例研究：切换传输方式 ##
+
+### 4.1.1 使用Java的I/O和NIO ###
 
 1. 一个Netty程序开始于Bootstrap类，Bootstrap类是Netty提供的一个可以通过简单配置来设置或"引导"程序的一个很重要的类。Netty中设计了Handlers来处理特定的"event"和设置Netty中的事件，从而来处理多个协议和数据。事件可以描述成一个非常通用的方法，因为你可以自定义一个
 handler,用来将Object转成byte[]或将byte[]转成Object；也可以定义个handler处理抛出的异常。
@@ -12,9 +14,20 @@ handler,用来将Object转成byte[]或将byte[]转成Object；也可以定义个
 而是会等一会执行，因为你不知道返回的操作结果是成功还是失败，但是需要有检查是否成功的方法或者是注册监听来通知；Netty使用Futures和
 ChannelFutures来达到这种目的。Future注册一个监听，当操作成功或失败时会通知。ChannelFuture封装的是一个操作的相关信息，操作被执行时会立刻返回ChannelFuture。
 
-## 3.2 Channels，Events and Input/Output(IO) ##
+### 4.1.2 Netty 中使用I/O 和NIO ###
 
-Netty是一个非阻塞、事件驱动的网络框架。Netty实际上是使用多线程处理IO事件，对于熟悉多线程编程的读者可能会需要同步代码。这样的方式不好，因为同步会影响程序的性能，Netty的设计保证程序处理事件不会有同步。
+### 4.1.3 Netty中实现异步支持 ###
+
+## 4.2 Transport API ##
+
+传输API的核心是Channel接口，它用于所有出站的操作。传输一般有特定的配置设置，只作用于传输，没有其他的实现。ChannelPipeline容纳了使用的ChannelHandler实例，这些ChannelHandler将处理通道传递的“入站”和“出站”数据。ChannelHandler的实现允许你改变数据状态和传输数据，
+
+现在我们可以使用ChannelHandler做下面一些事情
+* 传输数据时，将数据从一种格式转换到另一种格式
+* 异常通知
+* Channel变为有效或无效时获得通知
+* Channel被注册或从EventLoop中注销时获得通知
+* 通知用户特定事件
 
 ## 3.3 什么是Bootstrap？为什么使用它？ ##
 
