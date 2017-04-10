@@ -1,4 +1,4 @@
-package com.xjsaber.netty.getstart;
+package com.xjsaber.netty.server;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -40,7 +40,7 @@ public class EchoServer {
                     .childHandler(new ChannelInitializer<Channel>() {
                         @Override
                         protected void initChannel(Channel channel) throws Exception {
-                            channel.pipeline().addLast(new DiscardServerHandler());
+                            channel.pipeline().addLast(new EchoServerHandler());
                         }
                     });
             //Binds server, waits for server to close, and releases resources
