@@ -1,24 +1,30 @@
-# 第11章 使用对象-关系映射持久化数据 #
+# 第13章 缓存数据 #
 
-* 延迟加载
-* 预先抓取
-* 级联（Cascading）
+缓存（Cacheing）
 
-* 借助上下文Session，编写不依赖于Spring的Repository
-* 通过Spring使用JPA
-* 借助Spring Data实现自动化的JPA Repository
+## 13.1 启用对缓存的支持 ##
 
-## 11.1 在Spring中集成Hibernate ##
-数据访问的功能都放到一个或多个专注于此项任务的组件中。（data access object，DAO）或Repository
+* 注解驱动的缓存
+* XML声明的缓存
 
-#### 1. 展现了设计数据访问层的合理方式 ####
-![图10.1](img/2016-12-13_21-52-19.jpg)
-服务对象本身并不会处理数据访问，而是将数据访问委托给Repository。Repository接口确保其与服务对象的松耦合。
+@Cacheable和@CacheEvict注解。
 
-### 11.1.1 声明Hibernate的Session工厂 ###
-org.hibernate.Session。Session接口提供了基本的数据访问功能，如保存、更新、删除以及从数据库加载对象的功能。通过Hibernate的Session接口，应用程序的Repository能够满足所有的持久化需求。
+使用缓存之前，必须要启用Spring对注解驱动缓存的支持。
+如 Java的@EnableCaching和XML的<cache:annotation-driven>
+他们都会创建一个切面（aspect）并触发Spring缓存注解的切点（pointcut）。根据所使用的注解以及缓存的状态，这个切面会从缓存中获取数据，将数据添加到缓存之中或者从缓存中移除某个值。
 
-org.springframework.orm.hibernate4.LocalSessionFac
+ConcurrentMapCacheManager
+
+### 13.1.1 配置缓存管理器 ###
+* SimpleCacheManager
+* NoOpCacheManager
+* ConcurrentMapCacheManager
+* CompositeCacheManager
+* EhCacheCacheManager
+* RedisCacheManager
+* GemfireCacheManager
+
+#### 使用Ehcache缓存 ####
 
 ### 11.1.2 数据访问模板化 ###
 编写Repository类将会涉及到使用Spring的HibernateTemplate能够保证每个事务事务使用同一个Session。但是最佳实践是不再使用HibernateTemplate，而是使用上下文Session(Contextual session)。通过这种方式，会直接将Hibernate SessionFactory装配到Repository中，并使用它来获取Session。
