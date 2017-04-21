@@ -19,7 +19,7 @@
 
 
 ### 10.1.2 数据访问模板化 ###
-Spring将数据访问过程中固定和可变的部分明确划分位两个不同的类：模板（template）和回调（callback）。
+Spring将数据访问过程中固定和可变的部分明确划分位两个不同的类：**模板（template）**和**回调（callback）**。
 
 模板管理过程中固定的部分，而回调处理自定义的数据访问代码。
 
@@ -32,6 +32,7 @@ JCA CCI连接
 * jdbc.core.JdbcTemplate
 JDBC连接
 * jdbc.core.namedparam.NamedParameterJdbcTemplate 支持命名参数的JDBC连接
+* jdbc.core.simple.SimpleJdbcTemplate 通过Java5简化后的JDBC连接（Spring3.1中已经废弃）
 * orm.hibernate3.HibernateTemplate Hibernate3.x以上的Session
 * orm.ibatis.SqlMapClientTemplate SqlMap客户端
 * JpaTemplate Java数据对象（Java Data Object）实现
@@ -39,9 +40,26 @@ JDBC连接
 
 ## 10.2 配置数据源 ##
 
+* 通过JDBC驱动程序定义的数据源。
+* 通过JNDI查找的数据源。
+* 连接池的数据源。
+
 ### 10.2.1 使用JNDI数据源 ###
+jndi-name属性，那么就会根据指定的名称查找数据源。
 
 ### 10.2.2 使用数据源连接池 ###
+
+### 10.2.3 基于JDBC驱动的数据源 ###
+
+org.springframework.jdbc.datasource
+
+* DriverManagerDataSource:在每个连接请求时都会返回一个新建的连接。与DBCP的BasicDataSource不同，由DriverManagerDataSource提供的连接并没有进行池化管理。
+* SimpleDriverDataSource：与DriverManagerDataSource的工作方式类似，但是他直接使用JDBC驱动，来解决在特定环境下的类加载问题，这样的环境包括OSGi容器。
+* SingleConnectionDataSource：在每个连接请求时都会返回同一个的连接。不管SingleConnectionDataSource不是严格意义上的连接池数据源。
+
+### 10.2.4 使用嵌入式 ###
+
+### 10.2.5 使用profile选择数据源 ###
 
 ## 10.3 在Spring中使用JDBC ##
 和Ado.net
@@ -51,7 +69,9 @@ JDBC连接
 Spring的JDBC框架承担了资源管理和异常处理的工作。
 
 Spring为JDBC提供了三个模板类供选择：
-JdbcTemplate:最基本的Spring
+* JdbcTemplate:最基本的Spring JDBC模板
+* NameParamterJdbcTemplate:
+* SimpleJdbcTemplate:
 
 #### 使用JdbcTemplate来插入数据 ####
 需要设置DataSource
