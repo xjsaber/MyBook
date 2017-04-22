@@ -26,52 +26,79 @@ ConcurrentMapCacheManager
 
 #### 使用Ehcache缓存 ####
 
-### 11.1.2 数据访问模板化 ###
-编写Repository类将会涉及到使用Spring的HibernateTemplate能够保证每个事务事务使用同一个Session。但是最佳实践是不再使用HibernateTemplate，而是使用上下文Session(Contextual session)。通过这种方式，会直接将Hibernate SessionFactory装配到Repository中，并使用它来获取Session。
+缓存管理器是EhCacheCacheManager
 
+Spring提供了EhCacheManagerFactoryBean来生成EhCache的CacheManager。方法ehcache()会创建并返回一个EhCacheManagerFactoryBean实例。
 
+[官方配置指南](http://www.ehcache.org/generated/2.10.4/html/ehc-all/#page/Ehcache_Documentation_Set%2Fto-cfgbasics_configuring_cache.html%23)
 
+#### 使用Redis缓存 ####
 
-## 10.2 配置数据源 ##
+Spring Data Redis提供了RedisCacheManager，这事CacheManager的一个实现。RedisCacheManager会与一个Redis服务器写作，宾馆通过RedisTemplate将缓存条目存储到Redis中。
 
-### 10.2.1 使用JNDI数据源 ###
+RedisTemplate bean以及RedisConnectionFactory实现类（如JedisConnectionFactory）的一个bean。
 
+#### 使用多个缓存管理器 ####
+CompostieCacheManager要通过一个或多个的缓存管理器来进行配置。迭代JCacheCacheManager、EhCacheCacheManager和RedisCacheManager。
+
+## 13.2 为方法添加注解以主持缓存 ##
+
+注解到方法则只针对单个方法，注解到类则针对该类下面的所有方法。
+
+@Cacheable 表明Spring在调用方法之前，首先应该在缓存中查找方法的返回值。如果这个值能够找到，就会返回缓存的值。否则的话，这个方法就会被调用，返回值会放到缓存之中 @CachePut 不会检查直接写 @CacheEvict 只删
+@Cacheing 分组的注解
+
+### 13.2.1 填充缓存 ###
+
+@Cacheable和@CachePut
+
+|属性 | 类型 | 描述 |
+|--|--|
+|value | String[] | 要使用的缓存的名称|
+|condition | String | SpEL表达式，如果得到的值是false的话，缓存不会应用到方法调用上。|
+|key | String | SpEL表达式，如果得到的值是false的话，缓存不会应用到方法调用上。 |
+|unless | boolean | SpEL表达式，如果得到的值是true的话，返回值不会放到缓存之中。|
+
+#### 将值放到缓存之中 ####
+
+#### 自定义缓存Key ####
+
+SpEL中的可用缓存元数据
+
+|表达式|描述|
+|--|--|
+|#root.args|传递给缓存方法的参数，形式为数组|
+|#root.caches|该方法执行时所对应的缓存，形式为数组|
+|#root.target|目标对象|
+|#root.targetClass|目标对象的类，是#root.target.class的简写形式|
+|#root.method|缓存方法|
+|#root.methodName|缓存方法的名字，是#root.method.name的简写形式|
+|#result|方法调用的返回值（不能用在@Cacheable注解上）|
+|#Argutment|任意的方法参数名（如#argName）或参数索引（#a0或#p0）|
+
+#### 条件化缓存 ####
+
+@Cacheable和@CachePut提供了两个属性实现条件话缓存：unless和condition
+
+condition为false时，缓存是被禁用的。unless属性为true时，阻止将对象放进缓存。 
 ### 10.2.2 使用数据源连接池 ###
 
-## 10.3 在Spring中使用JDBC ##
-和Ado.net
-### 10.3.1 应对失控的JDBC代码 ###
-大量的JDBC代码就是用于创建连接和语句以及异常处理的样板代码。但实际上，这些样板代码是非常重要的。清理资源和处理错误确保了数据访问的健壮性。
-### 10.3.2 使用JDBC模板 ###
-Spring的JDBC框架承担了资源管理和异常处理的工作。
+@CacheEvict
 
-Spring为JDBC提供了三个模板类供选择：
-JdbcTemplate:最基本的Spring
+|属性 | 类型 | 描述 |
+|--|--|
+|value | String[] | 要使用的缓存的名称|
+|key | String | SpEL表达式，用来计算自定义的缓存key|
+|condition | String | SpEL表达式，如果得到的值是false的话，缓存不会应用到方法调用上。 |
+|allEntries | boolean | 如果true的话，特定缓存的所有条目都会被移除。|
+|beforeInvocation | boolean | 如果为true的话，在方法调用之前移除条目。如果为false(默认值)的话，在方法成功调用之后再移除条目。|
 
-#### 使用JdbcTemplate来插入数据 ####
-需要设置DataSource
+## 13.3 使用XML声明缓存 ##
 
-	@Bean
-	public JdbcTemplate jdbcTemplate(DataSource dataSource){
-		return new JdbcTemplate(dataSource);
-	}
-通过构造器参数注入进来
+因为缓存是一种面向切面的行为，所以cache命名空间会与Spring的aop命名空间结合起来使用，用来声明缓存所应用的切点在哪里。
 
-	@Repository
-	public class JdbcSpitterRepository implements SpitterRepository {
-		private JdbcOperations jdbcOperations;
-		@Inject
-		public JdbcSpitterRepository(JdbcOperations jdbcOperations) {
-			this.jdbcOperations = jdbcOperations;
-		}
-	}
-@Repository注解，这表明它将会在组件扫描的时候自动创建。它的构造器上使用了@Inject注解，因此在创建的时候，会自动获得一个JdbcTemplate所实现的操作。通过注入JdbcOperations，而不是具体的JdbcTemplate，能过保证JdbcSpitterRepository通过JdbcOperations接口达到与JdbcTemplate保持松耦合。
-
-#### 使用JdbcTemplate来读取数据 ####
-
-#### 在JdbcTemplate中使用Java 8的Lambda表达式 ####
-
-#### 使用命名参数 ####
+//TODO 以后了解，先放放
 
 ## 10.4 小结 ##
+
 

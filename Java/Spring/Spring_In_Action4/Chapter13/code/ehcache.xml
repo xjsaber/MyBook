@@ -1,0 +1,6 @@
+<ehcache>
+    <!--http://www.ehcache.org/generated/2.10.4/html/ehc-all/#page/Ehcache_Documentation_Set%2Fto-cfgbasics_configuring_cache.html%23-->
+    <cache name="spittleCache"
+           maxBytesLocalHeap="50m"
+           timeToLiveSeconds="100"/>
+</ehcache>
