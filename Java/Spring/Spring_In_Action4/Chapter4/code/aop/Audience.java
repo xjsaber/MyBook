@@ -1,9 +1,6 @@
 package com.xjsaber.spring.aop;
 
-import org.aspectj.lang.annotation.AfterReturning;
-import org.aspectj.lang.annotation.AfterThrowing;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
+import org.aspectj.lang.annotation.*;
 
 /**
  * Created by xjsaber on 2017/4/22.
@@ -12,10 +9,13 @@ import org.aspectj.lang.annotation.Before;
 @Aspect
 public class Audience {
 
+    @Pointcut("execution(* com.xjsaber.spring.aop.Performance.perform(..))")
+    public void performance() {}
+
     /**
      * 表演之前
      */
-    @Before("execution(* com.xjsaber.spring.aop.Performance.perform(..))")
+    @Before("performance()")
     public void silenceCellPhones(){
 
         System.out.println("Silencing cell phones");
@@ -24,7 +24,7 @@ public class Audience {
     /**
      * 表演之前
      */
-    @Before("execution(* com.xjsaber.spring.aop.Performance.perform(..))")
+    @Before("performance()")
     public void taskSeats() {
 
         System.out.println("Taking seats");;
@@ -33,7 +33,7 @@ public class Audience {
     /**
      * 表演之后
      */
-    @AfterReturning("execution(* com.xjsaber.spring.aop.Performance.perform(..))")
+    @AfterReturning("performance()")
     public void applause() {
 
         System.out.println("CLAP CLAP CLAP!!!");;
@@ -42,7 +42,7 @@ public class Audience {
     /**
      * 表演失败之后
      */
-    @AfterThrowing("execution(* com.xjsaber.spring.aop.Performance.perform(..))")
+    @AfterThrowing("performance()")
     public void demandRefund() {
 
         System.out.println("Demanding a refund");
