@@ -35,14 +35,15 @@ Spring从两个角度来实现自动化装配：
 		this.cd = cd;
 	}
 
+@Inject注解来源于Java依赖注入规范
+
 ### 2.2.5 验证自动装配 ###
 
 ## 2.3 通过Java代码代码装配bean ##
 在进行显示装配的时候，有两种可选方案：Java和XML。
-
-
+通常会将JavaConfig放到单独的包中，使他与其他的应用程序逻辑分离开来。
 ### 2.3.1 创建配置类 ###
-创建JavaConfig类的关键在于为其添加@Configiration
+创建JavaConfig类的关键在于为其添加@Configiration@Configuration注解表明这个类是配置类。
 
 ### 2.3.2 声明简单的bean ###
 要在JavaConfig中声明bean，需要编写一个方法，这个方法会创建所需类型的实例，然后给这个方法添加@Bean注解。
@@ -54,6 +55,11 @@ Spring从两个角度来实现自动化装配：
 @Bean注解会告诉Spring这个方法将会返回一个对象，该对象要注册为Spring应用上下文的bean。方法体中包含了最终产生的bean实例的逻辑。
 
 ### 2.3.3 借助JavaScript实现注入 ###
+Spring中的bean都是单例的，没有必要为第二个CDPlayer bean创建完全相同的SgtPeppers实例。
+
+带有@Bean注解的方法可以采用任何必要的Java功能来产生bean实例。构造器和Setter方法只是@Bean方法的两个简单样例。
+
+## 2.4 通过XML装配bean ##
 
 
 ## 2.6 小结 ##
