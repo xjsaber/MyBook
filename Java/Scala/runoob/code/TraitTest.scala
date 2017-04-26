@@ -14,7 +14,7 @@ class Point(xc: Int, yc: Int) extends Equal {
       obj.asInstanceOf[Point].x == x
 }
 
-class TraitTest {
+object TraitTest {
 
   def main(args: Array[String]) {
     val p1 = new Point(2, 3)
