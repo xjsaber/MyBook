@@ -26,3 +26,10 @@ properties
 ### 2.2.1 Specifying facet-based dependencies ###
 
 ### 2.2.2 Overriding starter transitive dependencies ###
+
+## 2.3 Using automatic configuration ##
+
+### 2.3.1 Focusing on application functionality ###
+
+## 2.4 Summary ##
+
