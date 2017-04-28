@@ -1,0 +1,1 @@
+# ch1 Why Scala？ #
