@@ -1,0 +1,41 @@
+group 'com.xjsaber'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'org.springframework.boot'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+buildscript {
+    repositories {
+        maven{ url 'http://maven.aliyun.com/nexus/content/groups/public/'}
+        jcenter()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.2.RELEASE")
+    }
+}
+
+allprojects {
+    repositories {
+        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+        jcenter()
+    }
+}
+
+dependencies {
+    compile "org.springframework.boot:spring-boot-starter-web"
+    compile "org.springframework.boot:spring-boot-starter-thymeleaf"
+    compile "org.springframework.boot:spring-boot-starter-data-jpa"
+    compile "org.springframework.boot:spring-boot-starter-security"
+    compile "org.springframework.boot:spring-boot-starter-log4j"
+    compile "com.h2database:h2"
+    testCompile "org.springframework.boot:spring-boot-starter-test"
+}
+
+configurations {
+    all*.exclude group:'org.springframework.boot',
+            module:'spring-boot-starter-logging'
+}

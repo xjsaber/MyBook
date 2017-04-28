@@ -1,0 +1,17 @@
+#web配置
+server.port: 8090
+
+#spring配置
+spring:
+  thymeleaf:
+    cache: false
+
+#logging配置
+logging:
+  level:
+    root: WARN
+    org:
+      springframework:
+        security: DEBUG
+  path: /var/logs/
+  file: BookWorm.log
