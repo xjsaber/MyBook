@@ -203,6 +203,85 @@ settings元素中配置autoMappingBehavior属性值来设置其策略。
 
 #### 4.2.4 传递多个参数 ####
 
+**4.2.4.1 使用Map传递参数**
+
+	<select id="findRoleByMap" parameterType="map" resultMap="roleMap">
+		select id, role_anem, note from t_role
+		where role_name like concat('%', #{roleName}, '%')
+		and note like concat('%', #{note}, '%')
+	</select>
+	Map需要键值对应，由于业务关联性不强，需要深入到程序中看代码，造成可读性下降。
+
+**4.2.4.2 使用注解方式传递参数**
+
+	@Param(org.apache.ibatis.annotations.Param)
+	
+	public List<Role> findRoleByAnnotation(@Param("roleName")String rolename, @Param("note")String note);
+	<select id="findRoleByAnnotation" resultMap="roleMap">
+		select id, role_name, note from t_role
+		where role_anem like concat('%', #{roleName}, '%')
+		and note like concat('%', #{note}, '%')
+	</select>
+
+**4.2.4.3 使用JavaBean传递参数**
+组织一个JavaBean，通过setter和getter方法设置参数。定义一个RoleParams的JavaBean。
+	
+	RoleParam {
+		private String roleName;
+		private String note;
+		...
+	}
+	<select id="findRoleByParams" parameterType="com.learn.chapter4.params.RoleParam" resultMap="roleMap">
+		select id, role_name, note from t_role
+		where role_name like concat('%', #{roleName}, '%')
+		and note like concat('%', #{note}, '%')
+	</select>
+
+**4.2.4.4 总结**
+
+* 使用Map传递参数。因为Map导致业务可读性的丧失，从而导致后续扩展和维护的困难，应该在实际的应用中果断废弃这样的传递参数的方式。
+* 使用@Param注解传递多个参数，使用受到参数个数（n）的影响。当n<=5时，她是最佳的传递方式，它比用JavaBean更好，因为它更加直观；当n>5时，多个参数将给调用带来困难。
+* 当参数个数多余5个时，建议使用JavaBean方式。
+
+**4.2.5 使用resultMap映射结果集**
+
+### 4.3 insert元素 ###
+
+#### 4.3.1 概述 ####
+
+insert元素配置详解
+
+|属性名称|描述|备注|
+|--|--|
+|id|它和|如不|
+|parameterType|
+|parameterMap|
+|flushCache|
+|timeout|
+|statementType|
+|keyProperty|
+|useGeneratedKeys|
+|keyColumn|
+|databaseId|
+|lang|
+
+## 第8章 MyBatis-Spring ##
+
+IOC（反转控制）和AOP（面向切面编程）
+
+### 8.1 Spring的基础知识 ###
+
+#### 8.1.1 Spring IOC基础 ####
+
+Spring中的IOC注入方式分为下面：
+
+* 构造方法注入
+* setter注入
+* 接口注入
+
+
+
+
 ## 第9章 实用的场景 ##
 
 9.1 数据库BLOB字段读写
