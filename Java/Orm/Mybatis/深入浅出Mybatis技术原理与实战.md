@@ -3,8 +3,8 @@
 1. [mybatis简介]()
 2. [mybatis入门]()
 3. [配置]()
-
-
+4. [映射器]()
+5. [动态SQL]()
 
 第1章 Mybatis
 
@@ -264,6 +264,67 @@ insert元素配置详解
 |keyColumn|
 |databaseId|
 |lang|
+
+## 第5章 动态SQL ##
+
+### 5.1 概述 ###
+
+|元素|作用|备注|
+|--|--|--|
+|if|判断语句|单条件分支判断|
+|choose(when、otherwise)|相当于Java中的case when语句|多条件分支判断|
+|trim(where、set)|辅助元素|用于处理一些SQL拼装问题|
+|foreach|循环语句|在in语句等列举条件常用|
+
+### 5.2 if元素 ###
+
+	<select id="findRoles" parameterType="String" resultMap="roleResultMap">
+		select role_no, role_name, role from t_role where 1 = 1
+		<if test="roleName" != null and roleName != ''">
+			and role_name like concat('%', #{roleName}, '%')
+		</if>
+	</select>
+
+### 5.3 choose、when、otherwise元素 ###
+
+### 5.4 trim、where、set元素 ###
+	
+	<select id="findRoles" parameterType="string" 
+	resultMap="roleResultMap">
+		<trim prefix="where" prefixOverrides="and">
+			<if test="roleName != null and roleName != ''">
+				and role_name like concat('%', #{roleName}, '%')
+			</if>
+		</trim>
+	</select>
+trim元素意味着我们要去掉一些特殊的字符串，prefix代表的是语句的前缀，prefixOverrides代表的是需要去掉的那种字符串。
+
+	<set>
+		...
+	</set>
+### 5.5 foreach元素 ###
+
+	<select id="findUserBySex" resultType="user">
+		select * from t_user where sex in
+		<foreach item="sex" index="index" collection="sexList" open="(" separator ="," close=")">
+			#{sex}
+		</foreach>
+	</select>
+
+* collection配置的sexList是传递进来的参数名称
+* item配置的是循环中当前的元素。
+* index配置的是当前元素在集合的位置下标。
+* open和close配置的是以什么符号将这些集合元素包装起来。
+
+### 5.6 test的属性 ###
+
+	test的属性用于条件判断的语句，作用判断真假。
+
+### 5.7 bind元素 ###
+
+bind元素的作用是通过OGNL表达式去自定义一个上下文变量。
+
+## 第6章 MyBatis的解析和运行原理 ##
 
 ## 第8章 MyBatis-Spring ##
 
