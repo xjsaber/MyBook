@@ -324,22 +324,6 @@ trim元素意味着我们要去掉一些特殊的字符串，prefix代表的是�
 
 bind元素的作用是通过OGNL表达式去自定义一个上下文变量。
 
-## 第6章 MyBatis的解析和运行原理 ##
-
-## 第8章 MyBatis-Spring ##
-
-IOC（反转控制）和AOP（面向切面编程）
-
-### 8.1 Spring的基础知识 ###
-
-#### 8.1.1 Spring IOC基础 ####
-
-Spring中的IOC注入方式分为下面：
-
-* 构造方法注入
-* setter注入
-* 接口注入
-
 
 ## 第6章 MyBatis的解析和运行原理 ##
 
@@ -385,6 +369,68 @@ SqlSessionFactory是MyBatis的核心类之一，其最重要的功能就是提�
 Configuration是通过XMLConfigurationBuilder去构建的。
 
 * properties全局参数。
+* settings设置
+* typeAliases别名
+* typeHandler类型处理器
+* ObjectFactory对象
+* plugin插件
+* environment环境
+* DatabaseIdProvider数据库表示
+* Mapper映射器
+
+#### 6.2.2 映射器的内部组成 ####
+
+MappedStatement
+SqlSource
+BoundSql
+
+
+#### 6.2.3 构建SqlSessionFactory ####
+
+有了Configutation对象构建SqlSessionFactory
+
+	sqlSessionFactory = new SqlSessionFactoryBuilder().builder(inputStream)
+
+### 6.3 SqlSession运行过程 ###
+
+#### 6.3.1 映射器的动态代理 ####
+
+Mapper映射是通过动态代理来实现的。
+
+#### 6.3.2 SqlSession下的四大对象 ####
+
+Executor代表执行器。
+
+SatementHandler的作用是使用数据库的Statement(PreparedStatement)执行操作。
+
+ParameterHandler用于SQL对参数的处理
+
+ResultHandler是进行最后数据集（ResultSet）的封装返回处理。
+
+**6.3.2.1 执行器**
+
+* SIMPLE，简易执行器，不配置它就是默认执行器。
+* REUSE，是一种执行器重用预处理语句。
+* BATCH，执行器重用语句和批量更新，它是针对批量专用的执行器。
+
+**6.3.2.2 数据库会话器**
+
+#### 6.3.3 SqlSession运行总结 ####
+
+## 第8章 MyBatis-Spring ##
+
+IOC（反转控制）和AOP（面向切面编程）
+
+### 8.1 Spring的基础知识 ###
+
+#### 8.1.1 Spring IOC基础 ####
+
+Spring中的IOC注入方式分为下面：
+
+* 构造方法注入
+* setter注入
+* 接口注入
+
 
 ## 第9章 实用的场景 ##
 
