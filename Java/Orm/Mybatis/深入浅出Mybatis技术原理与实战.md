@@ -341,7 +341,50 @@ Spring中的IOC注入方式分为下面：
 * 接口注入
 
 
+## 第6章 MyBatis的解析和运行原理 ##
 
+MyBatis的运行分为两大部分：
+
+1. 读取配置文件缓存到Configuration对象，用以攒机改进SqlSessionFactory。
+2. SqlSession的执行过程。
+
+### 6.1 涉及的技术难点简介 ###
+
+动态代理
+
+1. JDK反射机制提供的代理
+2. CGLIB代理
+
+#### 6.1.1 反射技术 ####
+
+#### 6.1.2 JDK动态代理 ####
+
+JDK的java.lang.reflect.*包提供支持的
+
+* 编写服务类和接口，这个是真正的服务提供者，在JDK代理中接口是必须的。
+* 编写代理类，提供绑定和代理方法。
+
+#### 6.1.3 CGLIB动态代理 ####
+
+### 6.2 构建SqlSessionFactory过程 ###
+
+SqlSessionFactory是MyBatis的核心类之一，其最重要的功能就是提供创建MyBatis的核心接口SqlSession。
+
+1. 通过org.apache.ibatis.builder.xml.XMLConfigBuilder解析配置的XML文件
+2. 使用Confinguration对象去创建SqlSessionFactory。
+
+#### 6.2.1 构建Configuration ####
+
+在SqlSessionFactory构建中，Configuration是最重要的
+
+* 读取配置文件，包括基础配置的XML文件和映射器的XML文件。
+* 初始化基础配置，比如MyBatis的别名等，一些重要的类对象。
+* 提供单例，为后续创建SessionFactory服务并提供配置的参数。
+* 执行一些重要的对象方法，初始化配置信息。
+
+Configuration是通过XMLConfigurationBuilder去构建的。
+
+* properties全局参数。
 
 ## 第9章 实用的场景 ##
 
