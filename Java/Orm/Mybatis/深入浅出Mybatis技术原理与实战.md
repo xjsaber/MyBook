@@ -417,6 +417,8 @@ ResultHandler是进行最后数据集（ResultSet）的封装返回处理。
 
 #### 6.3.3 SqlSession运行总结 ####
 
+## 第7章 ##
+
 ## 第8章 MyBatis-Spring ##
 
 IOC（反转控制）和AOP（面向切面编程）
