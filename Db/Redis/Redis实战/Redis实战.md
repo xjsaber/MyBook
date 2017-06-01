@@ -138,6 +138,36 @@ Redis是一个可以用来解决问题的工具，它即拥有其他数据库不
 ### 2.6 小结 ###
 降低数据库负载和Web服务器负载的方法
 
+## 第3章 Redis命令 ##
+
+### 3.1 字符串 ###
+
+* 字符串(byte string)
+* 整数
+* 浮点数
+
+INCR、DECR、INCRBY、DECRBAY、INCRBYFLOAT
+
+APPEND、GETRANGE、SETRANGE、GETBIT、SETBIT、BITCOUNT、BITOP
+
+### 3.2 列表 ###
+
+Redis的列表允许用户从序列的两端推入或者弹出元素，获取列表元素，以及执行各种常见的列表操作。
+
+RPUSH、LPUSH、RPOP、LPOP、LINDEX、LRANGE、LTRIM
+
+从语义上来说，列表的左端为开头，右端为结尾。有几个列表命令可以将元素从一个列表移动到另一个列表，或者阻塞（block）执行命令客户端直到有其他客户端给列表添加元素为止。
+
+阻塞式的列表弹出命令以及在列表之间移动元素的命令BLPOP、BRPOP、RPOPLPUSH、BRPOPLPUSH
+
+对于阻塞弹出命令和弹出并推入命令、最常见的用例就是消息传递（messaging）和任务队列(task queue)
+
+### 3.3 集合 ###
+
+Redis的集合以无序的方式来存储多个各不相同的元素，用户可以快速地对集合执行添加元素操作、移除元素操作以及检查一个元素是否存在于集合里。
+
+SADD、SREM、SISMEMBER、SCARD（返回集合包含的元素数量）、SMEMBERS、SRANDMEMBER、SPOP、SMOVE
+
 ## 第4章 数据安全与性能保障 ##
 
 ### 4.1 持久化选项 ###
