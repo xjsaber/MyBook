@@ -168,6 +168,79 @@ Redis的集合以无序的方式来存储多个各不相同的元素，用户可
 
 SADD、SREM、SISMEMBER、SCARD（返回集合包含的元素数量）、SMEMBERS、SRANDMEMBER、SPOP、SMOVE
 
+SDIFF、SDIFFSTORE、SINTER、SINTERSTORE、SUNION、SUNIONSTORE
+
+### 3.4 散列 ###
+
+Redis的散列可以让用户将多个键值对存储到一个Redis键里面。从功能来说，Redis为散列值提供了一些与字符串值相同的特性，使得散列非常适用于将一些相关的数据存储在一起。
+
+最常用的散列命令：其中包括添加和删除键值对的命令、获取所有键值对的命令，以及对键值对的值进行自增或者自减操作的命令。
+
+HMGET、HMSET、HDEL、HLEN
+
+高级特性：HEXISTS、HKEYS、HVALS、HGETALL、HINCRBY、HINCRBYFLOAT
+
+### 3.5 有序集合 ###
+
+有序集合存储着成员与分值之间的映射，并且提供了分值处理命令，以及根据分值大小有序地获取（fetch）或扫描（scan）成员和分值的命令。
+
+基础操作：
+ZADD、ZREM、ZCARD、ZINCRBY、ZCOUNT、ZRANK、ZSCORE、ZRANGE
+
+有序集合的范围型数据获取命令和范围型数据删除命令，以及并集命令和交集命令：
+ZREVRANK、ZREVRANGE、ZRANGEBYSCORE、ZREVRANGEBYSCORE、ZREMRANGEBYRANK、ZREMRANGEBYSCORE、ZINTERSTORE、ZUNIONSTORE
+
+除了使用逆序来处理有序集合之外，ZREV*命令的工作方式和相对应的非逆序命令的工作方式完全一样（逆序就是指元素按照分值从大到小地排列）。
+
+并集和交集
+
+* 交集：对两个输入有序集合执行交集运算并得到输出有序集合的过程，这次交集运算使用的是默认的聚合函数sum，所以输出有序集合成员的分值都是通过加法计算得出的。conn.zinterstore('zset-i', ['zset-1','zset-2'])
+* 并集：使用聚合函数min执行并集运算的过程，min函数在多个输入有序集合都包含同一个成员的情况下，会将最小的那个分值设置为这个成员在输出有序集合的分值。conn.zunionstore('zset-u', ['zset-1', 'zset-2'], aggregate='min')
+
+### 3.6 发布与订阅 ###
+
+发布与订阅（又称pub/sub）的特点是订阅者（listener）负责订阅频道（channel），发送者（publisher）负责向频道发送二进制字符串消息（binary string message）。
+
+Redis提供的发布与订阅命令：SUBSCRIBE、UNSUBSCRIBE、PUBLISH、PSUBSCRIBE、PUNSUBSCRIBE
+
+发布订阅模式缺点：
+
+1. 和Redis系统的稳定性有。
+2. 和数据传输的可靠性有关。
+
+PUBLISH命令和SUBSCRIBE命令，可能会丢失一小部分数据。
+
+### 3.7 其他命令 ###
+
+SORT，MULTI和EXEC
+
+#### 3.7.1 排序 ####
+
+SORT 根据给定的选项，对输入列表、集合或者有序集合进行排序，然后返回或者存储排序的结果。
+
+	conn.sort()
+
+SORT不仅可以对列表进行排序，还可以对集合进行排序，然后返回一个列表形式的排序结果。
+
+	# 根据字母表顺序对元素进行排序
+	conn.sort('sort-input', alpha=True)
+	# 对散列的域（field）用作权重，对sort-input列表进行排序
+	conn.sort('sort-input', by='d-*->field')
+	# 对散列的域（field）用作权重，对sort-input列表进行排序
+	conn.sort('sort-input', by='d-*->field', get='d-*->field')
+
+#### 3.7.2 基本的Redis事务 ####
+
+WATCH、MULTI、EXEC、UNWATCH和DISCARD
+
+**什么是Redis的基本事务**
+
+Redis的基本事务（basic transaction）需要用到MULTI命令和EXEC命令。
+
+Redis事务在Python客户端上面是由流水线（pipline）实现的：对连接对象调用pipeline()方法将创建一个事务。
+
+#### 3.7.3 键的过期时间 ####
+
 ## 第4章 数据安全与性能保障 ##
 
 ### 4.1 持久化选项 ###
@@ -263,6 +336,37 @@ SUNIONSTORE命令的性能
 *Redis都不支持主主复制*
 
 #### 4.2.3 主从链 ####
+
+## 第5章 使用Redis构建支持程序 ##
+
+### 5.1 使用Redis来记录日志 ###
+
+1. 将日志记录到文件里面，然后随着时间流逝不断地将一个又一个日志行添加到文件里面，并在一段时间之后创建新的日志文件。
+2. syslog服务是第二种常用的日志记录方法， 这个服务运行在几乎所有Linux服务器和Unix服务器的514号TCP端口和UDP端口上面。 
+
+#### 5.1.1 最新日志 ####
+
+log_recent()
+
+#### 5.1.2 常见日志 ####
+
+### 5.2 计数器和统计数据 ###
+
+#### 5.2.1 将计数器存储到Redis里面 ####
+
+为了收集指标数据并进行监视和分析，将构建一个能够持续创建并维护计数器的工具，这个工具创建的每个计数器都有自己的名字（名字里带有网站点击量、销量或者数据库查询字样的计数器都是比较重要的计数器）。这些计数器会以不同的时间精度（如1秒、5秒、1分钟等）存储最新的120个数据样本。
+
+**1.对计数器进行更新**
+
+有序序列（order_sequence）
+
+update_count()函数
+
+get_count()函数
+
+**1.对计数器进行更新**
+
+**1.对计数器进行更新**
 
 ## 附录 ##
 
