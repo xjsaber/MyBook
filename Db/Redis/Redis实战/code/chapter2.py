@@ -8,6 +8,7 @@ def check_token(conn, token):
     return conn.hget('login', token)
 
 
+# 修改令牌
 def update_token(conn, token, user, item=None):
     # 获取时间搓
     timestamp = time.time()
@@ -27,6 +28,7 @@ QUIT = False
 LIMIT = 1000000
 
 
+# 清理所有的session
 def clean_sessions(conn):
     while not QUIT:
         # 找出目前已有令牌的数量
