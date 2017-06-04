@@ -1,19 +1,44 @@
-# ch16 结论以及Java 的未来 #
+# ch14 函数式编程技巧 #
 
-## 16.1 回顾Java8的语言特性 ##
+## 14.1 无处不在的函数 ##
 
-### 16.1.1 行为参数化 ###
+Scala支持哪些数据结构—— List 、Set 、 Map 、 Stream 、 Tuple 以及 Option。
 
-* 传递一个Lambda表达式，即一段精简的代码片段，比如 apple -> apple.getWeight() > 150
-* 传递一个方法引用，该方法引用指向了一个现有的方法，比如这样的代码：Apple::isHeavy
+### 15.1.1 你好，啤酒 ###
 
-Function<T, R> 、 Predicate<T> 或者 BiFunction<T, U, R> 这样的类型
+#### 1.命令式Scala ####
 
-### 16.1.2 流 ###
 
-Stream API则与之相反，它采用延迟算法将这些操作组成一个流水线，通过单次流遍历，一次性完成所有的操作。对于大型的数据集，这种操作方式要高效得多。
+#### 2.函数式Scala ####
 
-Stream，尤其是它的 parallel 方法能帮助将一个Stream标记为适合进行并行处理。
+
+### 15.1.2 基础数据结构： List 、 Set 、 Map 、 Tuple 、 Stream 以及 Option ###
+
+#### 1. 创建集合 ####
+
+#### 2. 不可变与可变的比较 ####
+
+#### 3. 使用集合 ####
+
+#### 4. 元祖 ####
+
+#### 5. Stream ####
+
+List 、 Set 、 Map 和 Tuple
+
+Stream是按需计算的，Stream可以表示无限的序列，同时又不消耗太多的内存。
+
+Scala也提供了对应的数据结构，它采用延迟方式计算数据结构，名称也叫 Stream！
+
+#### 6.Option ####
+
+	public String getCarInsuranceName(Optional<Person> person, int minAge) {
+		return person.filter(p -> p.getAge() >= minAge)
+		.flatMap(Person::getCar)
+		.flatMap(Car::getInsurance)
+		.map(Insurance::getName)
+		.orElse("Unknown");
+	}
 
 ### 16.1.3 CompleteableFuture ###
 
