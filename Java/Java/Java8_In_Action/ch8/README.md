@@ -85,9 +85,66 @@
 		int characteristics();
 	}
 
-### 7.3.1 拆分过程 ###
+### 8.3.1 测试可见Lambda函数的行为 ###
 将Stream拆分成多个部分的算法是一个递归过程。
 
-### 7.3.2 实现你自己的Spliterator ###
+### 8.3.2 测试使用Lambda的方法的行为 ###
 
 
+### 8.3.3 将复杂的 Lambda 表达式分到不同的方法 ###
+
+
+### 8.3.4 高阶函数的测试 ###
+
+
+## 8.4 调试 ##
+
+* 查看栈跟踪
+* 输出日志
+
+### 8.4.1 查看栈跟踪 ###
+
+#### Lambda表达式和栈跟踪 ####
+
+	at Debugging.lambda$main$0(Debugging.java:6)
+	at Debugging$$Lambda$5/284720968.apply(Unknown Source)
+这些表示错误发生在Lambda表达式内部。由于Lambda表达式没有名字，所以编译器只能为它们指定一个名字。看起来非常不直观。
+
+涉及Lambda表达式的栈跟踪可能非常难理解
+
+### 8.4.2 使用日志调试 ###
+
+	numbers.stream()
+	.map(x -> x + 17)
+	.filter(x -> x % 2 == 0)
+	.limit(3)
+	.forEach(System.out::println);
+
+一旦调用 forEach ，整个流就会恢复运行。到底哪种方式能更有效地帮助我们理解Stream流水线中的每个操作（比如 map 、 filter 、 limit ）产生的输出？
+
+	peek
+
+peek 的设计初衷就是在流的每个元素恢复运行之前，插入执行一个动作。但是它不像 forEach 那样恢复整个流的运行，而是在一个元素上完成操作之后，它只会将操作顺承到流水线中的下一个操作。
+
+	List<Integer> result =
+	numbers.stream()
+	.peek(x -> System.out.println("from stream: " + x))
+	.map(x -> x + 17)
+	.peek(x -> System.out.println("after map: " + x))
+	.filter(x -> x % 2 == 0)
+	.peek(x -> System.out.println("after filter: " + x))
+	.limit(3)
+	.peek(x -> System.out.println("after limit: " + x))
+	.collect(toList());
+
+## 8.5 小结 ##
+
+* Lambda表达式能提升代码的可读性和灵活性。
+* 如果你的代码中使用了匿名类，尽量用Lambda表达式替换它们，但是要注意二者间语义的微妙差别，比如关键字 this ，以及变量隐藏。
+* 跟Lambda表达式比起来，方法引用的可读性更好 。
+* 尽量使用Stream API替换迭代式的集合处理。
+* Lambda表达式有助于避免使用面向对象设计模式时容易出现的僵化的模板代码，典型的比如策略模式、模板方法、观察者模式、责任链模式，以及工厂模式。
+* 即使采用了Lambda表达式，也同样可以进行单元测试，但是通常你应该关注使用了Lambda表达式的方法的行为。
+* 尽量将复杂的Lambda表达式抽象到普通方法中。
+* Lambda表达式会让栈跟踪的分析变得更为复杂。
+* 流提供的 peek 方法在分析Stream流水线时，能将中间变量的值输出到日志中，是非常有用的工具。
