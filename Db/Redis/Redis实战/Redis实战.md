@@ -196,19 +196,61 @@ ZINTERSTORE命令可以组合起一个或多个有序集合，并将有序集合
 * 整数
 * 浮点数
 
+用户可以通过给定一个任意的数值，对存储着整数或者浮点数的字符串执行自增（increment）或者自减(decrement)操作，在有需要的时候，Redis还有将整数转换成浮点数。
+
+浮点数，基本的数值自增和自减操作，以及二进制位（bit）和子串（substring）处理命令。
+
 INCR、DECR、INCRBY、DECRBAY、INCRBYFLOAT
 
+|命令|用例和描述|
+|--|--|
+|INCR|INCR key-name——将键存储的值加上1|
+|DECR|DECR key-name——将键存储的值减去1|
+|INCRBY|INCRBY key-name amount——将健存储的值加上整数amount|
+|DECRBY|DECRBY key-name amount——将健存储的值减去整数amount|
+|INCRBYFLOAT|INCRBYFLOAT key-name amount——将键存储的值加上浮点数amount，这个命令在Redis2.6或以上的版本可用|
+
 APPEND、GETRANGE、SETRANGE、GETBIT、SETBIT、BITCOUNT、BITOP
+
+|命令|用例和描述|
+|--|--|
+|APPEND|APPEND key-name value——将值value追加到给定键key-name当前存储的值的末尾|
+|GETRANGE|GETRANGE key-name start end——获取一个由偏移量start之偏移量end范围内所有字符组成的子串，包括start和end在内|
+|SETRANGE|SETRANGE key-name offset value——将从start偏移量开始的子串设置为给定值|
+|GETBIT|GETBIT key-name offset——将字节串看作是二进制位串（bit string），并返回位串中偏移量为offset的二进制位的值|
+|SETBIT|SETBIT key-name offset value|
+|BITCOUNT|BITCOUNT key-name [start end]|
+|BITOP|BITOP operation des-key key-name [key-name ...]|
+
+在使用SETRANGE或者SETBIT命令对字符串进行写入的时候，如果字符串当前的长度不能满足写入的要求，那么Redis会自动地使用空字节（null）来将字符串扩展至所需的长度，然后才能执行写入或者更新操作。
+
+SETBIT 命令会返回二进制被设置之前的值。
+
+Redis 通过使用子串操作和二进制位操作，配合WATCH命令、MULTI命令和EXEC命令，用户甚至可以自己动手去构建任何他们想要的数据结构。
 
 ### 3.2 列表 ###
 
 Redis的列表允许用户从序列的两端推入或者弹出元素，获取列表元素，以及执行各种常见的列表操作。
 
-RPUSH、LPUSH、RPOP、LPOP、LINDEX、LRANGE、LTRIM
+|命令|用例和描述|
+|--|--|
+|RPUSH|RPUSH key-name value [value ...]——将一个或多个值推入列表的右端|
+|LPUSH|LPUSH key-name value [value ...]——将一个或多个值推入列表的左端|
+|RPOP|RPOP key-name——移除并返回列表最右端的元素|
+|LPOP|LPOP key-name——移除并返回列表最左端的元素|
+|LINDEX|LINDEX key-name offset——返回列表中偏移量为offset的元素|
+|LRANGE|LRANGE key-name start end——返回列表从start偏移量到end偏移量范围内的所有元素，其中偏移量为start和偏移量和end的元素也会包含在被返回的元素之内|
+|LTRIM|LTRIM key-name start end——对列表进行修剪，只保留从start偏移量到end偏移量范围内的元素，其中偏移量start和偏移量为end的元素也会被保留|
 
 从语义上来说，列表的左端为开头，右端为结尾。有几个列表命令可以将元素从一个列表移动到另一个列表，或者阻塞（block）执行命令客户端直到有其他客户端给列表添加元素为止。
 
 阻塞式的列表弹出命令以及在列表之间移动元素的命令BLPOP、BRPOP、RPOPLPUSH、BRPOPLPUSH
+
+|命令|用例和描述|
+|BLPOP|BLPOP |
+|BRPOP|BRPOP|
+|RPOPLPUSH|RPOPLPUSH|
+|BRPOPLPUSH|BRPOPLPUSH|
 
 对于阻塞弹出命令和弹出并推入命令、最常见的用例就是消息传递（messaging）和任务队列(task queue)
 
