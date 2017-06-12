@@ -247,10 +247,11 @@ Redis的列表允许用户从序列的两端推入或者弹出元素，获取列
 阻塞式的列表弹出命令以及在列表之间移动元素的命令BLPOP、BRPOP、RPOPLPUSH、BRPOPLPUSH
 
 |命令|用例和描述|
-|BLPOP|BLPOP |
-|BRPOP|BRPOP|
-|RPOPLPUSH|RPOPLPUSH|
-|BRPOPLPUSH|BRPOPLPUSH|
+|--|--|
+|BLPOP|BLPOP key-name [key-name ...] timeout——从第一个非空列表中弹出位于最左端的元素，或者timeout秒之内阻塞并等待可弹出的元素出现|
+|BRPOP|BRPOP key-name [key-name ...] timeout——从第一个非空列表中弹出位于最右端的元素，或者timeout秒之内阻塞并等待可弹出的元素出现|
+|RPOPLPUSH|RPOPLPUSH source-key desy-key——从source-key列表中弹出位于最右端的元素，然后将这个元素推入dest-key列表的最左端，并向用户返回这个元素|
+|BRPOPLPUSH|BRPOPLPUSH source-key dest-key timeout——从source-key列表中弹出位于最右端的元素，然后将这个元素推入dest-key列表的最左端，并向用户返回这个元素；如果source-key为空，那么在timeout秒之内阻塞并等待可弹出的元素出线|
 
 对于阻塞弹出命令和弹出并推入命令、最常见的用例就是消息传递（messaging）和任务队列(task queue)
 
