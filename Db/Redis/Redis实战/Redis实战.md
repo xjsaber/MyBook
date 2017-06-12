@@ -1,5 +1,7 @@
 # Redis实战 #
 
+# 第一部分 入门 #
+
 ## 第1章 初识Redis ##
 
 ### 1.1 Redis简介 ###
@@ -149,17 +151,21 @@ ZCARD命令返回在指定的键存储在集合中的元素的数量。
 
 ### 2.2 使用Redis实现购物车 ###
 
-使用cookie实现购物车——也就是将整个购物车都存储到cookie里面的做法非常常见，这样做法的一大优点是无须对数据库进行写入就可以实现购物车功能，而缺点则是程序需要重新解析和验证（validate）cookie，确保cookie的格式正确，并且包含的商品都是真正可购买的商品。cookie购物车还有一个缺点：因为浏览器每次发送请求都会连cookie一起发送，所以如果购物车cookie的体积比较大，那么请求发送和处理的速度可能会有所降低。
+使用cookie实现购物车——也就是将整个购物车都存储到cookie里面的做法非常常见，这种做法的一大优点是无须对数据库进行写入就可以实现购物车功能，而缺点则是长吁需要重新解析和验证（validate）cookie，确保cookie的格式正确，并且包含的商品都是真正可购买的商品。cookie购物车还有一个缺点：因为浏览器每次发送请求都会连cookie一起发送，所以如果购物车cookie的体积比较大，那么请求发送和处理的速度可能会有所降低。
 
-1. 每个用户的购物车都是一个散列，这个散列存储了商品ID与商品订购数量之间的映射。对商品数量进行验证的工作由Web应用程序负责，在商品发生变化时，对购物车进行更新。`add_to_cart()`
-2. 需要对之前的会话清理函数进行更新，让它在清理旧会话的同时，将旧会话对应的用户的购物车也一并删除。`clean_full_sessions()`
+	{"timestamp":1497061872253,"status":500,"error":"Internal Server Error","exception":"redis.clients.jedis.exceptions.JedisDataException","message":"value sent to redis cannot be null","path":"/login/check"}
 
+1. 每个用户的购物车都是一个散列，这个散列存储了商品ID与商品订购数量之间的映射。对商品数量进行验证的工作由Web应用程序负责，在商品发生变化时，对购物车进行更新。
+2. 接着，我们需要对之前的会话清理函数进行更新，让它在清理旧会话的同时，将旧会话对应用户的购物车也一并删除。
 
 ### 2.3 网页缓存 ###
 
+所有的标准的Python应用框架都提供了在处理请求之前或者之后添加（layer）的能力，这些层被称为中间件（middleware）或者插件（plugin）。`cache_request()`
 
-
+缓存函数可以让网站在5分钟之内无需再为它们动态地生成视图页面。取决于网页的内容有多复杂，这一改动可以将包含大量数据的页面的延迟值从20~50毫秒降低之查询一次Redis所需的时间：查询本地Redis的延迟值通常低于1毫秒，而查询位于同一个数据中心的Redis的延迟值通常低于5毫秒。
 ### 2.4 数据行缓存 ###
+
+将原本由关系数据库和页面浏览器实现的登录和访客会话转移到了Redis上面实现；将原本由关系数据库实现的购物车也放到了Redis上面实现;还将所有页面缓存到了Redis里面。提升了网站的性能，降低了关系数据库的负载并减少了网站成本。
 
 编写一个持续运行的守护进程函数，让这个函数将指定的数据行缓存到Redis里面，并不定期地对这些缓存进行更新。
 
@@ -167,13 +173,32 @@ ZCARD命令返回在指定的键存储在集合中的元素的数量。
 
 使用JSON而不是其他格式，嵌套多个结构。
 
-为了让缓存函数定期地缓存数据行，首先需要将行IDhe给定的延迟值添加到延迟有序集合里面，然后再将行ID和当前时间的时间戳添加到调度有序集合里面。
+Redis并不支持嵌套结构特性。
+
+为了让缓存函数定期地缓存数据行，首先需要将行IDhe给定的延迟值添加到延迟有序集合里面，然后再将行ID和当前时间的时间戳添加到调度有序集合里面。`schedule_row_cache`函数。
+
+负责缓存数据行的函数会尝试读取调度有序集合的第一个元素以及该元素的分值，如果调度有序集合没有包含任何元素，或者分值村粗话的时间戳所指定的时间尚未来临，那么函数会先休眠50毫秒，然后再重新进行检查。`cache_rows()`函数
+
+通过组合使用调度函数和持续运行缓存函数,实现了一种重复进行调度的自动缓存机制,并且可以随心所欲地控制数据行缓存的更新频率:如果数据行记录的是特价促销商品的剩余数量,并且参与促销活动的用户非常多的话,那么我们最好每隔几秒更新一次数据行缓存;另一方面,如过数据并不经常改变,或者商品缺货是可以接受的,那么我们可以每分钟更新一次缓存。
 
 ### 2.5 网页分析 ###
 
+每个用户都有一个相应的记录用户浏览商品历史的有序集合，尽管使用这些有序集合可以计算出用户最经常浏览的商品，但进行这种计算却需要耗费大量的时间。为了解决这个问题，需要修改下`update_token`函数。新添加的代码记录了所有商品的浏览次数，并根据浏览次数对商品进行了排序，被浏览得最多的商品将被放到有序集合的索引0位置上，并且具有整个有序集合最少的分值。
+
+ZINTERSTORE命令可以组合起一个或多个有序集合，并将有序集合包含的每个分值都乘以一个给定的数值（用户可以为每个有序集合分别指定不同的相乘数值）。
+
+删除所有排名再20000名之后的商品，并将删除之后剩余的所有商品的浏览次数减半。`rescale_viewed()`函数。通过记录商品的浏览次数，并定期对记录浏览次数的有序集合进行修剪和分值调整，建立起了一个持续更新的最常浏览商品排行榜。
+
+使用新的方法来判断页面是否需要被缓存。`can_cache()`
+
+如果想以最小的代价来存储更多页面，那么可以考虑先对页面进行压缩，然后再缓存到Redis里面；或者使用Edge Side Includes技术移除页面中的部分内容；又或者对模板进行提前优化（pre-optimize），移除所有非必要的空格字符。
 
 ### 2.6 小结 ###
-降低数据库负载和Web服务器负载的方法
+降低数据库负载和Web服务器负载的方法。
+
+在为应用程序创建新构建时，不要害怕回过头去重构已有的构建，因为就像本章展示的购物车cookie的例子和基于登录会话cookie实现网页分析的例子一样，已有的构件有时候需要进行一些细微的修改才能真正满足你的需求。
+
+# 第二部分 核心概念 #
 
 ## 第3章 Redis命令 ##
 
@@ -183,19 +208,62 @@ ZCARD命令返回在指定的键存储在集合中的元素的数量。
 * 整数
 * 浮点数
 
+用户可以通过给定一个任意的数值，对存储着整数或者浮点数的字符串执行自增（increment）或者自减(decrement)操作，在有需要的时候，Redis还有将整数转换成浮点数。
+
+浮点数，基本的数值自增和自减操作，以及二进制位（bit）和子串（substring）处理命令。
+
 INCR、DECR、INCRBY、DECRBAY、INCRBYFLOAT
 
+|命令|用例和描述|
+|--|--|
+|INCR|INCR key-name——将键存储的值加上1|
+|DECR|DECR key-name——将键存储的值减去1|
+|INCRBY|INCRBY key-name amount——将健存储的值加上整数amount|
+|DECRBY|DECRBY key-name amount——将健存储的值减去整数amount|
+|INCRBYFLOAT|INCRBYFLOAT key-name amount——将键存储的值加上浮点数amount，这个命令在Redis2.6或以上的版本可用|
+
 APPEND、GETRANGE、SETRANGE、GETBIT、SETBIT、BITCOUNT、BITOP
+
+|命令|用例和描述|
+|--|--|
+|APPEND|APPEND key-name value——将值value追加到给定键key-name当前存储的值的末尾|
+|GETRANGE|GETRANGE key-name start end——获取一个由偏移量start之偏移量end范围内所有字符组成的子串，包括start和end在内|
+|SETRANGE|SETRANGE key-name offset value——将从start偏移量开始的子串设置为给定值|
+|GETBIT|GETBIT key-name offset——将字节串看作是二进制位串（bit string），并返回位串中偏移量为offset的二进制位的值|
+|SETBIT|SETBIT key-name offset value|
+|BITCOUNT|BITCOUNT key-name [start end]|
+|BITOP|BITOP operation des-key key-name [key-name ...]|
+
+在使用SETRANGE或者SETBIT命令对字符串进行写入的时候，如果字符串当前的长度不能满足写入的要求，那么Redis会自动地使用空字节（null）来将字符串扩展至所需的长度，然后才能执行写入或者更新操作。
+
+SETBIT 命令会返回二进制被设置之前的值。
+
+Redis 通过使用子串操作和二进制位操作，配合WATCH命令、MULTI命令和EXEC命令，用户甚至可以自己动手去构建任何他们想要的数据结构。
 
 ### 3.2 列表 ###
 
 Redis的列表允许用户从序列的两端推入或者弹出元素，获取列表元素，以及执行各种常见的列表操作。
 
-RPUSH、LPUSH、RPOP、LPOP、LINDEX、LRANGE、LTRIM
+|命令|用例和描述|
+|--|--|
+|RPUSH|RPUSH key-name value [value ...]——将一个或多个值推入列表的右端|
+|LPUSH|LPUSH key-name value [value ...]——将一个或多个值推入列表的左端|
+|RPOP|RPOP key-name——移除并返回列表最右端的元素|
+|LPOP|LPOP key-name——移除并返回列表最左端的元素|
+|LINDEX|LINDEX key-name offset——返回列表中偏移量为offset的元素|
+|LRANGE|LRANGE key-name start end——返回列表从start偏移量到end偏移量范围内的所有元素，其中偏移量为start和偏移量和end的元素也会包含在被返回的元素之内|
+|LTRIM|LTRIM key-name start end——对列表进行修剪，只保留从start偏移量到end偏移量范围内的元素，其中偏移量start和偏移量为end的元素也会被保留|
 
 从语义上来说，列表的左端为开头，右端为结尾。有几个列表命令可以将元素从一个列表移动到另一个列表，或者阻塞（block）执行命令客户端直到有其他客户端给列表添加元素为止。
 
 阻塞式的列表弹出命令以及在列表之间移动元素的命令BLPOP、BRPOP、RPOPLPUSH、BRPOPLPUSH
+
+|命令|用例和描述|
+|--|--|
+|BLPOP|BLPOP key-name [key-name ...] timeout——从第一个非空列表中弹出位于最左端的元素，或者timeout秒之内阻塞并等待可弹出的元素出现|
+|BRPOP|BRPOP key-name [key-name ...] timeout——从第一个非空列表中弹出位于最右端的元素，或者timeout秒之内阻塞并等待可弹出的元素出现|
+|RPOPLPUSH|RPOPLPUSH source-key desy-key——从source-key列表中弹出位于最右端的元素，然后将这个元素推入dest-key列表的最左端，并向用户返回这个元素|
+|BRPOPLPUSH|BRPOPLPUSH source-key dest-key timeout——从source-key列表中弹出位于最右端的元素，然后将这个元素推入dest-key列表的最左端，并向用户返回这个元素；如果source-key为空，那么在timeout秒之内阻塞并等待可弹出的元素出线|
 
 对于阻塞弹出命令和弹出并推入命令、最常见的用例就是消息传递（messaging）和任务队列(task queue)
 
