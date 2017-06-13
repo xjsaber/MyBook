@@ -741,6 +741,8 @@ release_fair_semaphore()
 
 其他特性
 
+
+
 ## 8.5 流API ##
 
 广播（broadcast）简单的事件（event），然后由负责进行数据分析的事件监听器（event listener）来接收处理这些事件。
@@ -756,4 +758,3 @@ python redis客户度
 	conn = redis.Redis()
 	print(conn.set("hello", "world"))
 	print(conn.get("hello"))
-。

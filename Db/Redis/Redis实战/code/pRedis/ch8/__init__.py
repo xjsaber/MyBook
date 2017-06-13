@@ -17,7 +17,7 @@ def create_user(conn, login, name):
     id = conn.incr('user:id:')
     pipeline = conn.pipeline(True)
     pipeline.hset('users:', llogin, id)
-    pipeline.hmget('user:%s' % id, {
+    pipeline.hmset('user:%s' % id, {
         'login': login,
         'id': id,
         'name': name,
@@ -33,7 +33,6 @@ def create_user(conn, login, name):
 
 # 创建状态消息散列的方法
 def create_status(conn, uid, message, **data):
-    conn = redis.Redis()
     pipeline = conn.pipeline(True)
     pipeline.hget('user:%s' % uid, 'login')
     pipeline.incr('status:id:')
@@ -50,14 +49,14 @@ def create_status(conn, uid, message, **data):
         'login': login
     })
     pipeline.hmset('status:%s' % id, data)
-    pipeline.hincrby('user: %s' % uid, 'posts')
+    pipeline.hincrby('user:%s' % uid, 'posts')
     pipeline.execute()
     return id
 
 
 # 这个函数负责从时间线里面获取给定页数的最新状态消息
 def get_status_messages(conn, uid, timeline='home', page=1, count=30):
-    statuses = conn.zrevrage('%s%s' % (timeline, uid), (page-1) * count, page * count - 1)
+    statuses = conn.zrevrange('%s%s' % (timeline, uid), (page-1) * count, page * count - 1)
 
     pipeline = conn.pipeline(True)
     for id in statuses:
@@ -69,12 +68,15 @@ def get_status_messages(conn, uid, timeline='home', page=1, count=30):
 HOME_TIMELINE_SIZE = 1000
 
 
+# 关注某个用户的函数
 def follow_user(conn, uid, other_uid):
     fkey1 = 'following:%s' % uid
     fkey2 = 'following:%s' % other_uid
     if conn.zscore(fkey1, other_uid):
         return None
+
     now = time.time()
+
     pipeline = conn.pipeline(True)
     pipeline.zadd(fkey1, other_uid, now)
     pipeline.zadd(fkey2, uid, now)
