@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>6.10 闭包需要注意的地方</title>
+    </head>
+    <body>
+        <script type="text/javascript">
+        function f(arg){
+        	var n = 123 + Number(arg);
+        	function g() {
+        		console.log('n is ' + n);
+                console.log('g is called');
+        	}
+            n++;
+            function gg() {
+                console.log('n is ' + n);
+                console.log('g is called');
+            }
+            return [g, gg];
+        }
+        </script>
+    </body>
+</html>

@@ -126,15 +126,33 @@
 
 ## 6.6 Function类 ##
 
+Function类是用于Function对象的类。
+
 |函数或是构造函数|说明|
+|--|--|
 |Function(p0, p1, ..., body)|通过参数p0, p1, ... 与函数体body（字符串）来生成Function实例|
 |new Function(p0, p1, ..., body)|通过参数p0, p1, ... 与函数体body（字符串）来生成Function实例|
+
+|属性名|说明|
+|--|--|
+|prototype|用于原型链|
+|length|值为1|
+
+|属性名|说明|
+|--|--|
+|apply(thisArg, argArray)|将argArray的所有元素作为参数对函数调用。函数内的this引用的是thisArg对象|
+|bind(thisArg[,arg0 , arg1, ...])||
+|apply(thisArg, argArray)||
+|apply(thisArg, argArray)||
+|apply(thisArg, argArray)||
+|apply(thisArg, argArray)||
 
 |属性名|说明|
 |---|----|
 |apply(thisArg,argArray)|姜argArray的所有元素作为参数对函数调用。函数内的this引用的是thisArg对象|
 
 #### Function类的继承 ####
+
 JavaScript的函数是Function对象的对象实例，即JavaScript中的函数的原型对象是Function.prototype。
 
 	function fn() {}
@@ -147,6 +165,7 @@ JavaScript的函数是Function对象的对象实例，即JavaScript中的函数�
 ## 6.7 嵌套函数声明与闭包 ##
 	
 ### 6.7.1 对闭包的初步认识 ###
+
 	closure	
 	function f() {
 		var cnt = 0;
@@ -193,3 +212,20 @@ JavaScript的函数是Function对象的对象实例，即JavaScript中的函数�
 由于return g语句，函数f将会返回一个Function对象（的引用）。调用函数f的结果是一个Function对象。这时，虽然会生成与函数f相对应的Call对象(Call-f对象)（并在离开函数f后被销毁），但由于不会调用g，所以此时还不会生成与之对应的Call对象。
 
 **闭包**
+
+将函数f的返回值赋值给另一个变量。
+
+### 6.7.3 闭包中需要注意的地方 ###
+
+函数g与函数gg保持了各自含有局部变量n的执行环境。由于声明函数g时的n值与声明函数gg时的n值是不同的，因此闭包g与闭包gg貌似将有表示各自不同的n值。但实际上两者将会表示相同的值。这是因为两者引用了同一个Call对象（Call-f对象）。
+
+### 6.7.4 防范命名空间的污染 ###
+
+在JavaScript中，在最外层的代码（函数之外）所写的名称（变量名与函数名）具有全局作用域，即所谓的全局变量与全局函数。
+
+不应该只是一味地减少全局变量的使用，而应该形成一种尽可能避免使用较广的作用域的意识。
+
+* 避免使用全局变量
+
+* 通过闭包实现信息隐藏
+JavaScript语言并没有提供可用于信息隐藏的语法功能，不过灵活运用闭包之后，就能使得名称无法从外部被访问。
