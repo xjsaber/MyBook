@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>6.11 使用了闭包的模块</title>
+    </head>
+    <body>
+        <script type="text/javascript">
+        var sum = (function f(arg){
+        	var position = {x:2, y:3 };
+        	
+            function sum_internal(a, b) {
+                return Number(a) + Number(b);
+            }
+            return function(a, b) {
+                console.log('x = ', position.x);
+                return sum_internal(a, b);
+            }
+        })();
+        sum();
+        </script>
+    </body>
+</html>
