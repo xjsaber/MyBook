@@ -24,235 +24,156 @@
 * JavaScript在分析后开始执行
 * 全部完成
 
+### 8.2.2 JavaScript的表述方式及其执行流程 ###
+
+1. \<script>标签
+2. DOMContentLoaded
+3. 读取外部JavaScript文件
+4. 动态载入
+5. onload
+
+#### onload ####
 
 
-#### 函数声明语句的后置 ####
-	
-	function doit() {
-		fn();
-		function fn() { print("called"); };
-	}
 
-## 6.3 参数与局部变量 ##
+#### DOMContentLoaded ####
 
-### 6.3.1 arguments对象 ###
+对于onload方法，执行JavaScript时可能需要一定的等待时间，可以使用DOMContentLoaded来解决。DOMContentLoaded是在完成HTML解析后发生的事件。
 
-使用arguments对象来访问呢实参。
+	document.addEventListener('DOMContentLoaded', function () {
+		alert('hello');
+	}, false);
 
-	function fn() {
-		print(arguments.length);
-		print(arguments[0], arguments[1], arguments[2]);
-	}
+#### 动态载入 ####
 
-没有相对应的形参的实参也可以通过arguments访问。由于能够通过arguments.length获知实参的数量，因此可以写出所谓的可变长参数函数。
+	var script = document.createElement('script');
+	script.src = 'other-javascript.js';
+	document.getElementsByTagName('head')[0].appendChild(script);
 
-### 6.3.2 递归函数 ###
+在使用这种方法执行JavaScript时，JavaScript文件在下载过程中并不会阻断其他的操作。如果直接在页面内书写script元素，则在下载该JavaScript文件的过程中，其他图像文件或CSS文件的下载将被阻断。
 
-递归函数是一种在函数内对自身进行调用的函数。避免使用递归。
+## 8.3 运行环境与开发环境 ##
 
-## 6.4 作用域 ##
+### 8.3.1 运行环境 ###
 
-作用域指的是名称（变量名与函数名）的有效范围。在JavaScript中有以下两种作用域。
+### 8.3.2 运行环境 ###
 
-	* 全局作用域
-	* 函数作用域
+## 8.4 调试 ##
 
-	var x = 1; 
-	function f() { 
-		console.log('x =' + x); 
-		var x = 2; 
-		console.log('x =' + x) 
-	};
-	x = undefined;
-	x = 2;
-	局部变量x的作用域是整个函数f内部。
+### 8.4.1 alert ###
 
-### 6.4.1 浏览器与作用域 ###
+### 8.4.2 console ###
 
-各个窗口（标签）、框架（包括iframe）都有其各自的全局作用域。在窗口之间是无法访问各自全局作用域中的名称的，但父辈与框架之间可以相互访问。
+#### 虚拟console对象 ####
 
-### 6.4.2 块级作用域 ###
+#### 显示消息以及对象 ####
 
-在JavaScript（ECMAScript）中不存在块级作用域的概念。
+* console.log()
+* console.warm()
+* console.debug()
+* console.info()
+* console.error()
 
-	function f() {
-		var i = 1;
-		for (var i = 0; i < 10; i++) {
-			//省略
-		}
-		此时变量i的值为10
-	}
+debug()方法，则可以知道输出的内容是在JavaScript文件中的哪一行。
 
-### 6.4.3 let与块级作用域 ###
-	
-通过let声明进行声明的变量具有块级作用域。除了作用域之外，它的其他方面与通过var进行声明的变量没有区别。
+#### 分析对象并显示 ####
 
-	// 名称的查找
-	function f1() {
-		let x= 1;
-		{
-			console.log(x); //输出1，将对代码块由内至外进行名称查找。
-		}
-	}
+console.dir()方法可以完整输出作为参数接收到的对象，并将其一目了然地显示出来。console.dirxml()方法可以将DOM元素以HTML的形式显示。
 
-	let x = 1 ;
-	{
-		console.log(x);
-	}
+#### 显示栈追踪 ####
 
-### 6.4.4 嵌套函数与作用域 ###
-	
-	function f1() {
-		var x = 1; //函数f1的局部变量
-		function f2() {
-			var y = 2; //函数f2的局部变量
-			console.log(x); //对函数f1的局部变量进行访问
-			console.log(y); //对函数f2的局部变量进行访问
-		}
-		// 嵌套函数的声明
-		function f3() {
-			console.log(y); //如果不存在全局变量y，则会发生ReferenceError
-		}
-		// 嵌套函数的调用
-		f2();
-		f3();
-	}
+使用console.trace()方法就可以显示该函数的调用者，并可以据此了解具体是哪一个对象的哪一个事件触发了该函数。
 
-### 6.4.5 变量隐藏 ###
+#### 测量时间、次数与性能 ####
 
-变量隐藏，通过作用域较小对策变量（或函数），来隐藏作用域较大的同名变量（或函数）。
+通过console.time()方法与console.timeEnd()方法测量这两个方法之间经过的时间。其参数分别为每次计时的名称。具有相同名称的方法将会配对，其间经过的时间则会输出。
 
-	var n = 1; //全局变量
-	function f() { //局部变量隐藏了n
-		var n = 2;
-		print(n);
-	}
+#### 使用断言 ####
 
-## 6.5 函数是一种对象 ##
+console.assert()的功能是仅在指定条件为false时输出日志。
 
-函数也是一种对象。从内部结构来看，它继承于Function对象。可以像下面这样通过constructor属性验证。
-	
-	function f() {}
-	f.constructor;
+### 8.4.3 onerror ###
 
-将匿名函数赋值给某个变量，与将Function对象的引用赋值给某个变量，在本质上是相同的，仅仅是表达方式的不同而已。
+### 8.4.4 Firebug，Web Inspector（Developer Tools），Opera Dragonfly ###
 
-#### 函数名与调试的难易度 ####
+* HTML/CSS的内容确认与编辑
+* JavaScript性能分析工具
+* JavaScript控制台
+* 网络监控
+* JavaScript调试工具
+
+#### JavaScript调试工具 ####
+
+	debugger
+
+#### JavaScript性能分析工具时的一些注意点 ####
+
+#### 网络监控 ####
 
 
-## 6.6 Function类 ##
+## 8.5 跨浏览器支持 ##
 
-Function类是用于Function对象的类。
+### 8.5.1 应当提供支持的浏览器 ###
 
-|函数或是构造函数|说明|
+### 8.5.2 实现方法 ###
+
+#### 根据用户代理来判断 ####
+
+
+#### 根据功能是否被支持来判断 ####
+
+
+
+#### 通过用户代理判断与通过功能测试判断 ####
+
+## 8.6 Window对象 ##
+
+Window对象是一个全局对象。Window对象即对应于正被浏览器显示的窗口的一种对象。
+
+Window对象是JavaScript所能操作的最高层的对象。
+
+* navigator
+* location
+* history
+* screen
+* frames
+* document
+* parent, top, self
+
+### 8.6.1 Navigator 对象 ###
+
+Window对象的navigator属性是一个Navigator对象.
+
+### 8.6.2 Location 对象 ###
+
+Window对象的location属性是一个Location对象。Location对象包含了与当前显示的URL相关的一些信息。
+
+####  href 属性 ####
+
+|属性名|说明|示例|
 |--|--|
-|Function(p0, p1, ..., body)|通过参数p0, p1, ... 与函数体body（字符串）来生成Function实例|
-|new Function(p0, p1, ..., body)|通过参数p0, p1, ... 与函数体body（字符串）来生成Function实例|
+|protocol|协议|http:|
+|host, hostname|主机名|example.com|
+|port|端口|8080|
+|pathname|路径|/foo|
+|search|查询参数|?q=bar|
+|hash|哈希令牌|#baz|
 
-|属性名|说明|
-|--|--|
-|prototype|用于原型链|
-|length|值为1|
+####  assign()方法 ####
 
-|属性名|说明|
-|--|--|
-|apply(thisArg, argArray)|将argArray的所有元素作为参数对函数调用。函数内的this引用的是thisArg对象|
-|bind(thisArg[,arg0 , arg1, ...])||
-|apply(thisArg, argArray)||
-|apply(thisArg, argArray)||
-|apply(thisArg, argArray)||
-|apply(thisArg, argArray)||
+可以使用assign()方法从当前页面跳转至另一页面。这与设置href属性的值的效果是一样的。
 
-|属性名|说明|
-|---|----|
-|apply(thisArg,argArray)|姜argArray的所有元素作为参数对函数调用。函数内的this引用的是thisArg对象|
+	location.assign('http://foobar.example.com');
 
-#### Function类的继承 ####
+####  replace()方法 ####
 
-JavaScript的函数是Function对象的对象实例，即JavaScript中的函数的原型对象是Function.prototype。
 
-	function fn() {}
-	fn.constructor === Function; //构造函数
-	fn._proto_ === Function.prototype; //原型函数
 
-	Function === Function.constructor;
-	Function._proto_ == Function.prototype;
+####  reload()方法 ####
 
-## 6.7 嵌套函数声明与闭包 ##
-	
-### 6.7.1 对闭包的初步认识 ###
 
-	closure	
-	function f() {
-		var cnt = 0;
-		return function() { return ++cnt;}
-	}
-	从表面上来看，闭包是一种具有状态的函数。或者也可以将闭包的特征理解为其相关的局部变量在函数调用结束之后将会继续存在。
 
-### 6.7.2 闭包的原理 ###
+### 8.6.3 History对象 ###
 
-**嵌套的函数声明**
 
-	function f() {
-		function g() {
-			print('g is called');
-		}
-		g();
-	}
-
-	闭包的前提条件是需要在函数声明的内部声明另一个函数（即嵌套的函数声明）。
-
-**嵌套函数与作用域**
-
-	function f() {
-		var n = 123;
-		function g() {
-			print('n is ' + n);
-			print('g is called');
-		}
-		g();
-	}
-
-在内层进行声明的函数g可以访问外层的函数f的局部变量。函数内的变量名的查找是按照先Call对象的属性再全局对象的属性这样的顺序进行的。对于嵌套声明的函数，内部的函数将会首先查找被调用时所生成的Call对象的属性，之后再查找外部函数的Call对象的属性。这一机制被称为**作用域链**。
-
-**嵌套函数的返回**
-
-	function f() {
-		var n = 123;
-		function g() {
-			print('n is ' + n);
-			print('g is called');
-		}
-		return g; //再内部返回已被声明的函数（未对函数进行调用）
-	}
-由于return g语句，函数f将会返回一个Function对象（的引用）。调用函数f的结果是一个Function对象。这时，虽然会生成与函数f相对应的Call对象(Call-f对象)（并在离开函数f后被销毁），但由于不会调用g，所以此时还不会生成与之对应的Call对象。
-
-**闭包**
-
-将函数f的返回值赋值给另一个变量。
-
-### 6.7.3 闭包中需要注意的地方 ###
-
-函数g与函数gg保持了各自含有局部变量n的执行环境。由于声明函数g时的n值与声明函数gg时的n值是不同的，因此闭包g与闭包gg貌似将有表示各自不同的n值。但实际上两者将会表示相同的值。这是因为两者引用了同一个Call对象（Call-f对象）。
-
-### 6.7.4 防范命名空间的污染 ###
-
-在JavaScript中，在最外层的代码（函数之外）所写的名称（变量名与函数名）具有全局作用域，即所谓的全局变量与全局函数。
-
-不应该只是一味地减少全局变量的使用，而应该形成一种尽可能避免使用较广的作用域的意识。
-
-* 避免使用全局变量
-
-* 通过闭包实现信息隐藏
-JavaScript语言并没有提供可用于信息隐藏的语法功能，不过灵活运用闭包之后，就能使得名称无法从外部被访问。
-
-## 6.8 回调函数设计模式 ##
-
-### 6.8.1 回调函数与控制反转 ###
-
-回调函数是程序设计的一种方法。在传递了可能会进行调用的函数或对象之后，在需要时再分别对进行调用。由于调用方与被调用方的依赖关系与通常相反，所以也称为控制反转（IoC，Inversion of Control）。
-
-### 6.8.2 JavaScript与回调函数 ###
-
-#### 回调函数 ####
 
