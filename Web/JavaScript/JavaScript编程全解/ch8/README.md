@@ -175,5 +175,47 @@ Window对象的location属性是一个Location对象。Location对象包含了�
 
 ### 8.6.3 History对象 ###
 
+Window对象的history属性是一个History对象。back()方法与forward()方法实现浏览器历史纪录中的后退与前进。
 
+go()方法
+
+### 8.6.4 Screen对象 ###
+
+Window对象的screen属性是一个Screen对象。
+
+Screen对象包含了画面的大小与发色数等信息。通过这些值，能够针对大尺寸的显示器和小尺寸屏幕分别显示不同的画面。
+
+### 8.6.5 对Window对象的引用 ###
+
+#### window属性 ####
+
+可以用过window属性获取对Window对象的引用。window属性所指向的Window对象在JavaScript中的一个全局对象。也就是说，在客户端JavaScript中所操作的所有函数与对象都是window属性所引用的这个对象的属性。
+
+#### frames属性 ####
+
+当窗口中含有多个框架时，frams属性中将会含有这些框架的引用。如果没有框架，frames属性中则是一个空的数组。可以通过<frameset>标签、<frame>标签，或<iframe>标签来生成一个框架。
+
+框架本身也是一种Window对象，因此额可以以
+
+	window.frames[1].frame[2]
+
+#### self属性 ####
+
+可以通过self属性对Window对象自身引用。self属性与window属性一样，引用了一个Window对象。
+
+#### parent属性 ####
+
+可以通过parnt属性从子框架处取得其父框架的引用。如果不存在父框架，parent属性则是对当前Window对象自身的一个引用。
+
+#### top属性 ####
+
+如果要在框架层层前套的情况下获取最上层的框架引用，可以使用top属性。如果自身就是最上层的框架，top属性则是对当前Window对象自身的一个引用。
+
+### 8.6.6 Document对象 ###
+
+Window对象的document属性是一个Document对象。
+
+对Cookie的操作是Document对象中不属于DOM范畴的一种功能。HTML5的Web Storage或Indexed Database，浏览器自身能够保存一定的数据，但在没有实现这些功能之前Cookie是唯一一种可以保存数据的方式。
+
+可以通过Document对象的cookie对Cookie进行读写操作。
 
