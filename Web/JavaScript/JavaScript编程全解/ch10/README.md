@@ -1,166 +1,175 @@
-# 第6章 函数与闭包 #
+# 第10章 事件 #
 
-## 6.1 函数声明语句与匿名函数表达式 ##
+## 10.1 事件驱动程序设计 ##
 
-## 6.2 函数调用的分类 ##
+DOM Level 2中定义了标准的事件模型。
 
-|名称|说明|
-|--|--|
-|方法调用|通过接收方对象函数进行调用（包括apply与call）|
-|构造函数调用|通过new表达式对函数进行调用|
-|函数调用|以上两种方式之外的函数调用|
+## 10.2 事件处理程序/事件侦听器的设定 ##
 
-#### 函数声明语句的后置 ####
+* 指定为HTML元素的属性（事件处理程序）
+* 指定为DOM元素的属性（事件处理程序）
+* 通过EventTarget.addEventListener()进行值定（事件侦听器）
+
+### 10.2.1 指定为HTML元素的属性 ###
+
+|事件处理程序名|触发的时机|
+|onclick|鼠标点击操作|
+|ondbclick|鼠标双击操作|
+|onmousedown|按下了鼠标按键|
+|onmouseup|放开了鼠标按键|
+|onclick|鼠标点击操作|
+|onclick|鼠标点击操作|
+|onclick|鼠标点击操作|
+|onclick|鼠标点击操作|
+|onfocus|input元素获得了焦点|
+|onselect|文本被选取|
+|onsubmit|按下了表单的提交按钮|
+|onrest|按下了表单的重置按钮|
+|onload|载入完成|
+|onunload|文档的载入被撤销（例如页面跳转等情况时）|
+|onabort|图像的读取被中断|
+|onerror|图像读取过程中发生错误|
+|onresize|窗口尺寸发生改变|
+
+如果事件处理车改内需返回了一个false值，则会取消该事件的默认行为。
+
+### 10.2.2 指定为DOM元素的属性 ###
+
+事件处理车改内需可以被指定为节点的属性。
+
+	btn.onclick = sayFoo(); //这种方式指定的是函数执行后的返回值，是错误的
+	btn.onclick = "sayFoo()"; //以字符串的形式指定该函数也是无效的
+	btn.onclick = sayFoo(); //将函数指定为了事件处理程序，而能够正常运行。
+
+与通过HTML标签标签的属性设定时不同，这里必须全部必须使用小写字母书写。
+
+而在设定为了属性之后，HTML标签属性的内容将会被覆写。因此，如果希望通过JavaScript代码在HTML标签属性所指定的内容之后再追加新的处理操作，仅采用这种指定DOM元素的方法是很难实现的。
+
+### 10.2.3 通过EventTarget.addEventListener()进行指定 ###
+
+	var btn = document.getElementById('foo');
+	btn.addEventListener('click', function (e) {
+
+	})
+
+#### 注册事件侦听器 ####
+
+### 10.2.4 事件处理程序/事件侦听器内的this引用 ###
+
+
+
+## 10.3 事件的触发 ##
+
+## 10.4 事件的传播 ##
+
+在浏览器中显示HTML文档时，HTML的元素将会嵌套显示。
+
+	<html>
+		<body>
+			<div id="foo">
+				<button id="bar">sample</button>
+			</div>
+		</body>
+	</html>
+事件的处理将会分别经过捕获阶段、目标阶段、事件冒泡阶段
+
+### 10.4.1 捕获阶段 ###
+
+在捕获阶段中，事件将会从Window对象开始向下遍历DOM树来传播。如果注册了事件侦听器，则会在捕获阶段执行相应的处理。
+
+### 10.4.2 目标阶段 ###
+
+在这一阶段中，被事件目标注册的事件侦听器将会被执行。如果一个事件处理程序被指定为了HTML的标签属性，或被指定为了对象的属性，则会在这一阶段中被执行。
+
+### 10.4.3 事件冒泡阶段 ###
+
+在这一阶段中，被事件目标注册的事件侦听器将会被执行。如果一个事件处理程序被指定为了HTML的标签属性，或被指定为了对象的属性，则会在这一阶段中被执行。
+
+### 10.4.4 取消 ###
 	
-	function doit() {
-		fn();
-		function fn() { print("called"); };
-	}
+#### 取消传播 ####
 
-## 6.3 参数与局部变量 ##
+通过在事件侦听器内执行Event.stopPropagation()方法就能取消传播。不过stopPropagation()方法只能取消执行在之后的侦听器目标中注册的事件侦听器，而在当前的侦听器目标中设定的其他事件侦听器仍然会被执行。
 
-### 6.3.1 arguments对象 ###
+#### 取消默认事件 ####
 
-使用arguments对象来访问呢实参。
+event.preventDefault()方法来取消浏览器中默认是实现的处理操作。
 
-	function fn() {
-		print(arguments.length);
-		print(arguments[0], arguments[1], arguments[2]);
-	}
+stopPropagation()方法与preventDefault()方法不仅能够被用于事件冒泡阶段，在其他阶段中也能够使用这些方法。
 
-没有相对应的形参的实参也可以通过arguments访问。由于能够通过arguments.length获知实参的数量，因此可以写出所谓的可变长参数函数。
+## 10.5 事件所具有的元素 ##
 
-### 6.3.2 递归函数 ###
-
-递归函数是一种在函数内对自身进行调用的函数。避免使用递归。
-
-## 6.4 作用域 ##
-
-作用域指的是名称（变量名与函数名）的有效范围。在JavaScript中有以下两种作用域。
-
-	* 全局作用域
-	* 函数作用域
-
-	var x = 1; 
-	function f() { 
-		console.log('x =' + x); 
-		var x = 2; 
-		console.log('x =' + x) 
-	};
-	x = undefined;
-	x = 2;
-	局部变量x的作用域是整个函数f内部。
-
-### 6.4.1 浏览器与作用域 ###
-
-各个窗口（标签）、框架（包括iframe）都有其各自的全局作用域。在窗口之间是无法访问各自全局作用域中的名称的，但父辈与框架之间可以相互访问。
-
-### 6.4.2 块级作用域 ###
-
-在JavaScript（ECMAScript）中不存在块级作用域的概念。
-
-	function f() {
-		var i = 1;
-		for (var i = 0; i < 10; i++) {
-			//省略
-		}
-		此时变量i的值为10
-	}
-
-### 6.4.3 let与块级作用域 ###
-	
-通过let声明进行声明的变量具有块级作用域。除了作用域之外，它的其他方面与通过var进行声明的变量没有区别。
-
-	// 名称的查找
-	function f1() {
-		let x= 1;
-		{
-			console.log(x); //输出1，将对代码块由内至外进行名称查找。
-		}
-	}
-
-	let x = 1 ;
-	{
-		console.log(x);
-	}
-
-### 6.4.4 嵌套函数与作用域 ###
-	
-	function f1() {
-		var x = 1; //函数f1的局部变量
-		function f2() {
-			var y = 2; //函数f2的局部变量
-			console.log(x); //对函数f1的局部变量进行访问
-			console.log(y); //对函数f2的局部变量进行访问
-		}
-		// 嵌套函数的声明
-		function f3() {
-			console.log(y); //如果不存在全局变量y，则会发生ReferenceError
-		}
-		// 嵌套函数的调用
-		f2();
-		f3();
-	}
-
-### 6.4.5 变量隐藏 ###
-
-变量隐藏，通过作用域较小对策变量（或函数），来隐藏作用域较大的同名变量（或函数）。
-
-	var n = 1; //全局变量
-	function f() { //局部变量隐藏了n
-		var n = 2;
-		print(n);
-	}
-
-## 6.5 函数是一种对象 ##
-
-函数也是一种对象。从内部结构来看，它继承于Function对象。可以像下面这样通过constructor属性验证。
-	
-	function f() {}
-	f.constructor;
-
-将匿名函数赋值给某个变量，与将Function对象的引用赋值给某个变量，在本质上是相同的，仅仅是表达方式的不同而已。
-
-#### 函数名与调试的难易度 ####
-
-
-## 6.6 Function类 ##
-
-Function类是用于Function对象的类。
-
-|函数或是构造函数|说明|
+#### Event接口的属性一览 ####
+|属性|说明|
 |--|--|
-|Function(p0, p1, ..., body)|通过参数p0, p1, ... 与函数体body（字符串）来生成Function实例|
-|new Function(p0, p1, ..., body)|通过参数p0, p1, ... 与函数体body（字符串）来生成Function实例|
+|type|事件属性的名称。|
+|target|事件属性的名称。|
+|currentTarget|事件属性的名称。|
+|eventPhase|事件属性的名称。|
+|bubbles|事件属性的名称。|
+|cancelable|事件属性的名称。|
 
-|属性名|说明|
+#### Event接口的方法一览 ####
+|方法|说明|
 |--|--|
-|prototype|用于原型链|
-|length|值为1|
+|stopPropagation()|用于中止事件传播的方法|
+|preventDefault()|用于中止默认行为的方法|
+|stoplmmediatePropagation()|用于中止其他事件侦听器的方法。在DOM Level3中被引入|
 
-|属性名|说明|
-|--|--|
-|apply(thisArg, argArray)|将argArray的所有元素作为参数对函数调用。函数内的this引用的是thisArg对象|
-|bind(thisArg[,arg0 , arg1, ...])||
-|apply(thisArg, argArray)||
-|apply(thisArg, argArray)||
-|apply(thisArg, argArray)||
-|apply(thisArg, argArray)||
+#### Event接口的方法一览 ####
 
-|属性名|说明|
-|---|----|
-|apply(thisArg,argArray)|姜argArray的所有元素作为参数对函数调用。函数内的this引用的是thisArg对象|
+## 10.6 标准事件 ##
 
-#### Function类的继承 ####
+### 10.6.1 DOM Level 2 中所定义的事件 ###
 
-JavaScript的函数是Function对象的对象实例，即JavaScript中的函数的原型对象是Function.prototype。
+* HTMLEvent
+* MouseEvent
+* UIEvent
+* MutationEvent
 
-	function fn() {}
-	fn.constructor === Function; //构造函数
-	fn._proto_ === Function.prototype; //原型函数
+“冒泡”表示事件传播过程中是否会在DOM树种经过冒泡阶段，而“默认”则表示是否含有可以通过preventDefault()方法取消的默认行为。
 
-	Function === Function.constructor;
-	Function._proto_ == Function.prototype;
+
+**HTMLEvent一览**
+
+|事件类型|冒泡|默认|触发的时机|
+|--|--|--|--|
+|load|X|X|文档载入完成后|
+|unload|X|X|文档的载入被撤销（例如页面跳转等情况时）|
+|abort|冒泡|默认|触发的时机|
+|error|冒泡|默认|触发的时机|
+|select|冒泡|默认|触发的时机|
+|change|冒泡|默认|触发的时机|
+|submit|冒泡|默认|触发的时机|
+|reset|冒泡|默认|触发的时机|
+|focus|冒泡|默认|触发的时机|
+|blur|冒泡|默认|触发的时机|
+|resize|冒泡|默认|触发的时机|
+|scroll|冒泡|默认|触发的时机|
+
+**MutationEvent一览**
+
+|事件类型|冒泡|默认|触发的时机|
+|--|--|--|--|
+|DOMSubtreeModified|O|X|文档内容发生了更改|
+|DOMNodeInserted|O|X|添加了子节点（在添加后被触发）|
+|DOMNodeRemoved|O|X|删除了子节点（在删除前被触发）|
+|DOMNodeRemoveFromDocument|X|X|向文档中添加了节点（在添加后被触发）|
+|DOMNodeRemoveFromDocument|X|X|从文档中删除了节点（在删除前被触发）|
+|DOMNodeAttrModified|O|X|节点中有属性发生了更改|
+|DOMCharacterDataModified|O|X|节点中的文字数据发生了更改|
+
+### 10.6.2 DOM Level 3 中所定义的事件 ###
+
+* UIEvent
+* KeyboardEvent
+* FocusEvent
+* CompositionEvent
+* MouseEvent
+* MutationEvent(不推荐使用)
+* WheelEvent
+* MutationNameEvent(不推荐使用)
+* TextEvent
 
 ## 6.7 嵌套函数声明与闭包 ##
 	
