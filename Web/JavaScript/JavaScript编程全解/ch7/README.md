@@ -1,8 +1,113 @@
-# 第6章 函数与闭包 #
+# 第7章 数据处理 #
 
-## 6.1 函数声明语句与匿名函数表达式 ##
+## 7.1 数组 ##
 
-## 6.2 函数调用的分类 ##
+数组是一种有序元素的集合。在JavaScript中，数组的长度是可变的。
+
+数组只不过是继承了JavaScript的对象的一些性质。
+
+### 7.1.1 JavaScript的数组 ###
+
+### 7.1.2 数组元素的访问 ###
+
+### 7.1.3 数组的长度 ###
+
+### 7.1.4 数组元素的枚举 ###
+
+** 数组长度的上限 **
+
+在ECMAScript中，JavaScript的数组长度的上限是2的32次方。
+
+ECMAScript第5版有多个这种类型的内部循环方法。最具代表性的forEach方法，参数e：元素值，i下标值，a数组对象
+
+	arr.forEach(function(e, i, a) {
+		print(i, e);
+	})
+
+### 7.1.5 数组元素的枚举 ###
+
+由于任意内容都可以被指定为数组的元素，因此数组本身自然也可以成为另一数组的元素。
+
+### 7.1.6 数组是一种对象 ###
+
+数组是一种对象。从内部来看，它是Array对象（Array类）的对象实例。因此，可以通过new表达式来调用Array的构造函数来生成数组。
+
+### 7.1.7 Array类 ###
+
+Array类的函数是一种作为数组对象使用的类。
+
+Array类的函数以及构造函数调用
+
+|函数或是构造函数|说明|
+|Array([item0, item1,...])|将参数作为元素以生成数组实例|
+|new Array([item0, item1,...])|将参数作为元素以生成数组实例|
+|Array(len)|将参数作为元素以生成数组实例|
+|new Array(len)|将参数作为元素以生成数组实例|
+
+Array类的属性
+
+|属性名|说明|
+|--|--|
+|prototype|用于原型链|
+|length|值为1|
+|isArray|如果参数arg是一个数组实例则为真|
+
+Array.prototype对象的属性
+
+|属性名|说明|
+|--|--|
+|constructor|对Array类对象的一个引用|
+|concat|对Array类对象的一个引用|
+|every|对Array类对象的一个引用|
+|filter|对Array类对象的一个引用|
+|forEach|对Array类对象的一个引用|
+|indexOf|对Array类对象的一个引用|
+|join|对Array类对象的一个引用|
+|lastIndexOf|对Array类对象的一个引用|
+|map|对Array类对象的一个引用|
+|pop|对Array类对象的一个引用|
+|push|对Array类对象的一个引用|
+|reduce|对Array类对象的一个引用|
+|reduceRight|对Array类对象的一个引用|
+|reverse|对Array类对象的一个引用|
+|reverse()|对Array类对象的一个引用|
+|shift|对Array类对象的一个引用|
+|slice|对Array类对象的一个引用|
+|some|对Array类对象的一个引用|
+|sort|对Array类对象的一个引用|
+|slice|对Array类对象的一个引用|
+|some|对Array类对象的一个引用|
+|sort|对Array类对象的一个引用|
+|splice|对Array类对象的一个引用|
+|toLocaleString|对Array类对象的一个引用|
+|toSource()|对Array类对象的一个引用|
+|toString()|对Array类对象的一个引用|
+|unshift|对Array类对象的一个引用|
+
+7.4 Array类的实例属性
+
+|属性名|说明|
+|--|--|
+|0以上的整数值|数组元素|
+|length|数组的长度|
+
+### 7.1.8 数组对象的意义 ###
+
+### 7.1.9 数组的习惯用法 ###
+
+### 7.1.10 数组的内部实现 ###
+
+### 7.1.11 数组风格的对象 ###
+
+从使用的角度来看，属性名是数值的对象与数组
+
+
+### 7.1.14 数组的内包 ###
+
+数组的内包是一种在通过生成器生成数组时的功能。
+
+
+## 7.2 JSON ##
 
 |名称|说明|
 |--|--|
