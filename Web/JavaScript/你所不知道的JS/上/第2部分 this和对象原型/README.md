@@ -222,6 +222,98 @@ this 实际上是在函数被调用时发生的绑定，它指向什么完全取
 
 1.创建了函数bar()，并在它的内部手动调用了foo.call(obj)，因此强制把foo的this绑定到了obj。无论之后如何调用函数bar，它总会手动在obj上调用foo。（这种绑定是一种显式的强制绑定，因此我们称之为硬绑定）。 
 
+### 2.2.4 new绑定 ###
+
+在传统的面向类的语言中，“构造函数”是类中的一些特殊方法，使用 new 初始化类时会调用类中的构造函数。
+
+	something = new MyClass(); 
+
+JavaScript 也有一个 new 操作符，使用方法看起来也和那些面向类的语言一样，绝大多数开发者都认为 JavaScript 中 new 的机制也和那些语言一样。然而，JavaScript 中 new 的机制实际上和面向类的语言完全不同。
+
+1. 重新定义一下 JavaScript 中的“构造函数”。在 JavaScript 中，构造函数只是一些使用 new 操作符时被调用的函数。它们并不会属于某个类，也不会实例化一个类。实际上，它们甚至都不能说是一种特殊的函数类型，它们只是被 new 操作符调用的普通函数而已。
+2. 包括内置对象函数（比如 Number(..) ，详情请查看第 3 章）在内的所有函数都可以用 new 来调用，这种函数调用被称为构造函数调用。这里有一个重要但是非常细微的区别：实际上并不存在所谓的“构造函数”，只有对于函数的“构造调用”。
+
+使用 new 来调用函数，或者说发生构造函数调用时，会自动执行下面的操作。
+
+1. 创建（或者说构造）一个全新的对象。
+2. 这个新对象会被执行 [[ 原型 ]] 连接。
+3. 这个新对象会绑定到函数调用的 this 。
+4. 如果函数没有返回其他对象，那么 new 表达式中的函数调用会自动返回这个新对象。
+
+	function foo(a) {
+		this.a = a;
+	}
+	var bar = new foo(2);
+	console.log( bar.2 ); //2
+使用new来调用foo(..)时，，构造一个新对象并把它绑定到foo（..）调用中的this上。new是最后一种可以影响函数调用时this绑定行为的方法，我们称之为new绑定。
+
+## 2.3 优先级 ##
+
+默认绑定的优先级是四条规则中最低的。
+
+	function foo() {
+		console.log( this.a );
+	}
+	var obj1 = {
+		a: 2,
+		foo: foo
+	};
+	var obj2 = {
+		a: 3,
+		foo: foo
+	};
+	obj1.foo(); //2
+	obj2.foo(); //3
+	obj1.foo.call(obj2); //3
+	obj2.foo.call(obj1); //2
+显式绑定优先级更高，也就是说在判断时应当先考虑是否可以应用显式绑定。
+
+	function foo(something) {
+		this.a = something;
+	}
+	var obj1 = {
+		foo: foo
+	};
+	var obj2 = {};
+	obj1.foo( 2 );
+	console.log( obj1.a ); // 2
+	obj1.foo.call( obj2, 3 );
+	console.log( obj2.a ); // 3
+	var bar = new obj1.foo( 4 );
+	console.log( obj1.a ); // 2
+	console.log( bar.a ); // 4
+可以看到 new 绑定比隐式绑定优先级高。
+
+new 和 call / apply 无法一起使用，因此无法通过 new foo.call(obj1) 来直接进行测试。但是我们可以使用硬绑定来测试它俩的优先级。
+
+ES5 中内置的 Function.prototype.bind(..) 更加复杂。
+
+	if (!Function.prototype.bind) {
+		Function.prototype.bind = function(oThis) {
+			if (typeof this !== "function") {
+				// 与 ECMAScript 5 最接近的
+				// 内部 IsCallable 函数
+				throw new TypeError(
+				"Function.prototype.bind - what is trying " +
+				"to be bound is not callable"
+				);
+			}
+			var aArgs = Array.prototype.slice.call(arguments, 1);
+			fToBind = this,
+			fNop = function(){},
+			fBound = function() {
+				return fToBind.apply(
+				(this instanceof fNOP && oThis ? this : oThis),
+				aArgs.concat(Array.prototype.slice.call(arguments))
+				)
+			}
+			fNOP.prototype = this.prototype;
+			fBound.prototype = new fNOP();
+
+			return fBound;
+		}
+	}
+
 # 第3章 对象 #
 
 
