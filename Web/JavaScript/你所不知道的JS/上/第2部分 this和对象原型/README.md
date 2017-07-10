@@ -831,9 +831,333 @@ JavaScript 中实际上有类呢？简单来说：不是。
 			output( "Speeding through the water with ease!" )
 		}
 	}
+
+### 4.3.1 多态 ###
+
+Car 重写了继承自父类的 drive() 方法，但是之后 Car 调用了 inherited:drive() 方法，这表明 Car 可以引用继承来的原始 drive() 方法。
+
+快艇的 pilot() 方法同样引用了原始drive() 方法。
+
+多态或者虚拟多态，相对多态。
+
+### 4.3.2 多重继承 ###
+
+有些面向类的语言允许你继承多个“父类”。多重继承意味着所有父类的定义都会被复制到子类中。
+
+## 4.4 混入 ##
+
+在继承或者实例化时，JavaScript 的对象机制并不会自动执行复制行为。
+JavaScript 中只有对象，并不存在可以被实例化的“类”。一个对象并不会被复制到其他对象，它们会被关联起来。
+
+模拟类的复制行为，显式和隐式。
+
+### 4.4.1 显式混入 ###
+
+	//mixin(..)例子
+	function mixin( sourceObj, targetObj) {
+		for (var key in sourceObj) {
+			// 只会在不存在的情况下复制
+			if(!(key in targetObj)) {
+				targetObj[key] = sourceObj[key];
+			}
+		}
+		return targetObj;
+	}
+	var Vehicle = {
+		engines: 1,
+		ignition: function() {
+			console.log("Turning on my engine.");
+		},
+		drive: function() {
+			this.ignition();
+			console.log("Steering and moving forward!");
+		}
+	};
+	var Car = mixin(Vehicle, {
+		wheels: 4,
+		drive: function() {
+			Vehicle.drive.call( this );
+			console.log(
+				"Rolling on all " + this.wheels + " wheels !"
+			);
+		}
+	})
+
+#### 1.再说多态 ####
+
+	 Vehicle.drive.call( this ) 显式多态
+
+	 inherited:drive() 相对多态
+
+JavaScript并没有相对多态的机制。所以，由于 Car 和Vehicle 中都有 drive() 函数，为了指明调用对象，我们必须使用绝对（而不是相对）引用。我们通过名称显式指定 Vehicle 对象并调用它的 drive() 函数。
+
+#### 2. 混合复制 ####
+
+## 4.5 小结 ##
+
+类是一种设计模式。JavaScript 也有类似的语法，但是和其他语言中的类完全不同。
+
+类意味着复制。
+
+传统的类被实例化时，它的行为会被复制到实例中。类被继承时，行为也会被复制到子类中。
+
+多态（在继承链的不同层次名称相同但是功能不同的函数）看起来似乎是从子类引用父类，但是本质上引用的其实是复制的结果。
+
+混入模式（无论显式还是隐式）可以用来模拟类的复制行为，但是通常会产生丑陋并且脆弱的语法，比如显式伪多态（ OtherObj.methodName.call(this, ...) ），这会让代码更加难懂并且难以维护。
+
 # 第5章 原型 #
 
+## 5.1 [[Prototype]] ##
+
+JavaScript 中的对象有一个特殊的 [[Prototype]] 内置属性，其实就是对于其他对象的引用。几乎所有的对象在创建时 [[Prototype]] 属性都会被赋予一个非空的值。
+
+	var myObject = {
+		a: 2
+	};
+	myObject.2; //2
+
+对于默认的 [[Get]] 操作来说，第一步是检查对象本身是否有这个属性，如果有的话就使用它。	
+
+ES6 中的 Proxy
+
+对于默认的 [[Get]] 操作来说，如果无法在对象本身找到需要的属性，就会继续访问对象的 [[Prototype]] 链：
+
+	var anotherObject = {
+		a: 2
+	};
+	// 创建一个关联到anotherObejct的对象
+	var myObject = Object.create( anotherObject );
+	myObject.a; //2
+
+现在 myObject 对象的 [[Prototype]] 关联到了 anotherObject 。显然 myObject.a 并不存在，但是尽管如此，属性访问仍然成功地（在 anotherObject 中）找到了值 2。
+
+### 5.1.1 Object.prototype ###
+
+所有普通的 [[Prototype]] 链最终都会指向内置的 Object.prototype 。由于所有的“普通”（内置，不是特定主机的扩展）对象都“源于”（或者说把 [[Prototype]] 链的顶端设置为）这个 Object.prototype 对象，所以它包含 JavaScript 中许多通用的功能。
+
+### 5.1.2 属性设置和屏蔽 ###
+
+给一个对象设置属性并不仅仅是添加一个新属性或者修改已有的属性值。
+
+	myObject.foo = "bar";
+
+如果 myObject 对象中包含名为 foo 的普通数据访问属性，这条赋值语句只会修改已有的属性值。
+
+如果 foo 不是直接存在于 myObject 中， [[Prototype]] 链就会被遍历，类似 [[Get]] 操作。如果原型链上找不到 foo ， foo 就会被直接添加到 myObject 上。
+
+如果 foo 存在于原型链上层，赋值语句 myObject.foo = "bar" 的行为就会有些不同（而且可能很出人意料）。
+
+如果属性名 foo 既出现在 myObject 中也出现在 myObject 的 [[Prototype]] 链上层，那么就会发生屏蔽。 myObject 中包含的 foo 属性会屏蔽原型链上层的所有 foo 属性，因为myObject.foo 总是会选择原型链中最底层的 foo 属性。
+
+如果 foo 不直接存在于 myObject 中而是存在于原型链上层时 myObject.foo = "bar" 会出现的三种情况。
+
+1. 如果在 [[Prototype]] 链上层存在名为 foo 的普通数据访问属性并且没有被标记为只读（ writable:false ），那就会直接在 myObject 中添加一个名为 foo 的新属性，它是屏蔽属性。
+2. 如果在 [[Prototype]] 链上层存在 foo ，但是它被标记为只读（ writable:false ），那么无法修改已有属性或者在 myObject 上创建屏蔽属性。如果运行在严格模式下，代码会抛出一个错误。否则，这条赋值语句会被忽略。总之，不会发生屏蔽。
+3. 如果在 [[Prototype]] 链上层存在 foo 并且它是一个 setter，那就一定会调用这个 setter。 foo 不会被添加到（或者说屏蔽于） myObject ，也不会重新定义 foo 这个 setter。
+
+如果你希望在第二种和第三种情况下也屏蔽 foo ，那就不能使用 = 操作符来赋值，而是使用 Object.defineProperty(..) 来向 myObject 添加 foo 。
+
+## 5.2 “类” ##
+
+JavaScript 和面向类的语言不同，它并没有类来作为对象的抽象模式
+或者说蓝图。JavaScript 中只有对象。
+
+### 5.2.1 “类”函数 ###
+
+“类似类”的行为利用了函数的一种特殊特性：所有的函数默认都会拥有一个
+名为 prototype 的公有并且不可枚举的属性。
+
+	function Foo() {
+		// ...
+	}
+	Foo.prototype; // {}
+这个对象通常被称为 Foo 的原型，因为我们通过名为 Foo.prototype 的属性引用来访问它。
+
+这个对象是在调用 new Foo() 时创建的，最后会被（有点武断地）关联到这个“Foo 点 prototype”对象上。
+
+	function Foo() {
+		// ...
+	}
+	var a = new Foo();
+	Object.getPrototypeOf(a) === Foo.prototype; //true
+调用new Foo()时会创建a，其中的一步就是给a一个内部的[[Prototype]]链接，关联到Foo.prototype指向的那个对象。
+
+在 JavaScript 中，并没有类似的复制机制。你不能创建一个类的多个实例，只能创建多个对象，它们 [[Prototype]] 关联的是同一个对象。但是在默认情况下并不会进行复制，因此这些对象之间并不会完全失去联系，它们是互相关联的。
+
+new Foo() 会生成一个新对象（我们称之为 a ），这个新对象的内部链接 [[Prototype]] 关联的是 Foo.prototype 对象。
+
+在JavaScript中，我们并不会将一个对象（“类”）复制到另一个对象（“实例”），只是将他们关联起来。
+	
+这类机制通常称为原型继承，常常被视为动态语言版本的类继承
+
+继承意味着复制操作，JavaScript（默认）并不会复制对象属性。相反，JavaScript 会在两个对象之间创建一个关联，这样一个对象就可以通过委托访问另一个对象的属性和函数。
+
+基本原则是在描述对象行为时，使用其不同于普遍描述的特质。
+
+### 5.2.2 “构造函数” ###
+
+其中一个原因是我们看到了关键字 new ，在面向类的语言中构造类实例时也会用到它。另一个原因是，看起来我们执行了类的构造函数方法， Foo() 的调用方式很像初始化类时类构造函数的调用方式。
+
+	function Foo() {
+		//...
+	}
+	Foo.prototype.constructor === Foo; //true
+	var a = new Foo();
+	a.constructor === Foo; // true
+
+Foo.prototype默认有一个公有并且不可枚举的属性.constructor，这个属性引用的是对象关联的函数。
+
+我们可以看到通过“构造函数”调用 new Foo() 创建的对象也有一个 .constructor 属性，指向“创建这个对象的函数”。
+
+1. 构造函数还是调用
+
+当你在普通的函数调用前面加上 new 关键字之后，就会把这个函数调用变成一个“构造函数调用”
+
+new 会劫持所有普通函数并用构造对象的形式来调用它。
+
+### 5.2.3 技术 ###
+
+	function Foo(name) {
+		this.name = name;
+	}
+
+	Foo.prototype.myName = function() {
+		return this.name;
+	};
+	var a = new Foo("a");
+	var b = new Foo("b");
+	a.myName(); // "a"
+	b.myName(); // "b"
+
+1. this.name = name 给每个对象都添加了.name属性，优点像类实例封装的数据值。	
+2. Foo.prototype.myName = ... ，它会给Foo.prototype对象添加一个属性（函数）
+
+看起来似乎创建a和b会把Foo.prototype对象复制到这两个对象中，然而事实并不是这样。默认的[[Get]]算法会在当属性不直接存在于对象中时通过[[Prototype]]进行查找。
+
+在创建的过程中， a 和 b 的内部 [[Prototype]] 都会关联到 Foo.prototype 上。当 a和 b 中无法找到 myName 时，它会通过委托在 Foo.prototype 上找到。
+
+**回顾“构造函数”**
+
+当你在普通的函数调用前面加上 new 关键字之后，就会把这个函数调用变成一个“构造函数调用”
+
+new 会劫持所有普通函数并用构造对象的形式来调用它。
 
 
+## 5.5 小结 ##
 
-第6章 行为委托
+如果要访问对象中并不存在的一个属性， [[Get]] 操作就会查找对象内部[[Prototype]] 关联的对象。这个关联关系实际上定义了一条“原型链”（有点像嵌套的作用域链），在查找属性时会对它进行遍历。
+
+所有普通对象都有内置的 Object.prototype ，指向原型链的顶端（比如说全局作用域），如果在原型链中找不到指定的属性就会停止。 toString() 、 valueOf() 和其他一些通用的功能都存在于 Object.prototype 对象上，因此语言中所有的对象都可以使用它们。
+
+关联两个对象最常用的方法是使用 new 关键词进行函数调用，在调用的 4 个步骤中会创建一个关联其他对象的新对象。
+
+使用 new 调用函数时会把新对象的 .prototype 属性关联到“其他对象”。带 new 的函数调用通常被称为“构造函数调用”，尽管它们实际上和传统面向类语言中的类构造函数不一样。
+
+虽然这些 JavaScript 机制和传统面向类语言中的“类初始化”和“类继承”很相似，但是 JavaScript 中的机制有一个核心区别，那就是不会进行复制，对象之间是通过内部的[[Prototype]] 链关联的。
+
+相比之下，“委托”是一个更合适的术语，因为对象之间的关系不是复制而是委托。
+
+# 第6章 行为委托 #
+
+## 6.1 面向委托的设计 ##
+
+为了更好地学习如何更直观地使用 [[Prototype]] ，我们必须认识到它代表的是一种不同于类的设计模式。
+
+*面向类的设计中 有些 原则依然有效，因此不要把所有知识都抛掉。（只需要抛掉大部分就够了！）举例来说， 封装 是非常有用的，它同样可以应用在委托中（虽然不太常见）。*
+
+### 6.1.1 类理论 ###
+
+	Task = {
+		setID: function(ID) { this.id = ID; },
+		outputID: function() { console.log( this.id ); }
+	};
+	// 让 XYZ 委托 Task
+	XYZ = Object.create( Task );
+	XYZ.prepareTask = function(ID,Label) {
+		this.setID( ID );
+		this.label = Label;
+	};
+	XYZ.outputTaskDetails = function() {
+		this.outputID();
+		console.log( this.label );
+	};
+	// ABC = Object.create( Task );
+	// ABC ... = ...
+
+1. 互相委托（禁止）
+
+之所以要禁止互相委托，是因为引擎的开发者们发现在设置时检查（并禁止！）一次无限循环引用要更加高效，否则每次从对象中查找属性时都需要进行检查。
+
+2. 调试
+
+	function Foo() {}
+	var a1 = new Foo();
+	a1; // Foo {}
+
+Chrome 实际上想说的是“ {} 是一个空对象，由名为 Foo 的函数构造”。Firefox 想说的是“ {}
+是一个空对象，由 Object 构造”。之所以有这种细微的差别，是因为 Chrome 会动态跟踪并把
+实际执行构造过程的函数名当作一个内置属性，但是其他浏览器并不会跟踪这些额外的信息。
+
+	function Foo() {}
+	var a1 = new Foo();
+	a1.constructor; // Foo(){}
+	a1.constructor.name; // "Foo"
+
+### 6.1.3 比较思维模型 ###
+
+子类 Bar 继承了父类 Foo ，然后生成了 b1 和 b2 两个实例。 b1 委托了 Bar.prototype ，后者委托了 Foo.prototype 。
+
+## 6.2 类与对象 ##
+
+创建 UI 控件（按钮、下拉列表，等等）
+
+### 6.2.1 控件“类” ###
+
+一个包含所有通用控件行为的父类（可能叫作 Widget ）和继承父类的特殊控件子类（比如 Button ）
+
+//父类
+function Widget(width, height) {
+	this.width = width || 50;
+	this.height = height || 50;
+	this.$elem = null;
+}
+
+Widget.prototype.render = function($where) {
+	if (this.$elem) {
+		this.$elem.css( {
+			width: this.width + "px",
+			height: this.height + "px"
+		} ).appendTo($where);
+	}
+}
+
+// 子类
+function Button(width, height, label) {
+	//调用“super”构造函数
+	Widget.call(this, width, height);
+	this.label = label || "Default";
+
+	this.$elem = $( "<button>" ).text(this.label);
+}
+
+//让Button“继承”Widget
+Button.prototype = Object.create(Widget.prototype);
+
+//重写render(..)
+Button.prototype.render = function($where) {
+	// “super”调用
+	Widget.prototype.render.call( this, $where );
+	this.$elem.click( this.onClick.bind( this ) );
+};
+
+Button.prototype.onClick = function(evt) {
+	console.log( "Button '" + this.label + "' clicked!" );
+};
+
+$( document ).ready( function(){
+	var $body = $( document.body );
+	var btn1 = new Button( 125, 30, "Hello" );
+	var btn2 = new Button( 150, 40, "World" );
+	btn1.render( $body );
+	btn2.render( $body );
+} );
