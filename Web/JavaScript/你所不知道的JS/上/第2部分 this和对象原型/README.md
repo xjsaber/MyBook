@@ -1161,3 +1161,89 @@ $( document ).ready( function(){
 	btn1.render( $body );
 	btn2.render( $body );
 } );
+
+## 6.6 小结 ##
+
+选择是否使用类和继承设计模式。大多数开发者理所当然地认为类是
+唯一（合适）的代码组织方式，但是本章中我们看到了另一种更少见但是更强大的设计模式：行为委托。
+
+行为委托认为对象之间是兄弟关系，互相委托，而不是父类和子类的关系。JavaScript 的[[Prototype]] 机制本质上就是行为委托机制。也就是说，我们可以选择在 JavaScript 中努力实现类机制，也可以拥抱更自然的 [[Prototype]] 委托机制。
+
+对象关联（对象之前互相关联）是一种编码风格，它倡导的是直接创建和关联对象，不把它们抽象成类。对象关联可以用基于 [[Prototype]] 的行为委托非常自然地实现。
+
+# 附录A #
+
+类是一种可选（而不是必须）的设计模式，而且在 JavaScript 这样的 [[Prototype]] 语言中实现类是很别扭的。
+
+繁琐杂乱的 .prototype 引用、试图调用原型链上层同名函数时的显式伪多
+态以及不可靠、不美观而且容易被误解成“构造函数”的 .constructor 。
+
+## A.1 class ##
+
+	class Widget {
+		constructor(width, height) {
+			this.width = width || 50;
+			this.height = height || 50;
+			this.$elem = null;
+		}
+		render($where) {
+			if (this.$elem) {
+				this.$elem.css ({
+					width: this.width + "px";
+					height: this.height + "px";
+				}).appendTo($where);
+			}
+		}
+	}
+	class Button extends Widget {
+		constructor(width, height, label) {
+			super(width, height);
+			this.label = label || "Default";
+			this.$elem = $("<button>").text( this.label);
+		}
+		render($where) {
+			super($where);
+			this.$elem.click(this.onClick.bind(this));
+		}
+		onClick(evt) {
+			console.log("Button '" + this.label + "' clicked!");
+		}
+	}
+
+1. 不再引用杂乱的.prototype了。
+2. Button声明时直接“继承”了Widget，不再需要通过Object.create(..)来替换.prototype对象，也不需要._proto_或者Object.setPrototypeOf(..)。
+3. 构造函数不属于类，所以无法互相引用——super()可以完美解决构造函数的问题。
+4. class字面语法不能声明属性（只能声明方法）。原型链末端的“实例”可能会意外地获取其他地方的属性（这些属性隐式被所有“实例”所“共享”）。所以， class 语法实际上可以帮助你避免犯错。
+5. 可以铜鼓oextends扩展对象（子）类型，甚至是内置的对象（子）类型，比如Array或RegExp。没有class ..extends语法时。
+
+## A2 class陷阱 ##
+然而，class语法并没有解决所有的问题，在JavaScript中使用“类”设计模式仍然存在许多深层问题。
+
+1. 认为 ES6 的 class 语法是向 JavaScript 中引入了一种新的“类”机制，其实不是这样。 class 基本上只是现有 [[Prototype]] （委托！）机制的一种语法糖。
+2.  class 并不会像传统面向类的语言一样在声明时静态复制所有行为。如果你（有意或无意）修改或者替换了父“类”中的一个方法，那子“类”和所有实例都会受到影响，因为它们在定义时并没有进行复制，只是使用基于 [[Prototype]] 的实时委托。
+
+	class C {
+		constructor() {
+			this.num = Math.random();
+		}
+		rand() {
+			console.log("Random: " + this.num);
+		}
+	}
+
+	var c1 = new C();
+	c1.rand(); // "Random: 0.4324299..."
+
+	C.prototype.rand = function() {
+		console.log("Random:" + Math.round(this.num * 1000 ));
+	}
+
+	var c2 = new C();
+	c2.rand(); // "Random: 867"
+	c1.rand(); // "Random: 432"——噢！
+
+## A.3 静态大于动态吗 ##
+
+ES6的class最大的问题在于，（像传统的类一样）它的语法有时会让你认为，定义一个class后，它就变成了一个（未来会被实例化的）东西的静态定义。
+
+在传统面向类的语言中，类定义之后就不会进行修改，所以类的设计模式就不支持修改。但是JavaScript最强大的特性之一就是它的动态性，任何对象的定义都可以修改（除非你把它设置成不可变）。
