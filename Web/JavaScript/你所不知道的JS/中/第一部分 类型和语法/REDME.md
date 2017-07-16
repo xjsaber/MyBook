@@ -52,6 +52,7 @@ JavaScript 有 七 种 内 置 类 型： null 、 undefined 、 boolean 、 num
 
 通过 typeof 的安全防范机制（阻止报错）来检查 undeclared 变量，有时是个不错的办法。
 
+
 # 第2章 值 #
 
 数组（ array ）、字符串（ string ）和数字（ number ）
@@ -278,7 +279,38 @@ JavaScript 引擎并不是独立运行的，它运行在宿主环境中，对多
 
 ### 1.4.3 协作 ###
 
+### 1.4.3 协作 ###
 
+并发协作（cooperative concurrency）。
+
+取到一个长期运行的“进程”，并将其分割成多个步骤或多批任务，使得其他并发“进程”有机会将自己的运算插入到事件循环队列中交替运行。
+
+考虑一个需要遍历很长的结果列表进行值转换的 Ajax 响应处理函数。我们会使用 Array#map(..) 让代码更简洁：
+
+	var res = [];
+	// response(..)从Ajax调用中取得结果数组
+	function response(data) {
+		// 添加到已有的res数组
+		res = res.concat(
+			// 创建一个新的变换数组把所有data值加倍
+			data.map( function(val){
+				return val * 2;
+			} )
+		);
+	}
+	// ajax(..)是某个库中提供的某个Ajax函数
+	ajax( "http://some.url.1", response );
+	ajax( "http://some.url.2", response );
+
+## 1.5 任务 ##
+
+在 ES6 中，有一个新的概念建立在事件循环队列之上，叫作任务队列（job queue）。
+
+## 1.6 语句顺序 ##
+
+## 1.7 小结 ##
+
+JavaScript程序总是至少分为两个块：第一块现在运行；下一块将来运行，以相应某个事件。尽管程序是一块一块执行的，但是所有这些块共享对程序作用域和状态的访问，所以对状态的修改都是在之前累积的修改之上进行的。
 
 # 第2章 回调 #
 
