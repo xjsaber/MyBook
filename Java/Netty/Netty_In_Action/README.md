@@ -156,6 +156,8 @@ ChannelPipeline持有所有将应用于入站和出站数据以及事件的Chann
 * 提供当Channel注册到EventLoop或者从EventLoop注销时的通知；
 * 提供有关用户自定义事件的通知。
 
+ChannelPipeline实现了一种常见的设计模式——拦截过滤器（Intercepting Filter）。UNIX管道是另一个熟悉的例子：多个命令被链接在一起，其中一个命令的输出端将连接到命令行中下一个命名的输入端。
+
 Channel的方法
 
 |方法名|描述|
