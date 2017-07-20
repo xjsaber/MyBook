@@ -222,6 +222,31 @@ Netty的OIO传输实现代表了一种折中：可以通过常规的传输API使
 Netty提供了一个Local，用于在同一个JVM中运行的客户端和服务器程序之间的异步通信。
 
 
+# 第6章 ChannelHandler 和 ChannelPipeline #
+
+ChannelPipeline中将ChannelHandler链接在一起以组织处理逻辑。
+
+## 6.1 ChannelHandler 家族 ##
+
+### 6.1.1 Channel的生命周期 ###
+
+**Channel的生命周期状态**
+|状态|描述|
+|--|--|
+|ChannelUnregistered|Channel已经被创建，但还未注册到至EventLoop|
+|ChannelRegistered|Channel已经被注册的到了EventLoop|
+|ChannelActive|Channel处于活动状态（已经连接到它的远程节点）。它现在接收和发送数据了|
+|ChannelInactive|Channel没有连接到远程节点|
+
+ChannelRegistered->ChannelActive->ChannelInactive->ChannelUnregistered
+
+### 6.1.2 ChannelHandler的生命周期 ###
+
+|类型|描述|
+|--|--|
+|handlerAdded|当把ChannelHandler添加到ChannelPipeline中时被调用|
+|handlerRemoved|当把ChannelHandler移除到ChannelPipeline中时被调用|
+|exceptionCaught|当处理过程中在ChannelPipeline中由错误产生时被调用|
 
 
 

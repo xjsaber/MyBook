@@ -10,13 +10,19 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.CharsetUtil;
 
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
 /**
  * Created by xjsaber on 2017/7/17.
  *
  */
 public class MyChannel {
 
-    public static void main(String[] args){
+    /**
+     * 单线程
+     */
+    public void singleThread(){
         EventLoopGroup group = new NioEventLoopGroup();
         Channel channel = new NioSocketChannel();
         ByteBuf buf = Unpooled.copiedBuffer("your data", CharsetUtil.UTF_8);
@@ -30,5 +36,17 @@ public class MyChannel {
                 channelFuture.cause().printStackTrace();
             }
         });
+    }
+
+    /**
+     * 多线程
+     */
+    public void multThread() {
+        final Channel channel = new NioSocketChannel();
+        final ByteBuf buf = Unpooled.copiedBuffer("your data", CharsetUtil.UTF_8).retain();
+        Runnable writer = () -> channel.writeAndFlush(buf.duplicate());
+        Executor executor = Executors.newCachedThreadPool();
+
+        executor.execute(writer);
     }
 }
