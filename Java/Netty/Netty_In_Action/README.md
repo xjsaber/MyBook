@@ -307,7 +307,38 @@ ScheduleExecutorService的实现具有局限性。
 
 异步传输实现只使用少量的EventLoop（以及和它们相关联的Thread），而且再当前的线程模型中，它们可能会被多个Channel所共享。（这使得通过尽可能的少量的Thread来支撑大量的Channel，而不是每个Channel分配一个Thread）
 
+EventLoopGroup负责为每个新创建的Channel分配一个EventLoop。在当前实现中，使用顺序循环（round-robin）的方式进行分配以获取一个均衡的分布，并且相同的EventLoop可能会被分配给多个Channel。一旦一个Channel被分配给一个EventLoop，它将在它的整个生命周期中都是用这个EventLoop（以及相关联的Thread）。需要注意的是，EventLoop的分配方式对ThreadLocal的使用的影响，因为一个EventLoop通常会被用于支撑多个Channel，所以对于所有相关联的Channel来说，ThreadLocal都将是一样的。
+
 #### 2. 阻塞传输 ####
+
+用于像OIO（旧的阻塞I/O）这样的其他传输的设计略有不同。
+
+每一个Channel都将被分配给一个EventLoop（以及它的Thread）。
+
+## 7.5 小结 ##
+
+# 第8章 引导 #
+
+## 8.1 Bootstrap类 ##
+
+引导类的层次结构包括一个抽象的父类和两个具体的引导子类。
+
+服务器致力于使用一个父Channel来接受来自客户端的连接，并创建子Channel以用于它们之间的通信；而客户端将最可能只需要一个单独的、没有父Channel的Channel来用于所有的网络交互。
+
+两种应用程序类型之间通用的引导步骤由AbstractBootstrap处理，
+客户端（Bootstrap）和服务器（ServerBootstrap）
+
+**为什么引导类是Cloneable的**
+
+需要具有类似配置和完全相同配置的Channel。为了支持这种模式而又不需要为每个Channel都创建并配置一个新的引导类实例，AbstractBootstrap被标记为了Cloneable。在一个已经配置完成的引导类实例上调用clone()方法将返回另一个可以立即使用的引导类实例。
+
+AbstractBootstrap类的完整声明是：
+
+	public abstract class AbstractBootstrap <B extends AbstractBootstrap<B, C>,C extends Channel>
+
+在这个签名中，子类型B是其父类型的一个类型参数，因此可以返回到运行时实例的引用以支持方法的链式调用。（也就是所谓的流式方法）。
+
+## 8.2 引导客户端和无连接协议 ##
 
 
 
