@@ -248,7 +248,66 @@ ChannelRegistered->ChannelActive->ChannelInactive->ChannelUnregistered
 |handlerRemoved|当把ChannelHandler移除到ChannelPipeline中时被调用|
 |exceptionCaught|当处理过程中在ChannelPipeline中由错误产生时被调用|
 
+# 第7章 EventLoop和线程模型 #
 
+线程模型指定了操作系统、编程语言、框架或者应用程序的上下文中的线程管理的关键方面。
+
+## 7.1 线程模型概述 ##
+
+在早期的Java语言中，使用多线程处理的主要方式无非是按需创建和启动新的Thread来执行并发的任务单元——一种在高负载下工作得很差的原始方式。
+
+基本的线程池化模式可以描述为：
+
+* 从池的空闲线程列表中选择一个Thread，并且指派它去运行一个已提交的任务（一个Runable的实现）；
+* 当任务完成时，将该Thread返回给该列表，使其被重用。
+
+PS：虽然池化和重用线程相对于简单地为每个任务都创建和销毁线程是一种进步，但是它并不能消除由上下文切换所带来的开销，并将其随着线程数量的增加很快变得明显，并且在高负载下越演越烈。
+
+## 7.2 EventLoop接口 ##
+
+运行任务来处理在连接的生命周期内发生的事件是任何网络框架的基本功能。与之相应的编程上的构造通常被称为事件循环——一个Netty是用了interface io.netty.channel.EventLoop来适配术语。
+
+事件循环的基本思想，其中每个人物都是一个Runnable的实例。
+
+Netty的EventLoop是协同设计的一部分，采用了两个基本的API：并发和网络编程。
+
+1. io.netty.util.concurrent包构建在JDK的java.util.concurrent包上，用来提供线程执行器
+2. io.netty.channel包中的类，为了与Channel的事件进行交互，扩展了这些接口/类。
+
+在这个模型中，一个EventLoop将由一个永远都不会改变的Thread驱动，同时任务（Runnable或者Callable）可以直接提交给EventLoop实现，以立即执行或者调度执行。
+
+#### 7.2.1 Netty4中的I/O和事件处理 ####
+
+#### 7.2.2 Netty3中的I/O操作 ####
+
+## 7.3 任务调度 ##
+
+### 7.3.1 JDK的任务调度API ###
+
+在Java5之前，任务调度是建立在Java.util.Timer类之上的，其使用了一个后台Thread，并且具有与标准线程相同的限制。
+
+**java.util.concurrent.Executors类的工厂方法**
+
+|方法|描述|
+|--|--|
+|newScheduledThreadPool(int corePoolSize) newScheduleThreadPool(int corePoolSize, ThreadFactorythreadFactory)|创建一个ScheduledThreadExecutorService，用于调度命令在指定延迟之后运行或者周期性地真系那个，它使用corePoolSize参数来计算线程数|
+|newSingleThreadScheduleExecutor() newSingleThreadScheduleExecutor(ThreadFactorythreadFactory)|创建一个ScheduledThreadExecutorService，用于调度命令在指定延迟之后运行或者周期性地真系那个，它使用一个线程来执行被调度的任务|
+
+### 7.3.2 使用EventLoop调度任务 ###
+
+ScheduleExecutorService的实现具有局限性。
+
+## 7.4 实现细节 ##
+
+### 7.4.1 线程管理 ###
+
+### 7.4.2 EventLoop/线程的分配 ###
+
+#### 1. 异步传输 ####
+
+异步传输实现只使用少量的EventLoop（以及和它们相关联的Thread），而且再当前的线程模型中，它们可能会被多个Channel所共享。（这使得通过尽可能的少量的Thread来支撑大量的Channel，而不是每个Channel分配一个Thread）
+
+#### 2. 阻塞传输 ####
 
 
 
