@@ -340,21 +340,319 @@ AbstractBootstrap类的完整声明是：
 
 ## 8.2 引导客户端和无连接协议 ##
 
+Bootstrap类被用于客户端或者是用了无连接协议的应用程序中。
+
+**Bootstrap类的API**
+
+|名称|描述|
+|--|--|
+|Bootstap group(EventLoopGroup)|设置用于处理Channel所有事件的EventLoopGroup|
+|Bootstrap channel(Class<? extends C>) Bootstrap channelFactory ChannelFactory<? extends C>|channel()方法指定了Channel的实现类。如果该实现类没提供默认的构造函数，可以通过调用channelFactory()方法来指定一个工厂类，它将会被bind()方法调用|
+|Bootstap group(EventLoopGroup)|设置用于处理Channel所有事件的EventLoopGroup|
+|Bootstap group(EventLoopGroup)|设置用于处理Channel所有事件的EventLoopGroup||Bootstap group(EventLoopGroup)|设置用于处理Channel所有事件的EventLoopGroup|
+
+
+### 8.2.1 引导客户端 ###
+
+1. Bootstrap类将会在bind()方法被调用后创建一个新的Channel，在这之后将会调用connect()方法以建立连接
+2. 在connect()方法被调用后，Bootstrap类将会创建一个新的Channel。
+
+### 8.2.2 Channel和EventLoopGroup的兼容性 ###
+
+
+**关于illegalStateException的**
+
+* group;
+* channel或者channelFactory();
+* handler()
+
+如果不这样做，则将会导致IllegalStateException。对handler()方法的调用尤其重要，因为它需要配置好ChannelPipeline。
+
+## 8.3 引导服务器 ##
+
+### 8.3.1 ServerBootstrap类 ###
+
+**ServerBootstrap类的方法**
+
+|名称|描述|
+|--|--|
+|group|11|
+
+### 8.3.2 引导服务器 ###
+
+childHandler()、childAttr()和childOption()。
+
+ServerChannel的实现负责创建子Channel，这些子Channel代表了已被接受的连接。
+
+## 8.4 从Channel引导客户端 ##
+
+服务器正在处理一个客户端的请求，这个请求需要它充当第三方系统的客户端。当一个应用程序（如一个代理服务器）必须要和组织现有的系统（如Web服务和数据库）集成时，就可能发生这种情况。在这种情况下，将需要从已经被接受的子Channel中引导一个客户端Channel。
+
+创建新的Bootstrap实例，但这并不是最高效的解决方案，因为它将要求你为每个新创建的客户端Channel定义另一个EventLoop。这会产生额外的线程，以及在已被接受的子Channel和客户端Channel之间交互数据时不可避免的上下文切换。
+
+通过将已被接受的子Channel的EventLoop传递给Bootstrap的group()方法来共享该EventLoop。因为分配给EventLoop的所有Channel都使用同一个线程，所以避免了额外的线程创建，以及前面所提到的相关的上下文切换。
+
+1. 在bind()方法被调用时，ServerBootstrap将创建一个新的ServerChannel
+2. ServerChannel接受新的连接，并创建子Channel来处理它们
+3. 为已被接受的连接创建子Channel
+4. 由子Channel创建的Bootstrap类的实例将在connect()方法被调用时创建新的Channel
+5. 新的Channel连接到了远程节点
+6. EventLoop在由ServerChannel所创建子Channel以及由connect()方法所创建Channel之间共享。
+
+实现EventLoop共享涉及通过调用group()方法来设置EventLoop。
+
+## 8.5 在引导过程中添加多个ChannelHandler ##
+
+在引导过程中调用了handler()或者childHandler()方法来添加单个的ChannelHandler。
+
+根据需要，通过在ChannelPipeline中将它们链接在一起来部署尽可能多的ChannelHandler。如果只能设置一个ChannelHandler，针对此例，Netty提供了一个特殊的ChannelInboundHandlerAdapter子类：
+
+	public abstract class ChannelInitializer<C extends Channel> extends ChannelInboundHandlerAdapter
+
+这个方法提供了一种将多个ChannelHandler添加到一个ChannelPipeline中的简便方法。简单地向Bootstrap或ServerBootstrap的实例提供你的ChannelInitializer实现即可，并且一旦Channel被注册到了它的EventLoop之后，就会调用你的initChannel()版本。在该方法返回之后，ChannelInitizlizer的实例将会从ChannelPipeline中移除自己。
+
+## 8.6 使用Netty的ChannelOption和属性 ##
+
+使用option()方法来讲ChannelOption引用到引导。所提供的值将会被自动应用到引导所创建的所有Channel。可用的ChannelOption包括了底层链接的详细信息，如果keep-alive或者超时属性以及缓冲区设置。
+
+## 8.7 引导DatagramChannel ##
+
+基于TCP协议的SocketChannel，但是Bootstrap类也可以被用于无连接的协议。为此，Netty提供了各种DatagramChannel的实现。唯一区别就是，不再调用connect()方法，而是只调用bind()方法。
+
+## 8.8 关闭 ##
+
+干净地释放资源，关闭Netty应用程序。
+
+1. 需要关闭EventLoopGroup，它将处理任何挂起的事件和任务，并且随后释放所有的活动线程。（调用EventLoopGroup.shutdownGracefully()方法的作用）
+2. 返回一个Future，在关闭完成时接收到通知。
+3. shutdownGracefully()方法也是一个异步的操作，所以需要阻塞等待直到它完成，或者向所返回的Future注册一个监听器以在关闭完成时获得通知。
+
+## 8.9 小结 ##
+
+引导Netty服务器和客户端应用车改内需，包括那些使用无连接协议的应用程序。包括在服务器应用程序中的多个ChannelHandler的安装，设置Channel的配置选项，以及如何使用属性来将信息附加到Channel。
+
+# 第9章 单元测试 #
+
+ChannelHandler是Netty应用程序的关键元素，所以彻底地测是它们应该是开发程序的一个标准的部分。最佳事件要求你的测是不仅使能够证明你的实现是正确的，而且还要能够很容易地隔离那些因修改代码而突然出现的问题。这种类型的测试叫作单元测试。
+
+特殊的Channel实现——EmbeddedChannel，是Netty专门为改进针对ChannelHandler的单元测是而提供的。
+
+## 9.1 EmbeddedChannel概述 ##
 
 
 
+**9.1 特殊的EmbeddedChannel方法**
+
+|名称|职责|
+|--|--|
+|writeInbound(Object...msgs)|将入站消息写到EmbeddedChannel中。如果可以通过readInbound()方法从EmbeddedChannel中读取数据，则返回true|
+|readInbound()|--|
+|writeOutbound|--|
+|readOutbound|--|
+|finish|--|
+
+## 9.2 使用EmbeddedChannel测是ChannelHandler ##
+
+## 9.4 小结 ##
+
+使用JUnit这样的测试工具来进行单元测试是一种非常行之有效的方式。
+
+第二部分 编解码器
+
+网络只将数据看作是原始的字节序列。
+
+将应用程序的数据转换为网络格式，以及将网络格式转换为应用程序的数据组件分别叫作编码器和解码器。
+
+# 第10章 编解码器框架 #
+
+编码和解码
+
+## 10.1 什么是编解码器 ##
+
+如果将消息看作是对于特定的应用程序具有具体含义的结构化的字节序列——它的数据。那么编码器是将消息转换为适合于传输的格式（最有可能就是字节流）；而对应的解码器则是将网络字节流转换回应用程序的消息格式。
+
+编码器操作出站数据，而解码器处理入站数据。
+
+## 10.2 解码器 ##
+
+* 将字节解码为消息——ByteToMessageDecoder和ReplayingDecoder；
+* 将一种消息类型解码为另一种——MessageToMessageDecoder。
+
+### 10.2.1 抽象类ByteToMessageDecoder ###
+
+将字节解码为消息（或者另一个字节序列）是一项常见的任务，Netty为它提供了一个抽象的基类：ByteToMessageDecoder。由于你不可能直到远程节点是否会一次性地发送一个完整的消息，所以这个类对入站数据进行缓冲，直到它准备好处理。
+
+**ByteMessageDecoder API**
+
+|方法|描述|
+|--|--|
+|decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out)|decode()方法被调用时将会传入一个包含了传入数据的ByteBuf，以及一个用来添加解码消息的List。|
+|decodeLast(ChannelHandlerContext ctx, ByteBuf in, List<Object> out)||
+
+### 10.2.2 抽象类ReplayingDecoder ###
 
 
+ReplayingDecoder扩展了ByteToMessageDecoder类，不必调用readableBytes()方法。通过使用一个自定义的ByteBuf实现，ReplayingDecoderByteBuf，包装传入的ByteBuf实现了这一点，其将在内部执行该调用。
+
+	public abstract class ReplayingDecoder<S> extends ByteToMessageDecoder
+	类型参数S指定了用于状态管理的类型，其中Void代表不需要状态管理。
+
+* 并不是所有的ByteBuf操作都被支持，如果调用了一个不被支持的方法，将会抛出一个UnsupportedOperationException；
+* ReplayingDecoder稍慢于ByteToMessageDecoder。
+
+两者比较，如果使用ByteToMessageDecoder不会引入太多的复杂性，可以使用它；否则，请使用ReplayingDecoder。
+
+**other**
+
+* io.netty.hander.coderc.LineBasedFrameDecoder
+* io.netty.hander.coderc.http.HttpObjectDecoder
+
+### 10.2.3 抽象类MessageToMessageDecoder ###
+
+	public abstract class MessageToMessageDecoder<T> extends ChannelInboundHandlerAdapter
+
+**MessageToMessageDecoder API**
+
+|方法|描述|
+|--|--|
+|decode(ChannelHandlerContext ctx, I msg, List<Object> out)|对于每个需要被解码为另一种格式的入站消息来说，该方法都将会被调用。解码消息随后会被传递给ChannelPipeline中的下一个ChannelInboundHandler|
+
+	public void decode(ChannelHandlerContext ctx, Integer msg, List<Object> out) throw Exception;
+
+解码的String将被添加到传出的List中，并转发给下一个ChannelInboundHandler。
+
+### 10.2.4 TooLongFrameException类 ###
+
+将由解码器在帧超出指定的大小限制时抛出。
+
+## 1.3 编码器 ##
+
+* 将消息编码为字节；
+* 将消息编码为另一种格式的消息。
+
+### 10.3.1 抽象类MessageToByteEncoder ###
+
+MessageToByteEncoder
 
 
+## 10.4 抽象的编解码器类 ##
 
+同一个类中管理入站和出站数据和消息的转换是很有用的。这些类同时实现了ChannelInboundHandler和ChannelOutboundHandler接口。
 
+### 10.4.1 抽象类ByteToMessageCodec ###
 
+字节解码为某种形式的消息，可能是POJO，随后再次对它进行编码。可以使用ByteToMessageCodec，因为它结合了ByteToMessageDecoder以及它的逆向——MessageToByteEncoder。
 
+任何的请求/响应协议都可以作为使用ByteToMessageCodec的理想选择。例如，在某个SMTP的实现中，编解码器将读取传入字节，并将它们解码为一个自定义的消息类型，如SmtpRequest。而在接收端，当一个响应被创建时，将会产生一个SmtpReponse，其将被编码回字节以便进行传输。
 
+**ByteToMessageCodec API**
 
+|方法名称|描述|
+|--|--|
+|decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out)|只要有字节可以被消费，这个方法就将会被调用。它将入站ByteBuf转换为指定的消息格式，并将其转发给ChannelPipline中的下一个CHannelInboundHandler|
+|decodeLast(ChannelHandlerContext ctx, ByteBuf in, List<Object> out)|这个方法的默认实现委托给了decode()方法。它只会在Channel的状态变为非活动时被调用一次。它可以被重写以实现特殊的处理|
+|en code(ChannelHandlerContext ctx, ByteBuf in, List<Object> out)|对于每个将被编码并写入出站ByteBuf的（类型为I的）消息来说，这个方法都将会被调用|
 
+### 10.4.2 抽象类MessageToMessageCodec ###
 
+	public abstract class MessageToMessageCodec<INBOUND_IN, OUTBOUND_IN>
+
+**MessageToMessageCodec的方法**
+
+|方法名称|描述|
+|--|--|
+|protected abstract decode(ChannelHandlerContext ctx, INBOUND_IN msg, List<Object> out)|INBOUND_IN -> OUTBOUND_IN，这些消息将被转发给ChannelPipeline中的下一个ChannelInboundHandler|
+|protected abstract encode(ChannelHandlerContext ctx, OUTBOUND_IN msg, List<Object> out)|OUTBOUND_IN -> INBOUND_IN，这些消息将被转发给ChannelPipeline中的下一个ChannelOutboundHandler|
+
+**WebSocket协议**
+
+下面关于MessageToMessageCodec的示例引用了一个新出的WebSocket协议，这个协议能实现Web浏览器和服务器之间的全双向通信。
+
+### 10.4.3 CombinedChannelDuplexHandler类 ###
+
+结合一个解码器和编码器可能会对可重用性造成影响，但是，有一种方法既能够避免这种惩罚，又不会牺牲将一个解码器和一个编码器作为一个单独的单元部署所带来的便利性。
+
+	CombinedChannelDuplexHandler
+
+	public class CombinedChannelDuplexHandler <I extends ChannelInboundHandler, O extends ChannelOutboundHanlder>
+
+ChannelInboundHandler和ChannelOutboundHandler（该类的类型参数I和O）的容器。通过提供分别继承了解码器类和编码器类的类型，可以实现一个编解码器，而又不必直接扩展抽象的编解码器类。
+
+## 10.5 小结 ##
+
+抽象的编解码器类是如何为在一个实现中处理解码和编码提供支持的。如果你需要更大的灵活性，或者希望重用现有的实现，那么你还可以选择结合他们，而无需扩展任何抽象的编解码器类。
+
+# 第11章 预置的ChannelHandler和编解码器 #
+
+SSL/TLS 和 WebSocket
+
+## 11.1 通过SSL/TLS保护Netty应用程序 ##
+
+为了支持SSL/TLS，Java提供了javax.net.ssl包，它的SSLContext和SSLEngine类使得实现解密和加密相当简单直接。Netty通过一个和名为SslHandler的ChannelHandler实现利用了这个API，其中SslHandler在内部使用SSLEngine来完成实际的工作。
+
+**SslHandler方法**
+
+|方法名称|描述|
+|--|--|
+|setHandshakeTimeout(long, TimeUnit) setHandShakeTimeoutMillis(long) getHandshakeTimeoutMillis()|设置和获取超时事件，超时之后，握手ChannelFuture将会被通知失败|
+|setCloseNotifyTimeout(long, TimeUnit) setCloseNotifyTimeout(long) setCloseNotifyTimeout()|设置和获取超过事件，超时之后，将会触发一个关闭通知并关闭连接。这也将会导致通知该ChannelFuture失败|
+|handshakeFuture()|返回一个在握手完成后将会得到通知的ChannelFuture。如果握手先前已经执行过了，则返回一个包含了先前的握手结果的ChannelFuture|
+|close() close(ChannelPromise) close(ChannelHandlerContext, ChannelPromise)|发送close_notify以请求关闭并销毁底层的SslEngine|
+
+## 11.2 构建基于Netty的HTTP/HTTPS应用程序 ##
+
+HTTP/HTTPS是常见的协议套件之一。
+
+Netty提供的ChannelHandler，可以用它来处理HTTP和HTTPS协议，而不必编写自定义的编解码器。
+
+### 11.2.1 HTTP解码器、编码器和编解码器 ###
+
+HTTP是基于请求/响应模式的，客户端向服务器发送一个HTTP请求，然后服务器将会返回一个HTTP响应。Netty提供了多种编码器和解码器以简化对这个协议的使用。
+
+完整的HTTP请求（FullHttpRequset）：
+
+1. HTTP请求的第一个部分包含了HTTP的头部消息（HttpRequest）
+2. HTTPContent包含了数据，后面可能还跟着一个或者多个HttpContent部分（HttpContent）
+3. HttpContent 
+4. LastHttpContent标记了该HTTP请求的结束，可能还包含了尾随的HTTP头部信息（LastHttpContent）
+
+一个HTTP请求/响应可能由多个数据部分组成，并且它总是以一个LastHttpContent部分作为结束。FullHttpRequest和FullHttpResponse消息是特殊的子类型，分别代表了完整的请求和响应。所有类型的HTTP消息（FullHttpRequest、LastHttpContent）都实现了HttpObject接口。
+
+**HTTP解码器和编码器**
+
+|名称|描述|
+|--|--|
+|HttpRequestEncoder|将HttpRequest、HttpContent和LastHttpContent消息编码为字节|
+|HttpRequestEncoder|将HttpResponse、HttpContent和LastHttpContent消息编码为字节|
+|HttpRequestEncoder|将字节解码为HttpRequest、HttpContent和LastHttpContent消息|
+|HttpRequestEncoder|将字节解码为HttpResponse、HttpContent和LastHttpContent消息|
+
+### 11.2.2 聚合HTTP消息 ###
+
+在ChannelInitializer将ChannelHandler安装到ChannelPipeline中之后，你便可以处理不同类型的HttpObject消息了。但是由于HTTP的请求和响应可能由许多部分组成，因此它需要聚合它们以形成安装的消息。Netty提供了一个聚合器，可以将多个消息部分合并为FullHttpRequest或者FullHttpReponse消息。
+
+由于消息分段需要被缓冲，直到可以转发一个安装的消息给下一个ChannelInboundHandler带来轻微开销。
+
+引入这种自动聚合机制只不过是向ChannelPipeline中添加另一个ChannelHandler罢了。
+
+### 11.2.3 HTTP压缩 ###
+
+当使用HTTP时，建议开启压缩功能以尽可能多地减少传输数据的大小。
+
+* 缺点：带来了一些CPU时钟周期的开销 
+* 优点：但是一个好主意
+
+Netty为压缩和解压缩提供了ChannelHandler实现，他们同事支持gzip和deflate编码。
+
+### 11.2.4 使用HTTPS ###
+
+启用HTTPS只需将SslHandler添加到ChannelPipline的ChannelHandler组合中。
+
+### 11.2.5 WebSocket ###
+
+WebSocket在客户端和服务器之间提供了真正的双向数据交换。WebSocket现在可以用于传输任意类型的数据，很像普通的套接字。
+
+要想问你的应用程序中添加对于WebSocket的支持，需要将适当的客户端或者服务器WebSocket ChannelHandler添加到ChannelPipeline中。这个类将处理由WebSocket定义的称为帧的特殊消息类型。
 
 
 
