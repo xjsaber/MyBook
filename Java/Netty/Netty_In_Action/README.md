@@ -654,6 +654,65 @@ WebSocket在客户端和服务器之间提供了真正的双向数据交换。We
 
 要想问你的应用程序中添加对于WebSocket的支持，需要将适当的客户端或者服务器WebSocket ChannelHandler添加到ChannelPipeline中。这个类将处理由WebSocket定义的称为帧的特殊消息类型。
 
+**WebSocketFrame类型**
+
+|名称|描述|
+|--|--|
+|BinaryWebSocketFrame|数据帧：二进制数据|
+|TextWebSocketFrame|数据帧：文本数据|
+|ContinuationWebSocketFrame|数据帧：属于上一个BinaryWebSocketFrame或者TextWebSocketFrame的文本或者二进制和数据|
+|CloseWebSocketFrame|控制帧：一个CLOSE请求、关闭的状态码以及关闭的原因|
+|PingWebSocketFrame|控制帧：请求一个PongWebSocketFrame|
+|PongWebSocketFrame|控制帧：对PingWebSocketFrame请求的响应|
+
+Netty主要是一种服务器端的技术，重点创建WebSocket服务器。
+
+WebSocketServerProtocolHandler的简单实例，这个类处理协议升级握手，以及三种控制帧——Close、Ping和Pong。Text和Binary数据帧将会被专递给下一个（实现的）ChannelHandler进行处理。
+
+保护WebSocket 要想为WebSocket添加安全性，只需要将SslHandler作为第一个ChannelHandler添加到ChannelPipline中。
+
+## 11.3 空闲的连接和超时 ##
+
+连接管理
+
+**用于空闲连接以及超时的ChannelHandler**
+
+|名称|描述|
+|--|--|
+|IdleStateHandler|当连接空闲时间太长，将会触发一个IdleStateEvent时间，然后你可以通过在你的ChannelInboundHandler中重写userEventTriggered()方法来处理该IdleStateEvent|
+|ReadTimeoutHandler|如果在指定时间间隔内每首收到任何的入站数据|
+|WriteTimeoutHandler|如果在指定时间间隔内每首收到任何的出站数据|
+
+## 11.4 解码基于分隔符的协议和基于长度的协议 ##
+
+解码器的基于分隔符和帧长度的协议
+
+### 11.4.1 基于分隔符的协议 ###
+
+基于分隔符的（delimited）消息协议使用定义的字符来标记的消息或者消息段（通常被称为帧）的开头或者结尾。
+
+**用于处理基于分隔符的协议和基于长度的协议的解码器**
+
+|名称|描述|
+|--|--|
+|DelimiterBaseFrameDecoder|使用任何由用户提供的分隔符来提取帧的通用解码器|
+|LineBasedFrameDecoder|提取由行尾符(\n或者\r\n)分隔的帧的解码器。这个解码器比DelimiterBasedFrameDecoder更快|
+
+协议规范
+
+* 传入数据流是一系列的帧，每个帧都由换行符（\n）分隔；
+* 每个帧都由一系列的元素组成，每个元素都由单个空格字符分隔；
+* 一个帧的内容代表一个命令，定义为一个命令名称后跟着数目可变的参数；
+
+自定义解码器
+
+* Cmd——将帧（命令）的内容存储在ByteBuf中，一个ByteBuf用于名称，另一个用于参数
+* CmdDecoder——从被重写的decode()方法中获取一行字符串，并从它的呢日哦那个构建一个Cmd的实例
+* CmdHandler
+* CmdHandlerInitializer
+
+### 11.4.2 基于长度的协议 ###
+
 
 
 
