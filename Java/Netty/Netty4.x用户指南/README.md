@@ -59,3 +59,37 @@ Netty 是一个精心设计的框架，它从许多协议的实现中吸收了�
 在这个部分被实现的协议是 TIME 协议。和之前的例子不同的是在不接受任何请求时他会发送一个含32位的整数的消息，并且一旦消息发送就会立即关闭连接。
 
 因为我们将会忽略任何接收到的数据，而只是在连接被创建发送一个消息，所以这次我们不能使用 channelRead() 方法了，代替他的是，我们需要覆盖 channelActive() 方法。
+
+### Writing a Time Client 写个时间客户端 ###
+
+不像 DISCARD 和 ECHO 的服务端，对于 TIME 协议我们需要一个客户端,因为人们不能把一个32位的二进制数据翻译成一个日期或者日历。
+
+在 Netty 中,编写服务端和客户端最大的并且唯一不同的使用了不同的[BootStrap](http://netty.io/4.0/api/io/netty/bootstrap/Bootstrap.html) 和 [Channel](http://netty.io/4.0/api/io/netty/channel/Channel.html)的实现。
+
+[TimeClient](code/src/java/com/xjsaber/netty/TimeClient.java)
+
+### Dealing with a Stream-based Transport 处理一个基于流的传输 ###
+
+**One Small Caveat of Socket Buffer 关于 Socket Buffer的一个小警告**
+
+基于流的传输比如 TCP/IP, 接收到数据是存在 socket 接收的 buffer 中。不幸的是，基于流的传输并不是一个数据包队列，而是一个字节队列。意味着，即使你发送了2个独立的数据包，操作系统也不会作为2个消息处理而仅仅是作为一连串的字节而言。因此这是不能保证你远程写入的数据就会准确地读取。
+
+因此，一个接收方不管他是客户端还是服务端，都应该把接收到的数据整理成一个或者多个更有意思并且能够让程序的业务逻辑更好理解的数据。
+
+**The First Solution 办法一**
+
+回到 TIME 客户端例子。同样也有类似的问题。一个32位整型是非常小的数据，他并不见得会被经常拆分到到不同的数据段内。然而，问题是他确实可能会被拆分到不同的数据段内，并且拆分的可能性会随着通信量的增加而增加。
+
+最简单的方案是构造一个内部的可积累的缓冲，直到4个字节全部接收到了内部缓冲。
+
+**The Second Solution 方法二**
+
+
+
+http://netty.io/4.0/api/io/netty/channel/ChannelInboundHandler.html
+
+
+### Speaking in POJO instead of ByteBuf 用POJO代替ByteBuf ###
+
+### Summary 总结 ###
+
