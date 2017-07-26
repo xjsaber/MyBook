@@ -1,4 +1,4 @@
-package com.xjsaber.netty;
+package com.xjsaber.netty.demo;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;

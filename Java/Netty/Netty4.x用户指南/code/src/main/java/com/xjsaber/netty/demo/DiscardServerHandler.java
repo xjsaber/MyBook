@@ -1,4 +1,4 @@
-package com.xjsaber.netty;
+package com.xjsaber.netty.demo;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
