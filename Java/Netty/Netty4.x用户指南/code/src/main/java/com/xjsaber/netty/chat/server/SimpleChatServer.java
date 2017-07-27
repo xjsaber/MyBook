@@ -42,4 +42,9 @@ public class SimpleChatServer {
             System.out.println("SimpleChatServer 关闭了");
         }
     }
+
+    public static void main(String[] args) throws Exception {
+        int port = 8080;
+        new SimpleChatServer(port).run();
+    }
 }
