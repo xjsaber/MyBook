@@ -26,5 +26,40 @@ Java SE内置了三种，定义在java.lang中的注解：
 
 @Test 注解的定义看起来很像接口的定义，与其他任何Java接口一样，注解也将会编译成class文件。
 
+### 20.1.2 元注解 ###
 
+Java目前只内置了三种标准注解，以及四种元注解。
 
+|--|--|
+|@Target|ads|
+|@Retemtion|表示需要在什么级别保存该注解信息可选的RetentionPolicy参数包括：SOURCE|
+|@Documented|将此注解包含在Javadoc中|
+|@Inherited|允许子类继承父类中的注解|
+
+## 20.2 编写注解处理器 ##
+
+使用注解的过程中，很重要的一个部分就是创建与使用 *注解处理器*。
+
+### 20.2.1 注解元素 ###
+
+标签@UseCase由UseCase.java定义，其中包含int元素id，以及一个String元素description
+
+* 所有基本类型（int， float， boolean等）
+* String
+* Class
+* enum
+* Annotation
+* 以上类型的数组
+
+### 20.2.2 默认值限制 ###
+
+1. 元素不能由不确定的值
+2. 元素必须要么具有默认值，要么在使用注解时提供元素的值。
+
+### 20.2.3 生成外部文件 ###
+
+### 20.2.4 注解不支持继承 ###
+
+不能使用关键字extends来继承某个@interface。
+
+### 20.2.5 实现处理器 ###
