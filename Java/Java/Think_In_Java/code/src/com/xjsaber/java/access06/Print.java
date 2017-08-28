@@ -18,6 +18,11 @@ public class Print {
     }
     // The new Java SE5 printf() (from C):
     public static PrintStream printStream(String format, Object... args){
+        String temp = "123";
+        switch (temp){
+            case "123":
+                break;
+        }
         return System.out.printf(format, args);
     }
 }
