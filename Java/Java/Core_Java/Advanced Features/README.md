@@ -189,3 +189,45 @@ OutputStreamWriter类将使用选定的字符编码方式，把Unicode字符流�
 
 * 以二进制格式写出数据，需要使用DataOutputStream。
 * 以文本格式写出数据，需要使用PrintWriter。
+
+#### 1.2.3 以文本格式存储对象 ####
+
+## 1.4 ZIP文档 ##
+
+ZIP文档（通常）以压缩格式存储了一个或多个文件，每个ZIP文档都由一个头，包含诸如每个文件名字和所使用的压缩方法等消息。
+
+在Java中，可以使用ZipInputStream来读入ZIP文档。你可能需要浏览文档中每个单独的项，getNextEntry方法就可以返回一个描述这些项的ZipEntry类型的对象。ZipInputStream的read方法被修改为在碰到当前项的结尾时返回-1（而不是碰到ZIP文件的末尾），然后你必须调用closeEntry来读入下一项。
+
+**java.util.zip.ZipInputStream 1.1**
+
+* ZipInputStream(InputStream in) 创建一个ZipInputStream，使得我们可以从给定的InputStream向其中填充数据。 
+* ZipEntry getNextEntry() 为下一项返回ZipEntry对象，或者在没有更多的项时返回null。
+* void closeEntry() 关闭这个ZIP文件中当前打开的项。之后可以通过使用getNextEntry()读入下一项。
+
+**java.util.zip.ZipOutStream 1.1**
+
+* ZipOutputStream(OutputStream out) 创建一个将压缩数据写出到指定的OutputStream的ZipOutputStream。
+* void putNextEntry(ZipEntry ze) 将给定的ZipEntry中的信息写出到流中，并定位用于写出数据的流，然后这些数据可以通过write写出到这个流中。
+* void closeEntry()
+* void setLEevel(int level) 设置后续的各个DEFLATED项的默认压缩级别。这里默认值是Deflater.DEFAULT_COMPRESSION。如果级别无效，则抛出IllegalArgumentException。
+* void setMethod(int method) 设置用于这个ZipOutputStream的默认压缩方法，这个压缩方法会作用于所有没有指定压缩方法的顶上。 参数：method 压缩方法， DELATED或STORED
+
+**java.util.zip.ZipEntry 1.1**
+
+* ZipEntry(String name) 用给定的名字构建一个Zip项。 参数：name
+* long getCrc() 返回用于这个ZipEntry的CRC32校验和的值。 
+
+**java.util.zip.ZipFile 1.1**
+
+* ZipFile(String name)
+* ZipFile(File file) 创建一个ZipFile，用于从给定的字符串或File对象中读入数据
+* Enumeration entries()
+* ZipEntry getEntry
+
+### 1.5 对象流与序列化 ###
+
+### 1.6 操作文件 ###
+
+### 1.7 内存映射文件 ###
+
+## 第2章 XML ##
