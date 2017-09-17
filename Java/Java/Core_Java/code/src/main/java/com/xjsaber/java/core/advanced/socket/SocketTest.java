@@ -12,7 +12,7 @@ public class SocketTest {
             InputStream inputStream = socket.getInputStream();
             Scanner in = new Scanner(inputStream);
 
-            while (in.hasNext()){
+            while (in.hasNextLine()){
                 String line = in.nextLine();
                 System.out.println(line);
             }

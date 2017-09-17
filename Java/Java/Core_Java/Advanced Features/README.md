@@ -483,7 +483,19 @@ Document对象是XML文档的树型结构在内存中的表现，它由实现了
 
 #### 2.7.5 使用StAx写XML文档 ####
 
+一旦套接字被打开，java.net.Socket类中的getInputStream方法就会返回一个InputStream对象，该对象可以像其他任何流对象一样使用。
+
 ## 第3章 网络 ##
 
+第一行代码用于打开一个套接字，网络软件的一个抽象概念，负责启动改程序内部和外部之间的通信。
 
+UDP比较适合可以忍受数据包丢失的应用，例如用于音频流和视频流的传输，或者用于连续测量的应用领域
+
+**java.net.Socket 1.0**
+
+* Socket(String host, int port) 构建一个套接字，用来连接给定的主机和端口
+* InputStream getInputStream()
+* OutputStream getOutputStream() 获取可以从套接字读取数据的流，以及可以向套接字写出数据的流。
+
+### 3.1.1 套接字超时 ###
 
