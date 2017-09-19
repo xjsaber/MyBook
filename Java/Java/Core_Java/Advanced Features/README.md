@@ -533,3 +533,24 @@ UDP比较适合可以忍受数据包丢失的应用，例如用于音频流和�
 
 ### 3.1.1 套接字超时 ###
 
+	Socket s = new Socket(...);
+	s.setSoTimeout(10000); //time out after 10 seconds
+
+SocketTimeoutException异常
+
+超时问题必须解决
+
+	Socket(String host, int port) 会一直无限期阻塞下去，直到建立了到达主机的初始连接位置。
+	可以通过先构建一个无连接的套接字，然后再使用一个超时来进行连接的方法解决问题。
+	Socket s = new Socket();
+	s.connect = (new InetSocketAddress(host, port), timeout);
+
+**java.net.Socket 1.0**
+
+* Socket() 创建一个还未被连接的套接字
+* void connect()
+* boolean isConnected() 1.4
+
+### 3.1.2 因特网地址 ###
+
+
