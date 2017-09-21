@@ -22,6 +22,22 @@ class java.nio.channels.Selector是Java的非阻塞I/O实现的关键。
 * 使用较小的线程便可以处理许多连接，因此也减少了内存管理和上下文切换所带来开销；
 * 当没有I/O操作需要处理的时候，线程也可以被用于其他任务。
 
+## 1.3 核心组件 ##
+
+* Channel
+* 回调
+* Future
+* 事件和ChannelHandler
+
+## 1.3.1 Channel ##
+
+## 1.3.2 回调 ##
+
+## 1.3.3 Future ##
+
+## 1.3.4 事件和ChannelHandler ##
+
+
 ## 2.2 Netty 客户端/服务器概览 ##
 
 ## 2.3 编写Echo服务器 ##
