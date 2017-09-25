@@ -15,12 +15,16 @@ import redis.clients.jedis.JedisPoolConfig;
 @Configuration
 public class RedisConfiguration {
 
+    private final int MAX_TIME = 30000;
+
+    private final String PASSWORD = "redis1234";
+
     @Bean(name= "jedis.pool")
     @Autowired
     public JedisPool jedisPool(@Qualifier("jedis.pool.config")JedisPoolConfig config,
                                @Value("${jedis.pool.host}")String host,
                                @Value("${jedis.pool.port}")int port){
-        return new JedisPool(config, host, port);
+        return new JedisPool(config, host, port, MAX_TIME, PASSWORD);
     }
 
     @Bean(name= "jedis.pool.config")

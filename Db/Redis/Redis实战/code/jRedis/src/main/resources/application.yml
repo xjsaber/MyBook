@@ -1,7 +1,6 @@
-
 jedis :
   pool :
-    host : 127.0.0.1
+    host : 182.254.136.245
     port : 6379
     config :
       maxTotal: 100

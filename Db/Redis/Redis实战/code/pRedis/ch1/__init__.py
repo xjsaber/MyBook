@@ -1,7 +1,7 @@
 import redis
 import time
 
-conn = redis.Redis()
+conn = redis.Redis(host="182.254.136.245", password="redis1234")
 ONE_WEEK_IN_SECONDS = 7 * 86400
 VOTE_SCORE = 432
 
@@ -82,4 +82,6 @@ def get_group_articles(conn, group, page, order='score:'):
                          )
         conn.expire(key, 60)
     return get_articles(conn, page, key)
+
+
 
