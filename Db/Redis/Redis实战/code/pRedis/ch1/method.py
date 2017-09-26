@@ -39,5 +39,28 @@ def redis_smembers():
     print(conn.srem("set-key"))
 
 
+# redis HashSet功能
+def redis_hash():
+    print(conn.hset("hash-key", "sub-key1", "value1"))
+    print(conn.hset("hash-key", "sub-key2", "value2"))
+    print(conn.hset("hash-key", "sub-key3", "value3"))
+    print(conn.hgetall("hash-key"))
+    print(conn.hdel("hash-key", "sub-key2"))
+    print(conn.hdel("hash-key", "sub-key2"))
+    print(conn.hget("hash-key", "sub-key1"))
+
+
+# redis ZSet功能
+def redis_zset():
+    print(conn.zadd("zset-key", "member1", 1.0))
+    print(conn.zadd("zset-key", "member0", 2))
+    print(conn.zadd("zset-key", "member0", 2))
+    print(conn.zrange("zset-key", 0, -1, withscores=True))
+    print(conn.zrangebyscore("zset-key", 0, 800, withscores=True))
+    print(conn.zrem("zset-key", "member1"))
+    print(conn.zrem("zset-key", "member1"))
+    print(conn.zrange("zrange", "zset-key", 0, -1, score_cast_func=0))
+
+
 if __name__ == "__main__":
-    redis_smembers()
+    redis_zset()
