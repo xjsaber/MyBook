@@ -6,13 +6,13 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import redis.clients.jedis.Jedis;
 
-public class RedisString {
+public class RedisUtils {
 
-    public static void main(String[] args){
-        ApplicationContext context = new ClassPathXmlApplicationContext(new String[]{"applicationContext.xml"});
-        BeanFactory factory = (BeanFactory) context;
-        RedisClient redisClient = (RedisClient)factory.getBean("redisClient");
+    ApplicationContext context = new ClassPathXmlApplicationContext(new String[]{"applicationContext.xml"});
+    BeanFactory factory = (BeanFactory) context;
+    RedisClient redisClient = (RedisClient)factory.getBean("redisClient");
 
+    private void redisString(){
         Jedis jedis = redisClient.getJedis();
         jedis.connect();
         jedis.select(0);
@@ -20,5 +20,9 @@ public class RedisString {
         System.out.println(jedis.get("hello"));
         jedis.del("hello");
         jedis.get("hello");
+    }
+
+    private void redisZSet(){
+        Jedis jedis = redisClient.getJedis();
     }
 }

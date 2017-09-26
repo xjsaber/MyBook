@@ -553,4 +553,183 @@ SocketTimeoutException异常
 
 ### 3.1.2 因特网地址 ###
 
+## 第8章 Java Bean构件 ##
+
+1. 所有属性为private
+2. 提供默认构造方法
+3. 提供getter和setter
+4. 实现serializable接口
+
+### 8.1 为何使用Bean ###
+
+### 8.2 编写Bean的过程 ###
+
+真正的bean要精巧且冗长得多。
+
+1) 对于非专家级的程序员，bean必须便于使用。因此，你需要暴露出很多属性，以便用户无需编程，通过可视化的设计工具即可访问bean的大多数功能。
+2) 同一个bean必须能在多种环境中使用。bean的行为与外部特征都必须可定制，这有要求暴露大量的属性。
+
+## 第9章 安全 ##
+
+Java技术提供了以下三种确保安全的机制：
+
+* 语言设计特性（对数组的边界进行检查，无不受检查的类型转换，无指针算法等）。
+* 访问控制机制，用于控制代码能够执行的操作（比如文件访问，网络访问等）。
+* 代码签名，利用该特性，代码的作者就能够用标准的加密算法来认证Java代码。这样，该代码的使用者能够准确地知道谁创建了该代码，以及代码被标识后是否被修改过。
+
+### 9.1 类加载器 ###
+
+Java编译器会为虚拟机转换源指令。虚拟机代码存储在以.class为扩展名的类文件中，每个类文件都包含某个类或者接口的定义和代码实现。这些类文件必须由一个程序进行解释，该程序能够将虚拟机的指令集翻译成目标机器的机器语言。
+
+虚拟机只加载程序执行时所需要的类文件。假设程序从MyProgram.class开始运行，下面是虚拟机执行的步骤：
+
+1. 虚拟机有一个用于加载类文件的机制，例如，从磁盘上读取文件或者请求Web上的文件；它使用该机器来加载MyProgram类文件中的内容。
+2. 如果MyProgram类拥有类型为另一个类的域，或者是拥有超类，那么这些类文件也会被加载。（加载某个类所依赖的所有累的过程称为类的解析）。
+3. 接着，虚拟机执行MyProgram中的main方法（它是静态的，无需创建类的实例）。
+4. 如果main方法或者main调用的方法要用到更多的类，那么接下来就会加载这些类。
+
+每个Java程序至少拥有三个类加载器：
+
+* 引导类加载器
+* 扩展类加载器
+* 系统类加载器（有时也称为应用类加载器）
+
+引导类加载器负责加载系统类（通常从JAR文件rt.jar中进行加载）。它是虚拟机不可分割的一部分，而且通常是用C语言来实现的。引导类加载器没有对应的ClassLoader对象。
+
+#### 9.1.1 类加载器的层次结构 ####
+
+类加载器有一种父/子关系。除了引导类加载器外，每个类加载器都有一个父类加载器。
+
+如果插件被打包为JAR文件，那就可以*直接用URLClassLoader类的实例去加载这些类*。
+
+	URL url = new URL("path");
+	URLClassLoader pluginLoader = new URLClassLoader(new URL[] {url});
+	Class<?> cl = pluginLoader.loadClass("mypackage.MyClass");
+
+![类加载器的层次结构](img/9_01.bmp)
+
+可以通过下面将其设置成为任何类加载器
+
+	Thread = Thread.currentThread();
+	t.setContextClassLoader(loader);
+
+助手方法可以获取这个上下文类加载器：
+
+	Thread t = Thread.currentThread();
+	ClassLoader loader = t.getCOntextClassLoader();
+	Class cl = loader.loaderClass(className);
+
+当调用由不同的类加载器加载的插件类的方法时，进行上下文类加载器的设置是一种好的思路；或者，让助手方法的调用者设置上下文类加载器。
+
+### 9.1.2 将类加载器作为命名控件 ###
+
+在同一个虚拟机中，可以有两个类，它们的类名和包名都是相同的。类是由它的全名和类加载器来确定的。
+
+### 9.1.3 编写自己的类加载器 ###
+
+编写自己的类加载器，只需要继承ClassLoader类，然后覆盖下面这个方法
+
+	findClass(String className)
+
+ClassLoader超类的loadClass方法用于将类的加载操作委托给其父类加载器去进行，只有当该类尚未加载并且父类加载器也无法加载该类时，才调用findClass方法。
+
+如果要实现该方法，必须做到以下几点：
+
+1. 为来自本地文件系统或者其他来源的类加载其字节码
+2. 调用ClassLoader超类的defineClass方法，想虚拟机提供字节码。
+
+**java.lang.Class 1.0**
+
+* ClassLoader getClassLoader() 获取加载该类的类加载器
+
+**java.lang.ClassLoader 1.0**
+
+* ClassLoader getParent() 1.2 返回父类加载器，如果父类加载器是引导类加载器，则返回null。
+* static ClassLoader getSystemClassLoader() 1.2 获取系统类加载器，即用于加载第一个应用类的加载器。
+* protected Class findClass(String name) 1.2 类加载器应该覆盖该方法，以查找类的字节码，并通过调用defineClass方法将字节码传给虚拟机。在类的名字中，使用.作为包名分隔符，并且不适用.class后缀。
+* Class defineClass(String name, byte[] byteCodeData, int offset, int length)将一个新的类添加到虚拟机，其字节码在给定的数据范围中。
+
+**java.net.URLClassLoader 1.2**
+
+* 获取类加载器，该线程的创建者将其指定为执行该线程时最合适使用的类加载器。
+
+**java.lang.Thread 1.0**
+
+为该线程中的代码设置一个类加载器，以获取要加载的类。如果在启动一个线程时没有显式地设置上下文类加载器，则使用父线程的上下文类加载器。
+
+### 9.2 字节码校验 ###
+
+当类加载器将新在加载的Java平台类的字节码传递给虚拟机，这些字节码首先要接受*校验器*（verifier）的校验。校验器负责检查那些指令无法执行的明细那有破坏性的操作。出了系统类外，所有的类都要被校验。
+
+下面是校验器执行的一些检查：
+
+* 变量要在使用之前进行初始化。
+* 方法调用与对象引用类型之间要匹配。
+* 访问私有类型和方法的规则没有被违反。
+* 对本地变量的访问都落在运行时堆栈内。
+* 运行时堆栈没有用溢出。
+
+## 第10章 脚本、编译与注解处理 ##
+
+10.1 Java平台的脚本
+
+### 10.3 使用注解 ###
+
+注解的一些可能的用法：
+
+* 附属文件的自动生成，例如部署描述符或者bean信息类。
+* 测试、日志、事务语义等代码的自动生成。
+
+在Java中，注解是当作一个修饰符来使用的。它被置于被注解项之前，中间没有分号。（修饰符就是诸如public和static之类的关键词。）每一个注解的名称前面都加上了@符号。
+
+@Test注解自身并不会做任何事情，它需要工具支持才会有用。
+
+注解可以定义成包含元素的形式
+
+	@Test(timeout="10000")
+
+每个注解都必须通过一个注解接口进行定义。这些接口中的方法与注解中的元素相对应。
+
+	@Target(ElementType.METHOD)
+	@Retention(RetentionPolicy.RUNTIME)
+	public @interface Test {
+		long timeout() default 0L;
+	}
+@interface声明窗见了一个真正的Java接口。处理注解的工具将接收那些实现了这个注解接口的对象。这个工具可以调用timeout方法来检索某个特定Test注解的timeout元素。
+
+注解Target和Retention是*元注解*。它们注解了Test注解，即将Test注解标识成一个只能运行到方法啥功能的注解，并且当类文件载入到虚拟机的时候，仍可以保留下来。
+
+**java.lang.reflectAnnotatedElement 5.0**
+
+* boolean isAnnotationPresent(Class<? extend Annotation> annotationType) 如果该项具有给定类型的注解，则返回true
+* <T extends Annotation> T getAnnotation(Class<T> annotationType) 获得给定类型的注解，如果该项不具有这样的注解，则返回null。
+* Annotation[] getAnnotations() 获得作用于该项的所有注解，包括继承而来的注解。如果没有出现任何注解，那么将返回一个长度为0的数组。
+* Annotation[] getDeclaredAnnotations() 获得为该项声明的所有注解，不包含继承而来的注解。如果没有出现任何注解，那么将返回一个长度为0的数组。
+
+### 10.4 注解语法 ###
+
+注解是由注解接口来定义的：
+
+	modifiers @interface AnnotationName {
+		elementDeclaration1
+		elementDeclaration2
+	}
+
+每个元素声明都具有下面这种形式：
+
+	type elementName();
+或者
+	type elementName() default value;
+
+下面这个注解具有两个元素：assignedTo和severity。
+
+	public @interface BugReport {
+		String assignedTo() default "[none]";
+		int severity() = 0;
+	}
+每个注解都具有下面这种格式：
+
+	@AnnotationName(elementName1=value1, elementName2=value2)
+
+ps: 默认值并不是和注解存储在一起的；相反地，它们是动态计算而来的。例如，如果你讲元素assignedTo的默认值更改为“[]”，然后重新编译BugReport接口，那么注解@BugReport(severity=10)将使用这个新的默认值，甚至在那些在默认值修改之前就已经编译过的类文件也是如此。
 
