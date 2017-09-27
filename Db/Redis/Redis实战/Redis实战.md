@@ -153,7 +153,13 @@ Redis是一个可以用来解决问题的工具，它即拥有其他数据库不
 4. 处理器根据据取出的数据对模板（template）进行渲染（render）。
 5. 处理器向客户端返回渲染后的内容作为对请求的响应（reponse）。
 
+Web请求被认为是*无状态的*（stateless），也就是说，服务器本身不会记录与过往请求有关的任何信息，这使得失效（fail）的服务器可以很容易地被替换掉。
+
 ### 2.1 登录和cookie缓存 ###
+
+对于用来登录的cookie，有两种常见的方法可以将登录信息存储在cookie里面，一种是签名（signed）cookie，另一种是令牌（token）cookie。
+
+签名cookie通常会存储用户名，可能还有用户ID、用户最后一次成功登录的时间，
 
 思路：
 
@@ -186,6 +192,7 @@ ZCARD命令返回在指定的键存储在集合中的元素的数量。
 所有的标准的Python应用框架都提供了在处理请求之前或者之后添加（layer）的能力，这些层被称为中间件（middleware）或者插件（plugin）。`cache_request()`
 
 缓存函数可以让网站在5分钟之内无需再为它们动态地生成视图页面。取决于网页的内容有多复杂，这一改动可以将包含大量数据的页面的延迟值从20~50毫秒降低之查询一次Redis所需的时间：查询本地Redis的延迟值通常低于1毫秒，而查询位于同一个数据中心的Redis的延迟值通常低于5毫秒。
+
 ### 2.4 数据行缓存 ###
 
 将原本由关系数据库和页面浏览器实现的登录和访客会话转移到了Redis上面实现；将原本由关系数据库实现的购物车也放到了Redis上面实现;还将所有页面缓存到了Redis里面。提升了网站的性能，降低了关系数据库的负载并减少了网站成本。
@@ -245,6 +252,8 @@ INCR、DECR、INCRBY、DECRBAY、INCRBYFLOAT
 |DECRBY|DECRBY key-name amount——将健存储的值减去整数amount|
 |INCRBYFLOAT|INCRBYFLOAT key-name amount——将键存储的值加上浮点数amount，这个命令在Redis2.6或以上的版本可用|
 
+当用户将值存储到Redis字符串里面的时候，如果这个值可以被解释（interpret）为十进制整数或者浮点数，那么Redis会察觉到这一点，并允许用户对这个字符串执行各种 INCR* 和 DECR*操作。如果用户对一个不存在的键或者一个保存了空串的键执行自增或者自减操作，那么Redis再执行操作时会将这个键的值当作是0来处理。如果用户尝试对一个值无法被解释为整数或者浮点数的字符串执行自增或者自减操作，那么Redis将向用户返回一个错误。
+
 APPEND、GETRANGE、SETRANGE、GETBIT、SETBIT、BITCOUNT、BITOP
 
 |命令|用例和描述|
@@ -261,7 +270,7 @@ APPEND、GETRANGE、SETRANGE、GETBIT、SETBIT、BITCOUNT、BITOP
 
 SETBIT 命令会返回二进制被设置之前的值。
 
-Redis 通过使用子串操作和二进制位操作，配合WATCH命令、MULTI命令和EXEC命令，用户甚至可以自己动手去构建任何他们想要的数据结构。
+*Redis 通过使用子串操作和二进制位操作，配合WATCH命令、MULTI命令和EXEC命令，用户甚至可以自己动手去构建任何他们想要的数据结构。*
 
 ### 3.2 列表 ###
 

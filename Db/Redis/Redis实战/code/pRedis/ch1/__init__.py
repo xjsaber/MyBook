@@ -1,7 +1,9 @@
 import redis
 import time
+import config
 
-conn = redis.Redis(host="182.254.136.245", password="redis1234")
+config = config.Config
+conn = redis.Redis(host=config.host, password=config.password)
 ONE_WEEK_IN_SECONDS = 7 * 86400
 VOTE_SCORE = 432
 
