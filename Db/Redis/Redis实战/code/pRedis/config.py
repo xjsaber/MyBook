@@ -1,6 +1,6 @@
 
 class Config(object):
 
-    host = '182.254.136.245'
+    host = 'localhost'
 
-    password = 'redis1234'
+    password = '1234'
