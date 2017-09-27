@@ -126,3 +126,7 @@ def wait_fot_sync(mconn, sconn):
 
     mconn.zrem('sync:wait', identifier)
     mconn.zremrangebyscore('sync:wait', 0, time.time()-900)
+
+
+if __name__ == "__main__":
+    list_item(conn, "itemL", 17, 97)

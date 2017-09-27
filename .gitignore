@@ -38,3 +38,4 @@ Learn/DataStructure/C++Programming-Program Design Include Data Structures/Test/
 **/target
 **/.gradle
 **/.idea
+Db/Redis/Redis实战/code/pRedis/config_local.py
