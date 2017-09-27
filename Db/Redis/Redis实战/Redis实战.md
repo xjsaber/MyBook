@@ -297,13 +297,36 @@ Redis的列表允许用户从序列的两端推入或者弹出元素，获取列
 |RPOPLPUSH|RPOPLPUSH source-key desy-key——从source-key列表中弹出位于最右端的元素，然后将这个元素推入dest-key列表的最左端，并向用户返回这个元素|
 |BRPOPLPUSH|BRPOPLPUSH source-key dest-key timeout——从source-key列表中弹出位于最右端的元素，然后将这个元素推入dest-key列表的最左端，并向用户返回这个元素；如果source-key为空，那么在timeout秒之内阻塞并等待可弹出的元素出线|
 
+BLPOP命名会从左到右地检查传入的列表，并对最先遇到的非空列表执行弹出操作。
+
 对于阻塞弹出命令和弹出并推入命令、最常见的用例就是消息传递（messaging）和任务队列(task queue)
+
+ps.在Redis里面，多个命令原子地执行指的是，在这些命令正在读取或者修改数据的时候，其他客户端不能读取或者i需改相同的数据。
 
 ### 3.3 集合 ###
 
 Redis的集合以无序的方式来存储多个各不相同的元素，用户可以快速地对集合执行添加元素操作、移除元素操作以及检查一个元素是否存在于集合里。
 
+|命令|用例和描述|
+|--|--|
+|SADD|SADD key-name item [item...]——将一个或多个元素添加到集合里面，并返回被添加元素当中原本并不存在于集合里面的元素数量|
+|SREM|SREM key-name item [item...]——从集合里面移除一个或多个元素，并返回被移除元素的数量|
+|SISMEMBER|SISMEMBER key-name item——检查元素item是否在于集合key-name里面|
+|SCARD|SCARD key-name——返回集合包含的元素数量|
+|SMEMBERS|SMEMBERS key-name——返回集合包含的所有元素|
+|SRANDMEMBER|SRANDMEMBER key-name [count]——从集合里面随机地返回一个或多个元素。当count为正数，命令返回的随机元素不会重复；当count为负数时，命令返回的随机元素可能会出现重复|
+|SPOP|SPOP key-name——随机地移除集合中的一个元素，并返回被移除的元素|
+|SMOVE|SMOVE source-key dest-key item——如果集合source-key包含元素item，那么从集合source-key里面移除item，并将元素item添加到集合dest-key中；如果item被成功移除，那么命令返回1，否则返回0|
+
 SADD、SREM、SISMEMBER、SCARD（返回集合包含的元素数量）、SMEMBERS、SRANDMEMBER、SPOP、SMOVE
+
+|命令|用例和描述|
+|--|--|
+|SDIFFSOTRE|SDIFFSTORE dest-key key-name [key-name ...] ——将那些存在于第一个集合但不存在于其他集合中的元素（数学上的差异）|
+|SINTER|SINTER key-name [key-name ...]——返回那些同时存在于所有集合中的元素（数学上的交集运算）|
+|SINTERSTORE|SINTERSTORE key-name [key-name ...]——返回那些同时存在于所有集合中的元素（数学上的交集运算）存储到dest-key键里面|
+|SUNION|SUNION dest-key key-name [key-name ...] ——将那些至少存在于一个集合中的元素（数学上的并集计算）|
+|SUNIONSTORE|SUNIONSTORE dest-key key-name [key-name ...] ——将那些至少存在于一个集合中的元素（数学上的并集计算）存储到dest-key键里面|
 
 SDIFF、SDIFFSTORE、SINTER、SINTERSTORE、SUNION、SUNIONSTORE
 
@@ -313,7 +336,29 @@ Redis的散列可以让用户将多个键值对存储到一个Redis键里面。�
 
 最常用的散列命令：其中包括添加和删除键值对的命令、获取所有键值对的命令，以及对键值对的值进行自增或者自减操作的命令。
 
+|命令|用例和描述|
+|--|--|
+|HMGET|HMGET key-name key [key ...] ——从散列里面获取一个或多个键的值|
+|HMSET|HMSET key-name key value [key value ...] ——为散列里面的一个或多个键设置值|
+|HDEL|HDEL key-name key [key ...] ——删除散列里面的一个或多个键值对，返回成功找到并删除的键值对数量|
+|HLEN|HLEN key-name ——返回散列包含的键值对数量|
+
+HLEN命令以及用于一次读取或者设置多个键的HMGET和HMSET则是新出现的命令。像HMGET和HMSET这种批量处理多个键的命令既可以给用户带来方便，可以通过减少命令的调用一次，减少通信往返次数。
+
 HMGET、HMSET、HDEL、HLEN
+
+|命令|用例和描述|
+|--|--|
+|HEXISTS|HEXISTS key-name key ——检查给定键是否存在于散列中|
+|HKEYS|HKEYS key-name ——获取散列包含的所有键|
+|HVALS|HVALS key-name ——获取散列包含的所有值|
+|HGETALL|HGETALL key-name ——获取散列包含的所有键值对|
+|HINCRBY|HINCRBY key-name key increment——将键key存储的值加上整数increment|
+|HINCRBYFLOAT|HINCRBYFLOAT key-name key increment——将键key存储的值加上浮点数increment|
+
+如果散列包含的值非常大，那么用户先使用HKEYS取出散列包含的所有键，然后再使用HGET一个接一个地去除健的值，从而避免因为一次获取多个大体积的值而导致服务器阻塞。
+
+HINCRBY和HINCRBYFLOAT可能会让回想起用于处理字符串的INCRBY和INCRBYFLOAT。
 
 高级特性：HEXISTS、HKEYS、HVALS、HGETALL、HINCRBY、HINCRBYFLOAT
 
@@ -324,8 +369,26 @@ HMGET、HMSET、HDEL、HLEN
 基础操作：
 ZADD、ZREM、ZCARD、ZINCRBY、ZCOUNT、ZRANK、ZSCORE、ZRANGE
 
+|命令|用例和描述|
+|--|--|
+|ZADD|ZADD key-name score member [score member ...]——将带有给定分值的成员添加到有序集合里面|
+|ZREM|ZREM key-name member [member ...]——从有序集合里面移除给定的成员，并返回被移除成员的数量|
+|ZCARD||
+|ZINCRBY||
+|ZCOUNT|ZCOUNT key-name min max——返回介于min和max之间的成员数量|
+|ZRANK|ZRANK key-name member——返回成员member在有序集合中的排名|
+|ZSCORE||
+|ZRANGE||
+
 有序集合的范围型数据获取命令和范围型数据删除命令，以及并集命令和交集命令：
 ZREVRANK、ZREVRANGE、ZRANGEBYSCORE、ZREVRANGEBYSCORE、ZREMRANGEBYRANK、ZREMRANGEBYSCORE、ZINTERSTORE、ZUNIONSTORE
+
+|命令|用例和描述|
+|--|--|
+|ZREVRANK|ZREVRANK key-name member——返回有序集合里成员member的排名，成员按照分值从大到小排列|
+|ZREVRANGE|ZREVRANGE key-name start stop [WITHSCORES]——返回有序集合给定排名范围内的成员，成员按照分值从大到小的排列|
+|ZRANGEBYSCORE|ZRANGEBYSCORE key min max [WITHSCORES] [LIMIT offset count]——返回有序集合中，分值介于min和max之间的所有成员。|
+|ZREVRANGEBYSCORE|ZREVRANGEBYSCORE key min max [WITHSCORES] [LIMIT offset count]——返回有序集合中，分值介于min和max之间的所有成员，并按照分值从大到小的顺序来返回它们|
 
 除了使用逆序来处理有序集合之外，ZREV*命令的工作方式和相对应的非逆序命令的工作方式完全一样（逆序就是指元素按照分值从大到小地排列）。
 
@@ -339,6 +402,46 @@ ZREVRANK、ZREVRANGE、ZRANGEBYSCORE、ZREVRANGEBYSCORE、ZREMRANGEBYRANK、ZREM
 发布与订阅（又称pub/sub）的特点是订阅者（listener）负责订阅频道（channel），发送者（publisher）负责向频道发送二进制字符串消息（binary string message）。
 
 Redis提供的发布与订阅命令：SUBSCRIBE、UNSUBSCRIBE、PUBLISH、PSUBSCRIBE、PUNSUBSCRIBE
+
+|命令|用例和描述|
+|--|--|
+|SUBSCRIBE|SUBSCRIBE channel [channel ...] ——订阅给定的一个或多个频道|
+|UNSUBSCRIBE|UNSUBSCRIBE [channel [channel ...]] ——退订给定的一个或多个频道，如果执行时没有给定任何频道，那么退订所有频道|
+|PUBLISH|PUBLISH channel message——向给定频道发送消息|
+|PSUBSCRIBE|PSUBSCRIBE pattern [pattern ...] ——订阅与给定模式相匹配的所有频道|
+|PUNSUBSCRIBE|PUNSUBSCRIBE [pattern [pattern ...]] ——退订给定的模式，如果执行时没有给定任何模式，那么退订所有模式|
+
+	
+	def publisher(n):
+	    time.sleep(1)
+	    for i in range(n):
+	        conn.publish('channel', i)
+	        time.sleep(1)
+	
+	
+	def run_pubsub():
+	    # 启动发送者线程，并让它发送三条消息
+	    threading.Thread(target=publisher, args=(3, )).start()
+	    # 创建发布与订阅对象，并让它订阅给定的频道
+	    pubsub = conn.pubsub()
+	    pubsub.subscribe(['channel'])
+	    count = 0
+	    # 通过遍历函数pubsub.listen()的执行结果来监听订阅消息
+	    for item in pubsub.listen():
+	        print(item)
+	        count += 1
+	        if count == 4:
+	            pubsub.unsubscribe()
+	        if count == 5:
+	            break
+
+	out:
+	刚订阅一个频道的时候，客户端会接收一条关于被订阅频道的反馈消息
+	{'pattern': None, 'channel': b'channel', 'type': 'subscribe', 'data': 1}
+	{'pattern': None, 'channel': b'channel', 'type': 'message', 'data': b'0'}
+	{'pattern': None, 'channel': b'channel', 'type': 'message', 'data': b'1'}
+	{'pattern': None, 'channel': b'channel', 'type': 'message', 'data': b'2'}
+	{'pattern': None, 'channel': b'channel', 'type': 'unsubscribe', 'data': 0}
 
 发布订阅模式缺点：
 
@@ -357,7 +460,7 @@ SORT 根据给定的选项，对输入列表、集合或者有序集合进行排
 
 	conn.sort()
 
-SORT不仅可以对列表进行排序，还可以对集合进行排序，然后返回一个列表形式的排序结果。
+SORT不仅可以对列表进行排序，还可以对集合进行排序，然后返回一个列表形式的排序结果。根据降序而不是默认的升序来排序元素；将元素看作是数字来进行排序，或者将元素看作是二进制字符串来进行排序（比如排序字符串‘110’和‘12’的结果就跟排序数字110和12的结果不一样）；使用被排序元素之外的其他值作为权重来进行排序，甚至还可以从输入的列表、集合、有序集合以外的其他地方进行取值。
 
 	# 根据字母表顺序对元素进行排序
 	conn.sort('sort-input', alpha=True)
@@ -381,8 +484,22 @@ Redis事务在Python客户端上面是由流水线（pipline）实现的：对�
 
 #### 3.7.3 键的过期时间 ####
 
-	
+|命令|示例和描述|
+|--|--|
+|PERSIST|PERSIT key-name——移除键的过期日期|
+|TTL|TTL key-name——查看给定键距离国企还有多少秒|
+|EXPIRE|EXPIRE key-name seconds——让给定键在指定的秒数之后过期|
+|EXPIREAT|EXPIREAT key-name timestamp——将给定键的过期事件设置为给定的UNIX时间戳|
+|PTTL|PTTL key-name——查看给定键距离国企还有多少毫秒|
+|PEXPIRE||
+|PEXPIREAT||
+
+### 3.8 小结 ###
+
+
 ## 第4章 数据安全与性能保障 ##
+
+Redis的各个持久化选项，这些选项可以让用户将自己的数据存储到硬盘上面。介绍如何通过Redis的复制特性，把不断更新的数据副本存储到附加的机器上面，从而提升系统的性能和数据的可靠性。
 
 ### 4.1 持久化选项 ###
 
@@ -416,11 +533,13 @@ Redis可以通过创建快照来获得存储在内存里面的数据在某个时
 
 根据配置，快照将被写入dbfilename选项指定的文件里面，并存储在dir选项指定的路径上面。如果在新的快照文件创建完毕之前，Redis、系统或者硬件这三者之中的任意一个崩溃了，那么Redis将丢失最近一次创建快照之后写入的所有数据。
 
-* 1
-* 2
-* 3
-* 4
-* 5
+1. 客户端通过向Redis发送BGSAVE命令来创建一个快照。
+2. 客户端通过向Redis发送SAVE命令来创建一个快照。
+3. 用户设置了save配置选项
+4. 当Redis通过SHUTDOWN命令接收到关闭服务器的请求时，或者接收到标准TERM信号时，会执行一个SAVE命令，阻塞所有客户端，不再执行客户端发送的任何命令，并在SAVE命令执行完毕之后关闭服务器。
+5. 当一个Redis服务器连接另一个Redis服务器，并向对象发送SYNC命令来开始一次复制操作的时候，如果主服务器目前没有在执行BGSAVE操作，或者主服务器并非刚刚执行完BGSAVE操作，那么主服务器就会执行BGSAVE命令。
+
+在只使用快照持久化来保存数据时，一定要记住：如果系统真的发生奔溃，用户将丢失最近一次生成快照之后更改的所有数据。因此，快照持久化只适用于那些即使丢失一部分数据也不会造成问题的应用程序。
 
 **1.个人开发**
 
@@ -455,27 +574,22 @@ appendfsync选项及同步频率
 |everysec|每秒执行一次同步|
 |no|让操作系统来决定何时进行同步|
 
-appendfsync always选项
+* appendfsync always选项，每个Redis写命令都会被写入硬盘，从而将发生系统崩溃时出现的数据丢失减到最小。因为同步策略需要对硬盘进行大量写入，Redis处理命令的速度会受到硬盘性能的限制：转盘式硬盘（spinning disk）（每秒处理大约200个写命令）和固态硬盘（solid-state drive， SSD）（每秒处理大约几万个写命令）。
 
-Redis处理命令的速度会受到硬盘性能的限制：转盘式硬盘（spinning disk）（每秒处理大约200个写命令）和固态硬盘（solid-state drive， SSD）（每秒处理大约几万个写命令）。
+* 为了兼顾数据安全和写入性能，考虑appendfsync everysec选项，让Redis以每秒一次的频率对AOF文件进行同步。Redis每秒同步一次AOF文件时的性能和不使用任何初九花特性时的性能相差无几，而通过每秒同步一次AOF文件，Redis可以保证，即使出现系统崩溃，用户也最多只会丢失一秒之内的数据。当硬盘忙于执行写入操作的时候，Redis还会优雅地放慢自己的速度以便适应硬盘的最大写入速度。
 
-appendfsync everysec选项 
+* appendfsync no选项，不会对Redis的性能带来影响，但系统崩溃将导致使用这种选项的Redis服务器丢失不定数量的数据。如果用户的硬盘处理写入操作的速度不够快的话，那么当缓冲区被等待写入硬盘的数据填满时，Redis的写入操作将被阻塞，并导致Redis处理命令请求的速度变慢。不推荐使用。
 
-Redis每秒同步一次AOF文件时的性能和不适用任何持久化特性时的性能相差无几。
-
-appendfsync no选项
-
-不会对Redis的性能带来影响，但系统崩溃将导致使用这种选项的Redis服务器丢失不定数量的数据。如果用户的硬盘处理写入操作的速度不够快的话，那么当缓冲区被等待写入硬盘的数据填满时，Redis的写入操作将被阻塞，并导致Redis处理命令请求的速度变慢。不推荐使用。
-
-AOF持久化缺陷，AOF文件的体积大小。
+*AOF持久化灵活地提供了多种不同的选项来满足不同应用程序对数据安全的不同要求，AOF持久化缺陷，AOF文件的体积大小。*
 
 #### 4.1.3 重写/压缩AOF文件 ####
 
-AOF持久化既可以将丢失数据的时间窗口降低至1秒（甚至不丢失任何数据），又可以在极短的时间内完成定期的持久化操作。体积不断增大的AOF文件甚至可能会用完硬盘的所有可用空间。
+1. AOF持久化既可以将丢失数据的时间窗口降低至1秒（甚至不丢失任何数据），又可以在极短的时间内完成定期的持久化操作。体积不断增大的AOF文件甚至可能会用完硬盘的所有可用空间。
+2. Redis在重启之后需要通过重新执行AOF文件记录的所有写命令来还原数据集，所以如果AOF文件的体积非常大，那么还原操作执行的事件就可能会非常长。
 
 为了解决AOF文件体积不断增大的问题，用户可以向Redis发送BGREWRITEAOF命令，这个命令会通过移除AOF文件中的冗余命令来重写（rewrite）AOF文件，使AOF文件的体积变得尽可能地小。
 
-BGREWRITEAOF、BGSAVE
+BGREWRITEAOF的工作原理和BGSAVE创建快照的工作原理非常相似，Redis会创建一个子进程，然后由子进程负责对AOF文件进行重写。在进行AOF重写并删除旧AOF文件的时候，会导致操作系统挂起（hang）数秒。
 
 AOF持久化、快照持久化，将数据持久化到硬盘上都是非常有必要的，但除了进行持久化之外，用户还必须对持久化所得的文件进行备份（最好时备份到多个不同的地方）。
 
@@ -489,7 +603,10 @@ SUNIONSTORE命令的性能
 
 在需要扩展读请求的时候，或者在需要写入临时数据的时候用户可以通过设置额外的Redis从服务器来保存数据集的副本。在接收到主服务器发送的数据初始副本（initial copy of the data）之后，客户端每次向主服务器进行写入时，从服务器都会实时地更新。
 
+部署好主从服务器之后，客户端可以向任意一个从服务器发送读请求了，总是把每个读请求都发送给主服务器（客户端通常会随机地选择使用哪个从服务器，从而将负载平均分配到各个从服务器上）。
+
 #### 4.2.1 对Redis的复制相关选项进行配置 ####
+
 
 
 #### 4.2.2 Redis复制的启动过程 ####

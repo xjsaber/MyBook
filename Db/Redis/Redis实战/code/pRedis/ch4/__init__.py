@@ -1,3 +1,4 @@
+import os
 import uuid
 
 import redis
@@ -9,11 +10,39 @@ conn = redis.Redis()
 # conn 一个Redis连接
 # path 一个存储日志文件的路径
 # callback 待处理日志文件各个行（line）的回调函数（callback）
-# 处理日志的同事，记录被处理日志文件的名字以及偏移量
+# 处理日志的同时，记录被处理日志文件的名字以及偏移量
+# 日志处理函数接受的其中一个参数为回调函数，
+# 这个回调函数接受一个Redis连接和一个日志行作为参数，并通过调用流水线对象的方法来执行Redis命令
 def process_logs(conn, path, callback):
+    # 获取文件当前的处理进度
     current_file, offset = conn.mget(
         'progress:file', 'progress:position')
     pipe = conn.pipeline()
+
+    def update_progress():
+        pipe.mset({
+            'progress:file': fname,
+            'progress:position': offset
+        })
+    for fname in sorted(os.listdir(path)):
+        if fname < current_file:
+            continue
+
+        inp = open(os.path.join(path, fname), 'rb')
+        if fname == current_file:
+            inp.seek(int(offset, 10))
+        else:
+            offset = 0
+
+        current_file = None
+
+        for lno, line in enumerate(inp):
+            callable(pipe, line)
+            offset += int(offset) + len(line)
+            if not (lno+1) % 1000:
+                update_progress()
+        update_progress()
+        inp.close()
 
 
 # 商品产品
