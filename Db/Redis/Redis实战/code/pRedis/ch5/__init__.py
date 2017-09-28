@@ -6,8 +6,9 @@ import time
 conn = redis.Redis()
 
 
-# 将最新的日志记录到Redis里面
+# 代码清单5-1 将最新的日志记录到Redis里面
 SEVERITY = {
+    # 设置一个字典，将大部分日志的安全级别映射为字符串
     logging.DEBUG: 'debug',
     logging.INFO: 'info',
     logging.WARNING: 'warning',
@@ -17,14 +18,49 @@ SEVERITY = {
 SEVERITY.update((name, name) for name in SEVERITY.values())
 
 
+# 记录最近的日志
 def log_recent(conn, name, message, serverity=logging.INFO, pipe=None):
+    # 尝试将日志的安全级别转换为简单的字符串
     serverity = str(SEVERITY.get(serverity, serverity)).lower()
+    # 创建负责存储消息的键
     destination = 'recent:%s:%s'%(name, serverity)
+    # 将当前时间添加到消息里面，用于记录消息的发送时间
     message = time.asctime() + ' ' + message
+    # 使用流水线来将通信往返次数降低为一次
     pipe = pipe or conn.pipeline()
     pipe.lpush(destination, message)
+    # 对日志列表进行修剪，让它只包含最新的100条消息
     pipe.ltrim(destination, 0, 99)
     pipe.execute()
+
+
+# 代码清单5-2 log_common()函数
+def log_common(conn, name, message, serverity=logging.INFO, timeout=5):
+    print(123)
+
+
+# 代码清单5-3 update_counter()函数
+# 以秒为单位的计数器精度，分别为1秒、5秒、1分钟、5分钟
+PRECISION = [1, 5, 60, 300, 3600, 18000, 86400]
+
+
+# 代码清单5-3 update_counter()函数
+def update_counter(conn, name, count=1, now=None):
+    now = now or time.time()  # 通过取得当前时间来判断应该对哪个时间片执行自增操作
+    pipe = conn.pipeline()  # 为了保证之后的清理工作可以正确地执行，这里需要创建一个事务型流水线
+    for prec in PRECISION:  # 记录的每种精度都创建一个计数器
+        pnow = int(now / prec) * prec  # 取得当前时间片的开始时间
+        hash = '%s:%s' % (prec, name)  # 创建负责存储计数信息的散列
+        pipe.zadd('known:', hash, 0)  # 将计数器的引用信息添加到有序集合里面，并将其分值设置为0，以便在之后执行清理操作
+        pipe.hincrby('count:' + hash, pnow, count)  # 对给定名字和精度的计数器进行更新
+    pipe.execute()
+
+
+# 代码清单 5-4 get_counter()函数
+def get_counter(name, precision):
+    hash = '%s:%s' % (precision, name)
+    data = conn.hgetall('count:' + hash)
+    to_return = []
 
 
 # 函数在刚开始执行会先休眠，让订阅者有足够的时间来连接服务器并监听消息

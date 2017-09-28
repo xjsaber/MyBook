@@ -128,5 +128,23 @@ def wait_fot_sync(mconn, sconn):
     mconn.zremrangebyscore('sync:wait', 0, time.time()-900)
 
 
+# 代码清单4-8 update_token_pipeline()函数
+def update_token_pipeline(conn, token, user, item=None):
+    timestamp = time.time()
+    pipe = conn.pipeline(False)
+    pipe.hset('login:', token, user)
+    pipe.zadd('recent:', token, timestamp)
+    if item:
+        pipe.zadd('viewed:' + token, item, timestamp)
+        pipe.zremrangebyrank('viewed' + token, 0, -26)
+        pipe.zincrby('viewed:', item, -1)
+    pipe.execute()
+
+
+# 代码清单4-9 benchmark_update_token()函数
+# def benchmark_update_token(conn, duration):
+#     for function in (update_to)
+
+
 if __name__ == "__main__":
     list_item(conn, "itemL", 17, 97)
