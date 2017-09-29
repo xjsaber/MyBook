@@ -1,3 +1,5 @@
+import csv
+import json
 import logging
 import threading
 import redis
@@ -124,3 +126,40 @@ if 1:
     for i in range(3):
         threading.Thread(target=trains).start()
     time.sleep(.5)
+
+
+# 代码清单5-9 ip_to_score()函数
+def ip_to_score(ip_address):
+    score = 0
+    for v in ip_address.split('.'):
+        score = score * 256 + int(v, 10)
+    return score
+
+
+# 代码清单5-10 import_ips_to_redis函数
+def import_ips_to_redis(conn, filename):  # GeoLiteCity-Blocks.csv文件
+    csv_file = csv.reader(open(filename, 'rb'))
+    for count, row in enumerate(csv_file):
+        start_ip = row[0] if row else ''
+        if 'i' in start_ip:
+            start_ip = ip_to_score(start_ip)
+        elif start_ip.isdigit():
+            start_ip = int(start_ip, 10)
+        else:
+            continue
+
+        city_id = row[2] + '_' + str(count)  # 构建唯一城市ID
+        conn.zadd('ip2cityid:', city_id, start_ip)  # 将城市ID及其对应的IP地址分值添加到有序集合里面
+
+
+# 代码清单5-11 import_cities_to_redis()函数
+def import_cities_to_redis(conn, filename):
+    for row in csv.reader(open(filename, 'rb')):
+        if len(row) < 4 or not row[0].isdigit():
+            continue
+        row = [i.decode('latin-1') for i in row]
+        city_id = row[0]
+        country = row[1]
+        region = row[2]
+        city = row[3]
+        conn.hset('citid2city:', city_id, json.dumps([country, region, city]))

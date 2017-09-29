@@ -8,6 +8,19 @@ conn = redis.Redis()
 pipe = conn.pipeline()
 
 
+# 代码清单6-1 add_update_contact()函数
+def add_update_contact(user, contact):
+    ac_list = 'recent:' + user
+    pipeline = conn.pipeline(True)
+    # 如果联系人已经存在，那么移除他
+    pipeline.lrem(ac_list, contact)
+    # 将联系人推入列表的最前端
+    pipeline.lpush(ac_list, contact)
+    # 只保留列表里面的前100个联系人
+    pipeline.ltrim(ac_list, 0, 99)
+    pipeline.execute()
+
+
 # 获取锁
 def acquire_lock(conn, lockname, acquire_timeout=10):
     identifier = str(uuid.uuid4())
