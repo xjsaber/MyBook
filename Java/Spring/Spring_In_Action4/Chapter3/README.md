@@ -1,12 +1,16 @@
-# 第4章 面向切面的Spring #
+# 第3章 高级装配 #
 
-在软件开发中，散布于应用中多处的功能被称为横切关注点（cross-cutting concern）。通常来说，这些横切关注点从概念上食欲应用的业务逻辑相分离的。
+## 3.1 环境与profile ##
+	
+	@Bean(destoryMethod="shutdown")
+	public DataSource dataSource(){
+		return new EmbeddedDatabaseBuilder()
+			.addScript("classpath:schema.sql")
+			.addScript("classpath:test-data.sql")
+			.build();
+	}
 
-## 4.1 什么是面向切面编程 ##
-
-继承（inheritance）或委托（delegation）
-
-### 4.1.1 定义AOP术语 ###
+### 3.1.1 配置profile bean ###
 
 #### 通知（Advice） ####
 
@@ -36,7 +40,7 @@
 * 类加载期：切面在目标i类加载到JVM时被织入。这种方式需要特殊的类加载器（ClassLoader），它可以在目标类被引入应用之前加强该目标类的字节码。
 * 运行期：切面在应用运行的某个时刻被织入。Spring Aop
 
-### 4.1.2 Spring对AOP的支持 ###
+### 3.1.2 激活profile ###
 
 * 基于代理的经典SpringAOP；
 * 纯POJO切面
