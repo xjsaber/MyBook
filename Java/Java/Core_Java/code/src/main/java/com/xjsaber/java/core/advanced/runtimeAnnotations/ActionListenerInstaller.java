@@ -1,7 +1,5 @@
 package com.xjsaber.java.core.advanced.runtimeAnnotations;
 
-import java.lang.reflect.Method;
-
 public class ActionListenerInstaller {
 
     /**
@@ -9,11 +7,11 @@ public class ActionListenerInstaller {
      * @param obj
      */
     public static void processAnnotations(Object obj){
-        try {
-            Class<?> cl = obj.getClass();
-            for (Method m : cl.getDeclaredMethods()){
-                ActionListenerFor a = m.getAnnotations(ActionListenerFor.class);
-            }
-        }
+//        try {
+//            Class<?> cl = obj.getClass();
+//            for (Method m : cl.getDeclaredMethods()){
+//                ActionListenerFor a = m.getAnnotations(ActionListenerFor.class);
+//            }
+//        }
     }
 }

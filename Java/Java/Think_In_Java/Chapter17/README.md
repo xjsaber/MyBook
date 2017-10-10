@@ -11,25 +11,21 @@
 
 ## 17.2 填充容器 ##
 
-使用注解的过程中，很重要的一个部分就是创建与使用 *注解处理器*。
+Collections类也有一些使用的static方法，其中包括fill()。此fill()方法也是只复制同一个对象引用来填充整个容器的，并且只针对List对象。
 
-### 20.2.1 注解元素 ###
+用对单个对象的引用来填充Collection的方式，第一种是使用Collections.nCopies()创建传递给构造器的List，填充的是ArrayList。
 
-标签@UseCase由UseCase.java定义，其中包含int元素id，以及一个String元素description
+### 17.2.1 一种Generator解决方案 ###
 
-* 所有基本类型（int， float， boolean等）
-* String
-* Class
-* enum
-* Annotation
-* 以上类型的数组
+所有的Collection子类型都有一个接收另一个Collection对象的构造器，用所接收Collection对象中的元素来填充新的容器。
 
-### 20.2.2 默认值限制 ###
+使用Generator在容器中放置所需数量的对象，然后产生的容器可以传递给任何Collection的构造器，这个构造器会把其中的数据复制到自身上。addAll()方法是所有Collection子类型的一部分，用来组装现有的Collection。
 
-1. 元素不能由不确定的值
-2. 元素必须要么具有默认值，要么在使用注解时提供元素的值。
+泛型便利方法可以减少在使用类时所必需的类型检查数量。
 
-对于非基本类型的元素，在源代码中声明时，或是在注解接口中定义默认值时，都不能以null作为其值。
+### 17.2.2 Map生成器 ###
+
+### 17.2.3 使用Abstract类 ###
 
 ### 20.2.3 生成外部文件 ###
 
