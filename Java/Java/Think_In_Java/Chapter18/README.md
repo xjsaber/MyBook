@@ -83,3 +83,16 @@ Web Service、自定义标签库以及对象/关系映射工具，一般需要XM
 
 
 ## 20.3 使用apt处理注解 ##
+
+## 18.4 Reader和Writer ##
+
+InputStream和OutputStream在以面向字节形式的I/O中扔可以提供极有价值的功能，Reader和Writer则提供兼容Unicode与面向字符的I/O功能
+
+1）Java 1.1向InputStream和OutputStream继承层次结构中添加了一些新类，所以显然这两个类是不会被取代的。
+2）来自于“字节”层次结构中的类和“字符”层次结构中的类结合起来使用。为了实现这个目的，要用到“适配器”（adapter）类：InputStreamReader可以把InputStream转换为Reader，而OutputStreamWriter可以把OutputStream转换为Writer。
+
+### 18.4.1 数据的来源和去处 ###
+
+
+
+## 18.15 总结 ##
