@@ -6,6 +6,8 @@
 
 ## 18.1 File类 ##
 
+File（文件）类这个名字有一定的误导性。
+
 File(文件)类既能代表一个特定文件的名称，又能代表一个目录下的一组文件的名称。如果它指的是一个文件集，可以对此集合调用list()方法，会返回一个字符数组。
 
 如果我们想取得不同的目录列表，只需要再创建一个不同的File对象就可以了，实际上可以使用FilePath(文件路径)，还包括了与它相关的FilenameFilter接口。
@@ -25,6 +27,8 @@ accept()会使用一个正则表达式的match对象，来查看此正则表达�
 
 解决特定问题的代码隔离、聚拢于一点。而另一方面，这种方法却不易阅读，因此谨慎使用。
 
+//TODO 练习 1-3
+
 ### 18.1.2 目录使用工具 ###
 
 实用工具类就可以通过使用local()方法产生由本地目录目录中的文件构成的File对象数组，或者通过使用walk()方法产生给定目录下的由整个目录树中所有文件构成的List<File>
@@ -35,6 +39,11 @@ walk()方法将开始目录的名字转换为File对象，然后调用recurseDir
 
 ### 18.1.3 目录的检查及创建 ###
 
+File类不仅仅只代表存在的文件或目录。也可以用File对象来创建新的目录或商不存在的整个目录路径。
+
+可以查看文件的特性（如：大小、最后修改日期，读/写），检查某个File对象代表的是一个文件还是一个目录，并可以删除文件。
+
+//TODO 练习 6
 
 ## 18.2 输入和输出 ##
 
@@ -68,9 +77,49 @@ InputStream的作用是用来表示那些从不同数据源产生输入的类。
 |ByteArrayInputStream|允许将内存的缓冲区当做InputStream使用|缓冲区，字节将从中取出  作为一种数据源：将其与FilterInputStream对象相连以提供有用接口|
 |StringBufferInputStream|将String转换成InputStream|字符串，底层实现实际使用StringBuffer  作为一种数据源：将其与FilterInputStream对象相连以提供有用接口|
 |FileInputStream|用于从文件中读取信息|字符串，表示文件名、文件或FileDescriptor对象  作为一种数据源：将其与FilterInputStream对象相连以提供有用接口|
+|PipedInputStream|产生用于写入相关PipedOutput Stream的数据。实现“管道化”概念|PipedOutputStream 作为多线程中数据源：将其与FilterInputStream对象相连以提供有用接口|
+|SequenceInputStream|将两个或多个InputStream对象转换成单一InputStream|两个InputStream对象或一个容纳InputStream对象的容器Enumeration  作为一种数据源：将其与FilterInputStream对象相连以提供有用接口|
+|FilterInputStream|抽象类，作为“装饰器”的接口。其中，“装饰器”为其他的InputStream类提供有用功能||
 
+### 18.2.2 OutputStream类型 ###
+
+该类别的类决定了输出所要去往的目标：字节数组（但不是String，不过当然可以用字节数组自己创建）、文件或管道。
+
+FilterOutputStream为“装饰器”类提供了一个基类，“装饰器”类把属性或者有用的接口与输出流连接了起来。
+
+#### OutputStream类型 ####
+
+|类|功能|构造器参数|
+|--|--|--|
+|||如何使用|
+|ByteArrayOutputStream|再内存中创建缓冲区。所有送往“流”的数据都要放置再此缓冲区|缓冲区初始化尺寸（可选的）  用于指定数据的目的地：将其与FilterOutputStream对象相连以提供有用接口|
+|FileOutputStream|用于将信息写至文件|字符串，表示文件名、文件或FileDescriptor对象  指定数据的目的地：将其与FilterOutputStream对象相连以提供有用接口|
+|PipedOutputStream|任何写入其中的信息都会自动作为相关PipedInputStream的输出。实现“管道化”概念|PipedInputStream  指定用于多线程的数据的目的地：将其与FilterOutputStream对象相连以提供有用接口|
+|FilterOutputStream|抽象类，作为“装饰器”的接口。其中，“装饰器”为其他的OutputStream类提供有用功能||
 
 ## 18.3 添加属性和有用的接口 ##
+
+Java I/O类库需要多种不同功能的组合，这正是使用装饰器模式的理由所在。
+
+### 18.3.1 通过FilterInputStream从InputStream读取数据 ###
+
+FilterInputStream
+
+DataInputStream允许读取不同的基本类型数据以及String对象（）
+
+#### FilterInputStream类型 ####
+
+|类|功能|构造器参数
+|--|--|--|
+|||如何使用|
+|DataInputStream|与DataOutputStream搭配使用，因此可以按照可移植方式从流读取基本数据类型（int，char，long等）|InputStream包含用于读取基本类型数据的全部接口
+|BufferedInputStream|使用它可以防止每次读取时都得进行实际写操作。代表“使用缓冲区”|InputStream，可以指定缓冲区大小（可选的）  本质上不提供接口，只不过是向进程中添加缓冲区所必需的。与接口对象搭配
+|LineNumberInputStream|跟踪输入流的行号；可调用getLineNumber（）和setLineNumber（int）|InputStream 仅增加了行号，因此可能要与接口对象搭配使用
+|PushbackInputStream|具有“能弹出一个字节的缓冲区”。因此可以将读到的最后一个字符回退|InputStream 通常作为编译器的扫描器，之所以包含再内是因为Java编译器的需要，可能永远不会用到 
+
+### 18.3.2 通过FilterOutPutStream向OutputStream写入 ###
+
+//TODO
 
 ## 18.4 Reader和Writer ##
 
