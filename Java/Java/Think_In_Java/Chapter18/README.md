@@ -36,53 +36,41 @@ walk()方法将开始目录的名字转换为File对象，然后调用recurseDir
 ### 18.1.3 目录的检查及创建 ###
 
 
+## 18.2 输入和输出 ##
 
-### 20.1.2 元注解 ###
+编程语言的I/O类库中常使用流“这个抽象概念”，它该表任何有能力产出数据的数据源对象或者是有能力接收数据的接收端对象。“流”屏蔽了实际的I/O设备中处理数据的细节。
 
-Java目前只内置了三种标准注解，以及四种元注解。
+Java类库中的I/O类分成输入和输出两部分。
 
-|--|--|
-|@Target|表示该注解可以用于什么地方。 CONSTRUCTOR:构造器的声明 FIELD：域声明（包括enum实例） LOCAL_VARIABLE：局部变量声明 METHOD：方法声明 PACKAGE：包声明 PARAMETER：参数声明 TYPE：类、接口（包括注解类型）或enum声明|
-|@Retemtion|表示需要在什么级别保存该注解信息可选的RetentionPolicy参数包括：SOURCE：注解将被编译器丢弃。 CLASS：注解在class文件中可用，但会被VM丢弃。 RUNTIME：VM将在运行期也保留注解，因此可以通过反射机制读取注解的的信息|
-|@Documented|将此注解包含在Javadoc中|
-|@Inherited|允许子类继承父类中的注解|
+1. 通过继承，任何自InputStream或Reader派生而来的类都含有名为read()的基本方法，用来读取单个字节或者字节数组。
+2. 任何自OutputStream或Writer派生而来的类都含有名为write()的基本方法，用于写单个字节或者字节数组。
 
-## 20.2 编写注解处理器 ##
+类库的设计者首先限定与输入有关的所有类都应该从InputStream继承，而与输出有关的所有类都应该从OutputStream继承。
 
-使用注解的过程中，很重要的一个部分就是创建与使用 *注解处理器*。
+### 18.2.1 InputStream类型 ###
 
-### 20.2.1 注解元素 ###
+InputStream的作用是用来表示那些从不同数据源产生输入的类。
 
-标签@UseCase由UseCase.java定义，其中包含int元素id，以及一个String元素description
+1. 字节数组
+2. String对象
+3. 文件
+4. “管道”，工作方式与实际管道相似，即，从一端输入，从另一端输出。
+5. 一个由其他种类的流组成的序列，以便我们可以将它们收集合并到一个流内。
+6. 其他数据源，如Internet连接等。
 
-* 所有基本类型（int， float， boolean等）
-* String
-* Class
-* enum
-* Annotation
-* 以上类型的数组
+每一种数据源都有相应的InputStream子类。另外，FilterInputStream也属于一种InputStream，为“装饰器”（decorator）类提供基类，其中，“装饰器”类可以把属性或有用的接口与输入流连接在一起。
 
-### 20.2.2 默认值限制 ###
+#### InputStream类型 ####
 
-1. 元素不能由不确定的值
-2. 元素必须要么具有默认值，要么在使用注解时提供元素的值。
-
-对于非基本类型的元素，在源代码中声明时，或是在注解接口中定义默认值时，都不能以null作为其值。
-
-### 20.2.3 生成外部文件 ###
-
-Web Service、自定义标签库以及对象/关系映射工具，一般需要XML描述文件，而这些描述文件脱离于源代码之外。
-
-假设希望提供一些基本的对象/关系映射功能，能够自动生成数据库表，用以存储JavaBean对象。可以选择使用XML描述文件，指明类的名字、每个成员以及数据库映射的相关信息。然而，如果使用注解的话，可以将搜娱哦的信息保存在JavaBean源文件中。
-
-### 20.2.4 注解不支持继承 ###
-
-不能使用关键字extends来继承某个@interface。
-
-### 20.2.5 实现处理器 ###
+|类|功能|构造器参数|
+|--|--|--|
+|||如何使用|
+|ByteArrayInputStream|允许将内存的缓冲区当做InputStream使用|缓冲区，字节将从中取出  作为一种数据源：将其与FilterInputStream对象相连以提供有用接口|
+|StringBufferInputStream|将String转换成InputStream|字符串，底层实现实际使用StringBuffer  作为一种数据源：将其与FilterInputStream对象相连以提供有用接口|
+|FileInputStream|用于从文件中读取信息|字符串，表示文件名、文件或FileDescriptor对象  作为一种数据源：将其与FilterInputStream对象相连以提供有用接口|
 
 
-## 20.3 使用apt处理注解 ##
+## 18.3 添加属性和有用的接口 ##
 
 ## 18.4 Reader和Writer ##
 
