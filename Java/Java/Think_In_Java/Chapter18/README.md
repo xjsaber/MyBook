@@ -93,6 +93,18 @@ InputStream和OutputStream在以面向字节形式的I/O中扔可以提供极有
 
 ### 18.4.1 数据的来源和去处 ###
 
+I/O流类都有相应的Reader和Writer类来提供天然的Unicode操作。然而再某些场合，面向自己的InputStream和OutputStream才是正确的解决方案；特别是java.util.zip类库就是面向自己的而不是面向字符的。
 
+尽量尝试Reader和Writer
+
+
+|来源与去处Java1.0类:|:相应的Java1.1类|
+|--|--|
+|InputStream|Reader 适配器：InputStreamReader|
+|OutputStream|Writer 适配器：InputStreamReader|
+
+### 18.4.2 更改流的行为 ###
+
+对于InputStream和Out
 
 ## 18.15 总结 ##
