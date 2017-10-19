@@ -119,7 +119,22 @@ DataInputStream允许读取不同的基本类型数据以及String对象（）
 
 ### 18.3.2 通过FilterOutPutStream向OutputStream写入 ###
 
-//TODO
+与DataInputStream对应的是DataOutputStream，可以将各种基本数据类型以及String对象格式化输出到“流”中；这样一来，任何机器上的任何DataInputStream都能够读取它们。
+
+PrintStream最初的目的是以可视化格式打印所有的基本数据以及String对象。这和DataOutputStream不同，后者的目的是将数据元素置入“流”中，使DataInputStream能够可移植地重构他它们
+
+PrintStream内有两个重要的方法：print()和println()。对它们进行了重载，以便可打印出各种数据类型。print()和println()之间的差异是，后者在操作完毕后添加一个换行符。
+
+BufferedOutputStream是一个修改过的OutputStream，它对数据流使用缓冲技术；因此当每次向流写入时，不必每次都进行实际的物理写动作。所以在进行输出时。
+
+**FilterOutputStream类型**
+
+|类|功能|构造器参数|
+|--|--|--|
+|||如何使用|
+|DataOutputStream|与DataInputStream搭配使用，因此可以按照可移植方式向流中写入基本类型数据（int，char，long等）|OutputStream 包含用于写入基本类型数据的全部接口|
+|PintStream|用于产生格式化输出。其中DataOutputStream处理数据的存储，PrintStream处理显示|OutputStream，可以用boolean值指示是否在每次换行时清空缓冲区（可选的）应该是对OutputStream对象的“final”封装。|
+|BufferedOutputStream|使用它以避免每次发送数据都要进行实际的写操作。代表“使用缓冲区”。可以调用flush()清空缓冲区|OutputStream，可以指定缓冲区大小（可选的） 本质上并不提供接口，只不过是向进程中添加缓冲区所需的。与接口对象搭配|
 
 ## 18.4 Reader和Writer ##
 
@@ -127,6 +142,10 @@ InputStream和OutputStream在以面向字节形式的I/O中扔可以提供极有
 
 1）Java 1.1向InputStream和OutputStream继承层次结构中添加了一些新类，所以显然这两个类是不会被取代的。
 2）来自于“字节”层次结构中的类和“字符”层次结构中的类结合起来使用。为了实现这个目的，要用到“适配器”（adapter）类：InputStreamReader可以把InputStream转换为Reader，而OutputStreamWriter可以把OutputStream转换为Writer。
+
+设计Reader和Writer继承层次结构主要是为了国际化。老的I/O流继承层次结构仅支持8位字节流，并且不能很好地处理16位的Unicode字符。由于Unicode用于字符国际化（Java本身的char也是16位的Unicode）。所以添加Reader和Writer继承层次就是为了在所有的I/O操作中都支持Unicode。
+
+另外，新类哭的设计使得它的操作比旧类库更快。
 
 ### 18.4.1 数据的来源和去处 ###
 
