@@ -1,61 +1,173 @@
-# 第2章：一个简单的Servlet容器 #
+# 第2章 一切都是对象 #
 
-### javax.servlet.Servlet接口 ###
+## 2.1 用引用操作对象 ##
 
-Servlet编程是通过javax.servlet和javax.servlet.http这两个包的类和接口来实现的。其中一个至关重要的就是javax.servlet.Servlet接口了
+## 2.2 必须由你创建所有对象 ##
 
-Servlet接口有五个方法，其用法如下：
+### 2.2.1 存储到什么地方 ###
 
-	public void init(ServletConfig config) throws ServletException
-	public void service(ServletRequest request, ServletResponse response) throws ServletException, java.io.IOException
-	public void destroy()
-	public ServletConfig getServletConfig()
-	public java.lang.String getServletInfo()
+#### 1）寄存器 ####
 
-在Servlet的五个方法中，init，service和destory是servlet的生命周期方法。
+最快的存储区，位于不同于其他存储区的地方——处理器内部。但是寄存器的数量极其有限，所以寄存器根据需求进行分配。你不能直接控制，也不能在程序中感觉到寄存器存在的任何迹象（另一方面，C和C++允许向编译器建议寄存器的分配方式）。
 
-#### init ####
+#### 2）堆栈 ####
 
-在servlet类已经初始化之后，init方法将会被servlet容器所调用。servlet容器只调用一次，以此表明servlet已经加载进服务中。init方法必须在servlet可以接受任何请求之前成功运行完毕。一个 servlet 程序员可以通过覆盖这个方法来写那些仅仅只要运行一次的初始化代码，例如加载数据库驱动，值初始化等等。在其他情况下，这个方法通常是留空的。
+位于通用RAM（随机访问存储器）中，但通过*堆栈指针*可以从处理器那里获得直接支持。堆栈指针若向下移动，则分配新的内存；若向上移动，则释放那些内存。这是一种快速有效的分配存储方法，仅次于寄存器。创建程序时，Java系统必须知道存储在堆栈内所有项的确切生命周期，以便上下移动堆栈指针。这一约束限制了程序的灵活性，所以虽然某些Java数据存储于堆栈中——特别是对象引用，但是Java对象并不存储于其中。
 
-#### service ####
+#### 3）堆 ####
 
-servlet容器为servlet请求调用它的service方法。servlet容器传递一个javax.servlet.ServletRequest对象和javax.servlet.ServletResponse对象。ServletRequest
-对象包括客户端的 HTTP 请求信息，而 ServletResponse 对象封装 servlet 的响应。在 servlet的生命周期中，service 方法将会给调用多次。
+一种通用的内存池（也位于RAM区），用于存放所有的Java对象。堆不同于堆栈的好处是：
 
-#### destroy ####
+#### 4）常量存储 ####
 
-当中服务中移除一个servlet实例的时候，servlet容器调用destroy方法。这通常发生在
-servlet 容器正在被关闭或者 servlet 容器需要一些空闲内存的时候。仅仅在所有 servlet 线程
-的 service 方法已经退出或者超时淘汰的时候，这个方法才被调用。在 servlet 容器已经调用完
-destroy 方法之后，在同一个 servlet 里边将不会再调用 service 方法。destroy 方法提供了一个机会来清理任何已经被占用的资源，例如内存，文件句柄和线程，并确保任何持久化状态和servlet 的内存当前状态是同步的。
+常量值通常直接存放在程序代码内部，这样做是安全的，因为它们永远不会被改变。有时，在嵌入式系统中，常量本身会和其他部分分隔离开，所以在这种情况下，可以选择将其存放在ROM（只读存储器）中。
 
-### 应用程序1 ###
+#### 5）非RAM存储 ####
 
-一个全功能的 servlet 容器会为 servlet 的每个 HTTP 请求做下面一些工作。
+如果数据完全存活于程序之外，那么它可以不受程序的任何控制，在程序没有运行时也可以存在。其中两个基本的例子是*流对象和持久化对象*。在流对象中，对象转化成字节流，通常被发送给另一台机器。在“持久化对象”，对象被存放与磁盘上，因此，即使程序终止，它们仍可以保持自己的状态。这种存储方式的技巧在于：把对象转化可以存放在其他媒介上的事物。在需要时，可恢复成常规、基于RAM的对象。Java提供了对轻量级持久化的支持，而诸如JDBC和Hibernate这样的机制提供了更加复杂的对在数据库中存储和读取对象信息的支持。
 
-* 当第一次调用 servlet 的时候，加载该 servlet 类并调用 servlet 的 init 方法(仅仅一次)。
-* 对每次请求，构造一个 javax.servlet.ServletRequest 实例和一个javax.servlet.ServletResponse 实例。
-* 调用 servlet 的 service 方法，同时传递 ServletRequest 和 ServletResponse 对象。
-* 当 servlet 类被关闭的时候，调用 servlet 的 destroy 方法并卸载 servlet 类。
+### 2.2.2 特例：基本类型 ###
 
-* 等待 HTTP 请求。
-* 构造一个 ServletRequest 对象和一个 ServletResponse 对象。
-* 假如该请求需要一个静态资源的话，调用 StaticResourceProcessor 实例的 process 方法，同时传递 ServletRequest 和 ServletResponse 对象。
-* 假如该请求需要一个 servlet 的话，加载 servlet 类并调用 servlet 的 service 方法，同时传递 ServletRequest 和 ServletResponse 对象。
+### 2.2.3 Java中的数组 ###
 
-* HttpServer1
-* Request
-* Response
-* StaticResourceProcessor
-* ServletProcessor1
-* Constants
+## 2.3 永远不需要销毁对象 ##
 
-### HttpServer1 ### 
+### 2.3.1 作用域 ###
 
-### Request类 ###
+大多数过程型语言都有作用域（scope）的概念。作用域决定了其内定义的变量名的可见性和生命周期。
 
-servlet 的 service 方法从 servlet 容器中接收一个 javax.servlet.ServletRequest 实例 和一个 javax.servlet.ServletResponse 实例。这就是说对于每一个 HTTP 请求，servlet 容器必须构造一个 ServletRequest 对象和一个 ServletResponse 对象并把它们传递给正在服务的servlet 的 service 方法。
+### 2.3.2 对象的作用域 ###
 
-### Response类 ###
+Java对象不具备和基本类型一样的生命周期。当用new创建一个Java对象时，它可以存活于作用域之外。
 
+	{
+		String s = new String("a string");
+	}
+引用s在作用域终点就消失了。然而，s指向的String对象仍继续占据内存空间。在这一小段代码中，我们无法在这个作用域之后访问这个对象，因为对它唯一的引用已超出了作用域的范围。
+
+由new创建的对象，只要你需要，就会一直保留下去。这样，许多C++编程问题在Java中就完全消失了。在C++中，你不仅必须要确保对象的保留时间与你需要这些对象的时间一样长，而且还必须在你使用完他们之后，将其销毁。
+
+如果Java让对象继续存在，靠Java垃圾回收器，用来监视用new创建的所有对象，并辨别那些不会再被引用的对象。随后，释放这些对象的内存空间，以便供其它新的对象使用。
+
+## 2.4 创建新的数据类型：类 ##
+
+	class ATypeName { /* Class body goes here */}
+
+这就引入了一种新的类型，尽管类主体仅包含一条注释语句（星号和斜杠以及其中的内存就是注释）。
+
+使用new来创建这种类型的对象。
+
+	ATypeName a = new ATypeName();
+
+### 2.4.1 字段和方法 ###
+
+一旦定义了一个类（在Java中你所做的完全工作就是定义类，产生那些类的对象，以及发发送消息给这些对象），就可以在类中设置两种类型的元素：字段（有时被称作*数据成员*）和方法（有时被称作*成员函数*）。
+
+字段可以是任何类型的对象，那么必须初始化该引用，以便使其与一个实际的对象（如前所述，使用new 来实现）相关联。
+
+每个对象都具有用来存储其字段的空间；普遍字段不能在对象间共享。
+
+	class DataOnly {
+		int i;
+		double d;
+		boolean b;
+	}
+
+创建他的一个对象：
+
+	DataOnly data = new DataOnly();
+
+可以给字段赋值，但首先必须知道如何引用一个对象的成员。
+
+**DataOnly**
+
+类除了保存数据外没别的用处，因为它没有任何成员方法。如果想了解成员方法的运行机制，了解参数和返回值的概念
+
+**基本成员默认值**
+
+若类的某个成员是基本数据类型，即使没有进行初始化，Java也会确保它获得一个默认值。
+
+|基本类型|默认值|
+|--|--|
+|boolean|false|
+|char|'\uoooo'(null)|
+|byte|(byte)0|
+|short|(short)0|
+|int|0|
+|long|0L|
+|float|0.0f|
+|double|0.0d|
+
+## 2.5 方法、参数和返回值 ##
+
+Java的方法决定了一个对象能够接收什么样的消息。方法的基本组成部分包括：名称、参数、返回值和方法体。
+
+	ReturnType methodName( /* Argument list */) {
+		/* Method body */
+	}
+
+返回类型描述的是在调用方法之后从方法返回的值。参数列表给出了要传给方法的信息的类型和名称。方法名和参数列表（它们合起来被称为“方法签名”）唯一地标识出某个方法。
+
+Java中的方法只能作为类的一部分来创建。方法只有通过对象才能被调用，且这个对象必须能执行这个方法调用。如果试图在某个对象上调用它并不具备的方法，那么在编译时就会得到一条错误消息。通过对象调用方法时，需要先列出对象名，紧接着句点，然后是方法名和参数列表。
+
+	objectName.methodName(arg1, arg2, arg3);
+
+### 2.5.1 参数列表 ###
+
+若返回类型是void， return关键字的作用只是用来退出方法。因此，没有必要到方法结束时才离开，可在任何地方返回。但如果返回类型不是void，那么无论在何处返回，编译器都会强制返回一个正确类型的返回值。
+
+## 2.6 构建一个Java程序 ##
+
+### 2.6.1 名字可见性 ###
+
+### 2.6.2 运用其他构件 ###
+
+import指示编译器导入一个包，也就是一个类库。
+
+### 2.6.3 static关键字 ###
+
+## 2.7 你的第一个Java程序 ##
+
+### 2.7.1 编译和运行 ###
+
+## 2.8 注释和嵌入式文档 ##
+
+### 2.8.1 注释文档 ###
+
+javadoc便是用于提取注释的工具。
+
+javadoc输出的是一个HTML文件。
+
+### 2.8.2 语法 ###
+
+### 2.8.3 嵌入式HTML ###
+
+### 2.8.4 一些标签示例 ###
+
+1. @see: 引用其他类 允许用户引用其他类的文档
+2. {@link package.class#member lable} 标签与@see及其相似，只是用于行内
+3. {@docRoot} 标签产生到文档根目录的相对路径，用于文档树页面的显式超链接
+4. {@inheritDoc} 从当前这个类的最直接的基类中继承相关文档到当前的文档注释中
+5. @version version-information 可以是任何你认为适合包含在版本说明中的重要信息。
+6. @author
+7. @since 允许你指定代码最早使用的版本
+8. @param 
+9. @return description
+10. @throws 异常
+11. @deprecated
+
+### 2.8.5 文档示例 ###
+
+
+
+## 2.9 编码风格 ##
+
+类名，首字母都采用大写形式。
+
+几乎其他所有内容——方法、字段（成员变量）以及对象引用名称等，公认的风格与类的风格一样，只是标识符的第一个字母采用小写。
+
+## 2.10 总结 ##
+
+## 2.11 练习 ##
+
+//TODO 练习 1-16

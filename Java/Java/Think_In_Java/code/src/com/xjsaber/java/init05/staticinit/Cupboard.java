@@ -1,4 +1,4 @@
-package com.xjsaber.java.init.staticinit;
+package com.xjsaber.java.init05.staticinit;
 
 public class Cupboard {
     Bowl bowl3 = new Bowl(3);

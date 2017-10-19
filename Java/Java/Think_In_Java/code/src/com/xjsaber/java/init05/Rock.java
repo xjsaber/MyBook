@@ -1,4 +1,4 @@
-package com.xjsaber.java.init;
+package com.xjsaber.java.init05;
 
 public class Rock {
 

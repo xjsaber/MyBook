@@ -39,3 +39,4 @@ Learn/DataStructure/C++Programming-Program Design Include Data Structures/Test/
 **/.gradle
 **/.idea
 Db/Redis/Redis实战/code/pRedis/config_local.py
+**/cmake-build-debug

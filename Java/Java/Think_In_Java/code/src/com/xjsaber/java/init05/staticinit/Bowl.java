@@ -1,4 +1,4 @@
-package com.xjsaber.java.init.staticinit;
+package com.xjsaber.java.init05.staticinit;
 
 class Bowl{
     Bowl(int marker) {
