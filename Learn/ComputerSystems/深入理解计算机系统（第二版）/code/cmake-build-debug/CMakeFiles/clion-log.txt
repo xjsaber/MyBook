@@ -1,0 +1,66 @@
+"F:\Program Files\JetBrains\CLion 2017.2.3\bin\cmake\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - MinGW Makefiles" E:\WorkPlace\MyBook\Learn\ComputerSystems\深入理解计算机系统（第二版）\code
+-- The C compiler identification is GNU 5.1.0
+-- The CXX compiler identification is GNU 5.1.0
+-- Check for working C compiler: E:/WorkPlace/SDK/C/TDM-GCC-64/bin/gcc.exe
+-- Check for working C compiler: E:/WorkPlace/SDK/C/TDM-GCC-64/bin/gcc.exe -- broken
+CMake Error at F:/Program Files/JetBrains/CLion 2017.2.3/bin/cmake/share/cmake-3.8/Modules/CMakeTestCCompiler.cmake:51 (message):
+  The C compiler "E:/WorkPlace/SDK/C/TDM-GCC-64/bin/gcc.exe" is not able to
+  compile a simple test program.
+
+  It fails with the following output:
+
+   Change Dir: E:/WorkPlace/MyBook/Learn/ComputerSystems/娣卞叆鐞嗚В璁＄畻鏈虹郴缁燂紙绗簩鐗堬級/code/cmake-build-debug/CMakeFiles/CMakeTmp
+
+  
+
+  Run Build Command:"E:/WorkPlace/SDK/C/TDM-GCC-64/bin/mingw32-make.exe"
+  "cmTC_d897e/fast"
+
+  E:/WorkPlace/SDK/C/TDM-GCC-64/bin/mingw32-make.exe -f
+  CMakeFiles\cmTC_d897e.dir\build.make CMakeFiles/cmTC_d897e.dir/build
+
+  mingw32-make.exe[1]: Entering directory
+  'E:/WorkPlace/MyBook/Learn/ComputerSystems/娣卞叆鐞嗚В璁＄畻鏈虹郴缁燂紙绗簩鐗堬級/code/cmake-build-debug/CMakeFiles/CMakeTmp'
+
+
+  Building C object CMakeFiles/cmTC_d897e.dir/testCCompiler.c.obj
+
+  E:\WorkPlace\SDK\C\TDM-GCC-64\bin\gcc.exe -o
+  CMakeFiles\cmTC_d897e.dir\testCCompiler.c.obj -c
+  E:\WorkPlace\MyBook\Learn\ComputerSystems\濞ｅ崬鍙嗛悶鍡毿掔拋锛勭暬閺堣櫣閮寸紒鐕傜礄缁楊兛绨╅悧鍫礆\code\cmake-build-debug\CMakeFiles\CMakeTmp\testCCompiler.c
+
+
+  gcc.exe: error:
+  E:\WorkPlace\MyBook\Learn\ComputerSystems\濞ｅ崬鍙嗛悶鍡毿掔拋锛勭暬閺堣櫣閮寸紒鐕傜礄缁楊兛绨╅悧鍫礆\code\cmake-build-debug\CMakeFiles\CMakeTmp\testCCompiler.c:
+  No such file or directory
+
+  gcc.exe: fatal error: no input files
+
+  compilation terminated.
+
+  CMakeFiles\cmTC_d897e.dir\build.make:64: recipe for target
+  'CMakeFiles/cmTC_d897e.dir/testCCompiler.c.obj' failed
+
+  mingw32-make.exe[1]: *** [CMakeFiles/cmTC_d897e.dir/testCCompiler.c.obj]
+  Error 1
+
+  mingw32-make.exe[1]: Leaving directory
+  'E:/WorkPlace/MyBook/Learn/ComputerSystems/娣卞叆鐞嗚В璁＄畻鏈虹郴缁燂紙绗簩鐗堬級/code/cmake-build-debug/CMakeFiles/CMakeTmp'
+
+
+  Makefile:125: recipe for target 'cmTC_d897e/fast' failed
+
+  mingw32-make.exe: *** [cmTC_d897e/fast] Error 2
+
+  
+
+  
+
+  CMake will not be able to correctly generate this project.
+Call Stack (most recent call first):
+  CMakeLists.txt:2 (project)
+
+
+-- Configuring incomplete, errors occurred!
+See also "E:/WorkPlace/MyBook/Learn/ComputerSystems/娣卞叆鐞嗚В璁＄畻鏈虹郴缁燂紙绗簩鐗堬級/code/cmake-build-debug/CMakeFiles/CMakeOutput.log".
+See also "E:/WorkPlace/MyBook/Learn/ComputerSystems/娣卞叆鐞嗚В璁＄畻鏈虹郴缁燂紙绗簩鐗堬級/code/cmake-build-debug/CMakeFiles/CMakeError.log".

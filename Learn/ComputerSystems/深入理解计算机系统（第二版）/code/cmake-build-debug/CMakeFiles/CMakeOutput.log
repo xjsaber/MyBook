@@ -1,0 +1,27 @@
+The system is: Windows - 10.0.15063 - AMD64
+Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+Compiler: E:/WorkPlace/SDK/C/TDM-GCC-64/bin/gcc.exe 
+Build flags: 
+Id flags:  
+
+The output was:
+0
+
+
+Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "a.exe"
+
+The C compiler identification is GNU, found in "E:/WorkPlace/MyBook/Learn/ComputerSystems/深入理解计算机系统（第二版）/code/cmake-build-debug/CMakeFiles/3.8.2/CompilerIdC/a.exe"
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: E:/WorkPlace/SDK/C/TDM-GCC-64/bin/g++.exe 
+Build flags: 
+Id flags:  
+
+The output was:
+0
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.exe"
+
+The CXX compiler identification is GNU, found in "E:/WorkPlace/MyBook/Learn/ComputerSystems/深入理解计算机系统（第二版）/code/cmake-build-debug/CMakeFiles/3.8.2/CompilerIdCXX/a.exe"
+
