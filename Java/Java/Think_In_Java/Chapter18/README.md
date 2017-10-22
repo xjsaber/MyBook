@@ -163,4 +163,142 @@ I/O流类都有相应的Reader和Writer类来提供天然的Unicode操作。然�
 
 对于InputStream和Out
 
+|过滤器：Java1.0类 |相应的Java1.1类|
+|--|--|
+|FilterInputStream|FilterReader|
+|FilterOutputStream|FilterWriter(抽象类，没有子类)|
+|BuffererdInputStream|BufferedReader(也有readLine())|
+|DataInputStream|使用DataInputStream（除了当需要使用readLine()时以外，这时应该使用BufferedReader）|
+|PrintStream|PrintWriter|
+|LineNumberInputStream(已弃用)|LineNumberReader|
+|StreamTokenizer|StreamTokenizer（使用接受Reader的构造器）|
+|PushbackInputStream|PubshbackReader|
+
+无论何时使用readerLine()，都不应该使用DataInputStream（这会遭到编译器的警告），而应该使用BufferedReader。除了这点，DataInputStream仍是I/O类库的首选成员。
+
+PrintWriter的格式化接口实际上与PrintStream相同。
+
+在Java SE5中天加了PrintWriter构造器，以简化在输出写入时文件的创建过程。
+
+PrintWriter构造器还有一个选项，就是“自动执行清空”选项。如果构造器设置此选项，则在每次Println()执行之后，便会自动清空。
+
+### 18.4.3 未发生变化的类 ###
+
+|以下这些Java1.0类在Java1.1类中没有相应类|
+|--|
+|DataOutputStream|
+|File|
+|RandomAccessFile|
+|SequenceInputStream|
+
+特别是DataOutputStream，在使用时没有任何边划；因此如果想以“可传输的”格式存储和检索数据，可以使用InputStream和OutputStream继承层次结构。
+
+## 18.5 自我独立的类：RandomAccessFile ##
+
+## 18.6 I/O流的典型使用方式 ##
+
+### 18.6.1 缓冲输入文件 ###
+
+如果想要打开一个文件用于字符输入，可以使用以String或File对象作为文件名的FileInputReader。（为了提高速度，对文件进行缓冲，产生的引用传给一个BufferedReader构造器）由于BufferedReader也提供readLine()方法，所以这是我们的最终对象和进行读取的结构。当readLine()将返回null，你就达到了文件的末尾。
+
+练习 7-11
+
+### 18.6.2 从内存输入 ###
+
+从BufferedInputFile.read()读入的String结果被用来创建一个StringReader。然后调用read()每次读取一个字符，并把它发送到控制台。
+
+唯一安全的方式就是对文件显式地调用close()
+
+### 18.6.3 格式化的内存输入 ###
+
+要读取格式化数据，可以使用DataInputStream，它是一个面向字节的I/O类（不是面向字符的）。因此必须使用InputStream类而不是Reader类。可以用InputStream以字节的形式读取任何数据（例如一个文件）。
+
+如果从DataInputStream用readByte()一次一次字节地读取字符，那么任何字节的值都是合法的结果，因此返回值不能用来检测输入是否结束。相反，可以使用available()方法查看还有多少可供存取的字符。
+
+available()的工作方式会随着所读取的媒介类型的不同而有所不同；字面意思就是“在没有阻塞的情况下所能读取的字节数”。对于文件，这意味着整个文件；但是对于不同类型的流，可能就不是这样了，因此要谨慎使用。
+
+### 18.6.4 基本的文件输出 ###
+
+FileWriter对象可以向文件写入数据。首先，创建一个与指定文件连接的FileWriter。实际上，通常会用BufferedWriter将其包装起来用以缓冲输出（尝试移除此包装来感受对性能的影响——缓冲往往能显著地增加I/O操作的性能）。
+
+#### 文本文件输出的快捷方式 ####
+
+Java SE5在PrintWriter中添加了一个辅助构造器，使得不必每次希望创建文本文件并想其中写入时，都去执行所有的装饰工作。
+
+TODO 练习 12-14
+
+### 18.6.5 存储和恢复数据 ###
+
+PrintWriter可以对数据进行格式化。但为了输出可供另一个“流”恢复的数据，我们需要用DataOutputStream写入数据，并用DataInputStream恢复数据。
+
+DataOutputStream和DataInputStream是面向字节的，因此使用InputStream和OutputStream。
+
+### 18.6.6 读写随机访问文件 ###
+
+使用RandomAccessFile，类似于组合使用了DataInputStream和DataOutputStream（因为实现了相同的接口：Datainput和DataOutput）。利用seek()可以在文件中到处移动，并修改文件中的某个值。
+
+可以自行选择的是第二个构造器参数：指定以“只读”(r)方式或“读写”(rw)方式打开一个RandowmAccessFile文件。
+
+使用“内存映射文件”来代替RandomAccessFile。
+
+//TODO 16
+
+### 18.6.7 管道流 ###
+
+PipedInputStream、PipedOutputStream、PipedReader以及PipedWriter。
+
+主要用于多线程，用于任务之间的通信。
+
+## 18.7 文件读写的实用工具 ##
+
+考虑把File IO封装成类库
+
+使用在Java SE5引入的java.util.Scanner类。但是，它只能用于读取文件，而不能写入文件，并且这个工具（该类不在java.io包中）主要设计用来创建编程语言的扫描器“小语言”的。
+
+// TODO 练习17 18
+
+### 18.7.1 读写二进制文件 ###
+
+与TextFile类似，简化了读写二进制文件的过程。
+
+一个重载方法接受File对象，第二个重载方法接受表示文件名的String参数。这两个方法都会返回byte数组。avaliable()方法都被用来产生恰当的数组尺寸，并且read()方法的特定重载版本填充了数组。
+
+// 练习19-20
+
+## 18.8 标准I/O ##
+
+程序的所有输入都可以来自*标准输入*，它的所有输出都可以发送到*标准输出*，以及所有的错误信息都可以发送到*标准错误*。
+
+标准I/O的意义在于，可以把程序串联起来，一个程序的标准输出可以成为另一个程序的标准输入。
+
+### 18.8.1 从标准输入中读取 ###
+
+按照标准I/O模型，Java提供了System.in、System.out和System.err。
+
+通常用readLine()一次一行地读取输入，为此，将System.in包装城BufferedReader来使用这要求我们必须用InputStreamReader把System.in转换成Reader。
+
+### 18.8.2 将System.out转换成PrintWriter ###
+
+## 18.10 新I/O ##
+
+JDK 1.4的java.nio.*包引入了新的JavaI/O类库，其目的在于提高速度。实际上，旧的I/O包已经使用nio重新实现过，以便充分利用这种速度。
+
+速度的提高来自于所使用的结构更接近于操作系统执行I/O的方式：*通道和缓冲区*。
+
+唯一直接与通道交互的缓冲器是BytteBuffer——也就是说，可以存储未加工字节的缓冲器。
+
+### 18.10.1 转换数据 ###
+
+每次只读取一个字节的数据，然后将每个byte类型强制转换成char类型。
+
+缓冲器容纳的是普通的字节，为了把它们转换成字符，要在输入他们的时候对他们进行*编码*，要么在
+
+## 18.11 压缩 ##
+
+## 18.12 对象序列化 ##
+
+## 18.13 XML ##
+
+## 18.14 Preferences ##
+
 ## 18.15 总结 ##
