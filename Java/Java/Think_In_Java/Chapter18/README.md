@@ -301,10 +301,24 @@ JDK 1.4的java.nio.*包引入了新的JavaI/O类库，其目的在于提高速�
 
 Java I/O类库中的类支持读写压缩格式的数据流。可以用他们对其他的I/O类进行封装，以提供压缩功能。
 
+这些类不是从Reader和Writer类派生而来的，而是属于InputStream和OutputStream继承层次结构的一部分。这样做是因为压缩类库是按字节方式而不是字符方式处理的。
+
 |压缩类|功能|
 |--|--|
+|CheckedInputStream|GetCheckSum()在任何InputStream产生校验和（不仅是解压缩）
+|CheckedOutputStream|GetCheckSum()为任何OutputStream产生校验和（不仅是压缩）压缩类的基类|
+|DeflaterOutputStream|压缩类的基类|
+|ZipOutputStream|一个DeflaterOutputStream，用于将数据压缩成Zip文件格式|
+|GZipOutputStream|一个DeflaterOutputStream，用于将数据压缩成GZip文件格式|
+|InflaterInputStream|解压缩类的基类
+|ZipInputStream|一个InflaterInputStream，用于解压缩Zip文件格式的数据|
+|GZIPInputStream|一个InflaterInputStream，用于解压缩GZIP文件格式的数据|
 
 ### 18.11.1 用GZIP进行简单压缩 ###
+
+压缩类直接将输出流封装成GZIPOutputStream或ZipOutputStream，并将输入流封装成GZIpInputStream或ZipInputStream即可。其他全部操作就是通常的I/O读写。
+
+这个例子把面向字符的流和面向字节的流混合了起来；输入（in）用Reader类，而GZIPOutputStream的构造器只能接受OutputStream对象，不能接受Writer对象。在打开文件时，GZIPInputStream就会被转换成Reader。
 
 ### 18.11.2 用Zip进行多文件保存 ###
 
