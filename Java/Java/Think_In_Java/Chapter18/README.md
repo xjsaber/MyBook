@@ -287,15 +287,92 @@ JDK 1.4的java.nio.*包引入了新的JavaI/O类库，其目的在于提高速�
 
 唯一直接与通道交互的缓冲器是BytteBuffer——也就是说，可以存储未加工字节的缓冲器。
 
+旧I/O类库中由三个类被修改了，用以产生FileChannel。这三个被修改的类是FileInputStream、FileOutputStream以及用于既读又写的RandomAccessFile。
+
+Reader和Writer这种字符模式类不能用于产生通道；但是java.nio.channels.Channels类提供了实用方法，用以在通道中产生Reader和Writer。
+
+通道是一种相当基础的东西：可以向他传送用于读写的ByteBuffer，并且可以锁定文件的某些区域用于独占式访问。
+
+将字节存放于ByteBuffer的方法之一是：使用一种“put”方法直接对它们进行填充，填入一个或多个字节，或基本数据类型的值。也可以使用warp()方法将已存在的字节数组“包装”到ByteBuffer中。
+
+	FileChannel
+                in = new FileInputStream(args[0]).getChannel(),
+                out = new FileOutputStream(args[1]).getChannel();
+    ByteBuffer buffer = ByteBuffer.allocate(BSIZE);
+    while (in.read(buffer) != -1){
+        // Prepare for writing
+        buffer.flip();
+        out.write(buffer);
+        // Prepare for reading
+        buffer.clear();
+    }
+
+打开一个FileChannel以用于读，而打开另一个以用于写。ByteBuffer被分配了空间，当FileChannel.read()返回-1时（一个分节符，来源于Unix和C），表示我们已经到达了输入的末尾。每次read()操作之后，就会将数据输入到缓冲器中，flip()则是准备缓冲器以便它的信息可以由write()提取。write()操作之后，信息仍在缓冲器中，接着clear()操作则对所有的内部指针重新安排，以便缓冲器在另一个read()操作期间能够做好接受数据的准备。
+
+上面并不是处理此类操作的理想方式。特殊方法transferTo()和transferFrom()则允许将一个通道和另一个通道直接相连。
+
+	FileChannel
+                in = new FileInputStream(args[0]).getChannel(),
+                out = new FileOutputStream(args[1]).getChannel();
+    in.transferTo(0, in.size(), out);
+    // Or:
+    // out.transferFrom(in, 0, in.size());
+
+
+
 ### 18.10.1 转换数据 ###
 
 每次只读取一个字节的数据，然后将每个byte类型强制转换成char类型。
 
 缓冲器容纳的是普通的字节，为了把它们转换成字符，要在输入他们的时候对他们进行*编码*，要么在
 
-旧I/O类库中有三个类被修改了，用以产生FileChannel。这三个被修改的类是FileInputStream、FileOutputStream以及用于既读又写的RandomAccessFile。
+缓冲期容纳的是普通的字节，为了把它们转换成字符，在输入它们的时候对其进行*编码*，要么在其从缓冲器输出时对它们进行解码。可以使用java.nio.charset.Charset类实现了这些功能，该类提供了把数据编码成多种不同类型的字符集的工具。
 
-//TODO 
+1. 如果想对缓冲器调用rewind()方法（调用该方法是为了返回到数据开始部分），接着使用平台的默认字符集对数据进行decode(),那么作为结果的CharBuffer可以很好地输出打印到控制台。——使用System.getProperty("file.encoding")发现默认字符集，会产生代表字符集名称的字符串。把该字符串传送给Charset.forName()用以产生Charset对象，可以用它对字符串进行解码。
+2. 读文件时，使用能够发生可打印的输出的字符集进行encode()，使用UTF-16BE把文本写到文件中，当读取时，需要把它转换成CharBuffer，就会产生所期望的文本。
+
+//TODO 23 
+
+### 18.10.2 获取基本类型 ###
+
+尽管ByteBuffer只能保存字节类型的数据，但是它具有可以从其所容纳的字节中产生出各种不同基本类型值的方法。
+
+在分配一个ByteBuffer之后，可以通过检测它的值来查看缓冲器的分配方式是否将其内容自动置灵。由缓冲期的limit()决定多少个值，并且所有的值都是零。
+
+向ByteBuffer插入基本类型数据的最简单的方法是：利用asCharBuffer()、asShortBuffer()等获得该缓冲器上的试图，然后实用视图的put()方法。——此方法适用于所有基本数据类型。但有例外，即实用ShortBuffer的put()方法时，需要进行类型转换（注意类型转换会截取或改变结果）。而其他所有的视图缓冲器在实用put()方法时，不需要进行类型转换。
+
+### 18.10.3 试图缓冲器 ###
+
+视图缓冲区（view buffer）可以让我们通过某个特定的基本数据类型的视图查看其底层的ByteBuffer。ByteBuffer依然是实际存储数据的地方，“支持”着前面的视图。
+
+对视图的任何修改都会映射成为对ByteBuffer中数据的修改。视图还允许从ByteBuffer一次一个地（与ByteBuffer所支持的方式相同）或者成批地（放入数组中）读取基本类型值。
+
+	ByteBuffer bb = ByteBuffer.allocate(BSIZE);
+    IntBuffer ib = bb.asIntBuffer();
+    ib.put(new int[] {11, 42, 47, 99, 143, 811, 1016});
+    System.out.println(ib.get(3));
+    ib.put(3, 1811);
+    ib.flip();
+    while (ib.hasRemaining()){
+        int i = ib.get();
+        System.out.println();
+    }
+
+先用重载后的put()方法存储一个整数数组。接着get()和put()方法调用直接访问底层ByteBuffer中的某个整数位置。
+
+一旦底层的ByteBuffer通过视图缓冲期填满了整数或其他基本类型时，就饿可以直接被写到通道中了。正像从通道中读取那样容易，然后使用视图缓冲期可以把任何数据都转化成某一特定的基本类型。
+
+//TODO 24
+
+### 18.10.4 用缓冲期操纵数据 ###
+
+### 18.10.5 缓冲期的细节 ###
+
+### 18.10.6 内存映射文件 ###
+
+//TODO 25 26
+
+### 18.10.7 文件加锁 ###
 
 ## 18.11 压缩 ##
 
@@ -322,7 +399,33 @@ Java I/O类库中的类支持读写压缩格式的数据流。可以用他们对
 
 ### 18.11.2 用Zip进行多文件保存 ###
 
+标准的Zip格式。
 
+CheckedInputStream和CheckedOutputStream都支持Adler32和CRC32两种类型的校验和，但是ZipEntry类只有一个支持CRC的接口。
+
+为了能够解压缩文件，ZipInputStream提供了一个getNextEntry()方法返回下一个ZipEntry(如果存在的话)。解压缩文件利用ZipFile对象读取文件（更方便）。该对象有一个entried()方法用来向ZipEntries返回一个Enum（枚举）。
+
+为了读取校验和，必须拥有对与之相关联的Checksum对象的访问权限。在这里保留指向CheckedOutputStream和CheckedInputStream对象的引用。但是，也可以只保留一个指向Checksum对象的引用。
+
+Zip流中有一个令人困惑的方法setComment()。正如前面ZipCompress.java所示，可以在写文件时写注释，但却没有任何方法恢复ZipInputStream内的注释。只能通过ZipEntry，才能以逐条方式完全支持注释的获取。
+
+### 18.11.3 Java档案文件 ###
+
+一个JAR文件由一组压缩文件构成，同时还有一张描述了所有这些的文件的“文件清单”（可自行创建文件清单，也可以由jar程序自动生成）。
+
+	jar [options] destination [manifest] inputfile(s)
+其中options只是一个字母集合（不必输入任何“-”或其他任何标识符）
+
+|c|创建一个新的或空的压缩文档|
+|--|--|
+|t|列出目录表|
+|x|解压所有文件|
+|x file|解压该文件|
+|f|意指：“我打算指定一个文件名。”如果没有这个选项，jar假设所有的输入都来自标准输入；或者在创建一个文件时，输出对象也假设为标准输出|
+|m|表示第一个参数将是用户自建的清单文件的名字|
+|v|产生详细输出，描述jar所做的工作|
+|O|只存储文件，不压缩文件（用来创建一个可放在类路径中的JAR文件）|
+|M|不自动创建文件清单|
 
 ## 18.12 对象序列化 ##
 
