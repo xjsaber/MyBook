@@ -299,6 +299,17 @@ JDK 1.4的java.nio.*包引入了新的JavaI/O类库，其目的在于提高速�
 
 ## 18.11 压缩 ##
 
+Java I/O类库中的类支持读写压缩格式的数据流。可以用他们对其他的I/O类进行封装，以提供压缩功能。
+
+|压缩类|功能|
+|--|--|
+
+### 18.11.1 用GZIP进行简单压缩 ###
+
+### 18.11.2 用Zip进行多文件保存 ###
+
+
+
 ## 18.12 对象序列化 ##
 
 Java的*对象序列化*将哪些实现了Serializable接口的对象转换成一个字节序列，并能够在以后将这个字节序列完全恢复为原来的对象。——这一过程可以通过网络进行，意味着序列化机制能自动弥补不同操作系统之间的差异。
@@ -318,9 +329,44 @@ Java的*对象序列化*将哪些实现了Serializable接口的对象转换成�
 
 //TODO 练习27
 
+两段相对独立的代码
+1. 读写的是文件
+2. 读写的是字节数组（ByteArray）
+
 ### 18.12.1 寻找类 ###
 
+打开文件和读取mystery对象中的内容都需要Alien的class对象；而Java虚拟机找不到Alien.class（除非它正好在类路径Classpath内，而本例却不在类路径之内）。这样就会得到一个名叫ClassNotFoundException的异常（同样，除非能够验证Alien存在，否则它等于消失）。必须保证Java虚拟机能找到相关的.class文件。
+
 ### 18.12.2 序列化的控制 ###
+
+考虑的安全问题，而且你不希望对象的某一部分被序列化；或者一个对象被还原之后，某子对象需要重新创建，从而不必将该子对象序列化。
+
+特殊的情况，可通过实现Externalizable接口——代替实现Serializable接口——来对序列化过程进行控制。这个Externalizable接口继承了Serializable接口，同时增添了两个方法：writeExternal()和readExternal()。这两个方法会在序列化和反序列化还原的过程被自动调用。
+
+#### Externalizable的代替方法 ####
+
+不是特别坚持实现Externalizable接口，我们可以实现Serializable接口，并添加名为writeObject()和readObject()的方法。一旦对象被序列化或者被反序列化还原，都会自动地分别调用这两个方法。
+
+	private void writeObject(ObjectOutputStream stream) throws IOException;
+	private void readObject(ObjectOutputStream stream) throws IOException, ClassNotFoundException;
+
+从设计的观点
+1. 这些方法不是基类或者Serializable接口的一部分，所以应该在他们自己的接口中进行定义，但是他们被定义成了private，意味着仅能被这个类的其他成员调用。
+2.  在调用ObjectOutputStream.writeObject()时，会检查所传递的Serializable对象，看看是否实现了自己的writeObject()。如果是这样，就跳过了正常的序列化过程调用它的writeObject()。
+
+#### 版本控制 ####
+
+### 18.12.3 使用“持久性” ###
+
+存储程序的一些状态，以便随后可以很容易地将程序恢复到当前的状态。
+
+如果将两个对象——都具有指向第三个对象的引用——进行序列化
+
+通过一个字节数组来使用对象序列化，从而实现对任何可Serializable的“深度复制”（deep copy）——深度复制意味着我们复制的是整个对象网，而不仅仅是基本对象及其引用。
+
+Shape类实现了Serializable，所以任何自Shape继承的类也都会自动是Serializable的。
+
+//TODO 30
 
 ## 18.13 XML ##
 
