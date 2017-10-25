@@ -297,6 +297,61 @@ JDK 1.4的java.nio.*包引入了新的JavaI/O类库，其目的在于提高速�
 
 //TODO 
 
+### 18.10.4 用缓冲器操作数据 ###
+
+如果想把一个字节数组写到文件中去，那么就应该使用ByteBuffer.wrap()方法把字节数组包装起来，然后用getChannel()方法在FileOutputStream上打开一个通道，接着将来自于ByteBuffer的数据写到FileChannel中。
+
+
+
+### 18.10.5 缓冲器的细节 ###
+
+Buffer由数据和可以高效地访问及操纵这些数据的四个索引组成，这四个索引是：mark(标记)，position（位置），limit（界限）和capacity（容量）
+
+|capacity()|返回缓冲区容量|
+|--|--|
+|clear()|清空缓冲区，将position设置为0，limit设置为容量。可以调用此方法覆写缓冲区|
+|flip()|将limit设置为position，position设置为0.此方法用于准备从缓冲区读取已经写入的数据|
+|limit()|返回limit值|
+|limit(int lim)|设置limit值|
+|mark()|将mark设置为position|
+|position()|返回position值|
+|position(int pos)|设置position值|
+|hasRemaining()|若有介于position和limit之间的元素，则返回true|
+
+通过对某个数组调用wrap()方法来直接产生一个CharBuffer。但是在本例中取而代之的是分配一个底层的ByteBuffer，产生的CharBuffer只是ByteBuffer上的一个视图而已。——我们总是以操纵ByteBuffer为目标，因为它可以和通道进行交互。
+
+	buffer.mark();
+    char c1 = buffer.get();
+    char c2 = buffer.get();
+    buffer.reset();
+    buffer.put(c2).put(c1);
+
+position指针指向缓冲器中的第一个元素，capacity和limit则指向最后一个元素。
+
+### 18.10.6 内存映射文件 ###
+
+内存映射文件允许创建和修改那些因为太大而不能放入内存的文件。有了内存映射文件，就可以假定整个文件都放在内存中，而且可以完全把它当作非常大的数组来访问。
+
+MappedByteBuffer由ByteBuffer继承而来，因此它具有ByteBuffer的所有的所有方法。
+
+#### 性能 ####
+
+//联系25 26
+
+### 18.10.7 文件加锁 ###
+
+JDK 1.4引入了文件加锁机制，它允许我们同步访问某个作为共享资源的文件。不过，竞争同一个文件的两个线程可能在不同的虚拟机上；或者一个是Java线程，另一个是操作系统上其他的本地线程。
+
+文件锁对其他的操作系统进程是可见的，因为Java的文件加锁直接映射到了本地操作系统的加锁工具。
+
+通过对FileChannel调用tryLock()或者lock()，就可以获得整个文件的FileLock，（SocketChannel、DatagramChannel和ServerSocketChannel不需要加锁，因为它们是从单进程实体继承而来，不在两个进程之间共享网络socket）。tryLock()是非阻塞式的，它设法获取锁，但是如果不能获得（当其他一些进程已经持有相同的锁，并且不共享时），它将直接从方法调用返回。lock()则是阻塞式的，它要阻塞进程直至锁可以获得，或调用lock()的线程中断，或调用lock()的通道关闭。使用FileLock.release()可以释放锁。
+
+如果操作系统不支持共享锁为每一个请求都创建一个锁，那么它就会使用独占锁。锁的类型（共享或独占）可以通过FileLock.isShared()进行查询。
+
+#### 对映射文件的部分加锁 ####
+
+文件映射通常应用于极大的文件。需要对这种巨大的文件进行部分加锁，以便其他进程可以修改文件中未被加锁的部分。
+
 ## 18.11 压缩 ##
 
 Java I/O类库中的类支持读写压缩格式的数据流。可以用他们对其他的I/O类进行封装，以提供压缩功能。
