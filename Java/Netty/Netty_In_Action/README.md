@@ -489,9 +489,158 @@ Netty提供了一种额外的传输，使得你可以将一组ChannelHandler作�
 * 在同一个JVM内部的通信
 * 测试你的ChannelHandler实现
 
+**应用程序的最佳传输**
 
+|应用程序的需求|推荐的传输|
+|--|--|
+|非阻塞代码库或者一个常规的起点|NIO(或者在Linux上使用epoll)|
+|阻塞代码库|OIO|
+|在同一个JVM内部的通信|Local|
+|测试ChannelHandler的实现|Embedded|
 
 ## 4.5 小结 ##
+
+# 第5章 ByteBuf #
+
+Netty 的 ByteBuffer 替代品是 ByteBuf ，一个强大的实现，既解决了 JDK API 的局限性，又为网络应用程序的开发者提供了更好的 API。
+
+## 5.1 ByteBuf的API ##
+
+abstract class Bytebuf 和 interface ByteBufHolder
+
+* 它可以被用户自定义的缓冲区类型扩展；
+* 通过内置的复合缓冲区类型实现了透明的零拷贝；
+* 容量可以按需增长（类似于 JDK 的 StringBuilder）；
+* 在读和写这两种模式之间切换不需要调用 ByteBuffer 的 flip()方法；
+* 读和写使用了不同的索引；
+* 支持方法的链式调用；
+* 支持引用计数；
+* 支持池化。
+
+## 5.2 ByteBuf类——Netty的数据容器 ##
+
+### 5.2.1 它是如何工作 ###
+
+ByteBuf维护了两个不同的索引：一个用于读取，一个用于写入。当你从 ByteBuf 读取时，它的 readerIndex 将会被递增已经被读取的字节数。同样地，当你写入 ByteBuf 时，它的 writerIndex 也会被递增。
+
+### 5.2.2 ByteBuf 的使用模式 ###
+
+1. 堆缓冲区
+
+最常用的 ByteBuf 模式是将数据存储在 JVM 的堆空间中。这种模式被称为支撑数组（backing array），它能在没有使用池化的情况下提供快速的分配和释放。
+
+2. 直接缓冲区
+
+直接缓冲区是另外一种 ByteBuf 模式。期望用于对象创建的内存分配永远都来自于堆中，但这并不是必须的——NIO 在 JDK 1.4 中引入的 ByteBuffer 类允许 JVM 实现通过本地调用来分配内存。
+
+3. 复合缓冲区
+
+第三种也是最后一种模式使用的是复合缓冲区，它为多个 ByteBuf 提供一个聚合视图。
+
+Netty 通过一个 ByteBuf 子类——CompositeByteBuf ——实现了这个模式，它提供了一个将多个缓冲区表示为单个合并缓冲区的虚拟表示。
+
+## 5.3 字节级操作 ##
+
+ByteBuf 提供了许多超出基本读、写操作的方法用于修改它的数据。
+
+### 5.3.1 随机访问索引 ###
+
+如同在普通的 Java 字节数组中一样，ByteBuf 的索引是从零开始的：第一个字节的索引是 0，最后一个字节的索引总是 capacity() - 1。
+
+	ByteBuf buffer = null;
+    for (int i = 0; i < buffer.capacity(); i++){
+        byte b = buffer.getByte(i);
+        System.out.println((char)b);
+    }
+
+使用那些需要一个索引值参数的方法（的其中）之一来访问数据既不会改变
+readerIndex 也不会改变writerIndex。如果有需要，也可以通过调用readerIndex(index) 或者 writerIndex(index)来手动移动这两者。
+
+### 5.3.2 顺序访问索引 ###
+
+ByteBuf同时具有读索引和写索引，但是JDK的ByteBuffer却只有一个索引。——必须调用flip()方法来在读模式和写模式之间进行切换。
+
+### 5.3.3 可丢弃字节 ###
+
+在标记为可丢弃字节的分段包含了已经被读过的字节。通过调用discardReadBytes()方法，可以丢弃他们并回收空间。这个分段的初始化大小为0，存储在readerIndex中，会随着read操作的执行而增加（get*操作不会移动readerIndex）。
+
+discardReadBytes()方法，丢弃字节分段中的空间已经变为可写的。
+
+### 5.3.4 可读字节 ###
+
+ByteBuf的可读字节分段存储了实际数据。新分配的、包装的或者复制的缓冲区的默认的readerIndex值为0。任何名称以read或者skip开头的操作都将检索或者跳过位于当前readerIndex的数据，并且将它增加已读字节数。
+
+如果被调用的方法需要一个 ByteBuf 参数作为写入的目标，并且没有指定目标索引参数，那么该目标缓冲区的 writerIndex 也将被增加
+
+	readBytes(ByteBuf dest);
+
+### 5.3.5 可写字节 ###
+
+可写字节分段是指一个拥有未定义内容的、写入就绪的内存区域。
+
+	ByteBuf buffer = null;
+    while (buffer.isReadable()) {
+        System.out.println(buffer.readByte());
+    }
+
+### 5.3.6 索引管理 ###
+
+    ByteBuf bytebuf = null;
+    while (bytebuf.writableBytes() >= 4) {
+        bytebuf.writeInt(random.nextInt());
+    }
+
+### 5.3.7 查找操作 ###
+
+### 5.3.8 派生缓冲区 ###
+
+派生缓冲区为ByteBuf提供了以专门的方式来呈现其内容的视图。
+
+* duplicate();
+* slice();
+* slice(int, int)
+* Unpooled.unmodifiableBuffer(..)
+
+### 5.3.9 读/写操作 ###
+
+* get()和set()操作，从给定的索引开始，并且保持索引不变；
+* read()和write()操作，从给定的索引开始，并且互斥根据已经访问过的字节数对索引进行调整。
+
+#### get()操作 ####
+
+|名称|索引|
+|--|--|
+|getBoolean(int)|返回给定索引处的Boolean值|
+|getByte(int)|返回给定索引处的字节|
+|getUnsignedByte(int)|返回给定索引处的Boolean值|
+|getMedium(int)|返回给定索引处的Boolean值|
+|getUnsignedMedium(int)|返回给定索引处的Boolean值|
+|getInt(int)|返回给定索引处的Boolean值|
+|getUnsignedInt(int)|返回给定索引处的Boolean值|
+|getLong(int)|返回给定索引处的Boolean值|
+|getShort(int)|返回给定索引处的Boolean值|
+|getUnsignedShort(int)|返回给定索引处的Boolean值|
+|getBytes(int, ...)|返回给定索引处的Boolean值|
+
+## 5.6 引用计数 ##
+
+*引用计数*是一种通过在某个对象所持有的资源不再被其他对象引用时释放该对象所持有的资源来优化内存使用和性能的技术。
+
+Netty在第4版中为ByteBuf和ByteBufHolder引入了引用计数技术，都实现了interface ReferenceCounted。
+
+引用计数主要涉及跟踪到某个特定对象的活动引用的数量。一个ReferenceCounted实现的实例将通场以活动的引用计数为1作为开始。只要引用计数大于0，就能保证对象不会被释放。当活动引用的数量减少到0时，该实例就会被释放。
+
+引用计数对于池化实现（如 PooledByteBufAllocator ）来说是至关重要的，它降低了内存分配的开销。
+
+## 5.7 小结 ##
+
+* 使用不同的读索引和写索引来控制数据访问；
+* 使用CompositeByteBuf生成多个ByteBuf的聚合视图；
+* 通过CompositeByteBuf生成多个ByteBuf的聚合视图；
+* 数据访问方法——搜索、切片以及复制；
+* 读、写、获取和设置API；
+* ByteBufAllocator池化和引用计数。
+
 
 # 第6章 ChannelHandler 和 ChannelPipeline #
 
@@ -502,6 +651,7 @@ ChannelPipeline中将ChannelHandler链接在一起以组织处理逻辑。
 ### 6.1.1 Channel的生命周期 ###
 
 **Channel的生命周期状态**
+
 |状态|描述|
 |--|--|
 |ChannelUnregistered|Channel已经被创建，但还未注册到至EventLoop|
