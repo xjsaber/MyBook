@@ -1,4 +1,4 @@
-package websocket;
+package websocket12;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -10,6 +10,7 @@ import java.net.URL;
 
 /**
  * 扩展SimpleChannelInboundHandler以处理FullHttpRequest消息
+ * @author xjsaber
  */
 public class HTTPRequestHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 

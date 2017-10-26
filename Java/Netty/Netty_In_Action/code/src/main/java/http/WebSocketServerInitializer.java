@@ -16,7 +16,7 @@ public class WebSocketServerInitializer extends ChannelInitializer<Channel> {
         channel.pipeline().addLast(
                 new HttpServerCodec(),
                 new HttpObjectAggregator(65536),
-                new WebSocketServerProtocolHandler("/websocket"),
+                new WebSocketServerProtocolHandler("/websocket12"),
                 new TextFrameHandler(),
                 new BinaryFrameHandler(),
                 new ContinuationFrameHandler()

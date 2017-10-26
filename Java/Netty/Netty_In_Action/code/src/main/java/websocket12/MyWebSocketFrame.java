@@ -1,9 +1,10 @@
-package websocket;
+package websocket12;
 
 import io.netty.buffer.ByteBuf;
 
 /**
  * 声明WebSocketConvertHandler
+ * @author xjsaber
  */
 public class MyWebSocketFrame {
     // 定义拥有被包装的有效负载的WebSocketFrame的类型
