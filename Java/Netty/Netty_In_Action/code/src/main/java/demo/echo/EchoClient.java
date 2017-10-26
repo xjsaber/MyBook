@@ -11,7 +11,9 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import java.net.InetSocketAddress;
 
 /**
- * Created by xjsaber on 2017/7/17.
+ *
+ * @author xjsaber
+ * @date 2017/7/17
  *
  */
 public class EchoClient {

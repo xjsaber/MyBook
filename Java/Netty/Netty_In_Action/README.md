@@ -33,7 +33,29 @@ class java.nio.channels.Selector是Java的非阻塞I/O实现的关键。
 
 ## 1.3.2 回调 ##
 
+一个*回调*其实就是一个方法。一个指向已经被提供给另一个方法的方法的引用。
+
+Netty在内部使用了回调来处理事件。
+
+	public void channelActive(ChannelHandlerContext ctx) {
+        // 新连接建立时，channelActive.
+        System.out.println("Client " + ctx.channel().remoteAddress() + " connected");
+    }
+
 ## 1.3.3 Future ##
+
+Future提供了另一种在操作完成时通知应用程序的方式。
+
+interface java.util.concurrent.Future
+
+ChannelFuture提供了几种额外的方法，这些方法使得能够注册一个或者多个ChannelFutureListener实例。监听器的回调方法operationComplete()，将会在对应的操作完成时调用。然后监听器可以判断该操作是成功地完成了还是出错了。
+
+每个Netty的出站I/O操作都将返回一个ChannelFuture；也就是说，他们都不会阻塞。Netty完全是异步和事件驱动的。
+
+	Channel channel = null;
+    // Dose not block
+    // 异步地连接到远程节点
+    ChannelFuture future = channel.connect(new InetSocketAddress("192.168.1.1", 25));
 
 ## 1.3.4 事件和ChannelHandler ##
 
@@ -56,26 +78,145 @@ Netty是一个网络编程框架，所以事件是按照它们与入站或出站
 * 打开或者关闭到远程节点的连接；
 * 将数据写到或者冲刷到套接字；
 
+每个事件都可以被分成给ChannelHandler类中的某个用户实现的方法。
+
 ### 1.3.5 把它们放在一起 ###
 
+#### 1.Future、回调和ChannelHandler ####
 
+Netty的异步编程模型是建立在Future和回调的概念之上的，而将事件派发到ChannelHandler的方法则发生在更深的层次上。结合在一起，这些元素就提供了一个处理环境，使你的应用程序逻辑可以独立于任何网络操作相关的
+
+拦截操作以及高速地转换入站数据和出站数据，都只需要提供回调或者利用操作所返回的Future。
+
+#### 2.选择器、事件和EventLoop ####
+
+Netty通过触发事件将Selector从应用程序中抽象出来，消除了所有本来将需要手动编写的派发文集那。在内部，将会为每个Channel分配一个EventLoop，用以处理所有事件，包括：
+
+* 注册感兴趣的事件；
+* 将事件派发给ChannelHandler
+* 安排进一步的动作。
+
+EventLoop本身只由一个线程驱动，其处理了一个Channel的所有I/O事件，并且在该EventLoop的整个生命周期内都不会发生改变。
+
+## 1.4 小结 ##
+
+Netty框架的背景知识、包括Java网络编程API的演变过程，阻塞和非阻塞网络操作之间的区别，以及异步I/O在高容量、高性能的网络编程中的优势。
+
+概述了Netty的特性、设计和优点，其中包括Netty异步模型的底层机制，包括回调、Future以及他们的结合使用。
+
+# 第2章 你的第一款Netty应用程序 #
+
+## 2.1 设置开发环境 ##
+
+### 2.1.1 获取并安装Java开发工具包 ###
 
 ## 2.2 Netty 客户端/服务器概览 ##
 
+Echo客户端和服务器应用程序
+
+Echo客户端和服务器之间的交互是非常简单的；在客户但建立一个连接之后，它会向服务器发送一个或多个消息，反过来，服务器又会将每个消息会送给客户端。——充分地体现了客户端/服务器系统中典型的请求-响应交互模式。
+
 ## 2.3 编写Echo服务器 ##
+
+* 至少一个ChannelHandler——该组件实现了服务器将从客户端接收的数据的处理，即它的业务逻辑
+* 引导——这是配置服务器的启动代码。至少，它会将服务器绑定到它要监听连接请求的端口上。
+
+### 2.3.1 ChannelHandler和业务逻辑 ###
+
+Echo服务器会响应传入的消息，需要实现ChannelInboundHandler接口，用来定义响应*入站*事件的方法。这个简单的应用程序只需要用到少量的这些方法，所以继承ChannelInboundHandlerAdapter类。
 
 * channelRead() ——对于每个传入的消息都要调用；
 * channelReacComplete() ——通知ChannelInboundHandler最后一次对channelRead()的调用是当前批量读取中的最后一条消息；
 * exceptionCaught()——在读取操作期间，有异常抛出时会调用；
 
+* 针对不同类型的事件来调用ChannelHandler；
+* 应用程序通过实现或者扩展ChannelHandler来挂钩到事件的生命周期，并且提供自定义的应用程序逻辑
+* 在架构上，ChannelHandler有助于保持业务逻辑与网络处理代码的分离。这简化了开发过程，因为代码必须不断地演化以响应不断变化的需求。
+
+ChannelInboundHandlerAdapter 有一个直观的 API，并且它的每个方法都可以被重写以挂钩到事件生命周期的恰当点上。因为需要处理所有接收到的数据，所以你重写了 channelRead()方法。在这个服务器应用程序中，你将数据简单地回送给了远程节点。
+
+### 2.3.2 引导服务器 ###
+
+EchoServerHandler实现的核心业务逻辑之后，可以探讨引导服务器本身的过程，具体涉及：
+
+* 绑定到服务器将在其上监听并接受传入连接请求的端口
+* 配置Channel，以将有关的入站消息通知给EchoServerHandler实例。
+
+* EchoServerHandler实现了业务逻辑；
+* main()方法引导了服务器；
+
+	final EchoServerHandler serverHandler = new EchoServerHandler();
+	// 创建EventLoopGroup
+	EventLoopGroup group = new NioEventLoopGroup();
+	try {
+	    ServerBootstrap b = new ServerBootstrap();
+	    b.group(group)
+	            .channel(NioServerSocketChannel.class)
+	            // 使用指定的端口设置套接字地址
+	            .localAddress(new InetSocketAddress(port))
+	            // 添加一个EchoServerHandler到子Channel的ChannelPipeline
+	            .childHandler(new ChannelInitializer<SocketChannel>() {
+	                @Override
+	                public void initChannel(SocketChannel ch) throws Exception {
+	                    // EchoServerHandler被标注为@Shareable，所以总是使用同样的实例
+	                    ch.pipeline().addLast(serverHandler);
+	                }
+	            });
+	    // 异步地绑定服务器；调用sync()方法阻塞等待直到绑定完成
+	    ChannelFuture f = b.bind().sync();
+	    // 获取Channel的CloseFuture，并阻塞当前线程直到他完成
+	    f.channel().closeFuture().sync();
+	} finally {
+	    group.shutdownGracefully().sync();
+	}
+
+在(2)处，创建了一个ServerBootStrap实例。因为正在使用的是NIO传输，所以指定了NioEventLoopGroup(1)来接受和处理新的连接，并且将Channel的类型指定为NioServerSocketChannel(3)。在此之后，将本地地址设置为一个具有选定端口的InetSocketAddress(4)。服务器将绑定到这个地址以监听新的连接请求。
+在(5)处，你使用了一个特殊的类——ChannelInitializer。这是关键。当一个新的连接被接受时，一个新的子 Channel 将会被创建，而 ChannelInitializer 将会把一个你的EchoServerHandler 的实例添加到该 Channel 的 ChannelPipeline 中。正如我们之前所解释的，这个 ChannelHandler 将会收到有关入站消息的通知。
+接下来绑定了服务器（6），并等待绑定完成。（对sync()方法的调用将导致当前Thread阻塞，一直到绑定操作完成为止）。在（7）处，该应用程序将会阻塞等待直到服务器的Channel关闭（因为在Channel的CloseFuture上调用了sync()方法）。然后，将可以关闭EventLoopGroup，并释放所有的资源，包括所有被创建的线程。
+
+引导过程中所需要的步骤如下：
+
+* 创建一个ServerBootstrap的实例以引导和绑定服务器；
+* 创建并分配一个NioEventLoopGroup实例以进行事件的处理，如接受新连接以及读/写数据；
+* 指定服务器绑定的本地的InetSocketAddress；
+* 使用一个EchoServerHandler的实例初始化每一个新的Channel；
+* 调用ServerBootstrap.bind()方法以绑定服务器。
+
 ## 2.4 编写Echo客户端 ##
+
+1. 连接到服务器；
+2. 发送一个或者多个消息；
+3. 对于每个消息，等待并接收从服务器发回的相同的消息；
+4. 关闭连接。
+
+### 2.4.1 通过ChannelHandler实现客户端逻辑  ###
+
+客户端将拥有一个用来处理数据的ChannelInboundHandler，并重写
+
+* channelActive()——在到服务器的连接已经建立之后将被调用；
+* channelRead0()——当从服务器接收到一条消息时被调用；
+* exceptionCaught()——在处理过程中引发异常时被调用。
 
 ### 2.4.2 引导客户端 ###
 
+* 为初始化客户端，创建了一个Bootstrap实例；
+* 为进行事件处理分配了一个NioEventLoopGroup实例，其中事件处理包括创建新的连接以及处理入站和出站数据；
+
+## 2.5 构建和运行Echo服务器和客户端 ##
+
+### 2.5.1 运行构建 ###
+
+### 2.5.2 运行Echo服务器和客户端 ###
+
+1. 一旦客户端建立连接，它就发送它的消息——Netty rocks！；
+2. 服务器报告接收到的消息，并将其回送给客户端；
+3. 客户端报告返回的消息并退出。
+
+## 2.6 小结 ##
 
 # 第3章 Netty的组件和设计 #
 
-通过两个不同的但却又密切相关的视角来探讨Netty：类库的视角以及框架的视角。对于使用Netty编写高效的、可重用的可维护的代码。
+通过两个不同的但却又密切相关的视角来探讨Netty：*类库的视角以及框架的视角*。对于使用Netty编写高效的、可重用的可维护的代码。
 
 Netty解决了两个相应的关注领域，大致标记为技术的和体系结构的。
 
@@ -89,6 +230,10 @@ Netty解决了两个相应的关注领域，大致标记为技术的和体系结
 * ChannelFuture——异步通知。
 
 ### 3.1.1 Channel接口 ###
+
+基本的 I/O 操作（bind()、connect()、read()和 write()）依赖于底层网络传输所提供的原语。
+
+在基于 Java 的网络编程中，其基本的构造是 class Socket。
 
 Netty的Channel接口所提供的API，大大地降低了直接使用Socket类的复杂性。此外，Channel也是拥有许多预定义的、专门化实现的广泛类层次结构的根。
 
@@ -112,9 +257,15 @@ EventLoop定义了Netty的核心抽象，用于处理连接的声明周期中所
 
 ### 3.1.3 ChannelFuture接口 ###
 
-Netty中所有的I/O操作都是异步的。
+Netty中所有的I/O操作都是异步的。因为一个操作可能不会立即返回，所以需要用于在之后的某个时间点确定其结果的方式。
+
+Netty提供了ChannelFuture接口，其addListener()方法注册了一个ChannelFutureListener，以便在某个操作完成时（无论是否成功）得到通知。
 
 ## 3.2 ChannelHandler 和 ChannelPipline ##
+
+### 3.2.1 ChannelHandler接口 ###
+
+Netty的主要组件是ChannelHandler，充当了所有处理入站和出站数据的应用程序逻辑的容器。因为ChannelHandler的方法是由网络事件触发的。
 
 ### 3.2.2 ChannelPipelin接口 ###
 
@@ -168,13 +319,29 @@ Netty的引导类为应用车改内需的网络层配置提供了容器，这涉
 |网络编程中的作用|连接到远程主机和端口|绑定到一个本地端口|
 |EventLoopGroup的数目|1|2|
 
+1. ServerBootStrap将绑定到一个端口，因为服务器必须要监听连接欸，而BootStrap则是由想要连接到远程节点的客户端应用程序所使用的。
+2. 引导一个客户端只需要一个EventLoopGroup，但是一个ServerBootStrap则需要两个（也可以是同一个实例）。
+3. 
+
+## 3.4 小结 ##
+
+ChannelHandler、ChannelPipeline和引导
+
+ChannelHandler类的层次结构，并介绍了编码器和解码器，描述了在数据和网络字节格式之间来回转换的互补功能
+
 # 第4章 传输 #
 
+不同的类型的传输
+
 流经网络的数据总是具有相同的类型：字节。
+
+Netty为它所有的传输实现提供了一个通用的API，使得这种转换比直接使用JDK能够达到简单很多。所产生的代码不会被实现的细节所污染，而不需要在整个代码库上进行广泛的重构。
 
 ## 4.1 案例研究 ##
 
 ### 4.1.1 不通过Netty使用OIO和NIO ###
+
+阻塞（OIO）版本和异步（NIO）版本
 
 ### 4.1.2 通过Netty使用OIO和NIO ###
 
@@ -184,7 +351,7 @@ Netty的引导类为应用车改内需的网络层配置提供了容器，这涉
 
 传输API的核心是interface Channel，他被用于所有的I/O操作。
 
-每个Channel都将会被分配一个ChannelPipeline和ChannelConfig。
+每个Channel都将会被分配一个ChannelPipeline和ChannelConfig。ChannelCOnfig包含了该Channel的所有配置设置，并且支持热更新
 
 ChannelPipeline持有所有将应用于入站和出站数据以及事件的ChannelHandler实例，这些ChannelHandler实现了应用程序在用于处理状态变化以及数据处理的逻辑。
 
@@ -245,20 +412,48 @@ NIO提供了一个所有I/O操作的全异步的实现。它利用了自NIO子�
 |OP_READ|请求当数据已经就绪，可以从Channel中读取获得通知|
 |OP_WRITE|请求当可以向Channel中写更多的数据时获得通知。这处理了套接字缓冲区被完全填满时的情况，这种情况通常发生在数据的发送速度比远程节点可处理的速度更快的时候|
 
+1. 新的Channel注册到选择器
+2. 选择器处理状态变化的通知
+3. 之前已注册的Channel
+4. Selector.select()将会阻塞，直到接收到新的状态变化或者配置的超过时间已过时
+5. 检查是否有状态变化
+6. 处理所有的状态变化
+7. 在选择器运行的同一线程中执行其他任务
+
 ### 4.3.2 Epoll——用于Linux的本地非阻塞传输 ###
 
 Netty的NIO传输基于Java提供的异步/非阻塞网络编程的通用抽象。
 
 epoll——一个高度可扩展的I/O事件通知特性。这个API自Linux内核版本2.5.44（2002）被引入，提供了比旧的POSIX select和poll系统调用更好的性能，同时现在也是Linux上非阻塞网络编程的事实标准。
 
+使用epoll代替NIO，只需将NioEventLoopGroup替换为EpollEventLoopGroup，并且将NioServerSocketChannel.class替换为EpollServerSocketChannel.class即可
+
 ### 4.3.3 OIO——旧的阻塞I/O ###
 
 Netty的OIO传输实现代表了一种折中：可以通过常规的传输API使用，但是由于它是建立在java.net包的阻塞实现之上的，所以它不是异步的。
+
+Netty利用了SO_TIMEOUT这个Socket标志，指定了等待一个I/O操作完成的最大毫秒数。如果操作在指定的时间间隔内没有完成，则将会抛出一个SocketTimeout Exception。
 
 ### 4.3.4 用于JVM内部通信的Local传输 ###
 
 Netty提供了一个Local，用于在同一个JVM中运行的客户端和服务器程序之间的异步通信。
 
+JDK的实现是水平触发，而Netty的（默认的）是边沿触发。
+
+### 4.3.5 Embedded传输 ###
+
+Netty提供了一种额外的传输，使得你可以将一组ChannelHandler作为帮助器类嵌入到其他的ChannelHandler内部。通过这种方式，可以扩展一个ChannelHandler的功能，而不需要修改其内部代码。
+
+## 4.4 传输的用例 ##
+
+* 非阻塞代码库
+* 阻塞代码块
+* 在同一个JVM内部的通信
+* 测试你的ChannelHandler实现
+
+
+
+## 4.5 小结 ##
 
 # 第6章 ChannelHandler 和 ChannelPipeline #
 

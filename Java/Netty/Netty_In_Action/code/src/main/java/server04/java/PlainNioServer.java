@@ -1,4 +1,4 @@
-package server.java;
+package server04.java;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -12,7 +12,9 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * Created by xjsaber on 2017/7/18.
+ *
+ * @author xjsaber
+ * @date 2017/7/18
  * 未使用Netty的异步网络编程
  */
 public class PlainNioServer {
@@ -45,11 +47,13 @@ public class PlainNioServer {
                         SocketChannel client = server.accept();
                         client.configureBlocking(false);
                         client.register(selector, SelectionKey.OP_WRITE | SelectionKey.OP_READ, msg.duplicate());
-
+                        System.out.println("Accepted connection from " + client);
+                        // 检查套接字是否已经准备写数据
                         if (key.isWritable()) {
                             client = (SocketChannel) key.channel();
                             ByteBuffer buffer = (ByteBuffer)key.attachment();
                             while (buffer.hasRemaining()) {
+                                // 将数据写到已连接客户端
                                 if (client.write(buffer) == 0) {
                                     break;
                                 }
