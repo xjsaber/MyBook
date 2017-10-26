@@ -1,4 +1,4 @@
-package server.java;
+package server04.java;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -7,7 +7,9 @@ import java.net.Socket;
 import java.nio.charset.Charset;
 
 /**
- * Created by xjsaber on 2017/7/18.
+ *
+ * @author xjsaber
+ * @date 2017/7/18
  * 没有使用netty的oio
  */
 public class PlainOioServer {

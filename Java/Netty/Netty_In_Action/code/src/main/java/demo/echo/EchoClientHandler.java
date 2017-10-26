@@ -8,8 +8,9 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.util.CharsetUtil;
 
 /**
- * Created by xjsaber on 2017/7/17.
- *
+ * @author xjsaber
+ * @date 2017/7/17
+ * ‘Sharable’ 标记一个ChannelHandler可以被多个Channel安全地共享
  */
 @ChannelHandler.Sharable
 public class EchoClientHandler extends SimpleChannelInboundHandler<ByteBuf> {

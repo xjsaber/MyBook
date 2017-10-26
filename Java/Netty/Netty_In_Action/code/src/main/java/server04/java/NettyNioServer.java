@@ -1,4 +1,4 @@
-package server.java;
+package server04.java;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
@@ -12,7 +12,9 @@ import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 
 /**
- * Created by xjsaber on 2017/7/19.
+ *
+ * @author xjsaber
+ * @date 2017/7/19
  * 使用Netty的非阻塞网络处理
  */
 public class NettyNioServer {
@@ -25,6 +27,7 @@ public class NettyNioServer {
             b.group(group).channel(NioServerSocketChannel.class)
                     .localAddress(new InetSocketAddress(port))
                     .handler(new ChannelInitializer<SocketChannel>() {
+                        @Override
                         public void initChannel(SocketChannel ch) throws Exception{
                             ch.pipeline().addLast(
                                     new ChannelInboundHandlerAdapter() {
