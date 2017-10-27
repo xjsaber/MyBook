@@ -1,4 +1,4 @@
-package websocket;
+package websocket12;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -7,6 +7,9 @@ import io.netty.handler.codec.http.websocketx.*;
 
 import java.util.List;
 
+/**
+ * @author xjsaber
+ */
 public class WebSocketConvertHandler extends MessageToMessageCodec<WebSocketFrame, MyWebSocketFrame> {
 
     /**
