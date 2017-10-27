@@ -481,6 +481,71 @@ ChannelRegistered->ChannelActive->ChannelInactive->ChannelUnregistered
 |handlerRemoved|当把ChannelHandler移除到ChannelPipeline中时被调用|
 |exceptionCaught|当处理过程中在ChannelPipeline中由错误产生时被调用|
 
+Netty定义了两个重要的ChannelHandler子接口：
+
+* ChannelInboundHandler——处理入站数据以及各种状态变化；
+* ChannelOutboundHandler——处理出站数据并且允许拦截所有的操作。
+
+### 6.1.3 ChannelInboundHandler 接口 ###
+
+**ChannelInboundHandler的方法**
+
+|类型|描述|
+|--|--|
+|channelRegistered|当Channel已经注册到它的EventLoop并且能够处理I/O时被调用|
+|channelUnregistered|当Channel从它的EventLoop注销并且无法处理I/O时被调用|
+|channelActive|当 Channel 处于活动状态时被调用；
+Channel 已经连接/绑定并且已经就绪|
+|channelInactive|当 Channel 离开活动状态并且不再连接它的远程节点时被调用|
+|channelReadComplete|当 Channel 上的一个读操作完成时被调用|
+|channelRead|当从 Channel 读取数据时被调用|
+|ChannelWritabilityChanged|当 Channel 的可写状态发生改变时被调用。用户可以确保写操作不会完成得太快（以避免发生 OutOfMemoryError ）或者可以在 Channel 变为再次可写时恢复写入。可以通过调用 Channel 的 isWritable() 方法来检测Channel 的可写性。与可写性相关的阈值可以通过 Channel.config().setWriteHighWaterMark() 和 Channel.config().setWriteLowWaterMark() 方法来设置|
+|userEventTriggered|当 ChannelnboundHandler.fireUserEventTriggered() 方法被调
+用时被调用，因为一个 POJO 被传经了 ChannelPipeline|
+
+当某个 ChannelInboundHandler 的实现重写 channelRead()方法时，它将负责显式地释放与池化的 ByteBuf 实例相关的内存。Netty 为此提供了一个实用方法 ReferenceCountUtil.release()
+
+### 6.1.4 ChannelOutboundHandler接口 ###
+
+出站操作和数据将由ChannelOutboundHandler处理。它的方法将被Channel、ChannelPipeline以及ChannelHandlerContext调用。
+
+**ChannelOutboundHandler的方法**
+
+|类型|描述|
+|bind(ChannelHandlerContext, SocketAddress, ChannelPromise)|当请求将Channel绑定到本地地址时被调用|
+|connect(ChannelHandlerContext, SocketAddress, ChannelPromise)|当请求将Channel连接到远程地址时被调用|
+|disconnect(ChannelHandlerContext, ChannelPromise)|当请求将Channel从远程节点断开时被调用|
+|close(ChnanelHandlerContext, ChannelPromise)|当请求关闭Channel时被调用|
+|deregister(ChannelHandlerContext, ChannelPromise) |当请求将Channel从它的EventLoop注销时被调用|
+
+ChannelPromise与ChannelFuture
+
+### 6.1.5 ChannelHandler适配器 ###
+
+### 6.1.6 资源管理 ###
+
+每当通过调用 ChannelInboundHandler.channelRead()或者 ChannelOutboundHandler.write()方法来处理数据时，你都需要确保没有任何的资源泄漏。
+
+## 6.2 ChannelPipeline接口 ##
+
+ChannelPipeline是一个拦截流经Channel的入站和出站时间的ChannelHandler实例链。
+
+每一个新创建的Channel都将会分配一个新的ChannelPipeline。这项关联是永久性的；Channel既不能附加另一个ChannelPipeline，也不能分离其当前的。
+
+在Netty组件的生命周期
+
+6.2.1 修改
+
+## 6.3 ChannelHandlerContext接口 ##
+
+## 6.4 异常处理 ##
+
+
+
+## 6.5 小结 ##
+
+ChannelHandler，ChannelHandler是如何链接在一起，以及他们是如何作为ChannelInboundHandler和ChannelOutboundHandler与ChannelPipeline进行交互。
+
 # 第7章 EventLoop和线程模型 #
 
 线程模型指定了操作系统、编程语言、框架或者应用程序的上下文中的线程管理的关键方面。
