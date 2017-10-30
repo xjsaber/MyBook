@@ -630,6 +630,8 @@ Document对象是XML文档的树型结构在内存中的表现，它由实现了
 
 ## 第3章 网络 ##
 
+### 3.1 连接到服务器 ###
+
 第一行代码用于打开一个套接字，网络软件的一个抽象概念，负责启动改程序内部和外部之间的通信。
 
 UDP比较适合可以忍受数据包丢失的应用，例如用于音频流和视频流的传输，或者用于连续测量的应用领域
@@ -661,6 +663,90 @@ SocketTimeoutException异常
 * boolean isConnected() 1.4
 
 ### 3.1.2 因特网地址 ###
+
+### 3.2 实现服务器 ###
+	
+ServerSocket类用于建立套接字
+
+	Server s = new ServerSocket(8189);
+
+用于建立一个负责监控端口8189的服务器。
+
+	Socket incoming = s.accept();
+
+用于告诉程序不停地等待，直到有客户端连接到这个端口
+
+	InputStream inStream = incoming.getInputStream();
+	OutputStream outStream = incoming.getOutputStream();
+
+服务器发送服务器输出流的所有信息都会成为客户端程序的输入，同时来自客户端程序的所有输出都会被包含在服务器输入流中。
+
+	Scanner in = new Scanner(inStream);
+	PrintWriter out = new PrintWriter(outStream , true /* autoFlush */);
+
+
+
+	incomming.close();
+
+每一个服务器程序，比如一个HTTP Web服务器，都不间断执行下面这个循环：
+
+1) 通过输入流数据从客户端接收一个命令（“get me this information”）。
+2）解码这个客户端命令。
+3）收集客户端所请求的信息。
+4）通过输出数据流发送信息给客户端。
+
+**java.net.Server.Socket 1.0**
+
+* ServerSocket(int port) 创建一个监听端口的服务器套接字。
+* Socket accept() 等待连接。该方法阻塞（即，使之空闲）当前线程直到建立
+* void close() 关闭服务器套接字
+
+#### 3.2.1 为多个客户端服务 ####
+
+每当程序建立一个新的套接字连接，也就是说当调用accept时，将启动一个新的线程来处理服务器和该客户端之间的连接，而主程序将立即返回并等待下一个连接。
+
+	while(true) {
+		Socket incoming = s.accept();
+		Runable r = new ThreadedEchoHanlder(imcoming);
+
+		Thread t = new Thread(r);
+		t.start();
+	}
+
+ThreadedEchoHandler类实现了Runnable接口，而且在它的run方法中包含了与客户端循环通信的代码。
+
+	class ThreadedEchoHandler implements Runable {
+		...
+	}
+
+由于每一个连接都会启动一个新的线程，因而多个客户端就可以同时连接到服务器。
+
+#### 3.2.2 半关闭 ####
+
+半关闭（half-close）提供了一种能力：套接字连接的一端可以终止其输出，同时仍旧可以接收来自另一端的数据。
+
+使用半关闭的方法就可以解决，如果手动关闭一个套接字，那么与服务器的连接将立刻断开，因而就无法读取服务器的响应了。
+
+可以通过关闭一个套接字的输出流来表示发送给服务器的请求数据已经结束，但是必须保持输入流处于打开状态。
+
+**java.net.Socket 1.0**
+
+* void shutdownOutput() 1.3 将输出流设为“流结束”。
+* void shutdownInput() 1.3 将输入流设为“流结束”。
+* boolean isOutputShutdown() 1.4 如果输出已被关闭，则返回true。
+* void isInputShutdown() 1.4 如果输入已被关闭，则返回true。
+* 
+### 3.3 可中断套接字 ###
+
+
+
+## 第4章 数据库编程 ##
+
+## 第5章 国际化 ##
+
+## 第6章 高级Swing ##
+
+## 第7章 高级AWT ##
 
 ## 第8章 Java Bean构件 ##
 
