@@ -262,7 +262,116 @@ ZIP文档（通常）以压缩格式存储了一个或多个文件，每个ZIP�
 
 ### 1.6 操作文件 ###
 
+Path和Files类封装了在用户机器上处理文件系统所需的所有功能。Path和Files是在Java SE7中新添加进来的类，它们用起来比JDK 1.0依赖就一直使用的File类要方便得多。
+
+#### 1.6.1 Path ####
+
+Path表示的是一个目录名序列，气候还可以跟着文件名
+
+**java.nio.file.Paths 7**
+
+* static Path get(String first, String ...more)
+
+**java.nio.file.Path 7**
+
+* Path resolve(Path other)
+
+* Path resolve(String other)
+
+* Path resolveSibling(Path other)
+
+* Path resolveSibling(String other)
+
+#### java.io.File.1.0 ####
+
+#### 1.6.2 读写文件 ####
+
+Files类可以使得普通文件变得快捷。
+
+	byte[] bytes = Files.readAllBytes(path)
+	如果想将文件当作字符串读入，那么可以在调用readAllBytes之后执行
+	String content = new String(bytes, charset);
+	List<String> lines = Files.readAllLines(path, charset);
+	Files.write(path, content.getBytes(charset)); 向指定文件追加内容
+	Files.write(path, content.getBytes(charset), StandardOpenOption.APPEND);
+
+**java.nio.file.Files 7**
+
+* static byte[] readAllBytes(Path path)
+* static List<String> readAllLines(Path path, Charset charset) 读入文件的内容
+* static Path write(Path path, byte[] contents, OpenOption...options)
+* static Path write(Path path, Iterable<? extends CharSequence> contents, OpenOption options) 将给定内容写出倒文件中，并返回path
+* static InputStream newInputStream(Path path, Open)
+
+#### 1.6.3 复制、移动和删除文件 ####
+
+将文件从一个位置复制倒另一个位置可以直接调用
+
+	Files.copy(fromPath, toPath);
+
+移动文件（即复制并删除原文件）可以调用
+
+	Files.move(fromPath, toPath);
+
+如果 目标路径已经存在，那么复制
+
+	Files.copy(fromPath, toPath, StandardCopyOption.REPLACE_EXISTING, )
+
+**java.nio.file.Files 7**
+
+* static Path copy(Path from, Path to, CopyOption... options)
+* static Path move(Path from, Path to, CopyOption... options); 将from复制或移动到给定位置，并返回to
+* static void delete(Path path)
+* static boolean deleteIfExists(Path path)
+删除给定文件或空目录。第一个方法在文件或目录不存在情况下抛出异常，而第二个方法在这种情况下会返回false。
+
+#### 1.6.4 创建文件和目录 ####
+
+创建新目录可以调用
+
+	Files.createDirectory(path);
+
+要创建路径中的中间目录，应该使用
+
+	Files.createDirectories(path)
+
+创建一个空的文件：
+
+	Files.createFile(path);
+
+**java.nio.file.Files 7**
+
+* static Path createDirectory(Path path, FileAttribute<?>... attrs)
+* static Path createDirectory(Path path, FileAttribute<?>... attrs)
+
+#### 1.6.5 获取文件信息 ####
+
+下面静态方法都将返回一个boolean值
+
+* exists
+* isHidden
+* isReadable,isWriteable,isExecutable
+* isRegularFile,isDirecotry,IsSymbolicLink
+
+#### 1.6.6 迭代目录中的文件 ####
+
+旧的File类有一个方法，可以用来获取一个目录中的所有文件构成的数组，但是当目录中
+
+#### 1.6.7 ZIP文件系统 ####
+
 ### 1.7 内存映射文件 ###
+
+大多操作系统都可以利用虚拟内存实现来将一个文件或者文件的一部分“映射”到内存中。
+
+java.nio包使内存映射变得简单。首先，从文件中获得一个通道（channel），通道是用于磁盘文件的一种抽象，（内存映射、文件加锁机制以及文件间快速数据传递等操作系统特性）
+
+	FileChannel channel = FileChannel.open(path, options);
+
+通过调用FileChannel类的map方法从通道中获得一个ByteBuffer。
+
+#### 1.7.1 缓冲区数据结构 ####
+
+
 
 ## 第2章 XML ##
 
