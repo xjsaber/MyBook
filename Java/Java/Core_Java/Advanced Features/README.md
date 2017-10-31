@@ -260,6 +260,28 @@ ZIP文档（通常）以压缩格式存储了一个或多个文件，每个ZIP�
 
 ### 1.5 对象流与序列化 ###
 
+Java语言支持一种称为*对象序列化*（object serialization）的非常通用的的机制，它可以将任何对象写出到流中，并在之后将其读回。
+
+为了保存对象数据，首先需要打开一个ObjectOutputStream对象：
+
+	ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("employee.dat"));
+
+为了保存对象，可以直接使用ObjectOutputStream的writeObject方法：
+
+	Employee harray = new Empolyee("Harry Hacker", 50000, 1989, 10, 1);
+	Manager boss = new Manager("Carl Cracker", 80000, 1987, 12, 15);
+	out.writeObject(harry);
+	out.writeObject(boss);
+
+Serializable接口没有任何方法，因此不需要对这些类做任何改变。
+
+写出对象时才能用writeObject/readObject方法，对于基本类型值，需要使用诸如writeInt/readInt或writeDouble/readDouble的方法
+
+**java.io.ObjectOutputStream 1.1**
+
+* ObjectOutputStream(OutputStream out) 创建一个ObjectOutputStream使得可以将对象写出指定的OutputStream。
+* void writeObject(Object obj);
+
 ### 1.6 操作文件 ###
 
 Path和Files类封装了在用户机器上处理文件系统所需的所有功能。Path和Files是在Java SE7中新添加进来的类，它们用起来比JDK 1.0依赖就一直使用的File类要方便得多。
