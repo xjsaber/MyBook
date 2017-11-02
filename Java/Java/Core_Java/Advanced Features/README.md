@@ -1,10 +1,26 @@
-# Java核心技术 卷2 高级特性 #
+Java核心技术 卷2 高级特性
 
-## 第1章 流与文件 ##
+# 第1章 流与文件 #
+
+* 流 
+* 对象流与序列化
+* 文本输入与输出
+* 使用文件
+* 读入和写出二进制数据
+* 内存映射文件
+* ZIP文档
+* 正则表达式
+
+Java SE 1.4 java.nio  
+Java 7 新新I/O的改进
 
 ### 1.1 流 ###
 
 在Java API中，可以从其中读入一个字节序列的对象称作*输入流*，而可以向其中写入一个字节序列的对象称作*输出流*。抽象类InputStream和OutputStream构成了输入/输出（I/O）类层次结构的基础。
+
+自己序列的来源地和目的地可以是文件，而且通常都是文件，但也可以是网络连接甚至是内存块。
+
+面向字节的流不便于处理以Unicode形式存储的西悉尼（Unicode中每个字符都使用了多个字节来表示），所以从抽象类Reader和Writer中继承出来了一个专门用于处理Unicode字符的单独的类层次结构。这些类拥有的读入和写出操作都是基于两字节的Unicode码元的，而不是基于单字节的字符。
 
 #### 1.1.1 读写字节 ####
 
@@ -18,7 +34,7 @@ InputStream类有一个抽象方法：
 
 它可以向某个输出位置写出一个字节。
 
-read和write方法在执行时都将*阻塞*，直至字节确实被读入或写出。这就意味着如果流不能被立即访问（通常是因为网络连接忙），那么当前的线程将被阻塞。这使得在这两个方法等待指定流变为可用的这段时间里，其他的线程就有机会去执行游泳的工作。
+read和write方法在执行时都将*阻塞*，直至字节确实被读入或写出。这就意味着如果流不能被立即访问（通常是因为网络连接忙），那么当前的线程将被阻塞。这使得在这两个方法等待指定流变为可用的这段时间里，其他的线程就有机会去执行有用的工作。
 
 available方法使我们可以去检查当前可读入的字节数量，这意味这下面这样的代码片段就不可能被阻塞：
 
@@ -27,6 +43,8 @@ available方法使我们可以去检查当前可读入的字节数量，这意�
 		byte[] data = new byte[bytesAvailable];
 		in.read(data);
 	}
+
+当完成对流的读写时，应该通过调用close方法来关闭，这个调用会释放掉十分有限的操作系统资源。关闭一个输出流的同时还会冲刷用于该输出流的缓冲区：所有被临时置于缓冲区中，以便用更大的包的形式传递的字符在关闭输出流时都将被送出。特别是，如果不关闭文件，那么写出字节的最后一个包可能永远也得不到传递。（我们可以用flush方法来人为地冲刷这些输出）。
 
 **java.io.InputStream 1.0**
 
@@ -62,13 +80,33 @@ available方法使我们可以去检查当前可读入的字节数量，这意�
 
 #### 1.1.2 完整的流家族 ####
 
-与C语言只有单一类型 FILE*包打天下不同，Java拥有一个流家族，包含各种流类型，其数量超过60个！
+把流家族中的成员按照它们的使用方法来进行划分，这样就形成了处理字节和字符的两个单独的层次结构。InputStream和OutputStream类可以读写单个字节或字节数组。
 
-让我们把流家族中的成员按照它们的使用方法来进行划分，这样就形成了处理字节和字符的两个单独的层次结构。InputStream和OutputStream类可以读写单个字节或字节数组。
+DataInputStream和DataOutputStream可以以二进制格式读写所有的基本Java类型。ZipInputStream和ZipOutputStream可以以常见的ZIP压缩格式读写文件。
 
 	abstract int read()
 	abstract void write(int c)
+
 read方法将返回一个Unicode码元（一个在0~65535之间的整数），或者在碰到文件结尾时返回-1.write方法在被调用时，需要传递一个Unicode码元。
+
+4个附加的接口：Closeable(void close() throws IOException)、Flushable(void flush)、Readable和Appendable
+
+Closeable接口的close方法只抛出IOException，而AutoCloseable.close方法可以抛出任何异常。
+
+OutputStream和Writer还是先了Flushable接口。
+
+Readable接口只有一个方法： int read(CharBuffer cb);
+
+CharBuffer类拥有按顺序和随机地进行读写访问的方法，它表示一个内存中的缓冲区或者一个内存影像的文件。
+
+Appendable接口有两个用于添加单个字符和字符序列的方法：
+
+	Appendable append(char c)
+	Appendable append(CharSequence s)
+
+CharSequence接口描述了一个char值序列的基本属性，String、CharBuffer、StringBuilder和StringBuffer
+
+在流中，只有Writer实现了Appendable
 
 **java.io.Closeable 5.0**
 
@@ -126,9 +164,25 @@ DataInputStream，只能读入数值类型：
 
 FilterInputStream和FileterOutputStream类的子类可以向原生字节流添加额外的功能。
 
-	DataInputStream din = new DataInputStream(new BufferedInputStream(new FileInputStream("employee.dat")));
+请求一个数据块并将其置于缓冲区中。如果我们想使用缓冲机制，以及用于文件的数据输入方法。就可以使用如下方法。
+	DataInputStream din = new DataInputStream(new BufferedInputStream(new FileInputStream("employee.dat")));//把DataInputStream置于构造器链的最后，想使用DataInputStream的方法。
+
+多个流链接在一起时，需要跟踪各个中介流（intermediate stream）。例如，当读入输入时，需要浏览下一个字节，以了解它是否是想要的值。
+
+	PushbackInputStream pbin = new PushbackInputStream(new BufferedInputStream(new FileInputStream("employee.dat")));
+
+	int b = pbin.read(); //预读下一个字节
+	if (b != '<') pbin.unread(b);
+但是
 
 **java.io.FileInputStream 1.0**
+
+* FileOutputStream(String name)
+* FileOutputStream(File file)
+
+使用name字符串或file对象指定路径名的文件创建一个新的文件输入流。非绝对的路径名将按照相对于VM启动时所设置的工作目录来解析
+
+**java.io.FileOutputStream 1.0**
 
 * FileOutputStream(String name)
 * FileOutputStream(String name, boolean append) 
