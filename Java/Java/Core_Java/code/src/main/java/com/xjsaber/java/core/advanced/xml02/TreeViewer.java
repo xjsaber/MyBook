@@ -1,4 +1,4 @@
-package com.xjsaber.java.core.advanced.xml;
+package com.xjsaber.java.core.advanced.xml02;
 
 import org.w3c.dom.*;
 
