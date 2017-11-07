@@ -1,23 +1,21 @@
-package com.self.network.thread;
+package com.xjsaber.java.network.ch3.c3;
 
-import javax.xml.bind.DatatypeConverter;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by xjsaber on 2017/3/21.
  *
  */
-public class DigestThread extends Thread {
+public class ReturnDigest extends Thread {
 
     private String filename;
+    private byte[] digest;
 
-    public DigestThread(String filename){
+    public ReturnDigest(String filename){
         this.filename = filename;
     }
 
@@ -30,24 +28,12 @@ public class DigestThread extends Thread {
             while (din.read() != -1);
             din.close();
             byte[] digest = sha.digest();
-
-            StringBuilder result = new StringBuilder(filename);
-            result.append(": ");
-            result.append(DatatypeConverter.printHexBinary(digest));
-            System.out.println(result);
         } catch (NoSuchAlgorithmException | IOException e) {
             e.printStackTrace();
         }
     }
 
-    public static void main(String[] args){
-        List<String> list = new ArrayList<>();
-        list.add("txt1.txt");
-        list.add("txt2.txt");
-        list.add("txt3.txt");
-        for (String filename : list){
-            Thread t = new DigestThread(filename);
-            t.start();
-        }
+    public byte[] getDigest(){
+        return digest;
     }
 }

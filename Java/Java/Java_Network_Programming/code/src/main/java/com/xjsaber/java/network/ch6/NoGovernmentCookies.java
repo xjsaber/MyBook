@@ -1,4 +1,4 @@
-package com.self.network.http;
+package com.xjsaber.java.network.ch6;
 
 import java.net.CookiePolicy;
 import java.net.HttpCookie;

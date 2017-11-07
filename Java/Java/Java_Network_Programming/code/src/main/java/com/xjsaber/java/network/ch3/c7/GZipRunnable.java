@@ -1,4 +1,4 @@
-package com.self.network.thread;
+package com.xjsaber.java.network.ch3.c7;
 
 import java.io.*;
 import java.util.zip.GZIPOutputStream;

@@ -1,4 +1,4 @@
-package com.self.network.thread;
+package com.xjsaber.java.network.ch3.c3;
 
 import javax.xml.bind.DatatypeConverter;
 import java.util.ArrayList;
