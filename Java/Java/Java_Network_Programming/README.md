@@ -1,9 +1,15 @@
 # Java 网络工程 #
 
-ch1 基本网络概念
+## ch1 基本网络概念 ##
 
-ch2 流
+**网络**
 
-ch3 线程
+网络（network）是几乎可以实时相互发送和接收数据的计算机和其他设备的集合。
 
-ch7 URLConnection
+网络中的每台机器称为一个节点（node）。
+
+## ch2 流 ##
+
+## ch3 线程 ##
+
+## ch7 URLConnection ##
