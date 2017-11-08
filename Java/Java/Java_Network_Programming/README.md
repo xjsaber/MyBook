@@ -191,22 +191,45 @@ InputStream和OutputStream是相当原始的类。
 
 ## ch3 线程 ##
 
-1.重用进程
+1.重用进程，而不是创建新的进程。
 2.轻量级的线程来处理连接，通过使用线程池而不是为了每个连接生成新线程，服务器每分钟就可以用不到100个线程来处理数千个短连接。
 
-## 运行线程 ##
+### 运行线程 ###
 
 线程如果以小写字母t大头（thread），这就表示虚拟机中的一个单独、独立的执行路径。如果以大写字母T大头（Thread），则是java.lang.Thread类的一个实例。
 
+在虚拟机中执行的线程与虚拟机构造的Thread对象之间存在一种一一对象的关系。
+
+	Thread t = new Thread();
+	t.start();
+
 ### 派生Thread ###
+
+由于run()方法的签名是固定的，所以无法向其传递参数或从中返回值。因此，需要其他方法向线程传递信息和从中获得信息。传递信息最简单的方法是向构造函数传递参数。
 
 [code1](code/c1/DigestThread.java)
 
 ### 实现Runnable接口 ###
 
+避免覆盖标准的Thread方法
+
+1. 不要派生Thread类。
+2. 希望线程完成的任务编写位Runnable接口的一个实例。
+
+	public void run()
+
+任何实现这个接口的类都必须提供这个方法，除了这个方法之外，可以自由地创建任何其他方法（可以使用选择的任何方法名），而绝不会无意地妨碍线程的行为。
+
+还允许将线程的任务放在其他的类的子类中，如Applet或HTTPServlet。要启动执行Runnable任务的一个线程，可以把这个Runnable对象传入Thread构造函数。
+
+	Thread t = new Thread(myRunnableObject);
+	t.start();
+
 [code2](code/c2/DigestRunnable.java)
 
 ## 从线程返回信息 ##
+
+run()方法和start()方法不返回任何值。
 
 [code3](code/c3/ReturnDigestUserInterface.java)
 
@@ -216,13 +239,23 @@ InputStream和OutputStream是相当原始的类。
 
 ### 轮询 ###
 
+让获取方法返回一个标志值（或者可能抛出一个异常），直到设置了结果字段位置。然后主线程定期询问获取方法，查看是否返回了标志之外的值。
+
 code4
 
+这个解决方案不能保证一定能工作。在有些虚拟机上，主线程会占用所有可用的时间，而没有给具体的工作线程留出任何时间。主线程太忙于检查工作的完成情况，以至于没有时间来具体完成任务。
+
 ### 回调 ###
+
+线程告诉主线程它何时结束。这是通用调用主类（即启动这个线程的类）中的一个方法来做的。这被称为回调（callback），因为线程在完成时反过来调用其创建者。因为线程在完成时反过来调用其创建者。
+
+当线程的run()方法接近结束时，要做的最后一件事情就是基于结果调用主线程中的一个已知方法。不是由主程序询问
 
 code5
 
 ### Future、Callable和Executor ###
+
+不再直接创建一个线程，而是创建一个ExecutorService，会根据需要位你创建线程。可以向ExecutorService提供Callable任务，对于每个Callable任务，会分别得到一个Future。之后可以向Future请求得到任务的结果。
 
 code6
 
@@ -256,7 +289,7 @@ code6
 
 ## 线程池和Executor ##
 
-java.util.concurrent钟的Executors类，可以非常容易地建立线程池。
+java.util.concurrent中的Executors类，可以非常容易地建立线程池。只需要将各个任务作为一个Runnable对象提交给这个线程池，就会得到一个Future对象，可以用来检查任务的进度。
 
 ## ch4 Internet地址 ##
 
