@@ -458,7 +458,48 @@ java.nio包使内存映射变得简单。首先，从文件中获得一个通道
 
 #### 1.7.1 缓冲区数据结构 ####
 
+#### 1.7.2 文件加锁机制 ####
 
+### 1.8 正则表达式 ###
+
+正则表达式（regular expression）用于指定字符串的模式，可以重载任何需要定位匹配某种特定模式的字符串的情况下使用正则表达式。
+
+	{Jj}ava.+
+
+匹配下列形式的所有字符串：
+
+* 第一个字母是J或j。
+* 接下来的三个字母是ava。
+* 字符串的其余部分由一个或多个任意的字符构成。
+
+**java.util.regex.Pattern 1.4**
+
+* static Pattern compile(String expression)
+* static Pattern compile(String expression, int flag)
+把正规表达式字符串编译到一个用于快速处理匹配的模式对象中。
+
+|参数：|expression |正则表达式|
+|--|--|--|
+| |flags|CASE_INSENSITIVE、UNICODE_CASE、LINES、DOTALL和CANON_EQ标志中的一个|
+
+* Matcher matcher(CharSequence input) 返回一个matcher对象，可以用它在输入中定位模式的匹配。
+* String[] split(CharSequence input)
+* String[] split(CharSequence input, int limit)
+
+将输入分割成标记，其中模式指定了分割符的的形式。返回标记数组，分隔符并非标记的一部分。
+
+|参数：|input |要分割成标记的字符串|
+|--|--|--|
+| |limit|所产生的字符串的最大数量。如果已经发现了limit - 1个分配的分隔符，那么返回的数组中的最后一项就包含所有剩余未分割的输入。如果limit < 0， 那么这个俄输入都被分割；如果limit为0，那么坠尾的空字符串将不会置于返回的数组中|
+
+**java.util.regex.Mathcher 1.4**
+
+* boolean matches() 如果输入匹配模式，则返回true。
+* boolean lookingAt() 如果输入的开头
+* boolean matches()
+* boolean matches()
+* boolean matches()
+* boolean matches()
 
 ## 第2章 XML ##
 
