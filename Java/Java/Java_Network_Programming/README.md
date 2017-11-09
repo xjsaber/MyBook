@@ -215,6 +215,10 @@ java.util.concurrent钟的Executors类，可以非常容易地建立线程池。
 
 ## ch4 Internet地址 ##
 
+连接到Internet的设备称为节点（node）。计算机节点称为主机（host）。每个节点或主机都由至少一个唯一的数来标识，这称为Internet地址或IP地址。
+
+IPv4地址一般写为四个无符号字节，每字节范围从0到255，最高字节在前。
+
 ### InetAddress类 ###
 
 java.net.InetAddress类是Java对IP地址（包括IPv4和IPv6）的高层表示。Socket、ServerSocket、URL、DatagramSocket、DatagramPacket等。
