@@ -296,6 +296,13 @@ java.util.concurrent中的Executors类，可以非常容易地建立线程池。
 连接到Internet的设备称为节点（node）。计算机节点称为主机（host）。每个节点或主机都由至少一个唯一的数来标识，这称为Internet地址或IP地址。
 
 IPv4地址一般写为四个无符号字节，每字节范围从0到255，最高字节在前。
+IPv6地址通常写为冒号分隔的8个区块，每个区块是4个十六进制数字。
+
+一个名会映射到多个IP地址，DNS服务器负责随机选择一台机器来响应各个请求。负载分摊到多个系统上。
+
+每台连接到Internet的计算机都应当能访问一个称为域名服务器（domain name server）的机器，通常是一个运行特殊DNS软件的UNIX主机，这种软件了解不同主机名和IP地址之间的映射。大多数域名服务器只知道其本地网络上主机的地址，以及其他网站中一些域名服务器的地址。如果客户端请求本地地域之外一个机器的地址，本地域名服务器就会询问远程位置的域名服务器，再将答案转发给请求者。
+
+大多数情况下，使用主机名，而让DNS处理向IP地址的转换。只要能连接到一个域名服务器，就不需要担心在你的机器、本地域名服务器和Internet其余部分之间传递主机名和地址的有关细节。
 
 ### InetAddress类 ###
 
@@ -303,10 +310,71 @@ java.net.InetAddress类是Java对IP地址（包括IPv4和IPv6）的高层表示�
 
 ### 创建新的InetAddress对象 ###
 
+InetAddress类没有公共构造函数。实际上，InetAddress有一些静态工厂方法，可以连接到DNS服务器来解析主机名。最常用的是InetAddress.getByName()。
+
+	InetAddress address = InetAddress.getByName("www.baidu.com");
+
 第一个InetAddress.getByAddress()工厂方法用一个IP地址（而没有主机名）创建一个InetAddress对象。第二个InetAddress.getAddress()方法使用一个IP地址和一个主机名创建InetAddress对象。
+
+如果知道一个数字地址，可以由这个地址创建一个InetAddress对象，而不必使用InetAddress.getByAddress()与DNS交互。这个方法可以为不存在或者无法解析的主机创建地址：
+
+	public static InetAddress getByAddress(byte[] addr) throws UnknownHostException
+	public static InetAddress getByAddress(String hostname, byte[] addr) throws UnknowHostException
+
+第一个InetAddress.getByAddress()工厂方法用一个IP地址（而没有主机名）创建一个InetAddress对象。第二个InetAddress.getByAddress()方法使用IP地址和一个主机名创建InetAddress对象。
 
 ### 缓存 ###
 
+由于DNS查找的开销可能相当大（如果请求需要经过多个中间服务器，或者尝试解析一个不可达的主机，这大约需要几秒的时间），所以InetAddress类会缓存查找的结果。
+
+Java对于不成功的DNS查询只缓存10秒。
+
+这些时间可以用系统属性networkaddress.cache.ttl和networkaddress.cache.negative.ttl来控制。其中第一个属性networkaddress.cache.ttl指定了成功的DNS查找结果在Java缓存中保留的时间（秒数），networkaddress.cache.negative.ttl指定了不成功的查找结果缓存的时间（秒数）。在这些时限内，再次尝试查找相同的主机会返回相同的值。-1解释位“永不过期”。
+
+### 按IP地址查找 ###
+
+调用getByName()并提供一个IP地址串作为参数时，会为所请求的IP地址创建一个InetAddress对象，而不检查DNS。
+
+由包含IP地址的字符串来创建InetAddress对象时，这个对象的主机名初始设置为这个字符串。只有当请求主机名是（显式地通过getHostName()请求），才会真正完成主机名的DNS查找。
+
+### 安全性问题 ###
+
+调用getByName()并提供一个IP地址串作为参数时，会位所请求的IP地址创建一个InetAddress对象，而不检查DNS。在默认安全管理器控制下的不可信applet只允许获得它的初始主机（其代码基）的IP地址，这可能是本地主机。
+
+InetAddress.getByName()方法、InetAddress.getAllByName()方法、InetAddress.getLocalHost()方法。
+
+不可信代码可以由字符串形式的IP地址构造InetAddress对象，但不会为这样的地址完成DNS查询。
+
+要测试一个主机能够解析，所用的特定SecurityManager方法是checkConnect():
+
+	public void checkConnect(String hostname, int port)
+
+当port参数位-1时，这个方法检查能够调用DNS解析制定的hostname。（如果port参数大于-1，这个方法检查是否允许在指定端口对指定主机建立连接）。host参数可以是主机名，也可以是点分呢四段IP地址，或者还可以是十六进制IPv6地址。
+
+### 获取方法 ###
+
+InetAddress包含4个获取方法，可以将主机名作为字符串返回，将IP地址返回位字符串和字节数组：
+
+	public String getHostName()
+	public String getCanonicalHostName()
+	public byte[] getAddress()
+	public String getHostAddress()
+
+没有对应的setHostName()和setAddress()方法。
+
+getHostName()方法返回一个String，其中包含主机的名字，以及这个InetAddress对象表示IP地址。如果这台机器没有主机名或者安全管理器阻止确定主机名，就会返回点分四段格式的数字IP地址。
+
+	InetAddress machine = InetAddress.getLocalHost();
+	String localhost = machine.getHostName();
+
+希望知道一台机器的IP地址，可以使用getAddress()方法，会以网络字节顺序将IP地址作为一个字节数组返回。最高字节（即地址的点分四段形式中的第一字节）是数组的第一字节，即数组的元素0.如果要考虑到IPv6地址，不要对这个数组的长度做任何假定。
+
+	InetAddress me = InetAddress.getLocalHost();
+	byte[] address = me.getAddress();
+
+返回的字节是无符号的。
+
+### 地址类型 ###
 
 ## ch5 Internet地址 ##
 
