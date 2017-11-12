@@ -376,15 +376,372 @@ getHostName()方法返回一个String，其中包含主机的名字，以及这�
 
 ### 地址类型 ###
 
-## ch5 Internet地址 ##
+### 获取方法 ###
 
-### InetAddress类 ###
-java.net.InetAddress类是Java对IP地址（包括IPv4和IPv6）的高层表示。Socket、ServerSocket、URL、DatagramSocket、DatagramPacket等。
+NetworkInterface对象
 
-#### 创建新的InetAddress对象 ####
-第一个InetAddress.getByAddress()工厂方法用一个IP地址（而没有主机名）创建一个InetAddress对象。第二个InetAddress.getAddress()方法使用一个IP地址和一个主机名创建InetAddress对象。
+#### public Enumeration getInetAddresses() ####
 
-#### 缓存 ####
+一个网络接口可以绑定多个IP地址。getInetAddresses()方法返回一个java.util.Enumeration，其中对于与这个接口绑定的每一个IP地址都包含一个InetAddress。
+
+	NetworkInterface eth0 = NetworkInterrface.getByName("eth0");
+	Enumberation addresses = eth0.getInetAddresses();
+	while (addresses.hasMoreElements()) {
+		System.out.println(addresses.nextElement());
+	} 
+
+#### public String getName() ####
+
+getName()方法返回某个特定NetworkInterface对象的名
+
+#### public String getDisplayName() ####
+
+getDisplayName()方法声称可以返回特定NetworkInterface的一个更友好的名字。
+
+### 一些有用的程序 ###
+
+
+
+#### SpamCheck ####
+
+负载应当分布到多个服务器上，最好是位于世界各地的不同服务器。如果DNS查询成功（更准确地讲，如果它返回地址127.0.0.2），那么主机就是一个已知的垃圾邮件发送者。如果查找失败，也就是说，它抛出一个UnknowHostException，说明这个地址不是一个垃圾邮件发送者。
+
+### 处理Web服务器日志文件 ###
+
+Web服务器日志会跟踪记录访问Web网站的主机。默认情况下，日志会报告连接服务器的网站的IP地址。
+
+## ch5 URL和URI ##
+
+URL类是Java程序再网络中定位和获取数据的最简单的方法。
+
+### URI ###
+
+统一资源标识符（Uniform Resource Udentifier， URI）是采用一种特定语法标识一个资源的字符串。
+
+资源是由URI标识的内容。URI则是标识一个资源的字符串。
+
+URI的语法由一个模式和一个模式特定部分组成，模式和模式特定部分用一个冒号分隔，如下所示：
+	
+	模式：模式特定部分
+
+模式特定部分的语法取决于所用的模式。当前的模式包括：
+
+	data 链接中直接包含的Base64编码数据
+	file 本地磁盘上的文件
+	ftp FTP服务器
+	http 使用超文本传输协议的国际互联网服务器
+	maito 电子邮件地址
+	magnet 可以通过对等网络
+	telnet 与基于Telnet的服务的连接
+	urn 统一资源名（Uniform Resource Name，URN）
+
+### URLs ###
+
+### 相对URL ###
+
+### URL类 ###
+
+java.net.URL类是对统一资源定位符（如http://www.lolcats.com/）的抽象。它扩展了java.lang.Object，是一个final类，不能对其派生子类。
+
+它不依赖于继承来配置不同类型URL的实例，而使用策略（strategy）设计模式。协议处理器就是策略，URL类构成上下文，通过它来选择不同的策略。
+
+URL是不可变的。构造一个URL对象后，其字段不再改变。这有一个副作用：可以保证它们是“线程安全”的。
+
+### 创建新的URL ###
+
+	public URL(String url) throws MalformedURLException
+	public URL(String protocol, String hostname, String file) throws MalformedURLException
+	public URL(String protocol, String host, int port, String file) throws MalformedURLException
+	public URL(URL base, String relative) throws MalformedURLException
+
+#### 从字符串构造URL ####
+
+最简单的URL构造函数只接受一个字符串形式的绝对URL作为唯一的参数：
+
+	public URL(String url) throws MalformedURLException
+
+与所有构造函数一样，这个函数只能在new操作符后调用，另外同样类似于所有其他URL构造函数，可能回抛出MalformedURLException异常。
+
+	try {
+		URL u = new URL("http://www.audubon.org/");
+	} catch (MalformedURLException ex) {
+		System.err.println(ex);
+	}
+
+#### 由组成部分构造URL ####
+
+通过指定协议、主机名和文件来构建一个URL：
+
+	public URL(String protocol, String hostname, String file) throws MalformedURLException
+
+这个构造函数讲端口设置为-1，所以会使用改协议的默认端口。file参数应当以斜线开头、包括路径、文件名和可选的片段标识符。
+
+与所有URI构造函数一样，可能会抛出MalformedURLexception异常。
+
+	try {
+		URL u = new URL("http", "www.eff.org", "/blueribbon.html#intro");
+	} catch (MalformedURLException ex) {
+		throw new RuntimeException("shouldn't happen; all VMS recogninze http");
+	}
+
+#### 构造相对URL ####
+
+构造函数根据相对URL和基础URL构建一个绝对URL
+
+	public URL(URL base, String relative) throws MalformedURLException
+
+	try {
+		URL u1 = new URL("http://www.ibiblio.org/javafaq/index.html");
+		URL u1 = new URL(u1, "mailinglists.html");
+	} catch(MalformedURLException ex) {
+		System.err.println(ex);
+	}
+讲文件名从u1的路径中去除，追加新文件名mailinglists.html得到u2。如果希望循环处理位于同一个目录下的一组文件，这个构造函数特别有用。可以为第一个文件创建一个URL，然后使用这个初始URL，通过替代文件名来创建其他文件的URL对象。
+
+### 其他URL对象 ###
+
+Java类库中的其他一些方法也返回URL对象。
+
+在applet中，getDocumentBase()会返回包含这个applet的页面的URL，getCodeBase()会返回applet。
+
+class文件的URL。java.io.File类有一个toURL()方法，它返回与指定文件匹配的file URL。
+
+Java file URL通常不能与用于Web浏览器和其他程序使用的URL互换，甚至不能与不同平台上运行的Java程序互换。
+
+类加载器不仅用于加载器，也能加载资源，如图片和音频文件。静态方法ClassLoader.getSystemResource(String name)返回一个URL，通过它可以读取一个资源。ClassLoader.getSystemResources(String name)方法返回一个Enumeration，其中包含一个URL列表，通过这些URL可以读取指定的资源。最后，实例方法getResource(String name)会在所引用类加载器使用的路径中搜索指定资源的URL。这些方法返回的URl可能是file URL、HTTP URL或其他模式。
+
+### 从URL获取数据 ###
+
+	public InputStream openStream() throws IOException
+	public URLConnection openConnection() throws IOException
+	public URLConnection openConnection(Proxy proxy) throws IOException
+	public Object getContent() throws IOException
+	public Object getCOntent(Class[] classes) throws IOException
+
+最基本是最常用的是openStream()，它会返回一个InputStream，可以从这个流读取数据。如果需要更多地控制下载过程，应当调用openConnection()，这会提供一个可以配置的URLConnection，再由它得到一个InputStream。
+
+#### public final InputStream openStream() throws IOException ####
+
+openStream()方法连接到URL所引用的资源，再客户端和服务器之间完成必要的握手，返回一个InputStream，可以由此读取数据。从这个InputStream获得的数据是URL引用的原始内容（即未经解释的内容）：如果读取ASCII文本文件则为ASCII；如果读取HTML文件则为原始HTML（不包括任何HTTP首部或者与协议有关的任何其他信息），如果读取图像文件则为二进制图片数据等。
+
+	try {
+		URL u = new URL("http://www.lolcats.com");
+		InputStream in = u.openStream();
+		int c;
+		while ((c= in.read()) != -1) Systemout.write(c);
+		in.close();
+	} catch (IOException ex) {
+		System.err.println(ex);
+	}
+
+MalformedURLException是IOException的子类。
+
+在Java6及之前版本中，使用了释放模式：在try块外声明变量，并将它设置为null，然后在finally块中，如果流变量非null，则讲它关闭。
+
+	InputStream in = null;
+	try {
+		URL u = new URL("http://www.lolcats.com");
+		in = u.openStream();
+		int c;
+		while ((c = in.read()) != -1) System.out.write(c);
+	} catch (IOException ex) {
+		System.err.println(ex);
+	} finally {
+		try {
+			if (in != null) {
+				in.close();
+			}
+		} catch(IOException ex) {
+			// 忽略
+		}
+	}
+
+Java7，使用一个嵌套的try-with-resources语句：
+
+	try {
+		URL u = new URL("http://www.lolcats.com");
+		try (InputStream in = u.openStream()){
+			int c;
+			while ((c = in.read()) != -1) System.out.write(c);
+		}
+	} catch (IOException ex) {
+		System.err.println(ex);
+	}
+
+#### public URLConnection openConnection() throws IOException ####
+
+oepnConnection()方法为指定的URL打开一个socket，并返回一个URLCOnnect对象。URLConnection表示一个网络资源的打开的连接。如果调用失败，则openConnection()会抛出一个IOException异常。
+
+#### public final Object getContent() throws IOException ####
+
+getContent()方法是下载URL引用数据的第三种方法。getContent()方法获取URL引用的数据尝试由它建立某种类型的对象。
+
+	URL u = new URL("http://www.baidu.com");
+	Object o = u.getContent();
+	// 将Object强制转换为适当的类型
+	// 处理这个Object...
+
+getContent()的做法是，在从服务器获取的数据首部中查找Content-type字段。如果服务器没有使用MIME首部，或者发送了一个不熟悉的Content-type，getContent()会返回某种InputStream，可以通过它读取数据。如果无法获取这个对象，就会抛出一个IOException异常。
+
+#### public final Object getContent(Class[] classes) throws IOException ####
+
+URL的内容处理器提供一个资源的不同视图。getContent()方法的这个重载版本允许选择希望内容作为哪个类返回。这个方法尝试以第一种可用的格式返回URI的呃内容。
+
+### 分解URL ###
+
+URL由以下5部分组成：
+
+* 模式，也称为协议。
+* 授权机构
+* 路径
+* 片段标识符，也称为段或ref。
+* 查询字符串
+
+授权机构可以进一步划分为用户信息、主机和端口。
+
+9个公共方法提供了URL这些部分的只读访问：getFile()、getHost()、getPort()、getProtocol()、getRef()、getQuery()、getPath()、getUserInfo()和getAuthority()。
+
+#### public String getProtocol() ####
+
+getProtocol()方法返回一个String。其中包含URL的模式（如“http”、“https”或“file”）。
+
+	URL u = new URL("https://xkcd.com/727/");
+	System.out.println(u.getProtocol());
+
+#### public String getHost() ####
+
+getHost()方法返回一个String，其中包含URL的主机名。
+
+	URL u = new URL("https://xkcd.com/727/");
+	System.out.println(u.getHost());
+
+#### public int getPort() ####
+
+getPort()犯法将URI中指定的端口号作为一个int返回。如果URL中没有指定端口，getPort()返回-1，表示这个URL没有显式指定端口，将使用改协议的默认端口。
+
+#### public int getDefaultPort() ####
+
+URL中没有指定端口时，getDefaultPort()方法返回这个URL的协议所使用的默认端口。如果没有为这个协议定义默认端口，getDefaultPort()将返回-1。
+
+#### public String getFile() ####
+
+getFile()方法返回一个String，其中包含URL的路径部分；Java不会把URL分解为单独的路径和文件部分。从主机名后的第一个斜线（/）一直到开始片段标识符的#号之前的字符，都被认为是文件部分。
+
+	URL page = this.getDocumentBase();
+	System.out.println("This page's path is " + page.getFile());
+如果URL没有文件部分，Java会把文件设置为空串。
+
+#### public String getPath() ####
+
+getPath()方法几乎是getFile()的同义词。
+
+getPath()和getFile()都返回完整的路径和文件名。唯一的区别是getFile()还返回查询字符串，而getPath()不返回这一部分。
+
+#### public String getRef() ####
+
+getRef()方法返回URL的片段标识符部分。如果URL没有片段标识符，则这个方法返回null。
+
+#### public String getQuery() ####
+
+getQuery()方法返回URL的查询字符串。如果URL没有查询字符串，则这个方法返回null。
+
+	URL u = new URL("http://www.ibiblio.org/nywc/compositions.phtml?catagory=Piano");
+	System.out.println("The query string of " + u + " is " + u.getQuery());
+
+#### public String getUserInfo() ####
+
+有些URL包括用户名，或者口令信息。
+
+#### public String getAuthority() ####
+
+### 相等性和比较 ###
+
+URL类包含通常的equals()和hashCode()方法。当且仅当两个URL都指向相同主机、端口和路径上的相同资源，而且有相同的片段标识符和查询字符串，才认为着两个URL是相等的。
+
+URL上的equals()可能是一个阻塞的I/O操作，应当避免将URL存储在依赖equals()的数据结构中，如java.util.HashMap。更好的选择是java.net.URI，可以在必要时将URI和URL来回切换。
+
+URL没有实现Comparable。
+
+URL类还有一个sameFile()方法，可以检查两个URL是否指向相同的资源：
+
+	public boolean sameFile(URL other)
+
+#### 比较 ####
+
+URL有3个方法可以将一个实例转换为另外一种形式，分别是toString()、toExternalForm()和toURI()。
+
+java.net.URL有一个toString()方法。toString()生成的String总是绝对URL。显式调用toString()并不常见。显示（打印）语句会隐式调用toString()。除了显示（打印）语句以外，使用toExternalForm()更合适：
+
+	public String toExternalForm()
+
+toExternalForm()方法将一个URL对象转换为一个字符串，可以在HTML链接或Web浏览器的打开URL对话框中使用。
+
+toExternalForm()方法返回表示这个URL的一个人可读的String。它等同于toString()。事实上，toString()所做的就是返回toExternalForm()。
+
+最后，toURI()方法将URL对象转换为对应的URI对象。
+
+	public URI toURI() throws URISyntaxException
+
+### URI类 ###
+
+URI是对URL的抽象，不仅包括统一资源定位符（Uniform Resource Locators，URL），还包括统一资源名（Uniform Resource Names，URN）。
+
+在Java中，URI用java.net.URI类表示。这个类与java.net.URL类的区别现在3个重要的方面：
+
+* URI类完全有关于资源的标识和URI的解析。它没有提供方法来获取URI所标识资源的表示。
+* 相比URL类，URI类与相关的规范更一致。
+* URI对象可以表示相对URI。URL类在存储URI之前会将其绝对化。
+
+URL对象是对应网络获取的应用层协议的一个表示，而URI对象纯粹用于解析和处理字符串。URI类没有网络获取功能。尽管URL类有一些字符串解析方法，如getFile()和getRef()。
+
+#### 构造一个URI ####
+
+URI从字符串构造。可以把整个URI通过一个字符串传入构造函数，也可以分部分传入：
+
+	public URI(String uri) throws URISyntaxException
+	public URI(String scheme, String schemeSpecificPart, String fragment) throws URISyntaxException
+	public URI(String scheme, String host, String path, String fragment) throws URISyntaxException
+	public URI(String scheme, String authority, String path, String query, String fragment) throws URISyntaxException
+	public URI(String scheme, String userInfo, String host, int port, String path, String query, String fragment) throws URISyntaxException
+
+与URL类不同，URI类不依赖于底层协议处理器。只要是URI语法上正确，Java就不需要为了创建URI对象而理解其协议。
+
+1. 构造函数根据任何满足条件的字符串创建一个新的URI对象。
+
+	URI voice = new URI("tel:111231");
+	URI web = new URI("http://www.baidu.com");
+	URI book = new URI("urn:isbn:123");
+
+2. 构造函数需要一个模式特定的部分，主要用于非层次URI。模式（scheme）是URI的协议，如http、urn、tel等。
+3. 构造函数用于层次URI，如http和ftp URL。主机和路径（用/分隔）共同构成这个URI的模式特定部分。
+4. 添加了一个查询字符串部分
+5. 前面两个构造函数调用的主层次URI构造函数。
+
+### URI的各部分 ###
+
+URI引用包括最多三个部分：模式、模式特定部分和片段标识符。一般格式为：
+
+	模式：模式特定部分：片段
+
+解码后的部分：
+
+	public String getScheme()
+	public String getSchemeSpecificPart()
+	public String getRaawSchemeSpecificPart()
+	public String getFragment()
+	public String getRawFragment()
+
+### 解析相对URI ###
+
+### URLEncoder ###
+
+要对字符串完成URL编码，需要将这个字符串和字符集名传入URLEncoder.encode()方法。
+	
+	String encoded = URLEncoder.encode("This*string*has*asterisks", "UTF-8");
+
+URLEncoder.encode()返回输入字符串的一个副本，不过有一些调整。
+
+### 缓存 ###
 
 ## ch6 Http ##
 
