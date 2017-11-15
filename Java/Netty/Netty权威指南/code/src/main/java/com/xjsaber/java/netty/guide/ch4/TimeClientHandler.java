@@ -1,4 +1,4 @@
-package com.xjsaber.java.netty.guide.ch3;
+package com.xjsaber.java.netty.guide.ch4;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -15,17 +15,22 @@ public class TimeClientHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger logger = Logger.getLogger(TimeClientHandler.class.getName());
 
-    private final ByteBuf firstMessage;
+    private int counter;
+
+    private byte[] req;
 
     public TimeClientHandler(){
-        byte[] req = "QUERY TIME ORDER".getBytes();
-        firstMessage = Unpooled.buffer(req.length);
-        firstMessage.writeBytes(req);
+        req = ("QUERY TIME ORDER" + System.getProperty("line.separator")).getBytes();
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx){
-        ctx.writeAndFlush(firstMessage);
+        ByteBuf message = null;
+        for (int i = 0; i < 100; i++){
+            message = Unpooled.buffer(req.length);
+            message.writeBytes(req);
+            ctx.writeAndFlush(message);
+        }
     }
 
     @Override
@@ -36,6 +41,7 @@ public class TimeClientHandler extends ChannelInboundHandlerAdapter {
         try {
             String body = new String(req, "UTF-8");
             System.out.println("Now is :" + body);
+            System.out.println("the counter is : " + ++ counter);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
