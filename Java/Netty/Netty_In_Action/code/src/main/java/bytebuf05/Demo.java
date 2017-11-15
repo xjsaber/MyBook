@@ -1,9 +1,5 @@
 package bytebuf05;
 
-import io.netty.buffer.ByteBuf;
-
-import java.util.Random;
-
 /**
  * @author xjsaber
  */
@@ -30,10 +26,10 @@ public class Demo {
 //        while (buffer.isReadable()) {
 //            System.out.println(buffer.readByte());
 //        }
-
-        ByteBuf bytebuf = null;
-        while (bytebuf.writableBytes() >= 4) {
-            bytebuf.writeInt(random.nextInt());
-        }
+//
+//        ByteBuf bytebuf = null;
+//        while (bytebuf.writableBytes() >= 4) {
+//            bytebuf.writeInt(random.nextInt());
+//        }
     }
 }

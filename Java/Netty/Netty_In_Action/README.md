@@ -517,17 +517,21 @@ abstract class Bytebuf 和 interface ByteBufHolder
 * 支持引用计数；
 * 支持池化。
 
+ByteBuf和BuyteBufHolder
+
 ## 5.2 ByteBuf类——Netty的数据容器 ##
 
 ### 5.2.1 它是如何工作 ###
 
 ByteBuf维护了两个不同的索引：一个用于读取，一个用于写入。当你从 ByteBuf 读取时，它的 readerIndex 将会被递增已经被读取的字节数。同样地，当你写入 ByteBuf 时，它的 writerIndex 也会被递增。
 
+默认的限制是 Integer.MAX_VALUE
+
 ### 5.2.2 ByteBuf 的使用模式 ###
 
 1. 堆缓冲区
 
-最常用的 ByteBuf 模式是将数据存储在 JVM 的堆空间中。这种模式被称为支撑数组（backing array），它能在没有使用池化的情况下提供快速的分配和释放。
+最常用的 ByteBuf 模式是将数据存储在 JVM 的堆空间中。这种模式被称为*支撑数组*（backing array），它能在没有使用池化的情况下提供快速的分配和释放。
 
 2. 直接缓冲区
 
