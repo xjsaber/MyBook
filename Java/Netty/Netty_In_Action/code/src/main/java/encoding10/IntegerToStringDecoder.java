@@ -1,4 +1,4 @@
-package encoding;
+package encoding10;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
@@ -7,6 +7,7 @@ import java.util.List;
 
 /**
  * 扩展了MessageToMessageDecoder<Integer>
+ * @author xjsaber
  */
 public class IntegerToStringDecoder extends MessageToMessageDecoder<Integer> {
 

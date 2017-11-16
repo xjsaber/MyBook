@@ -974,6 +974,8 @@ ChannelHandler是Netty应用程序的关键元素，所以彻底地测是它们�
 * 将字节解码为消息——ByteToMessageDecoder和ReplayingDecoder；
 * 将一种消息类型解码为另一种——MessageToMessageDecoder。
 
+每当需要为ChannelPipeline中的下一个ChannelInboundHandler转换入站数据时会用到。
+
 ### 10.2.1 抽象类ByteToMessageDecoder ###
 
 将字节解码为消息（或者另一个字节序列）是一项常见的任务，Netty为它提供了一个抽象的基类：ByteToMessageDecoder。由于你不可能直到远程节点是否会一次性地发送一个完整的消息，所以这个类对入站数据进行缓冲，直到它准备好处理。
@@ -983,10 +985,9 @@ ChannelHandler是Netty应用程序的关键元素，所以彻底地测是它们�
 |方法|描述|
 |--|--|
 |decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out)|decode()方法被调用时将会传入一个包含了传入数据的ByteBuf，以及一个用来添加解码消息的List。|
-|decodeLast(ChannelHandlerContext ctx, ByteBuf in, List<Object> out)||
+|decodeLast(ChannelHandlerContext ctx, ByteBuf in, List<Object> out)|Netty提供的这个默认实现只是简单地调用了decode()方法。当Channel的状态变为非活动时，这个方法将会被调用一次。可以重写该方法以提供特殊的处理|
 
 ### 10.2.2 抽象类ReplayingDecoder ###
-
 
 ReplayingDecoder扩展了ByteToMessageDecoder类，不必调用readableBytes()方法。通过使用一个自定义的ByteBuf实现，ReplayingDecoderByteBuf，包装传入的ByteBuf实现了这一点，其将在内部执行该调用。
 
@@ -1017,9 +1018,13 @@ ReplayingDecoder扩展了ByteToMessageDecoder类，不必调用readableBytes()�
 
 解码的String将被添加到传出的List中，并转发给下一个ChannelInboundHandler。
 
+	HttpObjectAggregator
+	
 ### 10.2.4 TooLongFrameException类 ###
 
 将由解码器在帧超出指定的大小限制时抛出。
+
+为了避免这种情况，设置一个最大字节数的阀值，如果超出该阀值，则会导致抛出一个TooLongFrameException类（随后会被ChannelHandler.exceptionCaught()）
 
 ## 1.3 编码器 ##
 
@@ -1030,6 +1035,11 @@ ReplayingDecoder扩展了ByteToMessageDecoder类，不必调用readableBytes()�
 
 MessageToByteEncoder
 
+### 10.3.2 抽象类MessageToMessageEncoder ###
+
+|名称|描述|
+|--|--|
+|encode(ChannelHandlerContext ctx, I msg, List<Object> out)|实现的唯一方法。每个通过write()方法写入的消息都将会被传递给encode()方法，以编码为一个或者多个出站消息。随后，这些出站消息将会被转发给ChannelPipeline中的下一个ChannelOutboundHandler|
 
 ## 10.4 抽象的编解码器类 ##
 
@@ -1047,7 +1057,7 @@ MessageToByteEncoder
 |--|--|
 |decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out)|只要有字节可以被消费，这个方法就将会被调用。它将入站ByteBuf转换为指定的消息格式，并将其转发给ChannelPipline中的下一个CHannelInboundHandler|
 |decodeLast(ChannelHandlerContext ctx, ByteBuf in, List<Object> out)|这个方法的默认实现委托给了decode()方法。它只会在Channel的状态变为非活动时被调用一次。它可以被重写以实现特殊的处理|
-|en code(ChannelHandlerContext ctx, ByteBuf in, List<Object> out)|对于每个将被编码并写入出站ByteBuf的（类型为I的）消息来说，这个方法都将会被调用|
+|encode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out)|对于每个将被编码并写入出站ByteBuf的（类型为I的）消息来说，这个方法都将会被调用|
 
 ### 10.4.2 抽象类MessageToMessageCodec ###
 
@@ -1059,6 +1069,8 @@ MessageToByteEncoder
 |--|--|
 |protected abstract decode(ChannelHandlerContext ctx, INBOUND_IN msg, List<Object> out)|INBOUND_IN -> OUTBOUND_IN，这些消息将被转发给ChannelPipeline中的下一个ChannelInboundHandler|
 |protected abstract encode(ChannelHandlerContext ctx, OUTBOUND_IN msg, List<Object> out)|OUTBOUND_IN -> INBOUND_IN，这些消息将被转发给ChannelPipeline中的下一个ChannelOutboundHandler|
+
+decode()方法是将INBOUND_IN类型的消息转换为OUTBOUND_IN类型的消息，而encode()方法则进行它的逆向操作。将INBOUND_IN类型的消息看作是通过网络发送的类型，而将OUTBOUND_IN类型的消息看作桑i应用程序所处理的类型。
 
 **WebSocket协议**
 
