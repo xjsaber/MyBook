@@ -1,4 +1,4 @@
-package http;
+package initizlizer11;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -8,6 +8,9 @@ import io.netty.handler.codec.http.HttpContentCompressor;
 import io.netty.handler.codec.http.HttpContentDecompressor;
 import io.netty.handler.codec.http.HttpServerCodec;
 
+/**
+ * @author xjsaber
+ */
 public class HttpCompressionInitializer extends ChannelInitializer<Channel> {
 
     private final boolean isClient;

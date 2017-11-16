@@ -1,4 +1,4 @@
-package http;
+package initizlizer11;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -9,7 +9,11 @@ import io.netty.util.CharsetUtil;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * @author xjsaber
+ */
 public class IdleStateHandlerInitializer extends ChannelInitializer<Channel> {
+
     @Override
     protected void initChannel(Channel channel) throws Exception {
         ChannelPipeline pipeline = channel.pipeline();
@@ -23,7 +27,10 @@ public class IdleStateHandlerInitializer extends ChannelInitializer<Channel> {
      * 实现userEventTriggered()方法以发送心跳消息
      */
     public static final class HeartbeatHandler extends ChannelInboundHandlerAdapter{
-        // 发送到远程节点的心跳消息
+
+        /**
+         * 发送到远程节点的心跳消息
+         */
         private static final ByteBuf HEARTBEAT_SEQUENCE = Unpooled.unreleasableBuffer(Unpooled.copiedBuffer("HEARTBEAT", CharsetUtil.ISO_8859_1));
 
         @Override

@@ -1086,6 +1086,8 @@ SSL/TLS 和 WebSocket
 
 为了支持SSL/TLS，Java提供了javax.net.ssl包，它的SSLContext和SSLEngine类使得实现解密和加密相当简单直接。Netty通过一个和名为SslHandler的ChannelHandler实现利用了这个API，其中SslHandler在内部使用SSLEngine来完成实际的工作。
 
+在大多数情况下，SslHandler将是ChannelPipeline中的第一个ChannelHandler。确保只有在所有其他的ChannelHandler将他们的逻辑应用在数据之后，才会进行加密。
+
 **SslHandler方法**
 
 |方法名称|描述|
@@ -1133,22 +1135,33 @@ HTTP是基于请求/响应模式的，客户端向服务器发送一个HTTP请�
 
 ### 11.2.3 HTTP压缩 ###
 
-当使用HTTP时，建议开启压缩功能以尽可能多地减少传输数据的大小。
+当使用HTTP时，建议开启压缩功能以尽可能多地减少传输数据的大小，但会带来了一些CPU时钟周期的开销。 
 
-* 缺点：带来了一些CPU时钟周期的开销 
-* 优点：但是一个好主意
+Netty为压缩和解压缩提供了ChannelHandler实现，他们同事支持gzip和
+deflate编码。
 
-Netty为压缩和解压缩提供了ChannelHandler实现，他们同事支持gzip和deflate编码。
+	HTTP请求的头部信息
+	客户端可以通过提供以下头部信息来指示服务器它所支持的压缩格式：
+
+	GET/encrtpted-area HTTP/1.1
+	Host: www.example.com
+	Accept-Encoding: gzip, deflate
 
 ### 11.2.4 使用HTTPS ###
 
-启用HTTPS只需将SslHandler添加到ChannelPipline的ChannelHandler组合中。
+启用HTTPS只需将SslHandler添加到ChannelPipline的hannelHandler组合中。
+
+Netty的架构方式是如何将代码重用变为杠杠作用的。只需要简单地将一个ChannelHandler添加到ChannelPipeline中，便可以提供一项新功能，甚至像加密这样重要的功能都能提供。
 
 ### 11.2.5 WebSocket ###
+
+WebSocket规范，提供了“在一个单个的TCP连接上提供双向的通信...结合WebSocketAPI...它为网页和远程服务器之间的双向通信提供了一种代替HTTP轮询的方案”。
 
 WebSocket在客户端和服务器之间提供了真正的双向数据交换。WebSocket现在可以用于传输任意类型的数据，很像普通的套接字。
 
 要想问你的应用程序中添加对于WebSocket的支持，需要将适当的客户端或者服务器WebSocket ChannelHandler添加到ChannelPipeline中。这个类将处理由WebSocket定义的称为帧的特殊消息类型。
+
+![WebSocket协议](/img/11_1WebSocket协议.png)
 
 **WebSocketFrame类型**
 
@@ -1165,7 +1178,7 @@ Netty主要是一种服务器端的技术，重点创建WebSocket服务器。
 
 WebSocketServerProtocolHandler的简单实例，这个类处理协议升级握手，以及三种控制帧——Close、Ping和Pong。Text和Binary数据帧将会被专递给下一个（实现的）ChannelHandler进行处理。
 
-保护WebSocket 要想为WebSocket添加安全性，只需要将SslHandler作为第一个ChannelHandler添加到ChannelPipline中。
+*保护WebSocket 要想为WebSocket添加安全性，只需要将SslHandler作为第一个ChannelHandler添加到ChannelPipline中。*
 
 ## 11.3 空闲的连接和超时 ##
 
@@ -1208,6 +1221,61 @@ WebSocketServerProtocolHandler的简单实例，这个类处理协议升级握�
 * CmdHandlerInitializer
 
 ### 11.4.2 基于长度的协议 ###
+
+|名称|描述|
+|--|--|
+|FixedLengthFrameDecoder|提取在调用构造函数时指定的定长帧|
+|LengthFieldBasedFrameDecoder|根据编码进帧头部中的长度值提取帧；该字段的偏移量以及长度在构造函数中指定|
+
+## 11.5 写大型数据 ##
+
+通过支持零拷贝的文件传输的Channel来发送的文件区域
+
+在需要将数据从文件系统复制到用户内存中时，可以使用ChunkedWriterHandler，支持异步写大型数据流，而不会导致大量的内存消耗。
+
+关键是 interface ChunkedInput<B>，其中类型参数B是readChunk()方法返回类型。Netty预置了该接口的4个实现。
+
+|名称|描述|
+|--|--|
+|ChunkedFile|从文件中逐块获取数据，当平台不支持零拷贝或者需要转换数据时使用|
+|ChunkedNioFile|和ChunkedFile类似，只是它使用了FileChannel|
+|ChunkedStream|从InputStream中逐块传输内容|
+|ChunkedNioStream|从ReadableByteChannel中逐块传输内容|
+
+## 11.6 序列化数据 ##
+
+JDK提供了ObjectOutputStream和ObjectInputStream，用于通过网络对POJO的基本数据类型和图进行序列化和反序列化。
+
+### 11.6.1 JDK序列化 ###
+
+ObjectOutputStream和ObjectInputStream的远程节点交互
+
+|名称|描述|
+|--|--|
+|CompatibleObjectDecoder|和使用JDK序列化的非基于Netty的远程节点进行互操作的解码器|
+|CompatibleObjectEncoder|和使用JDK序列化的非基于Netty的远程节点进行互操作的编码器|
+|ObjectDecoder|构建于JDK序列化之上的使用自定义的序列化来解码的解码器；当没有其他的外部依赖时，它提供了速度上的改进。否则其他的序列化实现更加可取|
+|ObjectEncoder|构建于JDK序列化之上的使用自定义的序列化来编码的编码器；当没有其他的外部依赖时，它提供了速度上的改进。否则其他的序列化实现更加可取|
+
+### 11.6.2 使用JBoss Marshalling进行序列化 ###
+
+|名称|描述|
+|--|--|
+|CompatibleMarshallingDecoder|与只使用JDK序列化的远程节点兼容|
+|CompatibleMarshallingEncoder|与只使用JDK序列化的远程节点兼容|
+|MarshallingDecoder|适用于使用JBoss Marshalling的节点。这些类必须一起使用|
+|MarshallingEncoder|适用于使用JBoss Marshalling的节点。这些类必须一起使用|
+
+### 11.6.3 通过Protocol Buffers序列化 ###
+
+Protobuf 编解码器
+
+|名称|描述|
+|--|--|
+|ProtobufDecoder|使用protobuf对消息进行解码|
+|ProtobufEncoder|使用protobuf对消息进行解码|
+|ProtobufVarint32FrameDecoder|根据消息中的Google Protocol Buffers的“Base 128 Varint” 整型长度字段值动态地分割所接收的ByteBuf|
+|ProtobufVarint32LengthFieldPrepender|使用protobuf对消息进行解码|
 
 ## 11.7 小结 ##
 

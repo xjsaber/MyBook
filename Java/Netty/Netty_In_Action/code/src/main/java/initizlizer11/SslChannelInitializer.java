@@ -1,4 +1,4 @@
-package http;
+package initizlizer11;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -8,6 +8,9 @@ import io.netty.handler.ssl.SslHandler;
 import javax.net.ssl.SSLEngine;
 
 
+/**
+ * @author xjsaber
+ */
 public class SslChannelInitializer extends ChannelInitializer<Channel> {
 
     private final SslContext context;

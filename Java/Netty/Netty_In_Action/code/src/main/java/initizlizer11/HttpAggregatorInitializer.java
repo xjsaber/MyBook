@@ -1,4 +1,4 @@
-package http;
+package initizlizer11;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -7,6 +7,9 @@ import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 
+/**
+ * @author xjsaber
+ */
 public class HttpAggregatorInitializer extends ChannelInitializer<Channel> {
 
     private final boolean isClient;

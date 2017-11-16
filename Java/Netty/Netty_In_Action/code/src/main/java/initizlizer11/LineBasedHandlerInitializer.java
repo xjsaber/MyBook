@@ -1,10 +1,14 @@
-package http;
+package initizlizer11;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
 import io.netty.handler.codec.LineBasedFrameDecoder;
 
+/**
+ * @author xjsaber
+ */
 public class LineBasedHandlerInitializer extends ChannelInitializer<Channel> {
+
     @Override
     protected void initChannel(Channel channel) throws Exception {
         ChannelPipeline pipeline = channel.pipeline();
