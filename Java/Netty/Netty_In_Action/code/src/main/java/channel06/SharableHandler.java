@@ -3,17 +3,17 @@ package channel06;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.util.ReferenceCountUtil;
 
 /**
  * @author xjsaber
  */
 @ChannelHandler.Sharable
-public class DiscardHandler extends ChannelInboundHandlerAdapter {
+public class SharableHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg){
-        // 丢弃已接受的消息
-        ReferenceCountUtil.release(msg);
+        System.out.println("Channel read message: " + msg);
+        // 记录方法调用，并转发给下一个 ChannelHandler
+        ctx.fireChannelRead(msg);
     }
 }

@@ -9,11 +9,11 @@ import io.netty.util.ReferenceCountUtil;
  * @author xjsaber
  */
 @ChannelHandler.Sharable
-public class DiscardHandler extends ChannelInboundHandlerAdapter {
+public class DiscardInboundHandler extends ChannelInboundHandlerAdapter{
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg){
-        // 丢弃已接受的消息
+        // 通过调用ReferenceCountUtil.release() 方法释放资源
         ReferenceCountUtil.release(msg);
     }
 }
