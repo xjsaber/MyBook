@@ -586,7 +586,7 @@ ByteBuf的可读字节分段存储了实际数据。新分配的、包装的或�
 
 ### 5.3.5 可写字节 ###
 
-可写字节分段是指一个拥有未定义内容的、写入就绪的内存区域。
+可写字节分段是指一个拥有未定义内容的、写入就绪的内存区域。新分配的缓冲区的writerIndex的默认值为0.任何名称以write开头的操作都将从当前的writerIndex处开始些数据，并将它增加已经写入的字节数。如果谢操作的目标也是ByteBuf，并且没有指定源索引的值，则缓冲区的readerIndex也同样会被增加相同的大小。
 
 	ByteBuf buffer = null;
     while (buffer.isReadable()) {
@@ -595,12 +595,35 @@ ByteBuf的可读字节分段存储了实际数据。新分配的、包装的或�
 
 ### 5.3.6 索引管理 ###
 
+JDK的InputStream定义了mark(int readlimit)和reset()方法，这些方法分别被用来将流中的当前位置标记为指定的值，以及流重置到该位置。
+
+markReaderIndex()、markWriterIndex()、resetWriterIndex()和resetReaderIndex()来标记和重置ByteBuf的readerIndex和writerIndex。
+
     ByteBuf bytebuf = null;
     while (bytebuf.writableBytes() >= 4) {
         bytebuf.writeInt(random.nextInt());
     }
 
+readerIndex(int)或者writerIndex(int)来将索引移动到指定位置。试图将任何一个索引设置到一个无效的位置都将导致一个IndexOutOfBoundsException。
+
+调用clear()方法来将readerIndex和writerIndex都设置为0.
+
 ### 5.3.7 查找操作 ###
+
+在 ByteBuf中有多种可以用来确定指定值的索引的方法。最简单的是使用indexOf()方法。
+
+	boolean process(byte value)
+
+它将检查输入值是否是正在查找的值。
+
+ByteBufProcessor针对一些常见的值定义了许多便利的方法。假设你的应用程序需要和所谓的包含由以下NULL结尾的内容的Flash套接字集成。调用
+	
+	forEachByte(ByteBufProcessor.FIND_NUL)
+
+将简单高效地消费该Flash数据，因为在处理期间只会执行较少的边界检查。
+
+	ByteBuf buffer = ...;
+	int index = buffer.forEachByte(ByteBufProcessor.FIND_CR);
 
 ### 5.3.8 派生缓冲区 ###
 
@@ -610,13 +633,43 @@ ByteBuf的可读字节分段存储了实际数据。新分配的、包装的或�
 * slice();
 * slice(int, int)
 * Unpooled.unmodifiableBuffer(..)
+* order(ByteOrder)
+* readSlice(int)
+
+每个方法都将返回一个新的ByteBuf实例，它具有自己的读索引、写索引和标记索引。其内部存储和JDK的ByteBuffer一样是共享的。
+
+对ByteBuf进行切片
+	创建一个用于保存给定字符串的字节的ByteBuf
+	Charset utf8 = Charset.forName("UTF-8");
+	ByteBuf buf = Unpooled.copiedBuffer("Netty in Action rocks!", utf8);
+	// 创建该ByteBuf从索引0开始到索引15结束的一个新切片
+	ByteBuf sliced = buf.sllice(0, 15);
+	// 将打印“Netty in Action”
+	System.out.println(sliced.toString(utf8));
+	// 更新索引0处的字节
+	buf.setByte(0, (byte)'J');
+	将会成功，因为数据是共享的，对其中一个所做的更改对另外一个也是可见的
+	assert buf.getByte(0) == sliced.getByte(0);
+
+复制一个ByteBuf
+	// 创建ByteBuf以保存所提供的字符串的字节
+	Charset utf8 = Charset.forName("UTF-8");
+	ByteBuf buf = Unpooled.copiedBuffer("Netty in Action rocks!", utf8);
+	// 创建该ByteBuf从索引0开始到索引15结束的分段的副本
+	ByteBuf copy = buf.copy(0, 15);
+	// 将打印“Netty in Action”
+	System.out.println(copy.toString(utf8));
+	// 更新索引0处的字节
+	buf.setByte(0, (byte) 'J');
+	// 将会成功，因为数据不是共享的
+	assert buf.getByte(0) != copy.getByte(0);
 
 ### 5.3.9 读/写操作 ###
 
 * get()和set()操作，从给定的索引开始，并且保持索引不变；
 * read()和write()操作，从给定的索引开始，并且互斥根据已经访问过的字节数对索引进行调整。
 
-#### get()操作 ####
+### get()操作 ####
 
 |名称|索引|
 |--|--|
@@ -632,6 +685,140 @@ ByteBuf的可读字节分段存储了实际数据。新分配的、包装的或�
 |getUnsignedShort(int)|返回给定索引处的Boolean值|
 |getBytes(int, ...)|返回给定索引处的Boolean值|
 
+### set()操作 ####
+
+|名称|索引|
+|--|--|
+|setBoolean(int, boolean)|设定给定索引处的Boolean值|
+|setByte(int index, int value)|设定给定索引处的字节值|
+|setMedium(int index, int value)|设定给定索引处的24位的中等int值|
+|setInt(int index, int value)|设定给定索引处的int值|
+|setLong(int index, long value)|设定给定索引处的long值|
+|setShort(int index, int value)|设定给定索引处的short值|
+
+	Charset utf8 = Charset.forName("UTF-8");
+	// 创建一个新的ByteBuf以保存给定字符串的字节
+	ByteBuf buf = Unpooled.copiedBuffer("Netty in Action rocks!", utf8);
+	// 打印第一个字符'N'
+	System.out.println((char)buf.getByte(0));
+	// 存储当前的readerIndex和writerIndex
+	int readerIndex = buf.readerIndex();
+	int writerIndex = buf.writerIndex();
+	buf.setByte(0, (byte)'B'); //将索引0处的字节更新位字符'B'
+	System.out.println((char)buf.getByte(0)); //打印第一个字符
+	assert readerIndex == buf.readerIndex();
+	assert writerIndex == buf.writerIndex();
+
+**read()**
+
+|名称|描述|
+|--|--|
+|readBoolean()|返回当前readerIndex处的Boolean，并将readerIndex增加1|
+|readByte()|返回当前readerIndex处的字节，并将readerIndex增加1|
+|readUnsignedByte()|将当前readerIndex处的无符号字节值作为short返回，并将readerIndex增加1|
+|readMedium()|返回当前readerIndex处的24位的中等int值，并将readerIndex增加3|
+|readUnsignedMedium|返回当前readerIndex处的24位的无符号的中等int值，并将readerIndex增加3|
+|readInt()|返回当前 readerIndex的int 值并将
+readerIndex增加4|
+|readUnsignedInt()|将当前readerIndex处的无符号的int值作为
+long值返回，并将readerIndex增加4|
+|readLong()|返回当前readerIndex处的long值，并将readerIndex增加8|
+|readShort()|返回当前readerIndex处的short值，并将readerIndex增加2|
+|readUnsignedShort()|将当前readerIndex处的无符号的short值作为
+int值返回，并将readerIndex增加2|
+|readBytes(ByteBuf byte[] destination, int dstIndex , int length)|将当前ByteBuf中从当前readerIndex处开始的（如果设置了length长度的字节）数据传送到一个目标ByteBuf或者byte[]，从目标的dstIndex开始的位置。本地的readerIndex将被增加已经传输的字节数|
+
+几乎每个read()方法都有对应的write()方法，用于将数据追加到ByteBuf中。
+
+	Charset utf8 = Charset.forName("UTF-8");
+	ByteBuf buf = Unpooled.copiedBuffer("Netty in Action rocks!", utf8);
+	System.out.println((char)buf.readByte());
+	int readerIndex = buf.readerIndex();
+	int writerIndex = buf.writerIndex();
+	buf.writeByte((byte)'?');
+	assert readerIndex = buf.readerIndex();
+	assert writerIndex != buf.writerIndex();
+
+### 5.3.10 更多的操作 ###
+
+|名称|描述|
+|isReadeable()|如果至少有一个字节可供读取，则返回true|
+|isWritable()|如果至少有一个字节可被写入，则返回true|
+|readableBytes()|返回可被读取的字节数|
+|writableBytes()|返回可被写入的字节数|
+|capacity()|返回ByteBuf可容纳的字节数。在此之后，它会尝试再次扩展直到达到maxCapacity()|
+|maxCapacity()|返回ByteBuf可以容纳的最大字节数|
+|hasArray()|如果ByteBuf由一个字节数组支撑，则返回true|
+|array()|如果ByteBuf由一个字节数组支撑则返回该数组；否则，它将抛出一个UnsupportedOperationException异常|
+
+## 5.4 ByteBufHolder 接口 ##
+
+ByteBufHolder为Netty的高级特性提供了支持，如缓冲区化，其中可以从池中借用ByteBuf，并且在需要时自动释放。
+
+ByteBufHolder的操作
+|名称|描述|
+|content()|返回由这个ByteBufHolder所持有的ByteBuf|
+|copy()|返回这个ByteBufHolder的一个深拷贝，包括一个其所包含的ByteBuf的非共享拷贝|
+|duplicate()|返回这个ByteBufHolder的一个浅拷贝，包括一个其所包含的ByteBuf的共享拷贝|
+
+如果想要实现一个将其有效负载存储在ByteBuf中的消息对象，那么ByteBufHolder将是个不错的选择
+
+## 5.5 ByteBuf分配 ##
+
+### 5.5.1 按需分配：ByteBufAllocator接口 ###
+
+降低分配和释放内存的开销
+
+Netty 通过 interface ByteBufAllocator实现了（ByteBuf的）池化，可以用来分配描述过的任意类型的ByteBuf实例。
+
+ByteBufAllocator的方法
+
+|名称|描述|
+|--|--|
+|buffer();<br/>buffer(int initialCapacity); buffer(int initialCapacity, int maxCapacity);|返回一个基于堆或者直接内存存储的ByteBuf|
+|heapBuffer()<br/>heapBuffer(int initialCapacity); heapBuffer(int initialCapacity, int maxCapacity)|返回一个基于堆内存存储的ByteBuf|
+|directBuffer()  directBuffer(int initialCapacity)  directBuffer(int initialCapacity, int maxCapacity)|返回一个基于直接内存存储的ByteBuf|
+|compositeBuffer() compositeBuffer(int maxNumComponents) compositeDirectBuffer() compositeDirectBuffer(int maxNumComponents); compositeHeapBuffer() compositeHeapBuffer(int maxNumComponents)|返回一个可以用过添加最大到指定数目的基于堆的或者直接存储的缓冲区来扩展的CompositeByteBuf|
+|ioBuffer()|返回一个用于套接字的I/O操作的ByteBuf|
+
+可以通过Channel（每个都可以用一个不同的ByteBufAllocator实例）或者绑定到ChannelHandler的ChannelHandlerContext获取一个到ByteBufAllocator的引用
+
+获取一个到ByteBufAllocator的引用
+	
+	Channel channel = ...;
+	// 从Channel获取一个ByteBufAllocator的引用
+	ByteBufAllocator allocator = channel.alloc();
+	...
+	ChannelHandlerContext ctx = ...;
+	// 从ChannelHandlerContext获取一个到ByteBufAllocator的引用
+	ByteBufAllocator allocator2 = ctx.alloc();
+
+ByteBufAllocator的实现：PooledByteBufAllocator和UnpooledByteBufAllocator。前者池化了ByteBuf的实例以提高性能并最大限度地减少内存碎片
+
+Netty默认是用了PooledByteBufAllocator
+
+### 5.5.2 Unpooled缓冲区 ###
+
+可能某些情况下，未能获取一个到ByteBufAllocator的引用。对于这种情况，Netty提供了一个简单的称为Unpooled的工具类，它提供了静态的辅助方法来创建未池化的ByteBuf实例。
+
+Unpooled的方法
+
+|名称|描述|
+|--|--|
+|buffer()<br/>buffer(int initialCapacity) buffer(int initialCapacity, int maxCapacity)|返回一个未池化的基于堆内存存储的ByteBuf|
+|directBuffer()<br/>directBuffer(int initialCapacity) directBuffer(int initialCapacity, int maxCapacity)|返回一个未池化的基于直接内存存储的ByteBuf|
+|wrappedBuffer()|返回一个包装了给定数据的ByteBuf|
+|copiedBuffer()|返回一个复制了给定的数据的ByteBuf|
+
+Unpooled 类还使得 ByteBuf 同样可用于那些并不需要 Netty 的其他组件的非网络项目，使得其能得益于高性能的可扩展的缓冲区 API。
+
+### 5.5.3 ByteBufUtil类 ###
+
+ByteBufUtil提供了用于操作ByteBuf的静态的辅助方法。因为这个API是通用的，并且和池化无关，所以这些方法已然在分配类的外部实现。
+
+1. hexdump()方法，以十六进制的表示形式打印ByteBuf的内容。
+2. boolean equals(ByteBuf, ByteBuf)，它被用来判断两个ByteBuf实例的相等性。
+
 ## 5.6 引用计数 ##
 
 *引用计数*是一种通过在某个对象所持有的资源不再被其他对象引用时释放该对象所持有的资源来优化内存使用和性能的技术。
@@ -641,6 +828,22 @@ Netty在第4版中为ByteBuf和ByteBufHolder引入了引用计数技术，都实
 引用计数主要涉及跟踪到某个特定对象的活动引用的数量。一个ReferenceCounted实现的实例将通场以活动的引用计数为1作为开始。只要引用计数大于0，就能保证对象不会被释放。当活动引用的数量减少到0时，该实例就会被释放。
 
 引用计数对于池化实现（如 PooledByteBufAllocator ）来说是至关重要的，它降低了内存分配的开销。
+
+	//引用计数
+	Channel channel = ...;
+	// 从Channel获取ByteBufAllocator
+	ByteBufAllocator allocator = channel.alloc();
+	...
+	// 从ByteVufAllocator分配一个ByteBuf
+	ByteBuf buffer = allocator.directBuffer();
+	assert buffer.refCnt() == 1;
+
+	//释放引用计数的对象
+	ByteBuf buffer = ...;
+	// 减少到该对象的活动引用。当减少到0时，该对象被释放，并且该方法返回true
+	boolean released = buffer.release();
+
+试图访问一个已经被释放的引用计数的对象，将会导致一个IllegalReferenceCountException。
 
 ## 5.7 小结 ##
 
