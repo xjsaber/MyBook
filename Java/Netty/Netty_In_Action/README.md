@@ -1825,4 +1825,22 @@ Netty提供的编码器以及各种ChannelHandler可以被组合和扩展，以�
 
 首先，将实现该处理HTTP请求的组件。这个组件系那个提供用于访问聊天室显示由连接的客户端发送的消息的网页。
 
+### 12.3.2 处理WebSocket帧 ###
 
+由 IETF 发布的 WebSocket RFC，定义了 6 种帧，Netty 为它们每种都提供了一个 POJO 实现。
+
+**WebSocketFrame 的类型**
+
+|帧类型|描述|
+|--|--|
+|BinaryWebSocketFrame|包含了二进制数据|
+|TextWebSocketFrame|包含了文本数据|
+|ContinuationWebSocketFrame|包含属于上一个BinaryWebSocketFrame或TextWebSocketFrame的文本数据或者二进制数据|
+|CloseWebSocketFrame|表示一个 CLOSE 请求，包含一个关闭的状态码和关闭的原因|
+|PingWebSocketFrame|请求传输一个 PongWebSocketFrame|
+|PongWebSocketFrame|作为一个对于 PingWebSocketFrame 的响应被发送|
+
+* CloseWebSocketFrame
+* PingWebSocketFrame
+* PongWebSocketFrame
+* TextWebSocketFrame

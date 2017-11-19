@@ -2,9 +2,10 @@ package websocket12;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.*;
 
 import java.io.File;
+import java.io.RandomAccessFile;
 import java.net.URISyntaxException;
 import java.net.URL;
 
@@ -12,17 +13,17 @@ import java.net.URL;
  * 扩展SimpleChannelInboundHandler以处理FullHttpRequest消息
  * @author xjsaber
  */
-public class HTTPRequestHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
+public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
     private final String wsUri;
     private static final File INDEX;
 
-    public HTTPRequestHandler(String wsUri) {
+    public HttpRequestHandler(String wsUri) {
         this.wsUri = wsUri;
     }
 
     static {
-        URL location = HTTPRequestHandler.class
+        URL location = HttpRequestHandler.class
                 .getProtectionDomain()
                 .getCodeSource().getLocation();
 
@@ -36,7 +37,15 @@ public class HTTPRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext channelHandlerContext, FullHttpRequest fullHttpRequest) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest request) throws Exception {
+        if (wsUri.equalsIgnoreCase(request.uri())) {
+            ctx.fireChannelRead(request.retain());
+        } else {
+            if (HttpHeaders.is100ContinueExpected(request)) {
 
+            }
+            RandomAccessFile file = new RandomAccessFile(INDEX, "r");
+            HttpResponse response = new DefaultFullHttpResponse(request.getProtocolVersion(), HttpResponseStatus.OK)
+        }
     }
 }
