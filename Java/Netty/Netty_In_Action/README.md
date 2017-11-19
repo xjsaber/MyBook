@@ -1231,9 +1231,14 @@ Bootstrap类被用于客户端或者是用了无连接协议的应用程序中�
 |--|--|
 |Bootstap group(EventLoopGroup)|设置用于处理Channel所有事件的EventLoopGroup|
 |Bootstrap channel(Class<? extends C>) Bootstrap channelFactory ChannelFactory<? extends C>|channel()方法指定了Channel的实现类。如果该实现类没提供默认的构造函数，可以通过调用channelFactory()方法来指定一个工厂类，它将会被bind()方法调用|
-|Bootstap group(EventLoopGroup)|设置用于处理Channel所有事件的EventLoopGroup|
-|Bootstap group(EventLoopGroup)|设置用于处理Channel所有事件的EventLoopGroup||Bootstap group(EventLoopGroup)|设置用于处理Channel所有事件的EventLoopGroup|
-
+|Bootstrap localAddress(SocketAddress)|指定Channel应该绑定到的本地地址。如果没有指定，则将由操作系统创建一个随机的地址。或者，也可以通过bind()或者connect()方法指定localAddress|
+|<T> Bootstrap option(ChannelOption<T> option, T value)|设置ChannelOption，其将被应用到每个新创建的Channel的ChannelConfig。这些选项将会通过bind()或者connect()放置设置到Channel，不管哪个先被调用。这个方法在Channel已经被创建后再调用将不会由任何的效果。支持的ChannelOption取决于使用的Channel类型。|
+|<T> Bootstrap attr(Attribute<T> key, T value)|指定新创建的Channel的属性值。这些属性值是通过bind()或者connect|
+|Bootstrap handler(ChannelHandler)|设置将被添加到ChannelPipeline以接收事件通知的ChannelHandler|
+|Bootstrap clone()|创建一个当前Bootstrap的克隆，其具有和原始Bootstrap相同的设置信息|
+|Bootstrap remoteAddress(SocketAddress)|设置远程地址。或者，也可以通过connect()方法来指定它|
+|ChannelFuture connect()|连接到远程节点并返回一个ChannelFuture，其将会在连接操作完成后接收到通知|
+|ChannelFuture bind()|绑定Channel并返回一个ChannelFuture，其将会在绑定操作完成后接收到通知，在那之后必须调用Channel.connect()方法来建立连接|
 
 ### 8.2.1 引导客户端 ###
 
@@ -1242,6 +1247,20 @@ Bootstrap类被用于客户端或者是用了无连接协议的应用程序中�
 
 ### 8.2.2 Channel和EventLoopGroup的兼容性 ###
 
+	channel
+	├───nio
+	│ 		NioEventLoopGroup
+	├───oio
+	│ 		OioEventLoopGroup
+	└───socket
+		├───nio
+		│ 		NioDatagramChannel
+		│ 		NioServerSocketChannel
+		│ 		NioSocketChannel
+		└───oio
+				OioDatagramChannel
+				OioServerSocketChannel
+				OioSocketChannel
 
 **关于illegalStateException的**
 
@@ -1259,7 +1278,18 @@ Bootstrap类被用于客户端或者是用了无连接协议的应用程序中�
 
 |名称|描述|
 |--|--|
-|group|11|
+|group|设置ServerBootstrap要用的EventLoopGroup。这个EventLoopGroup将用于ServerChannel和被接受的子Channel的I/O处理|
+|channel|设置将要被实例化的 ServerChannel类|
+|channelFactory|如果不能通过默认的构造函数 1.创建 Channel ，那么可以提供一个 ChannelFactory|
+|localAddress|指定ServerChannel应该绑定到的本地地址。如果没有指定，则将由操作系统使用一个随机地址。或者，可以通过bind()方法来指定该localAddress|
+|option|指定要应用到新创建的ServerChannel的ChannelConfig。这些选项将会通过bind()方法设置到Channel。在bind()方法被调用之后，设置或者改变ChannelOption都不会有任何的效果。所支持的ChannelOption取决于所使用的Channel类型。|
+|childOption|指定当子Channel被接受时，应用到子Channel的ChannelConfig的ChannelOption。所支持的ChannelOption取决于所使用的Channel的类型|
+|attr|指定ServerChannel上的属性，属性将会通过bind()方法设置给Channel。在调用bind()方法之后改变它们将不会有任何的效果|
+|childAttr|将属性设置个i已经被接受的子Channel。接下来的调用将不会有任何的效果|
+|handler|设置被添加到ServerChannel的ChannelPipeline中的ChannelHandler。更加常见的方法参见childHandler()|
+|childHandler|设置将被添加到已被接受的子Channel的ChannelPipeline中的ChannelHandler。handler()方法和childHandler()方法之间的区别是：前者所添加的ChannelHandler将由已被接受的子Channel处理，其代表一个绑定到远程节点的套接字|
+|clone|克隆一个设置和原始的ServerBootstrap相同的ServerBootStrap|
+|bind|绑定ServerChannel并且返回一个ChannelFuture，其将会在绑定操作完成后收到通知（带着成功或者失败的结果）|
 
 ### 8.3.2 引导服务器 ###
 
@@ -1302,6 +1332,26 @@ ServerChannel的实现负责创建子Channel，这些子Channel代表了已被�
 
 基于TCP协议的SocketChannel，但是Bootstrap类也可以被用于无连接的协议。为此，Netty提供了各种DatagramChannel的实现。唯一区别就是，不再调用connect()方法，而是只调用bind()方法。
 
+使用 Bootstrap 和 DatagramChannel
+
+	// 创建一个Bootstrap的实例以创建和绑定新的数据报 Channel
+	Bootstrap bootstrap = new Bootstrap();
+	// 设置EventLoopGroup，其提供了用以处理 Channel 事件的 EventLoop
+	bootstrap.group(new OioEventLoopGroup()).channel(
+		// 指定Channel的实现
+		OioDatagramChannel.class).handler(
+			//设置用以处理Channel的I/O 以及数据的 Channel-
+			InboundHandler
+			new SimpleChannelInboundHandler<DatagramPacket>() {
+				@Override
+				public void channelRead0(ChannelHandlerContext ctx,
+					DatagramPacket msg) throws Exception {
+					// Do something with the packet
+				}
+			}
+
+
+
 ## 8.8 关闭 ##
 
 干净地释放资源，关闭Netty应用程序。
@@ -1309,6 +1359,19 @@ ServerChannel的实现负责创建子Channel，这些子Channel代表了已被�
 1. 需要关闭EventLoopGroup，它将处理任何挂起的事件和任务，并且随后释放所有的活动线程。（调用EventLoopGroup.shutdownGracefully()方法的作用）
 2. 返回一个Future，在关闭完成时接收到通知。
 3. shutdownGracefully()方法也是一个异步的操作，所以需要阻塞等待直到它完成，或者向所返回的Future注册一个监听器以在关闭完成时获得通知。
+
+优雅关闭
+	
+	// 创建处理 I/O 的 EventLoopGroup
+	EventLoopGroup group = new NioEventLoopGroup();
+	// 创建一个 Bootstrap类的实例并配置它
+	Bootstrap bootstrap = new Bootstrap();
+	bootstrap.group(group).channel(NioSocketChannel.class);
+	...
+	// shutdownGracefully()方法将释放所有的资源，并且关闭所有的当前正在使用中的 Channel
+	Future<?> future = group.shutdownGracefully();
+	// block until the group has shutdown
+	future.syncUninterruptibly()
 
 ## 8.9 小结 ##
 

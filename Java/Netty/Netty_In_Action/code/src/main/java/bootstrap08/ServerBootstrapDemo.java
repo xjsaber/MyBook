@@ -1,4 +1,4 @@
-package bootstrap;
+package bootstrap08;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
