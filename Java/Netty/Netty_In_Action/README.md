@@ -1844,3 +1844,33 @@ Netty提供的编码器以及各种ChannelHandler可以被组合和扩展，以�
 * PingWebSocketFrame
 * PongWebSocketFrame
 * TextWebSocketFrame
+
+### 12.3.3 初始化ChannelPipeline ###
+
+|ChannelHandler|职责|
+|--|--|
+|HttpServerCodec|将字节解码为HttpRequest、HttpContent和LastHttpContent。并将HttpRequest、HttpContent和LastHttpContent编码为字节|
+|ChunkWriteHandler|写入一个文件的内容|
+|HttpObjectAggregator|将一个HttpMessage和跟随它的多个HttpCOntent聚合为单个FullHttpRequst或者FullHttpResponse（取决于它是被用来处理请求还是响应）。安装了这个之后，ChannelPipeline中的下一个ChannelHandler将只会收到完成的HTTP请求或响应。|
+|HttpRequestHandler|处理FullHttpRequest（那些不发送到/ws URI的请求）|
+|WebSocketServerProtocolHandler|按照WebSocket规范的要求，处理WebSocket升级握手PingWebSocketFrame、PongWebSocketFrame和CloseWebSocketFrame|
+|TextWebSocketFrameHandler|处理TextWebSocketFrame和握手完成事件|
+
+Netty的WebSocketServerProtocolHandler处理了所有委托管理的WebSocket帧类型以及升级握手本身。如果握手成功，那么所需的Channelhandler将会添加到ChannelPipeline中，而那些不再需要的ChannelHandler则将会被移除。
+
+### 12.3.4 引导 ###
+
+引导该服务器，并安装ChatServerInitializer的代码。
+
+## 12.4 测试该应用程序 ##
+
+#### 如何进行加密 ####
+
+使用Netty，将一个SslHandler添加到ChannelPipeline中，并配置它的问题。
+
+## 12.5 小结 ##
+
+使用Netty的WebSocket实现来管理Web应用程序中的实时数据。
+
+# 第13章 使用UDP广播事件 #
+
