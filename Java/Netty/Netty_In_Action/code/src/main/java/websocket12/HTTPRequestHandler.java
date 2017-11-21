@@ -45,7 +45,7 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
 
             }
             RandomAccessFile file = new RandomAccessFile(INDEX, "r");
-            HttpResponse response = new DefaultFullHttpResponse(request.getProtocolVersion(), HttpResponseStatus.OK)
+            HttpResponse response = new DefaultFullHttpResponse(request.getProtocolVersion(), HttpResponseStatus.OK);
         }
     }
 }

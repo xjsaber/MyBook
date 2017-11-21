@@ -1873,4 +1873,56 @@ Netty的WebSocketServerProtocolHandler处理了所有委托管理的WebSocket帧
 使用Netty的WebSocket实现来管理Web应用程序中的实时数据。
 
 # 第13章 使用UDP广播事件 #
+* TextWebSocketFrame
 
+# 第13章 使用UDP广播事件 #
+
+一个无连接即用户数据报协议（UDP）上，通常用在性能至关重要并且能够容忍一定的数据包丢失的情况下。
+
+## 13.1 UDP的基础知识 ##
+
+面向连接的传输（如TCP）管理了两个网络端点之间的连接的建立，在连接的生命周期内的有序和可靠的传输传输，以及最后，连接的有序终止。相比之下，在类似于UDP这样的无连接协议中，并没有持久化连接这样的概念，并且每个消息（一个UDP数据报）都是一个单独的传输单元。
+
+UDP没有TCP的纠错机制，其中每个节点都将确认他们所接收到的包，而没有被确认的包将会被发送方重新传输。
+
+## 13.2 UDP广播 ##
+
+* 多播——传输到一个预定义的主机组；
+* 广播——传输到网络（或者子网）上的所有主机。
+
+使用特殊的受限广播地址或者零网络地址 255.255.255.255，发送到这个地址的消息都将会被定向给本地网络（0.0.0.0）上的所有主机，而不会被路由器转发给其他的网络。
+
+## 13.3 UDP示例应用程序 ##
+
+发布/订阅模式 类似于syslog这样的应用程序通常回归类为发布/订阅模式：一个生产者或者服务发布事件，而多个客户端进行订阅以接收他们。
+
+## 13.4 消息POJO：LogEvent ##
+
+## 13.5 编写广播者 ##
+
+在广播者中使用的 Netty 的 UDP 相关类
+
+|名称|描述|
+|--|--|
+|interface AddressedEnvelope<M, A extends SocketAddress> extends ReferenceCounted|定义一个消息，其包装了另一个消息并带有发送者和接收者地址。其中M是消息类型；A是地址类型|
+|class DefaultAddressedEnvelope<M, A extends SocketAddress> implements AddressedEnvelop<M,A>|提供了 interface AddressedEnvelope
+的默认实现|
+|class DatagramPacket extends DefaultAddressedEnvelope<ByteBuf, InetSocketAddress> implements ByteBufHolder|扩展了DefaultAddressedEnvelope以使用ByteBuf作为消息数据容器|
+|interface DatagramChannel extends Channel|扩展了Netty的Channel抽象以支持UDP的多播组管理|
+|class NioDatagramChannel extends AbstractNioMessageChannel implements DatagramChannel|定义了一个能够发送和接收AddressedEnvelop消息的Channel类型|
+
+DatagramPacket是一个简单的消息容器，DatagramChannel实现用它来和程序节点通信。（类似于在我们之前的类比中的明信片，它包含了接收者（和可选的发送者）的地址以及消息的有效负载本身）。
+
+要将LogEvent消息转换为DatagramPacket，需要一个编码器。（扩展Netty的MessageToMessageEncoder）。
+
+## 13.6 编写监视器 ##
+
+将netcat替换为一个更加完整的事件消费者，LogEventMonitor。
+
+1. 接收由LogEventBroadcaster广播的UDP DatagramPacket；
+2. 将它们解码为 LogEvent 消息；
+3. 将 LogEvent 消息写出到 System.out。
+
+自定义的ChannelHandler实现——扩展MessageToMessageDecoder。
+
+![LogEventMonitor](img/13_4LogEventMonitor.png)
