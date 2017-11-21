@@ -23,7 +23,7 @@ public class ChatServer {
     private final EventLoopGroup group = new NioEventLoopGroup();
     private Channel channel;
 
-    private ChannelFuture start(InetSocketAddress address){
+    ChannelFuture start(InetSocketAddress address){
         ServerBootstrap bootstrap = new ServerBootstrap();
         bootstrap.group(group)
                 .channel(NioServerSocketChannel.class)
@@ -37,14 +37,14 @@ public class ChatServer {
     /**
      * 创建ChatServerInitializer
      */
-    private ChannelInitializer<Channel> createInitializer(ChannelGroup group){
+    protected ChannelInitializer<Channel> createInitializer(ChannelGroup group){
         return new ChatServerInitializer(group);
     }
 
     /**
      * 处理服务器关闭，并释放所有的资源
      */
-    private void destroy(){
+    void destroy(){
         if (channel != null){
             channel.close();
         }
@@ -52,7 +52,7 @@ public class ChatServer {
         group.shutdownGracefully();
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) throws Exception {
         if (args.length == 0){
             System.err.println("Please give port as argument");
             System.exit(1);
