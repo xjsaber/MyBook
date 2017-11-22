@@ -838,6 +838,19 @@ CookieStore类允许增加、删除和列出cookie，使能控制在正常HTTP�
 
 * 在绑定端口上接收来自远程机器的连接
 
+#### 用Telnet研究协议 ####
+
+#### 用Socket从服务器读取 ####
+
+#### 用Socket写入服务器 ####
+
+#### 半关闭Socket ####
+
+close()方法同时关闭Socket输入和输出。shutdownInput()和shutdownOutput()方法可以只关闭连接的一半（输入或者输出）。
+
+	public void shutdownInput() throws IOException
+	public void shutdownOutput() throws IOException
+
 ### 构造和连接Socket ###
 
 java.net.Socket类是Java完成客户端TCP操作的基础类。
@@ -851,23 +864,118 @@ java.net.Socket类是Java完成客户端TCP操作的基础类。
 
 构造函数连接socket（也就是说，在构造函数返回之前，会与远程主机建立一个活动的网络连接）。
 
+#### 选择从哪个本地接口连接 ####
+
+	public Socket(String host, int port, InetAddress interface, int localPort) throws IOException, UnknownHostException
+	public Socket(InetAddress host, int port, InetAddress interface, int localPort)
+
+网络接口可以是物理接口，也可以是虚拟接口（一个有多个IP地址的多宿主主机）。如果为localPort参数传入0，Java会随机选择1024到65535之间的一个可用端口。
+
 #### 构造但不连接 ####
+
+	public Socket()
+
+可以以后再为某个connect()方法传入一个SocketAddress来建立连接。
+
+	try {
+		Socket socket = new Socket();
+		// 填入socket选项
+		SocketAddress address = new InetSocketAddress("www.baidu.com")
+		Socket.connect(address);
+		// 使用socket...
+	} catch(IOException ex) {
+		System.err.println(ex);
+	}
 
 #### Socket地址 ####
 
+SocketAddress类表示一个连接断电。
+
 #### 代理服务器 ####
 
+最后一个构造函数创建一个未连接的Socket，它通过一个指定的代理服务器连接：
 
+	public Socket(Proxy proxy)
 
 #### 获取Socket的消息 ####
 
-* 远程地址
-* 远程端口
-* 本地地址
+* 远程地址 public InetAddress getInetAddress()
+* 远程端口 public int getPort()
+* 本地地址 public InetAddress getLocalAddress()
+* 本地端口 public int getLocalPort()
+
+#### 关闭还是连接 ####
+
+如果socket关闭，isCloesd()方法会返回true，否则返回false。
+
+	if (socket.isClosed()){
+
+	} else {
+		
+	}
+
+如果Socket从一开始从未连接，isClosed()也返回false。
+
+#### toString() ####
+
+### 设置Socket选项 ###
+
+* TCP_NODELAY
+* SO_BINDADDR
+* SO_TIMEOUT
+* SO_LINGER
+* SO_SNDBUF
+* SO_RECBUF
+* SO_KEEPALIVE
+* OOBINLINE
+* IP_TOS
+
+#### TCP_NODELAY ####
+
+	public void setTcpNoDelay(boolean on) throws SocketException
+	public boolean getTcpNoDelay() throws SocketException
+
+#### SO_LINGER ####
+
+SO_LINGER选项指定了Socket关闭时如何处理尚未发送的数据报。默认情况下
+
+	public void setSoLinger(boolean on, int seconds) throws SocketException
+	public int getSolinger() throws SocketException
+
+
+
+#### SO_TIMEOUT ####
+
+	public void setSoTimeout(int milliseconds) throws SocketException
+	public int getSoTimeout() throws SocketException
+
+1. 尝试从Socket读取数据时，read()调用会阻塞尽可能长的时间来得到足够的字节。设置SO_TIMEOUT可以确保这个次调用阻塞的时间不会超过某个固定的毫秒数。
+2. 当时间到期就会抛出一个InterruptedIOException异常。
+3. Socket仍然是连接的，虽然read()调用失败，但可以再次尝试读取该Socket。下次调用可能会成功。
+
+	if (s.getSoTimeout() == 0) s.setSoTimeout(180000);
+
+1. SocketException
+2. IllegalArgumentException
+
+#### SO_RCVBUF和SO_SNDBUF ####
+
+TCP使用缓冲区提升网络性能。较大的缓冲区会提升快速连接的性能，而较慢的拨号连接利用较小的缓冲区有更好的表现。
+
+#### SO_KEEPALIVE ####
+
+如果打开了SO_KEEPALIVE，客户端偶尔会通过一个空闲连接发送一个数据包）一般两小时一次，以确保服务器未崩溃。如果服务器没能响应这个包，客户端会持续尝试11分钟多的时间，直到接收到响应为止。如果服务器没能响应这个包，客户端就关闭socket。
+
+如果没有SO_KEEPALIVE，不活动的客户端可能会永远存下去，而不会注意到服务器已经崩溃。
+
+#### OOBINLINE ####
+
+TCP包括一个可以发送单字节带外（Out Of Band，OOB）“紧急”数据的特性。这个数据会立即发送
 
 ## ch9 服务器Socket ##
 
 服务器Socket在服务器上运行，监听入站TCP连接。每个服务器Socket监听服务器机器上的一个特定端口。
 
 ### 使用SeverSocket ###
+
 ServerSocket类包含了使用Java编写服务器所需的全部内容。其中包括创建新ServerSocket对象的构造函数、在指定端口监听连接的方法、配置各个服务器Socket选项的方法，以及其他一些常见的方法。
