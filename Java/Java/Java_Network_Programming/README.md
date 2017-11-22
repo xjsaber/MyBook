@@ -838,6 +838,33 @@ CookieStore类允许增加、删除和列出cookie，使能控制在正常HTTP�
 
 * 在绑定端口上接收来自远程机器的连接
 
+### 构造和连接Socket ###
+
+java.net.Socket类是Java完成客户端TCP操作的基础类。
+
+#### 基本构造函数 ####
+
+每个Socket构造函数指定要连接的主机和端口。主机可以指定为InetAddress或String。远程端口指定为1到65 535之间的int值
+
+	public Socket(String host, int port) throws UnknownHostException, IOException
+	public Socket(InetAddress host, int port) throws IOException
+
+构造函数连接socket（也就是说，在构造函数返回之前，会与远程主机建立一个活动的网络连接）。
+
+#### 构造但不连接 ####
+
+#### Socket地址 ####
+
+#### 代理服务器 ####
+
+
+
+#### 获取Socket的消息 ####
+
+* 远程地址
+* 远程端口
+* 本地地址
+
 ## ch9 服务器Socket ##
 
 服务器Socket在服务器上运行，监听入站TCP连接。每个服务器Socket监听服务器机器上的一个特定端口。
