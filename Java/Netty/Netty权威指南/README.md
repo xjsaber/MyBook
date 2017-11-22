@@ -61,9 +61,92 @@ TCP是个“流”协议，所谓流，就是没有界限的一串数据。
 
 #### 4.3.2 支持TCP粘包的TimeClient ####
 
+中级篇 Netty编解码开发指南
 
+## 第6章 编解码技术 ##
+
+### 6.1.1 无法跨语言 ###
+
+### 6.1.2 序列化后的码流太大 ###
+
+* 是否支持跨语言，支持的语言种类是否丰富；
+* 编码后的码流大小；
+* 编解码的性能；
+* 类库是否小乔，API使用是否方便；
+* 使用者需要手工开发的工作量和难度
+
+### 6.1.3 序列化性能太低 ###
+
+无论是序列化后的码流大小，还是序列化的性能， JDK默认的序列化机制表现得都很差。因此，不会选择Java序列化作为远程跨节点调用的编解码框架。
+
+## 6.2 业界主流的编解码框架 ##
+
+### 6.2.1 Google的Protobuf介绍 ###
+
+* 结构化数据存储格式（XML、JSON等）；
+* 高效的编解码性能；
+* 语言无关、平台无关、扩展性好；
+* 官方支持Java、C++和Python三种语言。
+
+### 6.2.2 Facebook的Thrift介绍 ###
+
+Thrift可以作为高性能的通信中间件使用，它支持数据（对象）序列化和多种类型的RPC服务。Thrift适用于静态的数据交换，需要先确定好它的数据结构，当诗句结构发生变化时，必须重新编辑IDL文件，生成代码和编译。
+
+1. 语言系统以及IDL编译器：负责由用户给定的IDL文件生成相应语言的接口代码；
+2. TRrotocol：RPC的协议层，可以选择多种不同的对象序列化方式，如JSON和Binary；
+3. TTransport：RPC的传输层，同样可以选择不同的传输层实现，如socket、NIO、MemoryBuffer等；
+4. TProcessor：作为协议层和用户提供的服务实现之间的纽带，负责调用
+5. TServer：聚合TProtocol、TTransport和TProcessor等对象。
+
+### 6.2.3 JBoss Marshalling介绍 ###
+
+相比于传统的Java序列化机制，它的优点如下：
+
+* 可插拔的类解析器
+* 可插拔的对象替换技术
+* 可插拔的预定义类缓存表
+* 无须实现java.io.Serializable接口，即可实现Java序列化；
+* 通过缓存技术提升对象的序列化性能
+
+## 6.3 总结 ##
+
+## 第7章 MessagePack编解码 ##
+
+### 7.1 MessagePack介绍 ###
+
+#### 7.1.1 MessagePack多语言支持 ####
+
+#### 7.1.2 MessagePack Java API介绍 ####
+
+#### 7.1.3 MessagePack开发包下载 ####
+
+### 7.2 MessagePack 编码器和解码器开发 ###
+
+编解码框架可以方便地集成第三方序列化框架，Netty预集成了几种常用的编解码框架。
+
+#### 7.2.1 MessagePack 编码器开发 ####
+
+MsgpackEncoder继承MessageToByteEncoder，负责Object类型的POJO对象编码为byte数组，然后写入到ByteBuf中。
+
+#### 7.2.2 MessagePack 解码器开发 ####
+
+编解码器开发之后，以Netty原生的Echo程序为例，进行测试。对Echo进行简单改造，传输的对象由字符串修改为POJO对象，利用MessagePack对POJO对象进行序列化。
+
+#### 7.2.3 功能测试 ####
 
 ## 第8章 Goole Protobuf 编解码 ##
+
+### 8.1 Protobuf的入门 ###
+
+#### 8.1.1 Protobuf开发环境搭建 ####
+
+#### 8.1.2 Protobuf编解码开发 ####
+
+#### 8.1.3 运行Protobuf例程 ####
+
+### 8.2 Netty的Protobuf服务端开发 ###
+
+#### 8.2.1 Protobuf版本的图书订购服务端开发 ####
 
 
 
