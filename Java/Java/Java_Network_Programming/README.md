@@ -870,4 +870,15 @@ java.net.Socket类是Java完成客户端TCP操作的基础类。
 服务器Socket在服务器上运行，监听入站TCP连接。每个服务器Socket监听服务器机器上的一个特定端口。
 
 ### 使用SeverSocket ###
+
 ServerSocket类包含了使用Java编写服务器所需的全部内容。其中包括创建新ServerSocket对象的构造函数、在指定端口监听连接的方法、配置各个服务器Socket选项的方法，以及其他一些常见的方法。
+
+在Java中，服务器程序的基本生命周期：
+
+1. 使用一个ServerSocket()构造函数在一个特定端口创建一个新的ServerSocket。
+2. ServerSocket使用其accept()方法监听这个端口的入站连接。accept()会一直阻塞，直到一个客户端尝试建立连接。
+3. 根据服务器的类型，会调用Socket的getInputStream()方法或getOutputStream()方法，或者这两个方法都调用，以获得与客户端通信的输入和输出流。
+4. 服务器和客户端根据已协商的协议交互，直到要关闭连接。
+5. 服务器或客户端（或二者）关闭连接。
+6. 服务器返回到步骤2，等待下一次连接。
+
