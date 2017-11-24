@@ -112,6 +112,8 @@ Buffer java.nio java.nio.channels
 
 一个Buffer对象是固定数量的数据的容器。其作用是一个存储器，或者分段运输区，在这里数据可悲存储并在之后用于检索。缓冲区写满和释放。对于每个非布尔原始数据都一个缓冲区类。尽管缓冲区作用于它们存储的原始数据类型，但缓冲区十分倾向于处理字节。非字节缓冲区可以在后台执行从字节或到字节的转换，这取决于缓冲区是如何创建的。
 
+缓冲区的工作与通道紧密联系。通道是I/O传输发生时发生时通过的入口，而缓冲区是这些数据传输的来源或目标。对于离开缓冲区的传输，想传递出去的数据被置于一个缓冲区，被传送到通道。对于传回缓冲区的传输，一个通道将数据放置在所提供的缓冲区。这种在协同对象（通常是缩写的对象以及一到多个Channel对象）之间进行缓冲区数据传递是高效数据处理的关键。
+
 ## 2.1 缓冲区基础 ##
 
 缓冲区是包在一个对象内的基本数据元素数组。Buffer 类相比一个简单数组的优点是它将关于数据的数据内容和信息包含在一个单一的对象中。Buffer 类以及它专有的子类定义了一个用于处理数据缓冲区的 API。
@@ -140,6 +142,23 @@ Buffer java.nio java.nio.channels
 
 Buffer类的方法签名
 
+	package java.nio;
+	public abstract class Buffer {
+		public final int capacity( )
+		public final int position( )
+		public final Buffer position (int newPositio
+		public final int limit( )
+		public final Buffer limit (int newLimit)
+		public final Buffer mark( )
+		public final Buffer reset( )
+		public final Buffer clear( )
+		public final Buffer flip( )
+		public final Buffer rewind( )
+		public final int remaining( )
+		public final boolean hasRemaining( )
+		public abstract boolean isReadOnly( );
+	}
+
 级联调用允许这种类型的代码：
 
 	buffer.mark( );
@@ -155,6 +174,59 @@ java.nio 中的类被特意地设计为支持级联调用
 对于 API 还要注意的一点是 isReadOnly()函数。所有的缓冲区都是可读的，但并非所有都可写。每个具体的缓冲区类都通过执行 isReadOnly()来标示其是否允许该缓存区的内容被修改。一些类型的缓冲区类可能未使其数据元素存储在一个数组中。例如MappedByteBuffer 的内容可能实际是一个只读文件。您也可以明确地创建一个只读视图缓冲区，来防止对内容的意外 修改。对只读的缓冲区的修改尝试将会导致ReadOnlyBufferException 抛出。但是我们要提前做好准备。
 
 ### 2.1.3 存取 ###
+
+	public abstract class ByteBuffer extends Buffer implements Comparable {
+		// This is a partial API listing
+		public abstract byte get();
+		public abstract byte get(int index);
+		public abstract ByteBuffer put (byte b);	
+	}
+
+### 2.1.4 填充 ###
+
+代表“Hello”字符串的ASCII码载入一个名为buffer的ByteBuffer对象中。
+
+	buffer.put((byte)'H').put((byte)'e').put((byte)'l').put((byte)'l').put((byte)'o');
+
+![图2-3](img/2-3.png)
+
+使用put()的绝对方案达到，已经在buffer中存放了一些数据，不想在不丢失位置的情况下进行修改。
+
+	buffer.put(0, (byte)'M').put((byte)'w');
+
+通过进行一次绝对方案的put将0位置的字节代替为十六进制数值0x4d，将0x77放入当前位置（当前位置不会受到绝对put()的影响）的字节，并将位置属性加一。
+
+![图2-4](img/2-4.png)
+
+存放的是字节而不是字符。在Java中，字符在内部以Unicode码表示，每个Unicode字符占16位。
+
+### 2.1.5 翻转 ###
+
+
+
+	buffer.limit(buffer.position()).position(0);
+
+	Buffer.flip();
+
+Flip()函数将一个能够继续添加数据元素的填充状态的缓冲区翻转成一个准备读出元素的释放状态。
+
+### 2.1.6 释放 ###
+
+布尔函数 hasRemaining()会在释放缓冲区时告诉您是否已经达到缓冲区的上界。
+
+	for (int i = 0; buffer.hasRemainging(), i++) {
+		myByteArray[i] == buffer.get();
+	}
+
+作为选择，remaining()函数将告知您从当前位置到上界还剩余的元素数目。
+
+	int count = buffer.remaining( );
+
+	for (int i = 0; i < count, i++) {
+		myByteArray [i] = buffer.get( );
+	}
+
+缓冲区并不是多线程安全的。如果想以多线程同时存取特定的缓冲区，需要在存取缓冲区之前进行同步。
 
 # 第四章 选择器 #
 
@@ -192,3 +264,20 @@ SelectiionKey
 	}
 
 #### 已注册的键的集合（Registered key set） ####
+
+### 4.3.4 并发性 ###
+
+通过keys()和selectKeys()返回的键的集合是Selector对象内部的私有Set对象集合的直接引用。
+
+如果在多个线程并发地访问一个选择器的键的集合的时候存在任何问题，您可以采取一些步骤来合理地同步访问。在执行选择操作时，选择器在 Selector 对象上进行同步，然后是已注册的键的集合，最后是已选择的键的集合，按照这样的顺序。已取消的键的集合也在选择过程的的第 1
+步和第 3 步之间保持同步（当与已取消的键的集合相关的通道被注销时）。
+
+Selector类的close()方法与select()方法的同步方式是一样的。
+
+## 4.4 异步关闭能力 ##
+
+一个线程在关闭一个处于选择操作中的通道时，被阻塞于无限期的等待。当一个通道关闭时，它相关的键也就都被取消了。这并不会影响正在进行的 select( )，但这意味着在您调用 select( )之前仍然是有效的键，在返回时可能会变为无效。
+
+## 4.5 选择过程的可扩展性 ##
+
+## 4.6 总结 ##
