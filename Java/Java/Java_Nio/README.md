@@ -182,6 +182,8 @@ java.nio 中的类被特意地设计为支持级联调用
 		public abstract ByteBuffer put (byte b);	
 	}
 
+get和put可以是相对的或者是绝对的。
+
 ### 2.1.4 填充 ###
 
 代表“Hello”字符串的ASCII码载入一个名为buffer的ByteBuffer对象中。
@@ -209,6 +211,8 @@ java.nio 中的类被特意地设计为支持级联调用
 	Buffer.flip();
 
 Flip()函数将一个能够继续添加数据元素的填充状态的缓冲区翻转成一个准备读出元素的释放状态。
+
+Rewind()函数与
 
 ### 2.1.6 释放 ###
 
@@ -260,9 +264,177 @@ buffer.position(2).mark().position(4)
 		
 	}
 
+## 2.2 创建缓冲区 ##
+
+## 2.3 复制缓冲区 ##
+
+## 2.4 字节缓冲区 ##
+
+### 2.4.1 字节顺序 ###
+
+|数据类型|大小（以字节表示）|
+|--|--|
+|Byte|1|
+|Char|2|
+|Short|2|
+|Int|4|
+|Long|8|
+|Float|4|
+|Double|8|
+
+多字节数值被存储在内存中的方式一般被成为endian-ness（字节顺序）。
+
+	package java.nio;
+
+	public final class ByteOrder{
+		public static final ByteOrder BIG_ENDIAN
+		public static final ByteOrder LITTLE_ENDIAN
+
+		public static ByteOrder nativeOrder()
+		public String toString()
+	}
+
+ByteOrder类定义了决定从缓冲区中存储或检索多字节数值时使用哪一字节顺序的常量。这个类的作用就像一个类型安全的枚举。定义了以本身预初始化的两个public区域。
+
+	每个缓冲区类具有一个能够调用order()查询的当前字节顺序设定。
+
+	public abstract class BarBuffer extends Buffer implements Comparable, CharSequence {
+		//This is a partial API listing
+		public final ByteOrder order()
+	}
+
+2.4.2 直接缓冲区
+
 ## 2.5 总结 ##
 
 #### 缓冲区属性 ####
+
+# 第三章 通道 #
+
+通道（Channel）是java.nio的第二个主要创新。
+
+Channel用于在字节缓冲区和位于通道另一侧的实体（通常是一个文件或套接字）之间有效地传输数据。
+
+载体就好比一个缓冲区，先填充缓冲区，接着将缓冲区“写到”通道中，然后信息负载就被传递到通道另一侧的I/O服务。
+
+Channel类的继承关系要比buffer类复杂一些。Channel类相互之间的关系更复杂，并且部分channel类依赖于在java.nio.channels.spi子包中定义的类。
+
+## 3.1 通道基础 ##
+
+	package java.nio.channels;
+	public interface Channel {
+		public boolean isOpen();
+		public void close() throws IOException;
+	}
+
+### 3.1.1 打开通道 ###
+
+通道是访问I/O服务的导管。I/O可以分为广义的两大类别：File I/O和Stream I/O。文件（file）通道和套接字（socket）通道。
+
+通道可以以多种方式创建。Socket通道有可以直接创建新socket通道的共产方法。但是一个FileChannel对象却只能通过在一个打开的RandomAccessFile、FileInputStream或FileOutputStrean对象上调用getChannel()方法来获取。不能直接创建一个FileChannel对象。
+
+	SocketChannel sc = SocketChannel.open();
+	sc.connect(new InetSocketAddress("somehost", someport));
+	ServerSocketChannel ssc = ServerSocketChannel.open();
+	ssc.socket().bind(new InetSocketAddress(somelocalport));
+	DatagramChannel dc = DatagramChannel.open();
+	RandomAccessFile raf = new RandomAccessFile("somefile", "r");
+
+java.net的socket类有新的getChannel()方法。这些方法虽然能返回一个相应的socket通道的对象，但它们并非新通道的来源。
+
+RandomAccessFile.getChannel()方法才是，返回一个新通道。
+
+### 3.1.2 使用通道 ###
+
+通道将数据传输给ByteBuffer对象或者从ByteBuffer对象获取数据进行传输。
+
+	public interface ReadableByteChannel extends Channel {
+		public in read(ByteBuffer dst) throws IOException;
+	}
+	public interface WritableByteChannel extends Channel {
+		public in read(ByteBuffer src) throws IOException;
+	}
+	public interfaceByteChannel extends ReadabkeByteCgabbek, WriteableByteChannle {
+
+	}	
+
+通道可以是单向（unidirectional）或者双向的（bidirectional）。
+
+### 3.1.3 关闭通道 ###
+
+与缓冲区不同，通道不能被重复使用。一个打开的通道即代表与一个特定I/O服务的特定连接并封装该连接的状态。当通道关闭时，那个连接会丢失，然后通道将不再连接任何东西。
+
+	package java.nio.channels;
+	public interface Channel {
+		public boolean isOpen();
+		public void close() throws IOException;
+	}
+
+调用通道的close()方法时，可能会导致在通道关闭底层I/O服务的过程中线程暂时阻塞。哪怕该通道处于非阻塞模式。
+
+通过isOpen()方法来测试通道的开放状态。如果返回true值，那么该通道可以使用。如果返回false值，那么该通道已关闭，不能再被使用了。
+
+## 3.2 Scatter/Gather ##
+
+对于一个 write 操作而言，数据是从几个缓冲区按顺序抽取（称为 gather）并沿着通道发送的。
+
+	public inteface ScatteringByteChannel extends ReadableByteChannel {
+		public long read(ByteBuffer [] dsts) throws IOException;
+		public long read(ByteBuffer [] dsts, int offset, int length) throws IOException;
+	}
+
+## 3.6 管道 ##
+
+java.nio.channels包中含有一个名为Pipe（管道）的类。
+
+Pipe类创建一对提供环回机制的Channel对象。这两个通道的远端是连接起来的，以便任何写在SinkChannel对象上的数据都能出现在SourceChannel对象上。
+
+Pipe实例是通过调用不带参数的Pipe.open()工厂方法来创建的。
+
+## 3.7 通道工具类 ##
+
+NIO通道提供了一个全新的类似流的I/O隐喻，
+
+一个工具类（java.nio.Channels.Channels）定义了几种静态的工厂方法以使用到可以更加容易地同流和读写器互联。
+
+java.nio.channels.Channels工具方法汇总
+
+|方法|返回|描述|
+|--|--|--|
+|newChannel(InputStream in)|ReadableByteChannel|返回一个将从给定的输入流读取数据的通道|
+|newChannel(OutputStream out)|ReadableByteChannel|返回一个将从给定的输入流读取数据的通道|
+|newInputStream(ReadableByteChannel ch)|ReadableByteChannel|返回一个将从给定的输入流读取数据的通道|
+|newOutputStream(WritableByteChannel ch)|ReadableByteChannel|返回一个将从给定的输入流读取数据的通道|
+|newReader(ReadableByteCHannel ch, CharsetDecoder dec, in minBufferCap)|Reader|返回一个reader，它将从给定的通道读取字节并依据提供的CharsetDecoder对读取到字节的进行解码。|
+|newReader(ReadableByteCHannel ch, String csName)|Reader|返回一个reader，它将从给定的通道读取字节并依据提供的字符集名称对读取到字节解码成字符。|
+|newWriter(WritableByteCHannel ch, CharsetEncoder dec, int minBufferCap)|Writer|返回一个writer，它将使用提供的CharsetEncoder对象对字符编码并写到给定的通道中。|
+|newWriter(WritableByteCHannel ch, String csName)|Writer|返回一个writer，它将依据提供的字符集名称对字符编码并写到给定的通道中。|
+
+常规的流仅传输字节，readers和writers则作用于字节数据。Readers和Writers运行在字符的基础上，在Java的世界里同字节是完全不同的。将一个通道（仅了解字节）连接到一个reader或writer需要一个中间对话来处理字节/字符（byte/char）。
+
+## 3.8 总结 ##
+
+#### 基本的通道操作 ####
+
+怎样使用所有通道都通用的API方法调用来打开一个通道以及完成操作时如何关闭通道。
+
+#### Scatter/Gather通道 ####
+
+scatter/gather I/O。
+
+#### 文件通道 ####
+
+FileChannel，文件锁定、内存映射文件以及channel-to-channel传输
+
+#### Socket通道 ####
+
+Socket通道，非阻塞模式
+
+#### 管道 ####
+
+Pipe类
+
+#### Socket通道 ####
 
 # 第四章 选择器 #
 
