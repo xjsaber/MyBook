@@ -204,8 +204,6 @@ get和put可以是相对的或者是绝对的。
 
 ### 2.1.5 翻转 ###
 
-
-
 	buffer.limit(buffer.position()).position(0);
 
 	Buffer.flip();
@@ -261,10 +259,58 @@ buffer.position(2).mark().position(4)
 		//This is a partial API listing
 		public CharBuffer get(char[] dst)
 		public CharBuffer get(char[] dst, int offset, int length)
-		
 	}
 
+有两种形式的get()可供从缓冲区到数组进行数据复制使用。
+
+1. 只将一个数组作为参数，将一个缓冲区释放到给定的数组。
+2. 使用offset和length参数来指定目标数组的子区间。
+
+批量移动总是具有指定的长度，要求移动固定数量的数据元素。
+
+	buffer.get(myArray);
+
+等价于：
+
+	buffer.get(myArray, 0, myArray.length)
+
+
+
 ## 2.2 创建缓冲区 ##
+
+	public abstract class CharBuffer extends Buffer implements CharSequence, Comparable {
+		// This is a partial API listing
+		public static CharBuffer allocate(int capacity)
+		public static CharBuffer wrap(char [] array)
+		public static CharBuffer wrap(char [] array, int offset, int length)
+		public final boolean hasArray()
+		public final char[] array()
+		public final int arrayOffset()
+	}
+
+新的缓冲区是由分配或包装操作创建的。分配操作创建一个缓冲区对象并分配一个私有的空间来存储容量大小的数据元素。
+
+	CharBuffer charBuffer = CharBuffer.allocate(100);
+
+这段代码隐含地从堆空间中分配了一个 char 型数组作为备份存储器来储存 100 个 char 变量。
+
+	char [] myArray = new char [100];
+	CharBuffer charbuffer = CharBuffer.wrap (myArray);
+
+构造了一个新的缓冲区对象，但数据元素会存在于数组中。这意味着通过调用put()函数造成的对缓冲区的改动会直接影响这个数组，而且对这个数组的任何改动也会对这个缓冲区对象可见。带有 offset 和 length 作为参数的 wrap()函数版本则会构造一个按照您提供的 offset 和 length 参数值初始化位置和上界的缓冲区。
+
+	CharBuffer charbuffer = CharBuffer.wrap (myArray, 12, 42);
+
+创建了一个 position 值为 12，limit 值为 54，容量为 myArray.length 的缓冲区。
+
+创建了一个只占用了一个数组子集的缓冲区。这个缓冲区可以存取这个数组的全部范围；offset 和 length 参数只是设置了初始的状态。调用使
+用上面代码中的方法创建的缓冲区中的 clear()函数，然后对其进行填充，直到超过上界值，这将会重写数组中的所有元素。Slice()函数（2.3 节将会讨论）可以提供一个只占用备份数组一部分的缓冲区。
+
+通过 allocate()或者 wrap()函数创建的缓冲区通常都是间接的。
+
+如果 hasArray()函数返回 false，不要调用 array()函数或者 arrayOffset()函数。不然会得到UnsupportedOperationException异常。
+
+
 
 ## 2.3 复制缓冲区 ##
 

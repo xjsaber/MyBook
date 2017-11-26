@@ -1021,3 +1021,50 @@ Daytime和time都是非常快的协议。
 与很多协议不同，echo没有指定锁步行为，即客户端发送一个请求，然后在发送更多数据之前会等待的服务器响应。
 
 #### 关闭服务器Socket ####
+
+## 第11章 非阻塞I/O ##
+
+#### 一个示例客户端 ####
+
+#### 一个示例服务器 ####
+
+### 缓冲区 ###
+
+除了boolean外，Java的所有基本数据类型都有特定的Buffer子类：ByteBuffer、CharBuffer、ShortBuffer、IntBuffer、LongBuffer、FloatBuffer和DoubleBuffer。每个子类中的方法都有相应类型的返回值和参数列表
+
+位置（position）
+
+	public final int position()
+	public final Buffer position(int newPosition)
+
+容量（capacity）
+
+	public final int capacity()
+
+限度（limit）
+
+	public final int limit()
+	public final Buffer limit(int newLimit)
+
+标记（mark）
+
+	public final Buffer mark()
+	public final Buffer reset()
+
+（position）
+
+位置（position）
+
+#### 创建缓冲区 ####
+
+IntBuffer、ByteBuffer、CharBuffer还是其他类型
+
+**分配**
+
+
+
+**直接分配**
+
+**包装**
+
+#### 填充和排空 ####
