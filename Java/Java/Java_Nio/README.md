@@ -429,6 +429,15 @@ RandomAccessFile.getChannel()方法才是，返回一个新通道。
 		public long read(ByteBuffer [] dsts, int offset, int length) throws IOException;
 	}
 
+## 3.3 文件通道 ##
+
+FileChannel类可以实现常用的read，write以及scatter/gather操作。
+
+
+## 3.4 内存映射文件 ##
+
+
+
 ## 3.6 管道 ##
 
 java.nio.channels包中含有一个名为Pipe（管道）的类。
@@ -535,3 +544,23 @@ Selector类的close()方法与select()方法的同步方式是一样的。
 ## 4.5 选择过程的可扩展性 ##
 
 ## 4.6 总结 ##
+
+大规模、高容量的服务器端应用程序
+
+**就绪选择相关类（Selector classes）**
+
+Selector，SelectableChannel和SelectionKey这三个类组成了使得在Java平台上进行就绪检查变得可变的三驾马车。
+
+**选择键（Selection keys）**
+
+SelectionKey类封装了SelectableChannel对象和Selector之间的关系。
+
+**选择器（Selectors）**
+
+选择器请求操作系统决定那个注册到给定选择器上的通道。
+
+**异步关闭能力（Asynchronous closability）**
+
+关于异步关闭选择器和通道的问题。
+
+**多线程（Multithreading）**
