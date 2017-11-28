@@ -4,7 +4,9 @@ go官网的指南
 
 ## 基础 ##
 
-### 包 ###
+### 包、变量和函数 ###
+
+#### 包 ####
 
 每个 Go 程序都是由包组成的。
 
@@ -27,7 +29,7 @@ go官网的指南
 		fmt.Println("My favorite number is", rand.Intn(10))
 	}
 
-### 导入 ###
+#### 导入 ####
 
 同样可以编写多个导入语句，例如：
 
@@ -47,7 +49,7 @@ go官网的指南
 		fmt.Printf("Now you have %g problems.", math.Sqrt(7))
 	}
 
-### 导出名 ###
+#### 导出名 ####
 
 在 Go 中，首字母大写的名称是被导出的。
 
@@ -66,7 +68,7 @@ Foo 和 FOO 都是被导出的名称。名称 foo 是不会被导出的。
 		fmt.Println(math.Pi)
 	}
 
-### 函数 ###
+#### 函数 ####
 
 函数可以没有参数或接受多个参数。
 
@@ -102,7 +104,7 @@ Foo 和 FOO 都是被导出的名称。名称 foo 是不会被导出的。
 		fmt.Println(add(42, 13))
 	}
 
-### 多值返回 ###
+#### 多值返回 ####
 
 函数可以返回任意数量的返回值。
 
@@ -121,7 +123,7 @@ Foo 和 FOO 都是被导出的名称。名称 foo 是不会被导出的。
 		fmt.Println(a, b)
 	}
 
-### 命名返回值 ###
+#### 命名返回值 ####
 
 Go 的返回值可以被命名，并且就像在函数体开头声明的变量那样使用。
 
@@ -143,7 +145,7 @@ Go 的返回值可以被命名，并且就像在函数体开头声明的变量�
 		fmt.Println(split(17))
 	}
 
-### 变量 ###
+#### 变量 ####
 
 `var` 语句定义了一个变量的列表；跟函数的参数列表一样，类型在后面。
 
@@ -160,7 +162,7 @@ Go 的返回值可以被命名，并且就像在函数体开头声明的变量�
 		fmt.Println(i, c, python, java)
 	}
 
-### 初始化变量 ###
+#### 初始化变量 ####
 
 变量定义可以包含初始值，每个变量对应一个。
 
@@ -177,7 +179,7 @@ Go 的返回值可以被命名，并且就像在函数体开头声明的变量�
 		fmt.Println(i, j, c, python, java)
 	}
 
-### 短声明变量 ###
+#### 短声明变量 ####
 
 在函数中， := 简洁赋值语句在明确类型的地方，可以用于替代 var 定义。
 
@@ -195,7 +197,7 @@ Go 的返回值可以被命名，并且就像在函数体开头声明的变量�
 		fmt.Println(i, j, k, c, python, java)
 	}
 
-### 基本类型 ###
+#### 基本类型 ####
 
 Go 的基本类型有Basic types
 
@@ -239,7 +241,7 @@ int，uint 和 uintptr 类型在32位的系统上一般是32位，而在64位系
 		fmt.Printf(f, z, z)
 	}
 
-### 零值 ###
+#### 零值 ####
 
 变量在定义时没有明确的初始化时会赋值为 `零值` 。
 
@@ -261,7 +263,7 @@ int，uint 和 uintptr 类型在32位的系统上一般是32位，而在64位系
 		fmt.Printf("%v %v %v %q\n", i, f, b, s)
 	}
 
-### 类型转换 ###
+#### 类型转换 ####
 
 表达式 T(v) 将值 v 转换为类型 T 。
 
@@ -293,7 +295,7 @@ int，uint 和 uintptr 类型在32位的系统上一般是32位，而在64位系
 		fmt.Println(x, y, z)
 	}
 
-### 类型推导 ###
+#### 类型推导 ####
 
 在定义一个变量却并不显式指定其类型时（使用 := 语法或者 var = 表达式语法）， 变量的类型由（等号）右侧的值推导得出。
 
@@ -319,7 +321,7 @@ int，uint 和 uintptr 类型在32位的系统上一般是32位，而在64位系
 		fmt.Printf("v is of type %T\n", v)
 	}
 
-### 常量 ###
+#### 常量 ####
 
 常量的定义与变量类似，只不过使用 `const` 关键字。
 
@@ -342,7 +344,7 @@ int，uint 和 uintptr 类型在32位的系统上一般是32位，而在64位系
 		fmt.Println("Go rules?", Truth)
 	}
 
-### 数值常量 ###
+#### 数值常量 ####
 
 数值常量是高精度的 *值* 。
 
@@ -372,6 +374,300 @@ int，uint 和 uintptr 类型在32位的系统上一般是32位，而在64位系
 		fmt.Println(needFloat(Big))
 	}
 
+### 流程控制语句：for、if、else 、switch 和 defer ###
+
+#### for  ####
+
+Go 只有一种循环结构—— for 循环。
+
+基本的 for 循环包含三个由分号分开的组成部分：
+
+* 初始化语句：在第一次循环执行前被执行
+* 循环条件表达式：每轮迭代开始前被求值
+* 后置语句：每轮迭代后被执行
+
+初始化语句一般是一个短变量声明，这里声明的变量仅在整个 for 循环语句可见。
+
+如果条件表达式的值变为 false，那么迭代将终止。
+
+	package main
+	
+	import "fmt"
+	
+	func main() {
+		sum := 0
+		for i := 0; i < 10; i++ {
+			sum += i
+		}
+		fmt.Println(sum)
+	}
+
+循环初始化语句和后置语句都是可选的。
+
+	package main
+
+	import "fmt"
+
+	func main() {
+		sum := 1
+		for ; sum < 1000; {
+			sum += sum
+		}
+		fmt.Println(sum)
+	}
+
+#### for 是 Go 的 “while” ####
+
+基于此可以省略分号：C 的 while 在 Go 中叫做 for 。
+
+	package main
+	
+	import "fmt"
+	
+	func main() {
+		sum := 1
+		for sum < 1000 {
+			sum += sum
+		}
+		fmt.Println(sum)
+	}
+
+#### 死循环 ####
+
+如果省略了循环条件，循环就不会结束，因此可以用更简洁地形式表达死循环。
+
+	package main
+	
+	func main() {
+		for {
+		}
+	}
+
+#### if ####
+
+就像 for 循环一样，Go 的 if 语句也不要求用 ( ) 将条件括起来，同时， { } 还是必须有的。
+	
+	package main
+	
+	import (
+		"fmt"
+		"math"
+	)
+	
+	func sqrt(x float64) string {
+		if x < 0 {
+			return sqrt(-x) + "i"
+		}
+		return fmt.Sprint(math.Sqrt(x))
+	}
+	
+	func main() {
+		fmt.Println(sqrt(2), sqrt(-4))
+	}
+
+#### if 的便捷语句 ####
+
+跟 for 一样， if 语句可以在条件之前执行一个简单语句。
+
+由这个语句定义的变量的作用域仅在 if 范围之内。
+
+	package main
+	
+	import (
+		"fmt"
+		"math"
+	)
+	
+	func pow(x, n, lim float64) float64 {
+		if v := math.Pow(x, n); v < lim {
+			return v
+		}
+		return lim
+	}
+	
+	func main() {
+		fmt.Println(
+			pow(3, 2, 10),
+			pow(3, 3, 20),
+		)
+	}
+
+#### if 和 else ####
+
+在 if 的便捷语句定义的变量同样可以在任何对应的 else 块中使用。
+
+	package main
+	
+	import (
+		"fmt"
+		"math"
+	)
+	
+	func pow(x, n, lim float64) float64 {
+		if v := math.Pow(x, n); v < lim {
+			return v
+		} else {
+			fmt.Printf("%g >= %g\n", v, lim)
+		}
+		// 这里开始就不能使用 v 了
+		return lim
+	}
+	
+	func main() {
+		fmt.Println(
+			pow(3, 2, 10),
+			pow(3, 3, 20),
+		)
+	}
+
+#### 练习：循环和函数 ####
+
+
+#### switch ####
+
+除非以 fallthrough 语句结束，否则分支会自动终止。
+
+	package main
+	
+	import (
+		"fmt"
+		"runtime"
+	)
+	
+	func main() {
+		fmt.Print("Go runs on ")
+		switch os := runtime.GOOS; os {
+		case "darwin":
+			fmt.Println("OS X.")
+		case "linux":
+			fmt.Println("Linux.")
+		default:
+			// freebsd, openbsd,
+			// plan9, windows...
+			fmt.Printf("%s.", os)
+		}
+	}
+
+#### switch 的执行顺序 ####
+
+switch 的条件从上到下的执行，当匹配成功的时候停止。
+
+（例如，
+
+	switch i {
+	case 0:
+	case f():
+	}
+
+当 i==0 时不会调用 f 。）
+
+注意：Go playground 中的时间总是从 2009-11-10 23:00:00 UTC 开始， 如何校验这个值作为一个练习留给读者完成。
+
+	package main
+	
+	import (
+		"fmt"
+		"time"
+	)
+	
+	func main() {
+		fmt.Println("When's Saturday?")
+		today := time.Now().Weekday()
+		switch time.Saturday {
+		case today + 0:
+			fmt.Println("Today.")
+		case today + 1:
+			fmt.Println("Tomorrow.")
+		case today + 2:
+			fmt.Println("In two days.")
+		default:
+			fmt.Println("Too far away.")
+		}
+	}
+
+#### 没有条件的 switch ####
+
+没有条件的 switch 同 switch true 一样。
+
+这一构造使得可以用更清晰的形式来编写长的 if-then-else 链。
+
+	package main
+	
+	import (
+		"fmt"
+		"time"
+	)
+	
+	func main() {
+		t := time.Now()
+		switch {
+		case t.Hour() < 12:
+			fmt.Println("Good morning!")
+		case t.Hour() < 17:
+			fmt.Println("Good afternoon.")
+		default:
+			fmt.Println("Good evening.")
+		}
+	}
+
+#### defer ####
+
+defer 语句会延迟函数的执行直到上层函数返回。
+
+延迟调用的参数会立刻生成，但是在上层函数返回前函数都不会被调用。
+
+	package main
+	
+	import "fmt"
+	
+	func main() {
+		defer fmt.Println("world")
+	
+		fmt.Println("hello")
+	}
+
+#### defer 栈 ####
+
+延迟的函数调用被压入一个栈中。当函数返回时， 会按照后进先出的顺序调用被延迟的函数调用。
+
+	package main
+	
+	import "fmt"
+	
+	func main() {
+		fmt.Println("counting")
+	
+		for i := 0; i < 10; i++ {
+			defer fmt.Println(i)
+		}
+	
+		fmt.Println("done")
+	}
+
+### 复杂类型： struct、slice 和 map。 ###
+
+#### 指针 ####
+
+Go 具有指针。 指针保存了变量的内存地址。
+
+类型 *T 是指向类型 T 的值的指针。其零值是 nil 。
+
+	var p *int
+
+& 符号会生成一个指向其作用对象的指针。
+
+	i := 42
+	p = &i
+
+* 符号表示指针指向的底层的值。
+
+	fmt.Println(*p) // 通过指针 p 读取 i
+	*p = 21         // 通过指针 p 设置 i
+
+
+
 ## 方法和接口 ##
+
+
 
 ## 并发 ##
