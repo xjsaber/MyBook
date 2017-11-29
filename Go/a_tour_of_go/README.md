@@ -659,15 +659,491 @@ Go 具有指针。 指针保存了变量的内存地址。
 	i := 42
 	p = &i
 
-* 符号表示指针指向的底层的值。
+\* 符号表示指针指向的底层的值。
 
 	fmt.Println(*p) // 通过指针 p 读取 i
 	*p = 21         // 通过指针 p 设置 i
 
+这也就是通常所说的“间接引用”或“非直接引用”。
 
+	package main
+	
+	import "fmt"
+	
+	func main() {
+		i, j := 42, 2701
+	
+		p := &i         // point to i
+		fmt.Println(*p) // read i through the pointer
+		*p = 21         // set i through the pointer
+		fmt.Println(i)  // see the new value of i
+	
+		p = &j         // point to j
+		*p = *p / 37   // divide j through the pointer
+		fmt.Println(j) // see the new value of j
+	}
+
+#### 结构体 ####
+
+一个结构体（ struct ）就是一个字段的集合。
+
+（而 type 的含义跟其字面意思相符。）
+
+	package main
+	
+	import "fmt"
+	
+	type Vertex struct {
+		X int
+		Y int
+	}
+	
+	func main() {
+		fmt.Println(Vertex{1, 2})
+	}
+
+**结构体字段**
+
+结构体字段使用点号来访问。
+
+	package main
+	
+	import "fmt"
+	
+	type Vertex struct {
+		X int
+		Y int
+	}
+	
+	func main() {
+		v := Vertex{1, 2}
+		v.X = 4
+		fmt.Println(v.X)
+	}
+
+**结构体指针**
+
+结构体字段可以通过结构体指针来访问。
+
+通过指针间接的访问是透明的。
+
+	package main
+			
+	import "fmt"
+	
+	type Vertex struct {
+		X int
+		Y int
+	}
+	
+	func main() {
+		v := Vertex{1, 2}
+		p := &v
+		p.X = 1e9
+		fmt.Println(v)
+	}
+
+**结构体文法**
+
+结构体文法表示通过结构体字段的值作为列表来新分配一个结构体。
+
+使用 Name: 语法可以仅列出部分字段。（字段名的顺序无关。）
+
+特殊的前缀 & 返回一个指向结构体的指针。
+
+	package main
+	
+	import "fmt"
+	
+	type Vertex struct {
+		X, Y int
+	}
+	
+	var (
+		v1 = Vertex{1, 2}  // 类型为 Vertex
+		v2 = Vertex{X: 1}  // Y:0 被省略
+		v3 = Vertex{}      // X:0 和 Y:0
+		p  = &Vertex{1, 2} // 类型为 *Vertex
+	)
+	
+	func main() {
+		fmt.Println(v1, p, v2, v3)
+	}
+
+#### 数组 ####
+
+类型 [n]T 是一个有 n 个类型为 T 的值的数组。
+
+表达式
+
+var a [10]int
+定义变量 a 是一个有十个整数的数组。
+
+数组的长度是其类型的一部分，因此数组不能改变大小。 这看起来是一个制约，但是请不要担心； Go 提供了更加便利的方式来使用数组。
+
+	package main
+	
+	import "fmt"
+	
+	func main() {
+		var a [2]string
+		a[0] = "Hello"
+		a[1] = "World"
+		fmt.Println(a[0], a[1])
+		fmt.Println(a)
+	}
+
+**slice**
+
+一个 slice 会指向一个序列的值，并且包含了长度信息。
+
+[]T 是一个元素类型为 T 的 slice。
+
+len(s) 返回 slice s 的长度。
+
+**slice 的 slice**
+
+slice 可以包含任意的类型，包括另一个 slice。
+
+	package main
+	
+	import (
+		"fmt"
+		"strings"
+	)
+
+	func main() {
+		// Create a tic-tac-toe board.
+		game := [][]string{
+			[]string{"_", "_", "_"},
+			[]string{"_", "_", "_"},
+			[]string{"_", "_", "_"},
+		}
+	
+		// The players take turns.
+		game[0][0] = "X"
+		game[2][2] = "O"
+		game[2][0] = "X"
+		game[1][0] = "O"
+		game[0][2] = "X"
+	
+		printBoard(game)
+	}
+	
+	func printBoard(s [][]string) {
+		for i := 0; i < len(s); i++ {
+			fmt.Printf("%s\n", strings.Join(s[i], " "))
+		}
+	}
+
+**对slice切片**
+
+slice 可以重新切片，创建一个新的 slice 值指向相同的数组。
+
+表达式
+
+	s[lo:hi]
+
+表示从 lo 到 hi-1 的 slice 元素，含前端，不包含后端。因此
+
+	s[lo:lo]
+
+是空的，而
+
+	s[lo:lo+1]
+
+有一个元素。
+
+	package main
+	
+	import "fmt"
+	
+	func main() {
+		s := []int{2, 3, 5, 7, 11, 13}
+		fmt.Println("s ==", s)
+		fmt.Println("s[1:4] ==", s[1:4])
+	
+		// 省略下标代表从 0 开始
+		fmt.Println("s[:3] ==", s[:3])
+	
+		// 省略上标代表到 len(s) 结束
+		fmt.Println("s[4:] ==", s[4:])
+	}
+
+**构造 slice**
+
+slice 由函数 `make` 创建。这会分配一个全是零值的数组并且返回一个 slice 指向这个数组：
+
+	a := make([]int, 5)  // len(a)=5
+
+为了指定容量，可传递第三个参数到 `make`：
+
+	b := make([]int, 0, 5) // len(b)=0, cap(b)=5
+	
+	b = b[:cap(b)] // len(b)=5, cap(b)=5
+	b = b[1:]      // len(b)=4, cap(b)=4
+
+----
+	package main
+	
+	import "fmt"
+	
+	func main() {
+		a := make([]int, 5)
+		printSlice("a", a)
+		b := make([]int, 0, 5)
+		printSlice("b", b)
+		c := b[:2]
+		printSlice("c", c)
+		d := c[2:5]
+		printSlice("d", d)
+	}
+	
+	func printSlice(s string, x []int) {
+		fmt.Printf("%s len=%d cap=%d %v\n",
+			s, len(x), cap(x), x)
+	}
+
+**nil slice**
+
+slice 的零值是 nil 。
+
+一个 nil 的 slice 的长度和容量是 0。
+
+	package main
+	
+	import "fmt"
+	
+	func main() {
+		var z []int
+		fmt.Println(z, len(z), cap(z))
+		if z == nil {
+			fmt.Println("nil!")
+		}
+	}
+
+**向 slice 添加元素**
+
+向 slice 的末尾添加元素是一种常见的操作，因此 Go 提供了一个内建函数 append 。 内建函数的文档对 append 有详细介绍。
+
+	func append(s []T, vs ...T) []T
+
+append 的第一个参数 s 是一个元素类型为 T 的 slice ，其余类型为 T 的值将会附加到该 slice 的末尾。
+
+append 的结果是一个包含原 slice 所有元素加上新添加的元素的 slice。
+
+如果 s 的底层数组太小，而不能容纳所有值时，会分配一个更大的数组。 返回的 slice 会指向这个新分配的数组。
+
+	package main
+	
+	import "fmt"
+	
+	func main() {
+		var a []int
+		printSlice("a", a)
+	
+		// append works on nil slices.
+		a = append(a, 0)
+		printSlice("a", a)
+	
+		// the slice grows as needed.
+		a = append(a, 1)
+		printSlice("a", a)
+	
+		// we can add more than one element at a time.
+		a = append(a, 2, 3, 4)
+		printSlice("a", a)
+	}
+	
+	func printSlice(s string, x []int) {
+		fmt.Printf("%s len=%d cap=%d %v\n",
+			s, len(x), cap(x), x)
+	}
+
+#### range ####
+
+for 循环的 range 格式可以对 slice 或者 map 进行迭代循环。
+
+当使用 for 循环遍历一个 slice 时，每次迭代 range 将返回两个值。 第一个是当前下标（序号），第二个是该下标所对应元素的一个拷贝。
+
+	package main
+	
+	import "fmt"
+	
+	var pow = []int{1, 2, 4, 8, 16, 32, 64, 128}
+	
+	func main() {
+		for i, v := range pow {
+			fmt.Printf("2**%d = %d\n", i, v)
+		}
+	}
+
+可以通过赋值给 _ 来忽略序号和值。
+
+如果只需要索引值，去掉 “ , value ” 的部分即可。
+
+	package main
+	
+	import "fmt"
+	
+	func main() {
+		pow := make([]int, 10)
+		for i := range pow {
+			pow[i] = 1 << uint(i)
+		}
+		for _, value := range pow {
+			fmt.Printf("%d\n", value)
+		}
+	}
+
+#### 练习：slice ####
+
+#### map ####
+
+map 映射键到值。
+
+map 在使用之前必须用 make 来创建；值为 nil 的 map 是空的，并且不能对其赋值。
+
+	package main
+	
+	import "fmt"
+	
+	type Vertex struct {
+		Lat, Long float64
+	}
+	
+	var m map[string]Vertex
+	
+	func main() {
+		m = make(map[string]Vertex)
+		m["Bell Labs"] = Vertex{
+			40.68433, -74.39967,
+		}
+		fmt.Println(m["Bell Labs"])
+	}
+
+**map 的文法**
+
+map 的文法跟结构体文法相似，不过必须有键名。
+
+	package main
+	
+	import "fmt"
+	
+	type Vertex struct {
+		Lat, Long float64
+	}
+	
+	var m = map[string]Vertex{
+		"Bell Labs": Vertex{
+			40.68433, -74.39967,
+		},
+		"Google": Vertex{
+			37.42202, -122.08408,
+		},
+	}
+	
+	func main() {
+		fmt.Println(m)
+	}
+
+若顶级类型只是一个类型名，你可以在文法的元素中省略它。
+
+	package main
+	
+	import "fmt"
+	
+	type Vertex struct {
+		Lat, Long float64
+	}
+	
+	var m = map[string]Vertex{
+		"Bell Labs": {40.68433, -74.39967},
+		"Google":    {37.42202, -122.08408},
+	}
+	
+	func main() {
+		fmt.Println(m)
+	}
+
+#### 修改 map ####
+
+在 map m 中插入或修改一个元素：
+
+	m[key] = elem
+
+获得元素：
+
+	elem = m[key]
+
+删除元素：
+
+	delete(m, key)
+
+通过双赋值检测某个键存在
+
+	elem, ok = m[key]
+
+如果 key 在 m 中， ok 为 true。否则， ok 为 false，并且 elem 是 map 的元素类型的零值。
+
+	package main
+	
+	import "fmt"
+	
+	func main() {
+		m := make(map[string]int)
+	
+		m["Answer"] = 42
+		fmt.Println("The value:", m["Answer"])
+	
+		m["Answer"] = 48
+		fmt.Println("The value:", m["Answer"])
+	
+		delete(m, "Answer")
+		fmt.Println("The value:", m["Answer"])
+	
+		v, ok := m["Answer"]
+		fmt.Println("The value:", v, "Present?", ok)
+	}
+
+
+#### 练习：map ####
+
+#### 函数值 ####
+
+函数也是值。他们可以像其他值一样传递，比如，函数值可以作为函数的参数或者返回值。
+
+	package main
+	
+	import (
+		"fmt"
+		"math"
+	)
+	
+	func compute(fn func(float64, float64) float64) float64 {
+		return fn(3, 4)
+	}
+	
+	func main() {
+		hypot := func(x, y float64) float64 {
+			return math.Sqrt(x*x + y*y)
+		}
+		fmt.Println(hypot(5, 12))
+	
+		fmt.Println(compute(hypot))
+		fmt.Println(compute(math.Pow))
+	}
+
+#### 函数的闭包 ####
+
+Go 函数可以是一个闭包。闭包是一个函数值，它引用了函数体之外的变量。 这个函数可以对这个引用的变量进行访问和赋值；换句话说这个函数被“绑定”在这个变量上。
+
+例如，函数 adder 返回一个闭包。每个返回的闭包都被绑定到其各自的 sum 变量上。
+
+#### 练习：斐波纳契闭包 ####
 
 ## 方法和接口 ##
 
-
+### 方法 ###
 
 ## 并发 ##
