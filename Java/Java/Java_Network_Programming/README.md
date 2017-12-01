@@ -1022,6 +1022,45 @@ Daytime和time都是非常快的协议。
 
 #### 关闭服务器Socket ####
 
+## 第10章 安全Socket ##
+
+### 保护通信 ###
+
+* javax.net.ssl 定义Java安全网络通信API的抽象类。
+* javax.net 替代构造函数创建安全Socket的抽象Socket工厂类。
+* java.security.cert 处理SSL所需公开密钥证书的类。
+* com.sun.net.ssl Sun的JSSE参考实现加密算法和协议的具体类。
+
+### 创建安全客户端Socket ###
+
+javax.net.ssl.SSLSocketFactory使用其createSocket()方法得到一个Socket对象。SSLSocketFactory是一个遵循抽象共产设计模式的抽象类。要通过调用静态SSLSocketFactory.getDefault()方法得到一个实例：
+	SocketFactory factory = SSLSocketFactory.getDefault();
+	Socket socket = factory.createSocket("login.ibiblio.org", 7000);
+
+* public abstract Socket createSocket(String host, int port) throws IOException, UnknowHostException
+* public abstract Socket createSocket(InetAddress host, int port) throws IOException
+* public abstract Socket createSocket(String host, int port, InetAddress interface, int localPort) throws IOException, UnknowHostException
+* public abstract Socket createSocket(InetAddress host, int port, InetAddress interface, int localPort) throws IOException, UnknowHostException
+* public abstract Socket createSocket(Socket proxy, String host, int port, boolean autoClose) throws IOException
+
+### 选择密码组 ###
+
+JSSE的不同实现支持认真和加密算法的不同组合。
+
+SSLSocketFactory中的getSupportedCipherSuites()方法可以指出给定Socket上可用的算法组合。
+
+	public abstract String[] getSupportedCipherSuites()
+
+* TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256
+
+每个名中的算法分为4个部分：协议、密钥交换算法。
+
+默认情况下，JDK1.7实现启用了所有加密认证密码组。
+
+### 事件处理器 ###
+
+
+
 ## 第11章 非阻塞I/O ##
 
 #### 一个示例客户端 ####

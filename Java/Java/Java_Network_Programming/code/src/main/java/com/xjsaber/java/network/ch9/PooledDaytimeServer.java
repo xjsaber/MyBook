@@ -24,7 +24,8 @@ public class PooledDaytimeServer {
         try (ServerSocket server = new ServerSocket(PORT)) {
             while (true){
                 Socket connection = server.accept();
-                Callable<Void> task = new DaytimeServer(connection);
+//                Callable<Void> task = new DaytimeServer(connection);
+                Callable<Void> task =null;
                 pool.submit(task);
             }
         } catch (IOException e) {

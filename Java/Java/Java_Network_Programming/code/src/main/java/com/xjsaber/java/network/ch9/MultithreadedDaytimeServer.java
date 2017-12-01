@@ -1,7 +1,5 @@
 package com.xjsaber.java.network.ch9;
 
-import com.xjsaber.java.network.ch3.c1.DigestThread;
-
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -18,11 +16,11 @@ public class MultithreadedDaytimeServer {
 
     public static void main(String[] args){
         try (ServerSocket server = new ServerSocket()) {
-            while (true){
-                try (Socket socket = server.accept()){
-                    Thread task = new DigestThread()
-                }
-            }
+//            while (true){
+//                try (Socket socket = server.accept()){
+//                    Thread task = new DigestThread()
+//                }
+//            }
 
         } catch (IOException e) {
             e.printStackTrace();
