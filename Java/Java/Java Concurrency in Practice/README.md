@@ -272,10 +272,7 @@ synchronized、volatile或者任何一个线程安全类都对应于某种同步
 
 ### 5.1.2 迭代器与ConcurrentModificationException ###
 
-
-
 ### 5.1.3 隐藏迭代器 ###
-
 
 ## 5.2 并发容器 ##
 
@@ -287,8 +284,68 @@ Queue和BlockingQueue。Queue用来临时保存一组等待处理的元素。
 2. PriorityQueue（非并发的）优先队列
 3. BlockingQueue，增加了可阻塞的插入和获取等操作。如果队列为空，那么获取元素的操作将一直阻塞，直到队列种出现一个可用的元素
 
-### 5.2.1 ###
+### 5.2.1 ConcurrentHashMap ###
 
+同步容器类在执行每个操作期间都持有一个锁。
+
+ConcurrentHashMap并不是将每个方法都在同一个锁上同步并使用每次只能有一个线程访问容器，而是使用一种粒度更细的加锁机制来实现更大程度的共享，这种机制称为分段锁（Lock Striping）。在这种机制中，任意数量的读取线程可以并发地访问Map，执行读取操作的线程和执行写入操作的线程可以并发地访问Map，并且一定数量的写入线程可以并发地修改Map。ConcurrentHashMap带来的结果是，在并发访问环境下将实现更高的吞吐量，而在单线程环境只损失非常小的性能。
+
+ConcurrentHashMap与其他并发容器一起增强了同步容器类：它们提供的迭代器不会抛出ConcurrentModificationException，因此不需要在迭代过程中对容器加锁。ConcurrentHashMap返回的迭代器具有弱一致性（Weakly Consistent），而并非“及时失败”。弱一致性的迭代器可以容忍并发的修改，当创建迭代器时会遍历已有的元素，并可以（但是不保证）在迭代器被构造后将修改操作反映给容器。
+
+在ConcurrentHashMap中没有实现对Map加锁以提供独占访问。在Hashtable和synchronizedMap中，获得Map的锁能防止其他线程访问这个Map。
+
+在Hashtable与synchronizedMap相比，ConcurrentHashMap有着更多的优势以及更少的劣势，因此在大多数情况下，用ConcurrentHashMap来代替同步Map能进一步提高代码的可伸缩性。只有当应用程序需要加锁Map以进行独占访问时，才应该放弃使用ConcurrentHashMap。
+
+### 5.2.2 额外的原子Map操作 ###
+
+	public interface ConcurrentMap<K, V> extends Map<K, V> {
+		// 仅当K没有相应的映射值时才插入
+		V putIfAbsend(K key, V value);
+		// 仅当K被映射到V时才移除
+		boolean remove(K key, V value);
+		// 仅当K被映射到oldValue时才替换为newValue
+		boolean replace(K key, V oldValue, V newValue);
+		// 仅当K被映射到某个值才替换为newValue
+		V replace(K key, V newValue);
+	}
+
+### 5.2.3 CopyOnWriteArrayList ###
+
+CopyOnWriteArrayList用来代替同步List，在某些情况下它提供了更好的并发性能，并且在迭代期间不需要对容器进行加锁或复制。（类似地，CopyOnWriteArraySet的作用是代替同时Set。）
+
+## 5.3 阻塞队列和生产者——消费者模式 ##
+
+阻塞队列提供了可阻塞的put和take方法，以及支持定时的offer和poll方法。如果队列已经满了，那么put方法将阻塞直到有空间可用；如果队列为空，那么take方法将会阻塞直到有元素可用。队列可以有界的也可以是无界的，无界队列永远都不会充满，因此无界队列上的put方法也永远不会阻塞。
+
+BlockingQueue的多种实现
+
+1. LinkedBlockingQueue（与LinkedList类似）
+2. ArrayBlockingQueue（与ArrayList类似）
+3. PriorityBlockingQueue是一种比较优先级排序的队列，根据元素的自然顺序来比较元素（如果它们实现了Comparable方法），也可以使用Comparator来比较。
+4. SynchronousQueue，实际上它不是一个真正的队列，因为它不会为队列中元素维护存储空间。与其他队列不同的是，它维护一组线程，这些线程在等着元素加入或移出队列。
+
+### 5.3.1 示例：桌面搜索 ###
+
+
+### 5.3.2 串行线程封闭 ###
+
+
+### 5.3.3 双端队列与工作密取 ###
+
+Java6增加了两种容器类型，Deque和BlockingDeque，分别对Queue和BlockingQueue进行了扩展。Deque是一个双端队列，实现了在队列头和队列尾的高效插入和移除。具体实现包括ArrayDeque和LinkedBlockingDeque。
+
+## 5.4 阻塞方法与中断方法 ##
+
+线程可能会阻塞或暂停执行，原因有很多种：等待I/O操作结束，等待获得一个锁，等待从Thread.sleep方法中醒来，或是等待另一个线程的计算结果。
+
+当线程阻塞时，它通常被挂起，并处于某种阻塞状态（BLOCKED、WAITING或TIMED_WAITING）。
+
+BlockingQueue的put和take等方法会抛出受检查异常（Checked Exception）InterruptedException，这与类库中其他一些方法的做法相同。
+
+* 传递InterruptedException
+* 恢复中断
+
+## 5.5 同步工具类 ##
 
 ## 结构化并发应用程序 ##
 
