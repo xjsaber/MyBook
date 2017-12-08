@@ -20,6 +20,45 @@ main包定义了一个独立可执行的程序，而不是一个库。在`main`�
 
 os包以跨平台的方式，提供了一些与操作系统交互的函数和变量。程序的命令行参数可从os包的Args变量获取；os包外部使用os.Args访问该变量。
 
+os.Args变量是一个字符串（string）的切片（slice）
+
+os.Args的第一个元素，os.Args[0]，是命令本身	的名字；其他的元素则是程序启动时传给它的参数。s[m:n]形式的切片表达式，产生从第m个元素到第n-1个元素的切片。
+
+#### 练习 1.3 ####
+
+等1.6回来再看
+
+### 1.3. 查找重复的行 ###
+
+灵感来自unix的`uniq`命令
+
+map存储了键/值（key/value）的集合，`Go`的`map`类似于`Java`语言中的`HashMap`，Python语言中的`dict`，`Lua`语言中的 `table`，通常使用`hash`实现。
+
+	%d 十进制整数
+	%x, %o, %b 十六进制，八进制，二进制这个农户
+	%f，%g，%e 浮点数：3.141593 3.141592653589793 3.141593e+00
+	%t 布尔：true或false
+	%c 字符（rune）(Unicode码点)
+	%s 字符串
+	%q 带双引号的字符串“abc”或带单引号的字符'c'
+	%v 变量的自然形式（natural format）
+	%T 变量的类型
+	%% 字面上的百分号标志（无操作数）
+
+### 1.4. GIF动画 ###
+
+image package
+
+### 1.5. 获取URL ###
+
+net/http和io/ioutil包
+
+http.Get函数是创建HTTP请求的函数，如果获取过程没有出错，那么会在resp这个结构体中得到访问的请求结果。resp的Body字段包括一个可读的的服务器响应流。
+
+ioutil.ReadAll函数从response中读取全部内容。
+
+练习 1.7 1.8 1.9
+
 ## 第2章 程序结构 ##
 
 ### 2.1 命名 ###
@@ -32,10 +71,6 @@ Go语言中类似if和switch的关键字有25个：关键字不能用于自定�
 	var s string //依赖于字符串的默认初始化零值机制，被初始化为""
 	var s = "" //用的极少，除非同时声明多个变量
 	var s string = "" 显式地标明变量的类型，当变量类型与初值类型相同时，类型冗余，但如果两者类型不同，变量类型就必须了。
-
-### 1.3 查找重复的行 ###
-
-
 
 ### 2.2 声明 ###
 
@@ -217,5 +252,67 @@ complex64和complex128分别对应float32和float64
 		Saturday
 	)
 
+## 第4章 复合数据 ##
+
+数组、slice、map和结构体
+
+数组和结构体是聚合类型；它们的值由许多元素或成员字段的值组成。数组是由同构的元素组成——每个数组元素都是完全相同的类型——结构体则是由异构的元素组成的。数组和结构体都是有固定内存大小的数据结构。相比之下，slice和map则是动态的数据结构，它们将根据需要动态增长。
+
+### 4.1 数组 ###
+
+数组是一个由固定长度的特定类型元素组成的序列，一个数组可以由零个或多个元素组成。
+
+数组的每个元素可以通过索引下标来访问，索引下标的范围是从0开始到数组长度减1的位置。内置的len函数将返回数组中元素的个数。
+
+	var a [3]int // array of 3 integers
+	fmt.Println(a[0]) // print the first element
+	fmt.Println(a[len(a)-1]) // print the last element, a[2]
+	
+	// Print the indices and elements.
+	for i, v := range a {
+		fmt.Printf("%d %d\n", i, v)
+	}
+	// Print the elements only.
+	for _, v := range a {
+		fmt.Printf("%d\n", v)
+	}
+
+默认情况下，数组的每个元素都被初始化为元素类型对应的零值，对于数字类型来说就是0。
+
+	var q [3]int = [3]int{1, 2, 3}
+	var r [3]int = [3]int{1, 2}
+	fmt.Println(r[2]) // "0"
+
+在数组字面值中，如果在数组的长度位置出现的是“...”省略号，则表示数组的长度是根据初始化值的个数来计算。
+
+	q := [...]int{1, 2, 3}
+	fmt.Printf("%T\n", q) // "[3]int"
+
+数组的长度是数组类型的一个组成部分，因此[3]int和[4]int是两种不同的数组类型。数组的长度必须是常量表达式，因为数组的长度需要在编译阶段确定。
+
+	q := [3]int{1, 2, 3}
+	q = [4]int{1, 2, 3, 4} // compile error: cannot assign [4]int to [3]int
+
 ## 第5章 函数 ##
+
+### 5.1 函数声明 ###
+
+函数声明包含函数名、形式参数列表、返回值列表以及函数体。
+
+	func add(x int, y int) int {return x + y}
+	func sub(x ,y int) (z int) {z = x - y; return}
+	func first(x int, _ int) int {return x}
+	func zero(int, int) int {return 0}
+	fmt.Printf("%T\n", add)
+	fmt.Printf("%T\n", sub)
+	fmt.Printf("%T\n", first)
+	fmt.Printf("%T\n", zero)
+
+函数的类型被称为函数的标识符。如果两个函数形式参数列表和返回值列表中的变量类型一一对应，那么这两个函数被认为有相同的类型和标识符。
+
+	package math
+
+	func Sin(x float64) float // implemented in assembly language
+
+### 5.2 递归 ###
 
