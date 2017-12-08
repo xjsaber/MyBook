@@ -293,6 +293,14 @@ complex64和complex128分别对应float32和float64
 	q := [3]int{1, 2, 3}
 	q = [4]int{1, 2, 3, 4} // compile error: cannot assign [4]int to [3]int
 
+### 4.2 Slice ###
+
+Slice（切片）代表变长的序列，序列中每个元素都有相同的类型。一个slice类型一般写作[]T，其中T代表slice中元素的类型；slice的语法和数组最像，只是没有固定长度而已。
+
+数组和slice，一个slice是一个轻量级的数量结构，提供了访问数组子序列（或者全部）元素的功能，而且slice的底层确实引用一个数组对象。
+
+
+
 ## 第5章 函数 ##
 
 ### 5.1 函数声明 ###
