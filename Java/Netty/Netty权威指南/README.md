@@ -162,11 +162,42 @@ MsgpackEncoder继承MessageToByteEncoder，负责Object类型的POJO对象编码
 
 ### 11.2 WebSocket入门 ###
 
+* 单一的TCP连接，采用全双工模式通信；
+* 对代理、防火墙和路由器透明；
+* 无头部信息、Cookie和身份验证；
+* 无安全开销；
+* 通过“ping/pong”帧保持链路激活；
+* 服务器可以主动传递消息给客户都按，不再需要客户端轮询。
+
 #### 11.2.1 WebSocket背景 ####
 
 取代轮询和Comet技术
 
 #### 11.2.2 WebSocket连接建立 ####
 
+为了建立一个WebSocket连接，客户端浏览器首先要向服务器发起一个HTTP请求，这个请求和通常的HTTP请求不同，包含了一些附加头信息，其中附加头信息“Upgrade WebSocket”表明这事一个申请协议升级的HTTP请求。
+
 #### 11.2.3 WebSocket生命周期 ####
 
+握手成功之后，服务器和客户端可以通过“messages”的方式进行通信，一个消息由一个或者多个帧组成。WebSocket的消息不一定对应一个特定网络层的帧，
+
+#### 11.2.4 WebSocket连接关闭 ####
+
+为关闭WebSocket连接，客户端和服务端需要通过一个安全的方法关闭底层TDCP连接以及TLS会话。如果合适，丢弃任何肯呢个已经接收的字节；必要时（比如受到攻击），可以通过任何可用的手段关闭连接。
+
+底层的TCP连接，在正常情况下，应该首先由服务器关闭。再异常情况下（例如再一个合理的时间周期后没有接收到服务器
+
+### 11.3 Netty WebSocket协议开发 ###
+
+#### 11.3.1 WebSocket服务端功能介绍 ####
+
+支持WebSocket的浏览器通过WebSocket协议发送请求消息给服务端，服务端对请求消息进行判断，如果是合法的WebSocket请求，则获取请求消息体（文本）。
+
+#### 11.3.2 WebSocket服务端开发 ####
+
+服务端对握手
+
+* HttpServerCodec，将请求和应答消息编码或者解码为HTTP消息
+* HttpObjectAggregator，将HTTP消息的多个部分组合成一条完整的HTTP消息
+* ChunkedWriteHandler，来向客户端发送HTML5文件，主要用于支持浏览器和服务端进行WebSocket通信
+* 最后增加WebSocket服务端handler
