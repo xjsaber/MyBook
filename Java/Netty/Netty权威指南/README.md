@@ -201,3 +201,17 @@ MsgpackEncoder继承MessageToByteEncoder，负责Object类型的POJO对象编码
 * HttpObjectAggregator，将HTTP消息的多个部分组合成一条完整的HTTP消息
 * ChunkedWriteHandler，来向客户端发送HTML5文件，主要用于支持浏览器和服务端进行WebSocket通信
 * 最后增加WebSocket服务端handler
+
+WebSocketServerHandler
+
+1. 第一次握手请求消息由HTTP协议承载，是一个HTTP消息，执行handleHttpRequest方法处理WebSocket握手请求。
+2. 对握手请求	请求消息进行判断，如果消息头没有包含Upgrade字段或者它的值不是websocket，则返回HTTP400响应。
+3. 握手请求简单校验通过之后，开始构造握手工厂，创建握手处理类WebSocketServerHandler，通过它构造握手响应消息返回给客户端，同时将WebSocket的编码和解码类动态添加到ChannelPipeline中，用于WebSocket消息的编解码。
+4. 添加WebSocketEncoder和WebSocketDecoder之后，服务端就可以自动对WebSocket消息进行编解码（后面的业务handler可以直接对WebSocket对象进行操作）
+5. handler业务可以直接对WebSocket对象进行操作，客户端通过问嗯框提交请求消息给服务端，WebSocketServerHandler接收到的是已经解码后的WebSocketFrame消息。
+6. 对WebSocket请求消息进行处理，首先对控制帧进行判断，如果是关闭链路的控制消息，就调用WebSocketServerHandler的close关闭链路；如果是ping，则返回pong消息返回
+7. 从TextWebSocketFrame中获取请求字符串，对它处理后通过构造新的TextWebSocketFram消息返回给客户端，由于握手应答时动态添加了TextWebSocketFrame的编码类。
+
+#### 11.3.3 运行WebSocket服务端 ####
+
+### 11.4 总结 ###
