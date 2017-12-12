@@ -21,7 +21,6 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object>{
 
     private WebSocketServerHandshaker handshaker;
 
-
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
         // 传统的HTTP接入
@@ -39,6 +38,12 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object>{
         ctx.flush();
     }
 
+    /**
+     * 处理http响应请求
+     * @param ctx
+     * @param request
+     * @throws Exception
+     */
     private void handlerHttpRequest(ChannelHandlerContext ctx, FullHttpRequest request) throws Exception{
         // 如果http解码失败，返回http异常
         if (!request.getDecoderResult().isSuccess() || (!"websocket".equals(request.headers().get("Upgrade")))){
@@ -46,8 +51,9 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object>{
             return;
         }
 
-        // 如果http解码失败，返回http异常
+        // 构造握手响应返回，本机测试
         WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory("ws://localhost:8080/websocket", null, false);
+        handshaker = wsFactory.newHandshaker(request);
         if (handshaker == null){
             WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(ctx.channel());
         } else {
