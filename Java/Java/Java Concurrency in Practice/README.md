@@ -387,7 +387,9 @@ PrimeGenerator中的取消机制最终会使得搜索素数的任务退出，但
 
 ### 13.1.1 轮询锁与定时锁 ###
 
+可定时的与可轮询的锁获取模式是由tryLock方法实现的，与无条件的锁获取模式相比，它具有更完善的错误恢复机制。
 
+在休眠时间中包括固定部分和随机部分。
 
 ### 13.1.2 可中断的锁获取操作 ###
 
@@ -419,6 +421,16 @@ PrimeGenerator中的取消机制最终会使得搜索素数的任务退出，但
 读-写锁允许多个读线程并发地访问被保护的对象，当访问以读取操作为主的数据结构时，它能够提高程序的可伸缩性。
 
 # 第14章 构建自定义的同步工具 #
+
+## 14.3 显式的Condition对象 ##
+
+一个Condition和一个Lock关联在一起，就像一个条件队列和一个内置锁相关联一样。要创建一个Condition，可以在相关联的Lock上调用Lock.newCondition方法。
+
+在Condition对象中，与wait、notify和notifyAll方法对应的分别是await、signal和signalAll。
+
+与内置锁和条件队列一样，当使用显式的Lock和Condition时，也必须满足锁、条件谓词和条件变量之间的三元关系。在条件谓词中包含的变量由Lock来保护，并且在检查条件谓词以及调用await和signal时，必须持有Lock对象（ReentrantLock要求在调用signal或signalAll时应该持有Lock，但在Lock的具体实现中，在构造Condition时也可以不满足这个需求）。
+
+在使用显式的Condition和内置条件队列之间进行选择时，与在ReentrantLock和synchronized之间进行选择是一样的：如果需要一些高级功能，例如使用公平的队列包做或者在每个锁上对应多个等待线程集，那么应该优先使用Condition而不是内置条件队列。
 
 ## 14.6 java.util.concurrent同步器类中的AQS ##
 
