@@ -25,7 +25,7 @@ public class MyThreadLocal {
         return connectionHolder.get();
     }
 
-    public int loadTheArk(Connection<Integer> candidates){
-
-    }
+//    public int loadTheArk(Connection<Integer> candidates){
+//
+//    }
 }

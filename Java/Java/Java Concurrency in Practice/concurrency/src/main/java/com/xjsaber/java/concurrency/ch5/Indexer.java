@@ -16,12 +16,6 @@ public class Indexer implements Runnable{
 
     @Override
     public void run() {
-        try {
-            while (true){
 
-            }
-        } catch (InterruptedException e){
-            Thread.currentThread().interrupt();
-        }
     }
 }

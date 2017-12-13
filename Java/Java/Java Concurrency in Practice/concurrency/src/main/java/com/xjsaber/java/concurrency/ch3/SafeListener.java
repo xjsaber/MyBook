@@ -1,7 +1,5 @@
 package com.xjsaber.java.concurrency.ch3;
 
-import org.apache.commons.configuration.event.EventSource;
-
 import java.awt.*;
 import java.util.EventListener;
 
@@ -20,8 +18,8 @@ public class SafeListener {
         };
     }
 
-    public static SafeListener newInstance(EventSource source){
-        SafeListener safe = new SafeListener();
-//        source.reg
-    }
+//    public static SafeListener newInstance(EventSource source){
+//        SafeListener safe = new SafeListener();
+////        source.reg
+//    }
 }

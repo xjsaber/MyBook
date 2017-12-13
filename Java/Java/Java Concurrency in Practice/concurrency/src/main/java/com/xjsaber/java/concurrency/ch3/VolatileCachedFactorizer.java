@@ -2,7 +2,6 @@ package com.xjsaber.java.concurrency.ch3;
 
 import javax.servlet.*;
 import java.io.IOException;
-import java.math.BigInteger;
 
 /**
  * @author xjsaber
@@ -24,10 +23,10 @@ public class VolatileCachedFactorizer implements Servlet {
     @Override
     public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
 //        BigInteger i = extractFromRequest(req);
-        BigInteger[] factors = cache.getFactors(i);
-        if (factors == null) {
-            factors = fac
-        }
+//        BigInteger[] factors = cache.getFactors(i);
+//        if (factors == null) {
+//            factors = fac
+//        }
     }
 
     @Override

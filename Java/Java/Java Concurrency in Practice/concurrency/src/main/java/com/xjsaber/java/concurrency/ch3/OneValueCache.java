@@ -1,7 +1,6 @@
 package com.xjsaber.java.concurrency.ch3;
 
 import java.math.BigInteger;
-import java.util.Arrays;
 
 /**
  * @author xjsaber
@@ -16,13 +15,13 @@ public class OneValueCache {
         lastFactors = factors;
     }
 
-    public BigInteger[] getFactors(BigInteger i) {
-        if (lastNumber == null || !i.equals(lastNumber)){
-            return null;
-        }
-        else {
-            return Arrays.copyOf(lastFactors, lastFactors.length);
-        }
-        return lastNumber;
-    }
+//    public BigInteger[] getFactors(BigInteger i) {
+//        if (lastNumber == null || !i.equals(lastNumber)){
+//            return null;
+//        }
+//        else {
+//            return Arrays.copyOf(lastFactors, lastFactors.length);
+//        }
+//        return lastNumber;
+//    }
 }
