@@ -30,5 +30,220 @@
 
 ### 2.1 第一步 学习使用Scala解释器 ###
 
+## 第3章 Scala入门再探 ##
+
+### 3.1 第七步 使用类型参数化数组（Array） ###
+
+Scala里使用new实例化对象（或者叫类实例）。
+
+### 3.2 第8步 使用列表（List） ###
+
+### 3.3 第九步 使用元组（Tuple） ###
+
+#### 访问元祖的元素 ####
+
+### 3.4 第十步 使用集（set） ###
+
+## 第4章 类和对象 ##
+
+### 4.1 类、字段和方法 ###
+
+	class ChecksumAccmulator {
+		// 此处为类定义
+	}
+创建ChecksumAccumulator对象：
+
+	new CheckSumAccumulator
+
+### 4.2 分号推断 ###
+
+### 4.3 Singleton对象 ###
+
+### 4.4 Scala程序 ###
+
+### 4.5 Application特质 ###
+
+scala.Application
+
+### 4.6 小结 ###
 
 
+## 第5章 基本类型和操作 ##
+
+### 5.1 基本类型 ###
+
+### 5.2 字面量 ###
+
+### 5.3 操作符和方法 ###
+
+Scala为基本类型提供了丰富的操作符集。
+
+#### 整数字面量 ####
+
+类型Int、Long、Short和Byte的整数字面量有三种
+
+### 5.4 数字运算 ###
+
+### 5.5 关系和逻辑操作 ###
+
+大于（>）、小于（<）、大于等于（>=）和小于等于（<=），可以用来比较数类型并产生Boolean结果。还可以使用一元操作符！（unary_!方法）改变Boolean值。
+
+逻辑方法、逻辑与（&&）和逻辑或（||）,以中缀方式调用Boolean操作数并产生Boolean结果。
+
+### 5.6 位操作符 ###
+
+* 1 & 2，对1（0001）和2（0010）的每一位进行运算，产生0（0000）
+* 1 | 2 3（0011）
+
+Scala整数类型提供了三个位移方法，分别是左移（<<），右移（>>）和无符号右移（>>>）。
+
+### 5.7 对象相等性 ###
+
+1 == 2
+
+1 != 2
+
+#### Scala的==与Java的有何差别 ####
+
+Java里==既可以比较原始类型也可以比较引用类型。
+
+### 5.8 操作符的优先级和关联性 ###
+
+|操作符优先级|
+|--|
+|* / %|
+|+ -|
+|:|
+|= !|
+|<>|
+|&|
+|^|
+||
+|(所有字母)|
+|(所有赋值操作符)|
+
+### 5.9 富包装器 ###
+
+implicit conversion
+
+一些富操作
+
+|代码|结果|
+|--|--|
+|0 max 5|5|
+|0 min 5|0|
+|-2.7 abs|2.7|
+|-2.7 round|-3L|
+|1.5 isInfinity|false|
+|(1.0/0) isInfinity|true|
+|4 to 6|5|
+|"bob" capitalize|"Bob"|
+|"robert" drop 2|"bert"|
+
+富包装类
+
+|基本类型|富包装|
+|--|--|
+|Byte|scala.runtime.RichByte|
+|Short|scala.runtime.RichShort|
+|Int|scala.runtime.RichInt|
+|Long|scala.runtime.RichLong|
+|Char|scala.runtime.RichChar|
+|String|scala.runtime.RichString|
+|Float|scala.runtime.RichFloat|
+|Double|scala.runtime.RichDouble|
+|Boolean|scala.runtime.RichBoolean|
+
+### 5.10 小结 ###
+
+
+## 第6章 函数式对象 ##
+
+### 6.1 类Rational的规格说明书 ###
+
+有理数（rational number）是一种可以表达为比率n/d的数字，这里的n和d是数字，其中d不能为零。n被称作分子（numberator），d被称作分母（denominator）。
+
+### 6.2 创建Rational ###
+
+	class Rational(n: Int, d: Int)
+
+#### 不可变对象的权衡 ####
+
+1. 不可变对象常常比可变对象更易理清头绪，因为它们没有会随着时间变化的复杂的状态空间。
+2. 可以自由地传递不可变对象，但对于可变对象来说，传递给其他代码之前，需要先建造个以防万一的副本
+3. 一旦不可变对象完成构造之后，就不会有线程因为并发访问而破坏对象内部状态，因为根本没有线程可以改变不可变对象的状态。
+4. 不可变对象让哈希表键值更安全。
+
+不可变对象唯一的缺点就是有时需要复制很大的对象表而可变对象的更新可以在原址发生。有些情况下这会变得难以快速完成而课呢功能产生性能瓶颈。
+
+Java类具有可以带参数的构造器，而Scala类可以直接带参数。
+
+### 6.3 重新实现toString方法 ###
+
+	clas Rational(n: Int, d: Int) {
+		ovverride def toString = n + "/" + d
+	}
+
+### 6.4 检查先决条件 ###
+
+面向对象编程的优点之一就是它允许你把数据封装在对象之内以确保数据在整个生命周期中的有效性。必须确保对象创建时数据的有效性。
+
+	class Rational(n: Int, d: Int) {
+		require(d != 0)
+		override def toString = n + "/" + d
+	}
+
+require 方法带一个布尔型参数。如果传入的值为真，require将正常返回。反之，require将抛出IlllegalArgumentException阻止对象被构造。
+
+### 6.5 添加字段 ###
+
+	class Rational(n: Int, d: Int) {
+		require(d != 0)
+		overide def toString = n + "/" + d
+		def add(that: Rational): Rational = 
+			new Rational(n * that.d + that.n * d, d * that.d)
+	}
+
+### 6.6 自指向 ###
+
+关键字this指向当前执行方法被调用的对象实例，或者如果使用在构造器里的话，就是正被构建的对象实例。
+
+	def max(that: Rational) = 
+		if (this.lessThan(that)) that else this
+
+第一个this可写可不写，写成(lessThan(that))也是一样；但第二个this标识当测试为假的时候的方法结果；如果你省略它，就什么都返回不了了。
+
+### 6.7 辅助构造器 ###
+
+Scala里主构造器之外的构造器被称为辅助构造器（auxiliary constructor）。
+
+### 6.8 私有字段和方法 ###
+
+	class Rational (n: Int, d: Int) {
+		require(d != 0)
+		private val g = gcd(n.abs, d.abs)
+		...
+	}
+	private def gcd(a: Int, b: Int): Int = 
+		if (b == 0) a else gcd(b, a % b)
+
+### 6.9 定义操作符 ###
+
+	x + y => x.add(y) => x add y
+
+### 6.10 Scala的标识符 ###
+
+Thread.\`yield`()
+
+### 6.11 方法重载 ###
+
+### 6.12 隐式转换 ###
+
+	val r = new Rational(2, 3)
+	r: Rational = 2/3
+
+### 6.13 一番告诫 ###
+
+### 6.14 小结 ###
+
+## 第7章 内建控制结构 ##
