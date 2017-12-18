@@ -41,7 +41,14 @@ val和var。val类似于Java里的final变量。一旦初始化了，val就不�
 
 ### 2.3 第三步 函数定义 ###
 
+	def max(x: Int, y: Int): Int = {
+		if (x > y)x
+		else y
+	}
+
 ### 2.4 第四步 编写Scala脚本 ###
+
+	Scala脚本的命令行参数保存在名为args的Scala数组中。
 
 ### 2.5 第五步 用while做循环：用if做判断 ###
 
@@ -274,3 +281,107 @@ Thread.\`yield`()
 ### 6.14 小结 ###
 
 ## 第7章 内建控制结构 ##
+
+### 7.1 If表达式 ###
+
+	var filename = "default.txt"
+	if (!args.isEmpty)
+		filename = args(0)
+
+### 7.2 while循环 ###
+
+while，do-while
+
+	def gcdLoop(x: Long, y: Long): Long = {
+		var a = x
+		var b = y
+		while (a != 0) {
+			val temp = a
+			a = b % a
+			b = temp
+		}
+	}
+
+### 7.3 For表达式 ###
+
+#### 枚举集合类 ####
+
+	val filesHere = (new java.io.File(".")).listFiles
+	for (file <- filesHere)
+		println(file)
+
+#### 过滤 ####
+
+#### 嵌套枚举 ####
+
+
+### 7.4 使用try表达式处理异常 ###
+
+### 7.6 不再使用break和continu ###
+
+	int i = 0; 
+	boolean foundIt = false;
+	while ( i < args.length) {
+		if (args[i].startsWith("-")){
+			i = i + 1;
+			continue;
+		}
+		if (args[i].endsWith(".scala")){
+			foundIt = true;
+			break;
+		}
+		i = i + 1;
+	}
+
+----
+
+	var i = 0
+	var foundIt = false
+	while (i < args.length && !foundIt) {
+		if (!args(i).startsWith("-")){
+			if (args(i).endsWith(".scala"))
+				foundIt = true
+		}
+	}
+
+----
+
+	def searchFrom(i: Int): Int = 
+		if (i >= args.length) -1
+		else if (args(i).startsWith("-").searchFrom(i + 1)
+		else if (args(i).endsWith(".scala")) i
+		else searchFrom(i + 1)
+	var i = searchFrom(0)
+
+### 7.7 变量范围 ###
+
+	val a = 1
+	val a = 2 //编译不过
+
+----
+
+	val a = 1
+	{
+		val a = 2 // 编译通过
+	}
+
+### 7.8 重构指令式风格的代码 ###
+
+	// 以序列形式返回一行乘法表
+	def makeRowSeq(row: Int) = 
+		for (col <- 1 to 10) yield {
+			val prod = (row * col).toString
+			val padding = " " * (4 - prod.length)
+			padding + prod
+		}
+	// 以字符串形式返回一行乘法表
+	def makeRow(row: Int) = makeRowSeq(row).mkString
+	// 以字符串形式返回乘法表，每行记录占一行字符串
+	def multiTable() = {
+		val tableSeq = // 行记录字符串的序列
+			for (row <- 1 to 10)
+			yield makeRow(row)
+		tableSeq.mkString("\n")
+	}
+### 7.9 小结 ###
+
