@@ -274,3 +274,42 @@ Thread.\`yield`()
 ### 6.14 小结 ###
 
 ## 第7章 内建控制结构 ##
+
+## 第8章 函数和闭包 ##
+
+### 8.1 方法 ###
+
+定义函数最通用的方法是作为某个对象的成员。
+
+### 8.2 本地函数 ###
+
+	def processFile(filename: String, width: Int) {
+		def processLine(filename:String, width:Int, line:String) {
+			if (line.length > width)
+				print(filename + ": " + line)
+		}
+		val source = Source.fromFile(filename)
+		for (line <- source.getLines) {
+			processLine(filename, width, line)
+		}
+	}
+
+### 8.3 头等函数 ###
+
+Scala的函数是头等函数（first-class function)。
+
+	(x: Int) => x + 1 => 指明这个函数把左边的东西（任何整数x）转变成右边的东西（x+1）。
+
+### 8.4 函数字面量的短格式 ###
+
+
+
+### 8.5 占位符语法 ###
+
+	List(-11, -10, -5, 0, 5, 10)
+	someNumbers.filter(_ > 0)(someNumbers.filter(x => x > 0))
+	List[Int] = List(5, 10)
+
+### 8.9 尾递归 ###
+
+### 8.10 小结 ###
