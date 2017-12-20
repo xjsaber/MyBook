@@ -423,3 +423,34 @@ Scala的函数是头等函数（first-class function)。
 ### 8.9 尾递归 ###
 
 ### 8.10 小结 ###
+
+## 第9章 控制抽象 ##
+
+	object FileMatcher {
+		private def filesHere = (new java.io.File(".")).listFiles
+
+		def filesEnding(query: String) =
+			for (file <- filesHere; if file.getName.endsWith(query))
+				yield file
+	}
+
+
+### 9.1 减少代码重复 ###
+
+### 9.2 简化客户代码 ###
+
+考虑exists，一个判断传入的值是否包含在集合中的方法。
+
+### 9.3 柯里化（currying） ###
+
+
+
+### 9.4 编写新的控制结果 ###
+
+	def twice(op: Double => Double, x: Double) = op(op(x))
+
+### 9.5 传名参数（by-name parameter） ###
+
+
+
+### 9.6 小结 ###
