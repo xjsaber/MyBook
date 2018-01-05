@@ -454,3 +454,29 @@ Scala的函数是头等函数（first-class function)。
 
 
 ### 9.6 小结 ###
+
+## 第15章 样本类和模式匹配 ##
+
+## 第16章 使用列表 ##
+
+### 16.1 列表字面量 ###
+
+	val fruit = List("apples", "oranges", "pears")
+	val nums = List(1, 2, 3, 4)
+	val diag3 = 
+		List(
+			List(1, 0, 0),
+			List(0, 1, 0),
+			List(0, 0, 1)
+		)
+	val empty = List()
+
+列表与数组非常相似，不过有两点重要的差别。
+
+1. 列表是不可变的。
+2. 列表具有递归结构，而数组是连续的。
+
+### 16.2 List类型 ###
+
+列表是同质（homogeneous）的：列表的所有元素都具有相同的类型。元素类型为T的列表类型写成List[T]。
+
