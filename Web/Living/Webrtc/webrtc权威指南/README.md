@@ -49,6 +49,20 @@ Web服务器具有一个内置的可扩展消息现场协议（XMPP，也称作J
 3. 将媒体和数据通道关联至该连接。
 4. 交换会话描述。
 
+#### 2.1.1 获取本地媒体 ####
+
+getUserMedia()
+
+#### 2.1.2 建立对等连接 ####
+
+RTCPeerConnection API是WebRTC的核心，其作用就是在两个对等端之间建立连接。
+
+建立此连接需要一个新的RTCPeerConnection对象。RTCPeerConnection构造函数方法的唯一输入项是一个配置对象，该对象包含ICE（Interactive Connectivity Establishment，交互式连接建立技术）“打洞”通过各种网络地址转换（Network Address Translation， NAT）设备和防火墙所使用的信息。
+
+#### 2.1.3 交换媒体或数据 ####
+
+建立连接后，可将任意数量的本地媒体流关联到对等连接，以通过该连接发送至远端浏览器。
+
 ## 第5章 对等媒体 ##
 
 ## 第10章 协议 ##
