@@ -49,6 +49,83 @@ Web服务器具有一个内置的可扩展消息现场协议（XMPP，也称作J
 3. 将媒体和数据通道关联至该连接。
 4. 交换会话描述。
 
+### 2.2 WebRTC联网和交互示例 ###
+
+### 2.3 WebRTC伪码示例 ###
+
+## 第3章 本地媒体 ##
+
+### 3.1 WebRTC中的媒体 ###
+
+#### 3.1.1 轨道 ####
+
+MediaStreamTrack是WebRTC中的基本媒体单元。
+
+#### 3.1.2 流 ####
+
+MediaStream是MediaStreamTrack对象的集合。
+
+1. 通过从现有MediaStream中复制轨道来请求对本地媒体的访问。
+2. 使用对等连接来接收新的流。
+
+### 3.2 捕获本地媒体 ###
+
+WebRTC定义了一个新的JavaScript方法，专门用于请求对本地媒体的访问
+
+	// 请求对音频和视频进行访问
+	getUserMedia({"audio: true", "video": true}, 
+				   goUserMedia, didntGetUserMedia);
+	function gotUserMedis(s) {
+		console.log("Should be one audio track: " + s.getAudioTracks().length);
+		console.log("Should be one video track: " + s.getAudioTracks().length)
+	}
+	function gotUserMedia(s) {
+		var myVideoElement = getElementById("myvideoelement");
+		// 通过视频元素播放捕获的MediaStream
+		myVideoElement.srcObject = s;
+	}
+
+### 3.3 媒体选择和控制 ###
+
+	var t; //将用于承载轨道
+	// 请求对视频进行访问
+	getUserMedia({"video": true}, 
+					gotUserMedia, didntGetUserMedia);
+	function gotUserMedia(s) {
+		t = (s.getVideoTracks())[0];
+		// 获取当前功能
+		console.log("Capabilites are\n" + 
+			JSON.stringify(t.getCapabilities() + "\n");
+		// 设置约束
+		var constraints = {
+			"mandatory": {"aspectRatio": 1.333333},
+			"optional": [{"width}: {"min": 640}},
+						 {"height": {"max": 400}}]
+		}
+		t.applyCons
+	}
+
+### 3.4 媒体流示例 ###
+
+
+
 ## 第5章 对等媒体 ##
 
+## 第8章 W3C文档 ##
+
 ## 第10章 协议 ##
+
+## 第14章 实现和应用 ##
+
+### 14.1 浏览器 ###
+
+#### 14.1.1 Apple Safari ####
+
+低版本需要用oc编译
+
+#### 14.1.2 Goole Chrome ####
+
+#### 14.1.3 Mozilla Firefox ####
+
+### 14.3 STUN和TURN服务器实现 ###
+
