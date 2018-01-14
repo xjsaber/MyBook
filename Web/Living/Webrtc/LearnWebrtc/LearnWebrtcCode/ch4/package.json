@@ -1,0 +1,7 @@
+{
+  "name": "ch4",
+  "version": "0.0.1",
+  "dependencies": {
+    "ws": "^4.0.0"
+  }
+}

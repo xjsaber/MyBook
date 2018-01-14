@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Connecting Clients Together</title>
+    <style>
+        body {
+            background-color: #3D6DF2;
+            margin-top: 15px;
+            font-family: sans-serif;
+            color: white;
+        }
+        video {
+            background: black;
+            border: 1px solid gray;
+        }
+        .page {
+            position: relative;
+            display: block;
+            margin: 0 auto;
+            width: 500px;
+            height: 500px;
+        }
+        #yours{
+            width: 150px;
+            height: 150px;
+            position: absolute;
+            top: 15px;
+            right: 15px;
+        }
+        #theirs {
+            width: 500px;
+            height: 500px;
+        }
+    </style>
+</head>
+<body>
+    <div id="login-page" class="page">
+        <h2>Login As</h2>
+        <input type="text" id="username" title="username"/>
+        <button id="login">Login</button>
+    </div>
+
+    <div id="call-page" class="page">
+        <video id="yours" autoplay></video>
+        <video id="theirs" autoplay></video>
+        <input type="text" id="theirs-username" title="theirs-username" />
+        <button id="call">Call</button>
+        <button id="hang-up">Hang Up</button>
+    </div>
+    <script src="client.js"></script>
+<script type="text/javascript">
+    var loginPage = document.querySelector("#login-page"),
+        inputUsername = document.querySelector("#username"),
+        buttonLogin = document.querySelector("#login"),
+        callPage = document.querySelector('#call-page'),
+        inputTheirUsername = document.querySelector("#call"),
+        buttonHangup = document.querySelector("#hang-up");
+
+    callPage.style.display = "none";
+    // 单击按钮登录
+    buttonLogin.addEventListener("click", function (event) {
+        name = inputUsername.value;
+        if (name.length > 0){
+            send({
+                type: "login",
+                name: name
+            })
+        }
+    });
+    function onLogin(success) {
+        if (success === false){
+            alert("Login unsuccessful, please try a different name.");
+        } else {
+            loginPage.style.display = "none";
+            callPage.style.display = "block";
+
+            // 准备好通话的通道
+
+        }
+    }
+
+    var yourVideo = document.querySelector("#yours"),
+        theirVideo = document.querySelector("#theirs"),
+        yourConnection, connectedUser, stream;
+    
+    function startConnection() {
+        if (hasUserMedia()){
+            navigator.getUserMedia({video: true, audio: false}, function (myStream) {
+                stream = myStream;
+                yourVideo.src = window.URL.createObjectURL(stream);
+
+                if (hasRTCPeerConnection()) {
+
+                } else {
+                    alert("Sorry, your browser does not support WebRTC.");
+                }
+            }, function (error) { console.log(error) });
+        } else {
+            alert("Sorry, your browser does not support WebRTC.");
+        }
+    }
+    function setupPeerConnection(stream) {
+        var configuration = {
+            "iceServers": [{"url": "stun:stun.l.google.com:19302"}]
+        };
+        yourConnection = new RTCPeerConnection(configuration);
+
+        // 设置流的监听
+        yourConnection.addStream(stream);
+        yourConnection.onaddstream = function (ev) {
+            theirVideo.src = window.URL.createObjectURL(ev.stream);
+        };
+
+        // 设置ice处理事件
+        yourConnection.onicecandidate = function (ev) {
+            if (ev.candidate) {
+                send ({
+                    type: "candidate",
+                    candidate: ev.candidate
+                });
+            }
+        }
+    }
+    function hasUserMedia() {
+        navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+        return !!navigator.getUserMedia;
+    }
+    function hasRTCPeerConnection() {
+        window.RTCPeerConnection = window.RTCPeerConnection || window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
+        return !!window.RTCPeerConnection;
+    }
+</script>
+</body>
+</html>
