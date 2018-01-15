@@ -1,5 +1,7 @@
 # Pragmatic Scala #
 
+小试牛刀
+
 ## 第1章 探索 Scala ##
 
 
