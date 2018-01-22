@@ -45,6 +45,40 @@
 
 ## 第4章 处理对象 ##
 
+### Creating and Using Classes ###
+
+### 创建实例 ###
+
+	new StringBuilder()
+
+Scala把空括号看作多余的。
+
+	new StringBuilder
+
+#### Creating Classes ####
+
+	class Car(val year: Int) {
+		private var milesDriven: Int = 0
+
+		def miles: Int = milesDriven
+
+		def drive(distance: Int): Unit = {
+			milesDriven += Math.abs(distance)
+		}
+	}
+
+#### Defining Fields，Methods，and Constructors ####
+
+### Following the JavaBean Convention 遵循JavaBean惯例 ###
+
+### Type Aliasing 类型别名 ###
+
+### Extending a Class ###
+
+### 扩展一个类 ###
+
+### 参数化类型 ###
+
 
 ## 第5章 ##
 
