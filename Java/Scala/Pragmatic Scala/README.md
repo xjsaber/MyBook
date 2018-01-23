@@ -22,18 +22,41 @@
 
 ### 小结 ###
 
-
 ## 第3章 从Java到Scala ##
+
+
+
 
 ### Scala：简洁的Java ###
 
-#### Less Boilerplate ####
+#### Less Boilerplate 减少样板代码 ####
+
+	//Java code
+	public class Greetings {
+		public static void main(String[] args) {
+			for (int i = 1; i < 4; i++) {
+				System.out.print(i + ",");
+			}
+			System.out.println("Scala Rocks!!!");
+		}
+	}
+	//Scala code
+	for (i <- 1 to 3) {
+		print(s"$i,")
+	}
+	println("Scala Rocks!!!")
 
 #### 减少模板代码 ####
 
+	val buffer = new StringBuffer()
+
+
+
 #### 更多便利特性 ####
 
-#### 函数式风格 ####
+val或var定义变量，使用val定义的变量是不可变的，即初始化后不能更改。那些使用var定义（不推荐使用）的变量是可变的，可以被改变任意次。
+
+#### Leaning Toward Functional Style 转向函数式风格 ####
 
 ### Java基本类型对应的Scala类 ###
 
@@ -42,6 +65,8 @@
 ## 细粒度的访问控制 ##
 
 ## 小结 ##
+
+
 
 ## 第4章 处理对象 ##
 
