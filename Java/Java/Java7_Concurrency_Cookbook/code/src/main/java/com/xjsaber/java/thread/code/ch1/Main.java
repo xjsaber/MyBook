@@ -65,7 +65,6 @@ public class Main {
          */
         /////////////////////////////////////////////////////////////////////////////////////
 //        MyThreadGroup threadGroup = new MyThreadGroup("MyThreadGroup");
-//        Task task = new Task();
 //
 //        for (int i = 0; i < 2; i++){
 //            Thread t = new Thread(threadGroup, task);

@@ -36,16 +36,16 @@ public class PrintQueue {
         }
     }
 
-    private int getPrinter(){
-        int ret = 1;
-        try {
-            lockPrinters.lock();
-
-        } catch (Exception e){
-
-        } finally {
-            lockPrinters.unlock();
-        }
-
-    }
+//    private int getPrinter(){
+//        int ret = 1;
+//        try {
+//            lockPrinters.lock();
+//
+//        } catch (Exception e){
+//
+//        } finally {
+//            lockPrinters.unlock();
+//        }
+//
+//    }
 }
