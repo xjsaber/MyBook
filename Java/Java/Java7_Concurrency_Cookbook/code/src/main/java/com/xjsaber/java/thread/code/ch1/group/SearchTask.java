@@ -1,4 +1,4 @@
-package com.xjsaber.java.thread.code.ch1;
+package com.xjsaber.java.thread.code.ch1.group;
 
 import java.util.Date;
 import java.util.Random;

@@ -1,5 +1,8 @@
 package com.xjsaber.java.thread.code.ch1;
 
+import com.xjsaber.java.thread.code.ch1.group.Result;
+import com.xjsaber.java.thread.code.ch1.group.SearchTask;
+
 import java.util.concurrent.TimeUnit;
 
 /**
