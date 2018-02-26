@@ -1,4 +1,4 @@
-package com.xjsaber.java.thread.code.ch1;
+package com.xjsaber.java.thread.code.ch1.interrupt;
 
 /**
  * @author xjsaber
@@ -14,7 +14,7 @@ public class PrimeGenerator extends Thread{
             }
 
             if (isInterrupted()){
-                System.out.printf("The Prime Generator has been Interrupted");
+                System.out.print("The Prime Generator has been Interrupted");
                 return;
             }
             number ++;

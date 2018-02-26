@@ -1,4 +1,4 @@
-package com.xjsaber.java.thread.code.ch1;
+package com.xjsaber.java.thread.code.ch1.interrupt;
 
 import java.io.File;
 
