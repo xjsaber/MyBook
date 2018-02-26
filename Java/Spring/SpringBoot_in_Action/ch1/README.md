@@ -17,23 +17,4 @@ Spring’s  DispatcherServlet .
 
 ## 1.1.2 Examining Spring Boot essentials ##
 
-* 自动配置
-* 起步依赖
-* 命令行界面
-* Actuator
-
-1. 自动配置
-在任何Spring应用程序的源代码里，你都会找到Java配置或XML配置（抑或两者皆有），它们为应用程序开启了特定的特性的功能。
-
-2. 起步依赖
-
-3. 命令行界面
-快速开发Spring应用程序，Spring Boot CLI利用了起步依赖和自动配置。
-4. Actuator
-Actuator提供在运行时检视应用程序内部情况的能力
-
-1.1.3 Spring Boot不是什么？
-
-1.2 SpringBoot入门
-
-1.2.1 安装Spring Boot CLI
+* 
