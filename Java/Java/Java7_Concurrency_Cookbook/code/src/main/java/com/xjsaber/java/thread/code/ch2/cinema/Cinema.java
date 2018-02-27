@@ -10,7 +10,7 @@ public class Cinema {
 
     private final Object controlCinemal1, controlCinemal2;
 
-    public Cinema(){
+    Cinema(){
         controlCinemal1 = new Object();
         controlCinemal2 = new Object();
         vacanciesCinema1 = 20;

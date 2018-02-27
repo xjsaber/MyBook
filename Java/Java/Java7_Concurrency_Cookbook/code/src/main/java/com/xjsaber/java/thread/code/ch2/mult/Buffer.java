@@ -34,7 +34,7 @@ public class Buffer {
      */
     private boolean pendingLines;
 
-    public Buffer(int maxSize){
+    Buffer(int maxSize){
         this.maxSize = maxSize;
         this.buffer = new LinkedList<>();
         this.lock = new ReentrantLock();

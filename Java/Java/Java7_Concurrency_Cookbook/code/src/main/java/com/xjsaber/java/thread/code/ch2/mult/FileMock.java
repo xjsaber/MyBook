@@ -5,15 +5,26 @@ package com.xjsaber.java.thread.code.ch2.mult;
  */
 public class FileMock {
 
-    private String content[];
+    /**
+     * 存储文件内容
+     */
+    private String[] content;
+    /**
+     * 用来表示要从这个文件读取的内容的行号
+     */
     private int index;
 
-    public FileMock(int size, int length){
+    /**
+     * 构造器初始化文件的内容
+     * @param size
+     * @param length
+     */
+    FileMock(int size, int length){
         content = new String[size];
         for (int i = 0; i < size; i++){
             StringBuilder builder = new StringBuilder(length);
             for (int j = 0; j < length; j++){
-                int indice = (int)Math.random() * 255;
+                int indice = (int) (Math.random() * 255);
                 builder.append((char)indice);
             }
             content[i] = builder.toString();

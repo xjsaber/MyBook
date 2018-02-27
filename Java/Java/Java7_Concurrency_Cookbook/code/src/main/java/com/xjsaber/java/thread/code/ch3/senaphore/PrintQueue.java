@@ -13,7 +13,7 @@ public class PrintQueue {
         semaphore = new Semaphore(1);
     }
 
-    public void printJob(Object document){
+    public void printJob(){
         try {
             semaphore.acquire();
             long duration = (long)(Math.random() * 10);
