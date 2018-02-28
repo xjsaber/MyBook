@@ -792,3 +792,81 @@ shutdown()方法表示执行器应当结束
 
 # 第5章 Fork/Join框架 #
 
+* 创建Fork/Join线程池
+* 合并任务的结果
+* 异步运行任务
+* 在任务中抛出异常
+* 取消任务
+
+## 5.1 简介 ##
+
+执行器框架（Executor Framework）将任务的创建和执行进行分离，通过这个框架，只需要实现Runnable接口的对象和使用Executor对象，然后将Runnable对象发送给执行器。
+
+1.0 Thread -> 1.5 Executor -> 7 ExecutorService接口的另一种实现，Fork/Join框架（分解/合并框架）
+
+* 分解（Fork）操作：当需要将一个任务拆分成更小的多个任务时，在框架中执行这些任务；
+* 合并（Join）操作：当一个主任务等待其创建的多个子任务的完成执行。
+
+Fork/Join
+* 任务只能使用fork()和join()操作当作同步机制。如果使用其他的同步机制，工作着线程就不能执行其他任务，当然这些任务是在同步操作里时。
+
+* 任务不能执行I/O操作
+* 任务不能抛出非运行时异常
+
+Fork/Join框架的核心由下列两个类组成的。
+
+* ForkJoinPool:
+* ForkJoinTask:
+
+* ResursiveAction:用于任务没有返回结果的场景。
+* RecursiveTask:用于任务由返回结果的场景。
+
+## 5.2 创建Fork/Join线程池 ##
+
+* 创建用来执行任务的ForkJoinPool对象；
+* 创建即将在线程池中被执行的任务ForkJoinTask子类。
+
+* 采用默认的构造器创建ForkJoinPool对象；
+* 在任务中将使用JavaAPI文档推荐的结构。
+
+	if (problem size > default size) {
+		tasks = divide(task);
+		execute(tasks);
+	} else {
+		resolve problem using another algorithm
+	}
+
+**工作原理**
+
+ForkJoinPool对象，和一个将在线程池中执行的ForkJoinTask的子类。使用了无参的类构造器创建了ForkJoinPool对象，因此它将执行默认的配置。创建一个线程数等于计算机CPU数目的线程池，创建好ForkJoinPool对象之后，那些线程也创建就绪了，在线程池中等待任务的到达，然后开始执行。
+
+调用invokeAll()方法来执行一个主任务锁创建的多个子任务。
+
+Fork/Join框架提供了一中比Runnable和Callable对象更加高下哦的任务管理机制。
+
+调用shutdown()方法来结束ForkJoinPool的执行
+
+**更多信息**
+
+ForkJoinPool
+
+* execute(Runnabletask)：这个方法发送一个Runnable任务给ForkJoinPool类。
+* invoke(ForkJoinTask<T>task)
+* ExecutorService类中声明的invokeAll()和invokeAny()方法，接受Callable对象作为参数。
+
+ForkJoinTask
+
+* invokeAll(ForkJoinTask<?>...tasks)接受一个可变的参数列表，可以传递尽可能多的ForkJoinTask对象给这个方法作为参数。
+* invokeAll(Collection<T>tasks)这个版本的方法接受一个泛型类型T的对象集合（比如，ArrayList对象、LinkedList对象或者TreeSet对象）。这个泛型类型T必须是ForkJoinTask类或者它的子类。
+
+## 5.3 合并任务的结果 ##
+
+Fork/Join
+
+RecursiveTask类来实现的。RecursiveTask类继承了ForkJoinTask类，并且实现了由执行器框架（Executor Framework）提供的Future接口
+
+
+
+
+
+
