@@ -614,6 +614,8 @@ Callable接口，类似于Runnable接口
 * getActiveCount()：返回执行器中正在执行任务的线程数。
 * getCompleteTaskCount()：返回执行器已经完成的任务数。
 
+为了完成执行器的执行，可以使用ThreadPoolExecutor类的shutdown()方法。这执行器执行完成所有待运行的任务后，将结束执行。调用shutdown()方法之后，如果尝试再发送另一个任务给执行器，任务将被拒绝，并且执行器也将抛出RejectedExecutionException异常。
+
 **更多信息**
 
 ThredPoolExecutor类提供了许多方法来获取自身状态的信息。
@@ -631,6 +633,25 @@ TimeUnit是一个枚举类，有如下的常量：DAYS、HOURS、MICROSECONDS、
 
 创建固定大小的线程执行器
 
+**工作原理**
+
+Executors工厂类的newFixedThreadPool()方法来创建执行器，具有线程最大数量值的执行器。如果发送超过线程数的任务给执行器，剩余的任务将被阻塞直到线程池里有空闲的线程来处理它们。
+
+newFixedThreadPool()方法接收执行器将拥有的线程数量的最大值作为参数。
+
+ThreadPoolExecutor类
+
+* getPoolSize():返回执行器中线程的实际数量。
+* getActiveCount()：返回执行器正在执行任务的线程数量。
+
+控制台输出的信息是5，表示执行器拥有5个线程，并且执行器不会超过这个最大的线程连接数。
+
+当发送最后一个任务给执行器时，由于执行器只有5个活动的线程，所以剩余的95个任务只能等待空闲线程。getTaskCount()方法可以用来显示有多少个任务已经发送给执行器。
+
+**更多信息**
+
+Executors工厂类提供newSingleThreadExecutor()方法。这是一个创建固定大小线程执行器的极端场景，它将创建一个只有单一线程的执行器。因此，这个执行器只能在同一时间执行一个任务。
+
 ## 4.4 在执行器中执行任务并返回结果 ##
 
 执行器框架（Executor Framework）的优势之一是，可以运行并发任务并返回结果。
@@ -638,14 +659,136 @@ TimeUnit是一个枚举类，有如下的常量：DAYS、HOURS、MICROSECONDS、
 Callable：声明了call()方法，可以在这个方法离实现任务的具体逻辑操作。Callable接口是一个泛型接口，这就意味着必须声明call方法返回的数据类型。
 Future：接口声明了一些方法获取由Callable对象产生的结果，并管理它们的状态。
 
+**工作原理**
+
+* 控制任务的状态：可以取消任务和检查任务是否已经完成。isDone()来检查任务是否已经完成。
+* 通过call()方法获取返回的结果。如果get()方法在等待结果时线程中断了，则将抛出一个InterruptedException异常。如果call()方法抛出异常那么get()方法将随之抛出ExecutionException异常。
+
 **更多信息**
 
+在调用Future对象的get()方法时，如果Future对象所控制的任务并未完成，那么这个方法将一直阻塞到任务完成，Future接口也提供了get()的其他调用方式。
+
+* get(long timeout, TimeUnit unit)：如果调用这个方法时，任务的结果并未准备好，则方法等待所指定的timeout时间。如果等待超过了指定的时间而任务的结果还没有准备号好，那么这个方法将返回null。
 
 ## 4.5 运行多个任务并处理第一个结果 ##
 
 采用多个并发任务来解决一个问题，往往只关心这些任务的第一个结果。
 
-ThreadPoolExecutor
+ThreadPoolExecutor类的invokeAny()方法接收以额任务列表，然后运行任务，并返回第一个完成任务并且没有抛出异常的任务的执行结果。每一个UserValidator对象被TaskValidator对象使用，TaskValidator对象实现了Callable接口，如果UserValidator类的validate()方法返回false值，那么TaskValidator类将抛出Exception异常。否则，返回true值。
+
+1. 两个任务都返回true，那么invokeAny()方法的结果就是i首先完成任务的名称
+2. 第一个任务返回true只，第二个任务抛出Exception异常，那么invokeAny()方法的结果就是第一个任务的名称。
+3. 如果第一个任务抛出Exception异常，第二个任务返回true值，那么invokeAny()方法的结果就是第二个任务的名称。
+4. 如果两个任务都抛出Exception异常，那么invokeAny()方法将抛出ExecutionException异常。
+
+**更多信息**
+
+ThreadPoolExecutor类还提供了invokeAny()方法的其他版本：invokeAny(Coolection<? extends Callable<T>> tasks, long timeout, TimeUnit unit):这个方法执行所有的任务，如果在给定的超时期满之前某个任务已经成功完成（也就是未抛出异常），则返回其结果。
+
+TimeUnit是一个枚举类，有如下的常量：DAYS、HOURS、MICROSECONDS、MILLSECONDS、MINUTES、NANOSECONDS和SECONDS。
+
+## 4.6 运行多个任务并处理所有结果 ##
+
+* 如果任务执行结束，那么Future接口的isDone()方法将返回true
+* 在调用shutdown()方法后，ThreadPoolExecutor类的awaitTermination()方法会将线程休眠，直到所有的任务执行结束。
+
+**工作原理**
+
+通过invokeAll()方法等待所有任务的完成，接收一个Callable对象列表，并返回一个Future对象列表。在这个列表中，每一个任务对应一个Future对象。Future对象列表中的第一个对象控制Callable列表中第一个任务。
+
+**更多信息**
+
+ExecutorService接口提供了invokeAll()方法的另一个版本：
 
 
+## 4.7 在执行器中延时执行任务 ##
+
+执行器框架（Executor Framework）提供了ThreadPoolExecutor类并采用线程池来执行Callable和Runnable类型的任务，采用线程池额可以避免所有线程的创建操作和提高应用程序的性能。
+
+周期性地执行
+
+**工作原理**
+
+ThreadPoolExecutor类来创建定时执行器，在Java并发API中则推荐利用Executors工厂类来创建
+
+* 即将执行的任务；
+* 任务执行前所要等待的时间；
+* 等待时间的单位，由TimeUnit类的一个常量来制指定。
+
+**更多信息**
+
+可以使用Runnable接口来实现任务，因为ScheduledThreadPoolExecutor类的schedule()方法可以同时接受这两个类型的任务。
+
+ScheduledThreadPoolExecutor类是ThreadPoolExecutor类的子类，因而继承了ThreadPoolExecutor类所有的特性。但是，Java推荐仅在开发定时任务程序时采用SecheduledThreadPoolExecutor类
+
+## 4.8 在执行器中周期性执行任务 ##
+
+执行器框架（Executor Framework）提供了ThreadPoolExecutor类，通过线程池来执行并发任务从而避免了所有线程的创建操作。当发送一个任务给执行器后，根据执行器的配置，它将尽快地执行这个任务。当任务执行结束后，这个任务从执行器中删除；如果想再次执行这个任务，则需要再次发送这个任务到执行器。
+
+**更多信息**
+
+ScheduledThreadPoolExecutor类提供了其他方法来安排周期性任务的运行，比如，scheduleWithFixedRate()方法。
+
+* scheduledAtFixedRate() 第3个参数表示任务两次执行开始时间的间隔
+* schedulledWithFixedDelay() 第3个参数则是表示任务上一次执行结束的时间与任务下一次开始执行的时间的间隔
+
+ScheduledThreadPoolExecutor实现shutdown()方法的行为，默认行为是当调用shutdown()方法后，定时任务就结束了。可以通过ScheduledThreadPoolExecutor类的setContinueExistingPeriodicTasksAfterShutdownPolicy()方法来改变这种行为，传递参数true给这个方法，这样调用shutdown()方法后，周期性任务仍将继续执行。
+
+## 4.9 在执行器中取消任务 ##
+
+使用执行器时，不需要管理线程，只需要Runnable或Callable任务并发送任务给执行器即。执行器负责创建线程，管理线程池中的线程，当线程不再需要时就销毁它们。
+
+使用Future接口的cancel()方法来执行取消操作。
+
+**工作原理**
+
+Future接口的cancel()方法。根据调用cancel()方法所传递的参数以及任务的状态。
+
+* 如果任务已经完成，或者之前被取消，或者由于某种原因而不能取消，那么方法将返回false并且任务也不能取消。
+* 如果任务在执行器中等待分配Thread对象来执行它，那么任务被取消，并且不会开始执行。如果任务已经在运行，那么它依赖于调用cancel()方法时所传递的参数。如果传递的参数为true并且任务正在运行，那么任务将被取消。如果传递的参数为false并且任务正在运行，那么任务不会被取消。
+
+**更多信息**
+
+如果Future对象所控制任务已经被取消，那么使用Future对象的get()方法时抛出的CancellationException异常。
+
+## 4.10 在执行器中控制任务的完成 ##
+
+FutureTask类提供了一个名为done()的方法，允许在执行器中的任务执行结束之后，还可以实行一些代码。
+
+当任务执行完成是受FutureTask类控制时，这个方法在内部被FutureTask类调用。在任务结果设置后以及任务的状态已改变为isDone之后，无论任务是否被取消或者正常结束，done()方法才被调用。
+
+**工作原理**
+
+FutureTask类会调用done()方法。
+
+Callable类、ExecutableTask、FutureTask（ResultTask）
+
+在创建号返回值以及改变任务状态为isDone之后，FutureTask类就会在内部调用done()方法，虽然无法改变任务的结果值，也无法改变任务的状态，但是可以通过任务来关闭系统资源、输出日志信息、发送通知等。
+
+## 4.11 在执行器中分离任务的启动与结果的处理 ##
+
+执行并发任务时，将Runnable或Callable任务发送给执行器，并获得Future对象来控制任务。
+
+CompletionService类有一个方法用来发送任务给执行器，共享CompletionService对象，并发送任务到执行器，然后其他的对象可以处理任务的结果。
+
+
+
+## 4.12 处理在执行器中被拒绝的任务 ##
+
+shutdown()方法表示执行器应当结束
+
+为了处理在执行器中被拒绝的任务，需要创建一个实现RejectedExecutionHandler接口的处理器。这个接口有一个rejectedExecution()方法
+
+1. 一个Runnable对象，用来存储被拒绝的任务
+2. 一个Executor对象，用来存储任务被拒绝的执行器
+
+被执行器决绝的每一个任务都将调用这个额方法。需要先调用Executor类的setRejectedExecutionHandler()方法来设置用于被决绝的任务的处理程序。
+
+**更多信息**
+
+当接收器接收一个任内务并开始执行时，检查shutdown()方法是否已经被调用了。如果是，那么执行器就拒绝这个任务。
+
+1. 执行器会寻找通过setRejectedExecutionHandler()方法设置的用于被拒绝的处理程序，如果找到一个处理程序，执行器就调用器rejectedExecution()方法；否则就抛出RejectedExecutionException异常。这是一个运行时异常，因此并不需要cache语句来对其进行处理
+
+# 第5章 Fork/Join框架 #
 
