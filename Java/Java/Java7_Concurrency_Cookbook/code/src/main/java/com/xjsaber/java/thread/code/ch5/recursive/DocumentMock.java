@@ -1,6 +1,5 @@
 package com.xjsaber.java.thread.code.ch5.recursive;
 
-import javax.tools.DocumentationTool;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.RecursiveTask;
@@ -42,12 +41,13 @@ public class DocumentMock extends RecursiveTask<Integer> {
         invokeAll(tasks);
 
         int result = 0;
-        for (int i = 0; i < tasks.size(); i++){
-            LineTask task = tasks.get(i);
-            try {
-                result = result + task.get();
-            }
-        }
-        return new Integer();
+//        for (int i = 0; i < tasks.size(); i++){
+//            LineTask task = tasks.get(i);
+//            try {
+//                result = result + task.get();
+//            }
+//        }
+//        return new Integer();
+        return null;
     }
 }

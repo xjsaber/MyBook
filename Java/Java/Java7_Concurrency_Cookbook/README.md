@@ -863,8 +863,57 @@ ForkJoinTask
 
 Fork/Join
 
-RecursiveTask类来实现的。RecursiveTask类继承了ForkJoinTask类，并且实现了由执行器框架（Executor Framework）提供的Future接口
+RecursiveTask类来实现的。RecursiveTask类继承了ForkJoinTask类，并且实现了由执行器框架（Executor Framework）提供的Future接口。
 
+**更多信息**
+
+ForkJoinTask类提供了另一个complete()方法来结束任务的执行并返回结果。这个方法接收一个对象，对象的类型就是RecursiveTask类的泛型参数，然后在任务调用join()方法后返回这个对象作为结果。（异步任务来返回任务的结果）
+
+RecursiveTask实现了Future接口，因此还有get()方法调用的其他版本；
+
+TimeUnit是一个枚举类，有如下的常量：DAYS、HOURS、MICROSECONDS、MILLISECONDS、MINUTES、NANOSECONDS和SECONDS。
+
+## 5.4 异步运行任务 ##
+
+在ForkJoinPool中执行ForkJoinTask时，可以采用同步或异步方式。
+
+当采用同步方式执行时，发送任务
+
+**更多信息**
+
+join()方法来等待任务的技术，然后获取它们的结果。
+
+* get()：如果ForkJoinTask类执行结束，或者一直等到结束，那么get()方法的这个版本则返回compute()方法返回的结果。
+* get(long timeout, TimeUnit unit)：如果任务的结果未准备好，那么get()方法的这个版本将等待指定的时间。如果超过指定的时间了，任务仍未准备好，那么这个方法将返回null值。TimeUnit是一个枚举类，有如下的常量：DAYS、HOURS、MICROSECONDS、MILLISCONDS、MINUTES、NANOSECONDS、和SECONDS。
+
+get()方法和join()方法还存在两个主要的区别：
+* join方法不能被中断，如果中断调用join()方法的线程，方法将抛出InterruptedptException异常；
+* 如果任务抛出任何任务时异常，那么get()方法将返回ExecutionException异常，但是join()方法将返回RuntimeException异常。
+
+## 5.5 在任务中抛出异常 ##
+
+* 非运行时异常（Checked Exception）：这些异常必须在方法上通过throws子句抛出，或者在方法体内通过 try{...}catch{...}方式进行捕获处理。比如IOException或ClassNotFoundException异常。
+* 运行时异常（Unchecked Exception）：这些异常不需要在方法上通过throws子句抛出，也不需要在方法体内通过try{...}catch{...方式进行捕捉处理。比如NumberFormatException异常。}
+
+1. 不能再ForkJoinTask类的compute()方法中抛出任务非运行时异常，因为这个方法实现没有包含任何throws声明。
+2. compute()方法可以抛出运行时异常
+
+## 5.6 取消任务 ##
+
+ForkJoinPool类中执行ForkJoinTask对象时，在任务开始执行前可以取消它。
+
+ForkJoinTask类提供了cancel()方法来达到取消任务的目的。在取消一个任务时要注意以下两点：
+
+* ForkJoinPool类不提供任何方法来取消线程池中正在运行或者等待运行的所有任务；
+* 取消任务时，不能取消已经被执行的任务。
+
+ForkJoinTask类提供的cancel()方法允许取消一个仍没有被执行的任务。
+
+如果任务已经开始执行，那么调用cancel()发给发也无法取消。这个方法接收一个名为mayInterruptIfRunning的boolean值参数。如果传递true值给这个方法，即使任务正在运行也将被取消。
+
+Fork/Join框架的局限性，ForkJoinPool线程池中的任务不允许被取消。为了克服这种局限性，实现了TaskManager类，存储发送到线程池中的所有任务，可以用一个方法来取消存储的所有任务。如果任务正在运行或者已经执行结束，那么任务就不能被取消，cancel()方法返回false值。
+
+# 第6章 并发集合 #
 
 
 
