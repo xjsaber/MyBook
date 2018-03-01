@@ -915,6 +915,18 @@ Fork/Join框架的局限性，ForkJoinPool线程池中的任务不允许被取�
 
 # 第6章 并发集合 #
 
+## 6.1 简介 ##
+
+数据结构（DataStructure）
+
+* 阻塞式集合
+* 非阻塞式集合
+
+* 原子变量对应的实现类：AtomicLong和AtomicIntegerArray类。
+
+## 6.2 使用非阻塞式线程安全列表 ##
+
+
 
 
 
