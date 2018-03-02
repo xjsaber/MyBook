@@ -922,10 +922,33 @@ Fork/Join框架的局限性，ForkJoinPool线程池中的任务不允许被取�
 * 阻塞式集合
 * 非阻塞式集合
 
+* 非阻塞式列表对应的实现类：ConcurrentLinkedDeque类；
+* 阻塞式列表对应的实现类：LinkedBlockingDeque类；
+* 用于数据生成或消费的阻塞式列表对应的实现类：LinkedTrabsferQueue类；
+* 按优先级排序列表元素的阻塞式列表对应的实现类：PriorityBlockingQueue类；
+* 带有延迟列表元素的阻塞式列表对应的实现类：DelayQueue类；
+* 非阻塞式可遍历映射对应的实现类：ConcurrentSkipListMap类；
+* 随机数字对应的实现类：ThreadLocalRandom类；
 * 原子变量对应的实现类：AtomicLong和AtomicIntegerArray类。
 
 ## 6.2 使用非阻塞式线程安全列表 ##
 
+最基本的集合类型的是列表（List）。一个列表包含的元素数量不定，可以在任何位置添加、读取或移除元素。并发列表允许不同的线程在同一时间添加或移除列表中的元素，而不会造成数据不一致。
+
+* 添加大量的数据到一个列表中
+* 从同一个列表中移除大量的数据
+
+**更多信息**
+
+ConcurrentLinkedDeque类提供了其他从列表中读取数据的方法。
+
+* getFirst()和getLast()：分别返回列表中第一个和最后一个元素，返回的元素不会从列表中移除。如果列表为空，这两个方法抛出NoSuchElementException异常。
+* peek()、peekFirst()和peekLast()：分别返回列表中第一个和最后一个元素，返回的元素不会从列表中移除。如果列表为空，这些方法返回null。
+* remove()、removeFirst()和removeLast()：分别返回列表中第一个和最后一个元素，返回的元素将会从列表中移除。如果列表为控，这些方法抛出NoSuchElementException异常。
+
+## 6.3 使用阻塞式线程安全列表 ##
+
+最基本的集合类型是列表。一个列表包含的元素数量补丁，可以在任何位置添加、读取或移除。并发列表允许不同的线程在同一时间添加或移除列表中的元素，而不会造成数据不一致。
 
 
 
