@@ -950,7 +950,42 @@ ConcurrentLinkedDeque类提供了其他从列表中读取数据的方法。
 
 最基本的集合类型是列表。一个列表包含的元素数量补丁，可以在任何位置添加、读取或移除。并发列表允许不同的线程在同一时间添加或移除列表中的元素，而不会造成数据不一致。
 
+# 第7章 地址并发类 #
+
+## 7.1 简介 ##
+
+* 实现一个接口以拥有接口定义的功能
+* 覆盖类的一些方法，改变这些方法的行为，来满足需求，例如，覆盖Thread类的run()方法，它默认什么都不做，可以被用来覆盖以提供预期的功能。
+
+## 7.2 定制ThreadPoolExecutor类 ##
+
+Executor框架是一种将线程的创建和执行分离的机制。基于Executor和ExecutorService接口，及这两个接口的实现类ThreadPoolExecutor展开。Executor有一个内部线程池，并提供了将任务传递到池中线程以获得执行的方法。
+
+* 通过Runnable接口实现的任务，它不返回结果；
+* 通过Callable接口实现的任务，它返回结果。
+
+**工作原理**
+
+ThreadPoolExecutor类并覆盖了它的4个方法。beforeExecutor()和afterExecute()方法被用来计算任务的运行时间。
+
+* 通过调用getCompletedTaskCount()方法获得已执行过的任务数；
+* 通过调用getActiveCount()方法获得正在执行的任务数。
 
 
 
+## 7.3 实现基于优先级的Executor类 ##
 
+**工作原理**
+
+把一个普通的执行器转换为基于优先级的执行器是非常简单的，只需要把PriorityBlockingQueue对象作为其中一个传入参数，并且要求它的泛型参数是Runnable接口即可。使用这种执行器，存放在优先队列中的所有对象必须实现Comparable接口。
+
+MyPriorityTask实现了Runnable接口以成为执行任务，也实现了Comparable接口以存放再优先队列中。这个类有一个priority属性用来存放任务的优先级。
+一个任务的优先级属性值越高，它越早北执行。compareTo()方法决定了优先队列中的任务顺序。
+
+**更多信息**
+
+配置Executor使用BlockingQueue接口的任意实现。DelayQueue，这个类用来存放带有延迟激活的元素，提供了只返回活动对象的方法。可以使用ScheduledThreadPoolExecutor类定制自己的类。
+
+## 7.4 实现ThreadFactory接口生成定制线程 ##
+
+工厂模式（Factory Pattern）在面向对象编程中是一个应用广泛的设计模式。
