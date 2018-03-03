@@ -988,4 +988,24 @@ MyPriorityTask实现了Runnable接口以成为执行任务，也实现了Compara
 
 ## 7.4 实现ThreadFactory接口生成定制线程 ##
 
-工厂模式（Factory Pattern）在面向对象编程中是一个应用广泛的设计模式。
+工厂模式（Factory Pattern）在面向对象编程中是一个应用广泛的设计模式。它是一个创建模式（Creational Pattern），目标是床架哪一个类并通过这个类创建一个或多个类的对象。当创建一个类的对象时，使用工厂类而不是new 操作符。
+
+通过工厂模式，能够将对象创建集中化（好处）改变对象的创建方式将会变得很容易，并且针对限定资源还可以限制创建对象的数量。例如：通过工厂模式生成了一个类型的N个对象，很容易获得创建这些对象的统计数据。
+
+**工作原理**
+
+MyThread类有三个属性分别存放它的创建时间、执行起始时间和执行结束时间。
+
+getExecutionTime()方法使用了执行起始时间和结束属性，返回线程执行的时间。
+
+实现ThreadFactory接口只有一个方法，即newThread()方法，它接受一个Runnable对象作为参数并返回一个执行Runnable对象的Thread。
+
+**更多信息**
+
+Java并发API提供了Executor类来生成执行线程，生成的执行线程通常是ThreadPoolExecutor类的对象。也可以使用这个类的defaultThreadFactory()方法获取ThreadFactory接口的最基本实现，
+
+这个工厂能够生成基本的线程对象，并且生成线程都属于同一个线程组对象。
+
+自由使用ThreadFacttory接口，而不必拘泥于Executor框架。
+
+## 7.5 在Executor对象中使用ThreadFactory ##
