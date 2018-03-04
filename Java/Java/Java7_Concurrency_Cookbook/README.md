@@ -950,15 +950,21 @@ ConcurrentLinkedDeque类提供了其他从列表中读取数据的方法。
 
 最基本的集合类型是列表。一个列表包含的元素数量补丁，可以在任何位置添加、读取或移除。并发列表允许不同的线程在同一时间添加或移除列表中的元素，而不会造成数据不一致。
 
+**工作原理**
+
+String LinkedBlockingDeque对象，用来实现一个阻塞式并发数据列表。
+
+put()方法将字符串插入到列表中。如果列表已满（列表生成时指定了固定的容量），调用这个方法线程将被阻塞直到列表中有了可用的空间。take()方法从列表中取字符串。如果列表为空，调用这个方法的线程将被阻塞直到列表不为空（即用可用的元素）。
+
 **更多信息**
 
 LinkedBlockingDeque类提供了其他存取元素的方法，这些方法不会引起阻塞，而不是抛出异常或返回null。
 
 * takeFirst()和takeList()：分别返回列表中第一个和最后一个元素，返回的元素会从列表中移除。如果列表为空，调用方法的线程将被阻塞到列表中有可用的元素出现。
 * getFirst()和getLast()：分别返回列表中第一个和最后一个元素，返回的元素不会从列表中移除。如果列表为空，则抛出NoSuchElementExcption异常。
-* peek()、peekFirst()和peekLast()
-* poll()、pollFirst()和pollLast()
-* add()、addFirst()和addLast()
+* peek()、peekFirst()和peekLast()：分贝返回列表中第一个和最后一个元素，返回的元素不会从列表中移除。如果列表为空，返回null。
+* poll()、pollFirst()和pollLast()：分别返回列表中中第一个和最后一个元素，返回的元素将从列表中移除。如果列表为控，返回null。
+* add()、addFirst()和addLast()：分别将元素添加到列表中第一位和最后一位。如果列表已满（列表生成时指定了固定的容量），这些方法将抛出IllegalStateException异常。
 
 ## 6.4 使用按优先级排序的阻塞式线程安全列表 ##
 
@@ -989,6 +995,10 @@ DelayQueue，这个类可以存放带有激活日期的元素。当调用方法�
 * getDelay(TimeUnit unit)：返回到激活日期的剩余时间，单位由单位参数指定。TimeUnit磊是一个由下列常量组成的枚举类型：DAYS、HOURS|MICROSECONDS、MILLISECONDS、MINUTES、NANOSECONDS和SECONDS。
 
 ## 6.6 使用线程安全可遍历映射 ##
+
+## 6.7 生成并发随机数 ##
+
+## 6.8 使用原子变量 ##
 
 # 第7章 地址并发类 #
 
@@ -1049,3 +1059,31 @@ Java并发API提供了Executor类来生成执行线程，生成的执行线程�
 自由使用ThreadFacttory接口，而不必拘泥于Executor框架。
 
 ## 7.5 在Executor对象中使用ThreadFactory ##
+
+# 第8章 测试并发应用程序 #
+
+* 监控Lock接口
+* 监控Phaser类
+* 监控执行器框架
+* 监控Fork/Join池
+* 输出高效的日志信息
+* 使用FindBugs分析并发代码
+
+## 8.1 简介 ##
+
+* 如何获取应用程序中元素的信息，这些信息有助于测试应用程序；
+* 如何使用IDE（Integrated Development Environment）和其他工具（如FindBugs）来测试应用程序；
+* 如何使用类库（如MultithreadedTC）来进行自动化测试
+
+## 8.2 监控Lock接口 ##
+
+Lock接口是Java并发API同步代码块的基本机制之一。定义了临界区（Critical Section）。临界区是同一时间只能被一个线程执行的共享资源的代码块。这种机制是通过Lock接口和ReentranLock类而实现的。
+
+**工作原理**
+
+**更多信息**
+
+ReentrantLock类还提供了其他方法来获取Lock对象信息。
+
+* getHoldCount
+
