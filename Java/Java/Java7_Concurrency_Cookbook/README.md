@@ -950,6 +950,46 @@ ConcurrentLinkedDeque类提供了其他从列表中读取数据的方法。
 
 最基本的集合类型是列表。一个列表包含的元素数量补丁，可以在任何位置添加、读取或移除。并发列表允许不同的线程在同一时间添加或移除列表中的元素，而不会造成数据不一致。
 
+**更多信息**
+
+LinkedBlockingDeque类提供了其他存取元素的方法，这些方法不会引起阻塞，而不是抛出异常或返回null。
+
+* takeFirst()和takeList()：分别返回列表中第一个和最后一个元素，返回的元素会从列表中移除。如果列表为空，调用方法的线程将被阻塞到列表中有可用的元素出现。
+* getFirst()和getLast()：分别返回列表中第一个和最后一个元素，返回的元素不会从列表中移除。如果列表为空，则抛出NoSuchElementExcption异常。
+* peek()、peekFirst()和peekLast()
+* poll()、pollFirst()和pollLast()
+* add()、addFirst()和addLast()
+
+## 6.4 使用按优先级排序的阻塞式线程安全列表 ##
+
+有序列表。Java引入了PriorityBlockingQueue类来满足这类需求。
+
+**工作原理**
+
+PriorityBlockingQueue类实现了一个含有Event对象啊的优先级队列。PriorityBlockingQueue中存放的所有元素都必须实现Comparable接口，所以Event类也实现了compareTo()方法。
+
+所有event都有 优先级属性。带有最高优先级值的元素是队列中第一个元素。当实现compareTo()方法时，如果event本身的优先级高于作为参数的event的优先级值。结果返回-1.另一方面，如果event本身的优先级值低于作为参数的event的优先级值，结果返回1.如果两个对象的优先级值相等额，结果返回0.在返回值为0的情况下，PriorityBlockingQueue类不保证元素的次序。
+
+**更多信息**
+
+PriorityBlockingQueue类还提供了其他方法。
+
+* clear(): 移除队列中的所有元素。
+* take(): 返回队列中的第一个元素并将其移除。如果队列为空，线程阻塞直到队列中有可用的元素。
+* put(E e):E是PriorityBlockingQueue的泛型参数，表示传入参数的类型，这个方法参数对应的元素插入到队列中。
+* peek()：返回队列中的第一个元素，但不将其移除。
+
+## 6.5 使用带有延迟元素的线程安全列表 ##
+
+DelayQueue，这个类可以存放带有激活日期的元素。当调用方法从队列中返回或提取元素时，未来的元素日期将被忽略。
+
+为了具有调用行为，存放到DelayQueue类中的元素中必须继承Delayed接口。Delayed接口使对象成为延迟对象，它使存放在DelayQueue类中的对象具有激活日期，即到激活日期的时间。
+
+* compareTo(Delayed o)：Delayed接口继承了Comparable接口，因此有了这个方法。如果当前对象的延迟值小于参数对象的值，将返回一个小于0的值；如果当前对象的延迟值大于参数对象的值，将返回一个大于0的值；如果两者的延迟值相等则返回0.
+* getDelay(TimeUnit unit)：返回到激活日期的剩余时间，单位由单位参数指定。TimeUnit磊是一个由下列常量组成的枚举类型：DAYS、HOURS|MICROSECONDS、MILLISECONDS、MINUTES、NANOSECONDS和SECONDS。
+
+## 6.6 使用线程安全可遍历映射 ##
+
 # 第7章 地址并发类 #
 
 ## 7.1 简介 ##
