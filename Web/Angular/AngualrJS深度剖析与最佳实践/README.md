@@ -1,0 +1,384 @@
+# AngualrJS深度剖析与最佳实践 #
+
+## 第1章 从实战开始 ##
+
+### 1.1 环境准备 ###
+
+1. Node
+2. cnpm
+3. Java
+4. IntelliJ
+5. IntelliJ的AngularJS插件
+6. Git
+7. cygwin
+8. 开发智能与API
+
+### 1.2 需求分析与迭代计划 ###
+
+https://github.com/ng-nice/code
+
+1. 系统隐喻
+2. 业务目标
+3. 需求分析
+
+
+### 1.3 创建项目 ###
+
+#### 1.3.1 Yeoman ####
+
+	cnpm install -g yo //yeoman
+	cnpm install -g generator-gulp-angular@0.8.1 //angualr的项目模版
+	cnpm install -g gulp bower
+	
+	yo gulp-angular@0.8.1
+
+#### 1.3.2 FrontJet ####
+
+1. 使用FrontJet创建项目
+2. 启动开发服务器
+3. 项目结构
+
+### 1.4 实现第一个页面：注册 ###
+
+#### 1.4.1 约定优于配置 ####
+
+将reader称为controller，create称作action，中间还可以有一个id。
+
+	/$controller/:id?/$action，其中的id字段是可以神略的，取决于具体的action。
+
+拿到一个URL，如/reader/1/edit，其中reader是$controller，edit是$action，其模版为edit.html，控制器为edit.js，样式为edit.scss。
+
+#### 1.4.2 定义路由 ####
+
+	app/config.router.js
+
+如果已经有UX（用户体验设计师）或BA（业务分析师）给出的原型图
+，俺么建议从设计Model的数据结构开始，这样有助于更深入的理解Angular开发中最显著的特点：模型驱动。
+
+#### 1.4.3 把后端程序跑起来 ####
+
+#### 1.4.4 连接后端程序 ####
+
+5000端口跑前端程序，在5080端口上跑着后端程序，并且通过FrontJet的反向代理功能把后端也代理到了5000端口下，从而避免了跨域。
+
+#### 1.4.5 添加验证器 ####
+
+数据验证
+
+## 第2章 概念介绍 ##
+
+### 2.1 什么是UI ###
+
+* 内容
+* 外观
+* 交互
+
+对应Angular中的概念，“静态内容”对应模版，“动态内容”对应Scope，交互对应Controller，外观部分略微复杂点：CSS决定样式，过滤器（filter）则决定格式。
+
+### 2.2 模块 ###
+
+所谓模块是指相关的一组编程元素（如类、函数、变量等）组织到同一个发布包。这些编程元素之间紧密协作，隐藏实现细节，只通过公开的接口与其他模块合作。
+
+angular.module('com.ngice.app')：引用惩恶模块，查找一个名叫app的模块并返回其引用，如果模块不存在，则会触发一个异常[$injector:nomod]
+angular.module('com.ngince.app', ['common'])：创建一个模块，并且声明这个模块依赖一个名为common 的模块，第二个参数是个数组，所以还可以声明依赖多个模块。
+
+### 2.3 作用域 ###
+
+使用了原型继承的方式，凡是上级scope拥有的属性，都可以从下级scope中读取，但是当需要对这些继承下来的属性进行写入的时候。问题来了：*写入会导致在下级scope上创建一个同名属性，而不是修改上级scope上的属性*。
+
+Controller操作scope，View则展现scope的内容，传统前端程序中大量复杂的DOM操纵逻辑都被转变成scope的操作。
+
+### 2.4 控制器 ###
+
+Angular的控制器（controller）用来对模块（scope）进行操作，包括初始化数据和定义事件响应函数。
+
+	angular.module('com.ngnice.app').controller('UserListCtrl', function() {......})；
+其中：angular.module('com.ngnice.app')返回一个现有的module实例，而Controller就是这个module实例上的一个方法，作用是把后面的函数以UserListCtrl为名字，注册到模块中去，以便需要时可以根据名字找到他。
+
+### 2.5 视图 ###
+
+Angular中实现的视图的主题是模版。最常见的模版形式当然是HTML，也有通过Jade等中间语言编译为HTML的。模版中包括静态信息和动态信息，静态信息是指直接写死（hard code）在模版中，而动态信息则是对scope中内容的展示。
+
+展示动态信息的方式有两种：
+
+* 绑定表达式：形式如{sername}，绑定表达式可以出现在HTML中的文本部分或节点的属性部分。
+* 指令：形式如<span ng-bind="username"></span>，事实上任何指令都可以用来展示动态信息，展示的方式取决于指令的内在实现逻辑。
+
+### 2.6 指令 ###
+
+指令（directive），相当于一个自定义的HTML元素，在Angular官方文档中称它为HTML语言的DSL（特定领域语言）扩展。
+
+按照使用场景和作用可以分为两类类型的指令：组件型指令（Component）和装饰型器指令（Decorator）。
+
+组件型指令主要是为了将复杂而庞大的View分离，使得页面的View具有更强的可读性和维护性，实现“高内聚低耦合”和“分离关注点”的有效手段；而装饰器型指令则是为DOM添加行为，使其具有某种能力，如自动聚焦（autoFocus）、双向绑定，可点击（ngClick）、条件显示/隐藏(ngShow/ngHide)等能力，同时它也是链接Model和View之间的桥梁，保持View和Model的同步。在Angular中内置的大多数指令，是属于装饰期型指令，他们负责收集和创建$watch，然后利用Angular的“脏检查机制”保持View的同步。
+
+#### 2.6.1 组件型指令 ####
+
+PS.拆除两个指令的直接目的不是为了复用，而是分离View，促进代码结构的优化。
+
+	//声明一个指令
+	angular.module('com.ngnice.app').directive('jobCategory', function() {
+		return {
+			//可以用作HTML元素，也可以用作HTML属性
+			restrict: 'EA',
+			//使用独立作用域
+			scope: {
+				configure: '='
+			},
+			//指定模板
+			templateUrl: 'components/configure/tree.html',
+			//声明指令的控制器
+			controller: function JobCategoryCtrl($scope) {
+				...
+			}
+		}
+	}
+指令中return，称之为“指令定义对象”。
+
+restrict属性用来表示这个指令的应用放肆，取值可以是E（元素）、A（属性）、C（类名）、M（注释）
+
+scope有三种取值：不指定（undefined）/false、true或一个哈希对象。
+
+不指定或为false时，表示这个指令不需要新作用域。直接访问现有作用域上的属性或方法，也可以不访问作用域。如果同一节点上有新作用域或独立作用域指令，则直接法师用它，否则直接使用父级作用域。
+
+#### 2.6.2 装饰器型指令 ####
+
+	angular.module("com.ngince.app').directive('twTitle', 	function(){
+			return {
+				//用作属性
+				restrict: 'A',
+				link: function(scope, element, attrs){
+					...
+				}
+			}
+		}
+	}
+
+### 2.7 过滤器 ###
+
+filter
+
+	angular.module('com.ngnice.app').filter('myFilter', function(){
+	    /* 这里可以用参数进行依赖注入 */
+	    return function(input) {
+	
+	        var result;
+	        //TODO：把input变换成result
+	        return result;
+	    };
+	});
+
+非常适合复用。
+
+	filter出了可以用在绑定表达式之外，可以用在指令中通过值绑定的属性，如<li ng-repeat="item in items|filter: 'a'">....</li>
+
+### 2.8 路由 ###
+
+前端“路由”(router)的概念和后端的路由是一样的，也就是根据URL找到view-controller组合的机制。Angular的路由库合并在核心库中，现在，路由库从Angular核心库中剥离出来。官方的路由库称为ngRoute，由于其过于简陋，比较常用的是一个第三方路由库：angular-ui-router。
+
+ngRoute的写法是：
+
+	$routeProvider.when("/url", {
+		templateUrl: 'path/to/template.html',
+		controller: 'SomeCrl'
+	});
+
+angular-ui-router
+
+	$stateProvider.state('name', {
+		url: '/url',
+		templateUrl: 'path/to/template.html',
+		controller: 'SomeCrl'
+	})
+
+原理：监听$locationChangeSuccess事件，将在每次URL（包括#后面的hash部分）发生变化时触发。将根据$routeProvider/$stateProvider中注册的路由表中的URL部分查询其路由对象。
+	
+	{
+		url: '/url',
+		templateUrl: 'path/to/template.html',
+		controller: 'SomeCtrl'
+	}
+
+* 创建一个scope对象。
+* 加载模板，借助浏览器的能力把它解析为静态DOM。
+* 使用Controller对scope进行初始化，添加属性和方法。
+* 使用$compile服务把刚才生成的DOM和scope关联起来，变成一个Live DOM。
+* 用这个Live DOM替换成ng-view/ui-view中的所有内容
+
+### 2.9 服务 ###
+
+服务是对公共代码的抽象，比如，如果在多个控制器中都出现了相似的代码，那么把它们提取出来，封装成一个服务，将更加遵循DRY原则（即：不要重复）
+
+#### 2.9.1 服务 ####
+
+	angular.module('com.ngnice.app').service('greeting', function() {
+		this.sayHello = function(name) {
+			return 'Hello, ' + name;
+		};
+	});
+
+等价于：
+
+	angular.module('com.ngnice.app').provider('greeting', function() {
+		this.$get = function() {
+			var Greeting = function(){
+				this.sayHello = function(name){
+					return 'Hello,' + name;
+				};
+			};
+			return new Greeting();
+		}
+	};
+
+使用时：
+
+	angualr.module('com.ngnice.app').controller('SomeCtrl', functon($scope, greeting) {
+		$scope.message = greeting.sayHello('world');
+	});
+
+
+#### 2.9.2 工厂 ####
+
+	angular.module('com.ngnice.app').factory('greeting', function() {
+		return 'Hello, world';
+	});
+
+等价于：
+
+	angular.module('com.ngnice.app').provider('greeting', function() {
+		this.$get = function(){
+			var greeting = function(){
+				return 'Hellom world';
+			}
+			return greeting();
+		}
+	});
+
+使用时：
+
+	angualr.module('com.ngnice.app').controller('SomeCtrl', functon($scope, greeting) {
+		$scope.message = greeting;
+	});
+
+Angular提供多种形式的服务：
+
+1. 需要全局的可配置参数？用Provider。
+2. 是纯数据，没有行为？用Value。
+3. 只new一次，不用参数？用Service。
+4. 拿到类，自己new出实例？用Factory。
+5. 拿到函数，自己调用？用Factory。
+
+更加敏捷的方法：
+
+1. 纯数据时，先用Value；当发现需要添加行为时，改写为Service；或当发现需要通过计算给出结果时，改写为Factory；当发现需要进行全局配置时，改写为Provider。
+
+|类型|Factory|Service|Value|Constant|Provider|
+|--|--|--|--|--|
+|可以依赖其他服务|是|是|否|否|是|
+|使用类型友好的注入|否|是|是|是|否|
+|在config阶段可用|否|否|否|是|是|
+|可用于创建函数/原生对象|是|否|是|是|是|
+
+### 2.10 承诺 ###
+
+流行的库叫做Q（https://github.com/kriskowal/q）。而Angular的$q就是从它引入的。
+
+**1. 生活中的一个例子**
+
+Promise解决的是异步编程的问题。
+
+
+**2. 回调地域和Promise**
+
+Promise在任何时刻都处于以下三种状态之一：未完成（pending）、已完成（resolved）和拒绝（rejected）三个状态。以CommonJS Promise/A标准为例，Promise对象上的then方法负责添加针对已完成和拒绝状态下的处理函数。then方法会返回一个Promise对象，以便于形成Promise管道，这种返回Promise对象的方式能够让开发人员把异步操作串联起来，如then(resolvedHandler，rejectedHandler)。resolvedHandler回调函数在Promise对象进入完成状态时会触发，并传递结果；rejectedHandler函数会在拒绝状态下调用。
+
+	async1().then(async2).then(async3).catch(showError);
+
+**3. Angular中的Promise**
+
+Promise，最简单的是$timeout的实现。
+
+	function timeout(fn, delay, invokeApply) {
+		//创建一个延期请求
+		var deferred = $q.defer(),
+			promise = deferred.promise,
+			skipApply = (isDefined(invokeApply) && !invokeApply),
+			timeoutId;
+			timeoutId = $browser.defer(function(){
+				try {
+					//成功，将触发then的第一个回调函数
+					deferred.resolve(fn());
+				} catch(e) {
+					//失败，将触发then的第二个回调函数或catch的回调函数
+					deferred.reject(e);
+					$exceptionHandler(e);
+				} finally{
+					delete deferreds[promise.$$timeoutId];
+				}
+				if (!skipApply)$rootScope.$apply();
+			}, delay);
+			promise.$$timeoutId = timeoutId;
+			deferreds[timeoutId] = deferred;
+			//返回承诺
+			reutrn promise;
+	}
+	timeout.cancel = function(promise){
+		if(promise && promise.$$timeoutId in deferreds){
+			deferreds[promise.$$timeoutId].reject('canceled');
+			delete deferreds[promise.$$timetoutId];
+			return $browser.defer.cancel(promise.$$timeoutId);
+		}
+		return false;
+	}
+
+
+
+### 2.11 消息 ###
+
+消息（message）机制非常有用，特别是消息冒泡机制，让我们不用额外的代码可以实现“职责链”模式。
+
+* $broadcast(name, args):向当前scope及其所有下级scope递归广播名为name的消息，并带上args参数。
+* $emit(name, args):向当前scope及其所有直线上级scope发送名为name的消息，并带上args参数。
+* $on(name. listener):监听本scope收到的消息，listener的形式为：function(event, args){}, event参数的结构和DOM中的event类似。
+
+当rootScope上调用$broadcast广播一个消息时，任何一个scope（包括rootScope）上通过$on注册的listener都将收到这个消息。当scope1上调用$broatcast广播一个消息时，scope1/scope1.1/scope1.2将依次收到这个消息。当我们在rootScope上调用$emit上传一个消息时，rootScope将收到这个消息。当我们在scope1.1上调用$emit上传一个消息时，scope1.1/scope1/rootScope将依次收到这个消息。
+
+当通过$emit上传一个消息时，将使用冒泡机制，比如，假设我们在scope1.1调用$emit，我们在scope1上注册一个listener
+
+	scope1.$on('name', funcction(event)) {
+		event.stopPropagation();
+	}
+scope1.1和scope1都将正常收到这个消息，但rootScope就接收不到这个消息了。
+
+
+### 2.12 单元测试 ###
+
+#### 2.12.1 MOCK的使用方式 ####
+
+Mock一个普通对象不需要进行特别处理。比如，如果一个测试函数需要
+
+* 网络的不稳定性
+* 网络响应的速度会拖慢整体速度。
+* 网络的异步性
+
+#### 2.12.2 测试工具与断言库 ####
+
+Test Runner
+
+Karma
+
+jasmine
+
+### 2.13 端到端测试 ###
+
+端到端测试（e2e test）， 也称为场景测试。
+
+* 用户打开http://xxx地址。
+* 在搜索框中输入了abc。
+* 然后点击其后的搜索按钮。
+
+1)
+
+2)
+
+## 第3章 背后的原理 ##
