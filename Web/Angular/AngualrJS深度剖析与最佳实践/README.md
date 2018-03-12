@@ -65,6 +65,37 @@ https://github.com/ng-nice/code
 
 数据验证
 
+#### 1.5.6 实现“查看详情”功能 ####
+
+### 1.6 实现AOP功能 ###
+
+#### 1.6.1 实现登录功能 ####
+
+传统登录
+
+1. 浏览器访问一个网址。
+2. 服务器判断这个网址是否需要登录才能访问。
+3. 如果需要，则给浏览器回复一个Redirect头。
+4. Redirect的地址是的呢公路也，地址中还带有一个登录成功后的回调地址。
+5. 浏览器把登录页显示给用户，用户输入有效的用户名密码之后提交到服务器。
+6. 服务器检查用户密码是否有效，如果有效则给浏览器回复Redirect头来跳转到回调地址。
+
+Ajax登录
+
+1. 前端发起一个请求。
+2. 服务端判断这个网址是否需要登录才能访问。
+3. 如果需要，则给前端发回一个状态嘛401（位认证身份，即：未登录）
+4. 前端收到01状态码，则弹出一个对话框，提示用户输入用户名和密码。
+5. 用户输入用户名和密码之后提交。
+6. 前端发起一个登录请求，并等待登录成功。
+7. 登录成功后，前端重新发送刚才被拒绝的请求。
+
+优点：
+
+* 把控制逻辑完全交给前端，后端只提供“纯业务API”就勾勒，这样钱后端的分工非常明确。
+* 完全在当前页面中执行，不用多次加载页面用户操作非常顺畅。
+* 在Promise机制的支持下，登录过程中对前端的应用逻辑可以是完全透明的（调用API的代码不需要区分中间是否发生过，也不需要对此做任何处理）。
+
 ## 第2章 概念介绍 ##
 
 ### 2.1 什么是UI ###
@@ -382,3 +413,104 @@ jasmine
 2)
 
 ## 第3章 背后的原理 ##
+
+### 3.1 Angular中的MVVM模式 ###
+
+* 低耦合：View可以独立于Model变化和修改，同一个ViewModel可以被多个View复用；并且可以做到View和Model的变化互不影响。
+* 可重用性：可以把一些视图的逻辑放在ViewModel，让多个View复用。
+* 独立开发：开发人员可以专注于业务逻辑和数据的开放（ViewModel），界面设计人员可以专注于UI（View）的设计
+* 可测试性：清晰的View分层，使得针对表现层业务逻辑的测试更容易，更简单。
+
+* View：专注于界面的显示和渲染，在Angular中则是包含一堆声明式Directive的视图模板。
+* ViewModel：它是View和Model的粘合体，负责View和Model的交互与协作，它负责给View提供显示的数据，以及供View操作Model的途径。在Angular中$scope对象充当了这个ViewModel的角色，ViewModel上有两种不同来源的数据：一种是展示信息的业务数据，另一种是描述交互的派生数据，如：表格上的复选框，如果点击“全选”则会选中所有列表中的复选框，在这里就需要一个类似“isSelectAll”的派生数据被放置在ViewModel上。
+* Model：它是与业务逻辑相关的数据封装载体，也就是领域对象。Model不应该包含任何与界面显示有关的逻辑。在Web页面中，大部分Model都是来自Ajax的服务端返回数据或者全局配置对象。Angular中的Service正是封装和处理这些与Model相关的业务逻辑的最佳方式，这些领域对象可以被Controller或其他Service复用。
+* Controller：这并不是MVVM模式中的核心元素，但它负责ViewModel对象的初始化。它将调用一个或者多个Service来获取领域对象，并把结果放在ViewModel对象上。这样，应用界面在启动加载时候，可以达到一种最初的可用状态。它还可以在ViewModel上加入用于描述交互的行为函数，如用于响应ng-click事件的"addItemTOShopCar();"等
+
+View不能直接与Mode交互，而是通过$scope这个ViewModel来实现与Model的交互。
+
+**1. 绝不要先设计你的页面，然后用DOM操作去改变它。**
+
+jQuery: 首先设计页面DOM结构，然后再利用jQuery来改变DOM结构或者实现动态交互效果。对于负责交互逻辑的项目，JavaScript代码会变得越来越臃肿，让交互逻辑分散到各处。
+
+Angular：拥有或者需要怎么样的Model数据，然后设计交互数据和交互逻辑，最后采取实现视图，并用$scope来粘合他们。
+
+**2. 指令不是封装jQuery代码的“天堂”**
+
+封装到Angular的指令中
+
+**3. Angular启动过程**
+
+1. 浏览器下载HTML/CSS/JavaScript等
+
+2. 浏览器开始构建DOM树
+
+3. jQuery初始化
+
+4. Angular初始化
+
+5. jQuery启动
+
+6. Angular启动
+
+7. 加载子模块
+
+8. 启动子模块
+
+9. 渲染页面
+
+10. 数据绑定与摘要循环
+
+Angular会给每一个Scope成员变量求出一个摘要值（能够唯一标识一个变量），并在保存在一个变量中。当调用Scope对象的$digest/$apply方法的时候，会重新算一遍摘要值，只要数据变化
+
+### 3.3 依赖注入 ###
+
+DI
+
+#### 3.3.1 什么是依赖注入 ####
+
+**1. 自己创建它**
+
+需要一系列参数，可能还需要这样、那样的初始化操作，甚至可能还需要创建它的相关的对象，相关对象的相关的对象。
+
+这种方法无法适应复杂的对象，随着对象的复杂化，自己动手丰衣足食已经不再是好的选择。
+
+**2. 使用者从全局注册表查阅它**
+
+对象的实现者自己负责创建对象，然后对象注册到某个全局注册表，需要它的时候，就去注册表根据名字或者其他特征（比如强类型语言中的类名）查询：obj=globalRegistry.get(objectId)。
+
+全局变量是单元测试的魔鬼，因为会让各个“单元”互相耦合在一起，那将是单元测试的噩梦。
+
+**3. 衣来伸手，饭来张口**
+
+在函数的参数中声明。目前Angular所采用的反射光hi是函数的参数形式，和一种特殊的Annotation形式来防止代码压缩过程破坏参数名。而Angular2.0中会使用新的语言特性强化Annotation的方式。
+
+#### 3.3.2 如何在JavaScript中实现DI ####
+
+	// giveMe函数声明了一个叫config的参数，希望容器根据这个名字找到同名对象，并且注入进来
+	var giveMe = function(config){
+	    //经过注入后，此处config的内容为{delay: 1}
+	    //跟registry中保存的是同一个实例
+	};
+	//注册表，这里保存了可注入对象，包括一个名为config的对象
+	var registry = {
+	    config: {
+	        delay: 1
+	    }
+	}
+	
+	var inject = function(func, thisForFunc){
+	    var sourceCode = func.toString();
+	    var matcher = sourceCode.match();
+	    var objects = [];
+	    for (var i = 0; i < objectIds.length; i++){
+	        var objectName = objectIds[i];
+	        var object = registry[objectName];
+	        objects.push(object);
+	    }
+	    func.apply(thisForFunc || func, objects);
+	};
+
+#### 3.3.3 Angular中的DI ####
+
+minify
+
