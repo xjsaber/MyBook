@@ -514,3 +514,31 @@ DI
 
 minify
 
+#### 3.3.4 DI与minify ####
+
+### 3.4 赃检查机制 ###
+
+“脏检查”是Angular中的核心机制之一，实现双向绑定、MVVM模式的重要基础。
+
+Angular将双向绑定转换为一堆watch表达式，然后递归检查这些watch表达式的结果是否变了，如果变了，则执行相应的watcher函数。等到Model的值不再变化，也就不会再有watcher函数被触发，一个完整的digest循环就结束了。这时，浏览器就会重新渲染DOM来体现model的改变。
+
+#### 3.4.1 浏览器事件循环和Angular的MVW ####
+
+JavaScript是靠事件循环工作的。浏览器中存在一个事件循环池，它被设计成一个无限循环以保持执行过程的可用，等待事件（例如layout、paint、用户点击事件、交互控件的键盘事件等）并执行它们。
+
+#### 3.4.2 Angular中的$watch函数 ####
+
+大部分指令都会依赖watcher函数来监听Model的改变，以更新View的显示，它是Angular中“脏检查机制”的核心之一。
+
+
+#### 3.4.3 Angular的$digest函数 ####
+
+当接受View的事件指令所转发的事件时，就会切换到Angular的上下文环境，来响应这类事件，$digest循环就会触发。
+
+$digest循环发生包括两个while循环，它们分别是：处理$evalAsync的异步运算队列，处理$watch的watchers队列。
+
+当$digest循环发生的时候，会遍历当前$scope及其所有子$scope上已注册的所有watchers函数。
+
+#### 3.4.4 Angular中的$apply ####
+
+$digest是一个内部函数，正常的应用代码中是不应该直接调用它的。要想主动触发它，就要调用scope.$apply函数，它是触发Angular“脏检查机制”的常用公开接口。
