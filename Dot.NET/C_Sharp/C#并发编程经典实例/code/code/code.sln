@@ -19,7 +19,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WhenAny", "WhenAny\WhenAny.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReturnAsync", "ReturnAsync\ReturnAsync.csproj", "{68C5035D-D50B-45A2-B074-02E2C09D614D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsyncEx", "AsyncEx\AsyncEx.csproj", "{D10EC302-F3EC-4808-9F5E-53680B24E6C2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MAsyncEx", "AsyncEx\MAsyncEx.csproj", "{D10EC302-F3EC-4808-9F5E-53680B24E6C2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
