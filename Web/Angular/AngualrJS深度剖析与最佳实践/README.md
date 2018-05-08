@@ -542,3 +542,61 @@ $digest循环发生包括两个while循环，它们分别是：处理$evalAsync�
 #### 3.4.4 Angular中的$apply ####
 
 $digest是一个内部函数，正常的应用代码中是不应该直接调用它的。要想主动触发它，就要调用scope.$apply函数，它是触发Angular“脏检查机制”的常用公开接口。
+
+# 第4章 最佳实践 #
+
+## 4.1 调整开发写作流程 ##
+
+## 4.2 前后端分离部署 ##
+
+## 4.3 样式中心页 ##
+
+## 4.4 CSS的扩展语言与架构 ##
+
+## 4.5 HTML的表意性 ##
+
+## 4.6 table，天使还是魔鬼 ##
+
+## 4.7 测试什么？怎么测 ##
+
+对Filter和Service进行覆盖式测试。
+
+### 4.7.1 准备工作 ###
+
+### 4.7.2 如何测试Controller ###
+
+Controller的作用是对Scope进行初始化：赋予数据，赋予行为。
+
+### 4.7.3 如何测试Service ###
+
+
+### 4.7.4 如何测试Filter ###
+
+	//获取uppercase过滤器
+	var uppercaseFilter = $filter('uppercase');//对于只需要注入一个Filter时，则也可以直接Inject uppercaseFilter服务
+	//用abc作为参数调用uppercaseFilter函数，应该得到ABC
+	expect(uppercaseFilter('abc').toEqual('ABC'));
+
+### 4.7.5 如何测试组件型指令 ###
+
+### 4.7.6 如何测试装饰器型指令 ###
+
+
+### 4.7.7 如何测试网络请求 ###
+
+
+### 4.7.8 如何测试setTimeout类功能 ###
+
+
+
+### 4.7.9 如何Mock Service ###
+
+## 4.8 如何设计友好的REST API ##
+
+### 4.8.1 URI ###
+
+### 4.8.2 资源拆分 ###
+
+### 4.8.3 资源命名 ###
+
+
