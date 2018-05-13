@@ -600,3 +600,117 @@ Controller的作用是对Scope进行初始化：赋予数据，赋予行为。
 ### 4.8.3 资源命名 ###
 
 
+### 4.8.6 综合案例：分页API ###
+
+其实位置+条数
+
+### 4.10.2 其他指令中的watchers函数 ###
+
+
+
+### 4.10.3 慎用$watch和及时销毁 ###
+
+$scope.$watch函数函数的返回值就是用于释放这个watcher的函数。
+
+### 4.10.4 one-time绑定 ###
+
+### 4.10.5 滚屏加载 ###
+
+### 4.10.6 其他 ###
+
+## 4.11 总是用ng-model作为输出 ##
+
+## 4.12 用打包代替动态加载 ##
+
+## 4.13 引入Angular-hint ##
+
+
+### 4.13.1 通过batarang插件使用angular-hint ###
+
+* angular-hint-controllers:包含全局controller的警告、以及controller命名等最佳实践。
+* angular-hint-directives：包含指令的attribute、tag命名方式，以及更多的Angular指令最佳实践。
+* angular-hint-dom：他对于Angular controller中使用DOM处理，发出强烈的警告。
+* angular-hint-events：标记出事件表达式中值为undefined的变量。
+* angular-hint-interpolation：关于{{}}表达式最佳实践和使用。
+* angular-hint-modules：标记出未使用的module，以及未声明的module，多处ng-app声明更多关于module的最佳实践。
+* angular
+
+### 4.13.2 手动集成angular-hint ###
+
+### 4.13.3 Module hints ###
+
+### 4.13.4 Controller hints ###
+
+### 4.13.5 Directive hints ###
+
+# 第5章 Angular开发技巧 #
+
+## 5.1 $timeout的妙用 ##
+
+## 5.2 ngTemplate寄宿方式 ##
+
+Directive的template或templateUrl；可以选择将HTML模板放在真实的Web容器中寄宿。
+
+## 5.3 在非独立作用域指令中实现scope绑定 ##
+
+## 5.4 表单验证错误信息显示 ##
+
+	<form name="form" class="css-form" novalidate>
+		...
+			E-mail:
+				<input type="email" ng-model="user.email" name="uEmail" required /> <br/>
+				<error-info field="form.uEmail"></error-info>
+		...
+	</form>
+
+在error-info指令中，可以根据field属性的值显示不同的内容。
+
+# homework 完成 #
+
+## 5.5 Angular中的AOP机制 ##
+
+$http中的拦截器（interceptors）和装饰器（$provide.decorator）是Angular中两类常见的AOP切入点。前者以管道式主席那个策略实现，而后者则通过运行时的动态代理实现。
+
+### 5.5.1 拦截器案例 ###
+
+	$provide.factory('myHttpInterceptor', function($q){
+		return {
+
+		}
+	})
+
+* Ajax请求Request之前切入。
+* Ajax请求Request错误时切入。
+* Ajax请求响应成功时切入。
+* Ajax请求响应失败时切入。
+
+### 5.5.2 拦截器源码分析 ###
+
+# 第7章 编码规范 #
+
+## 7.1 目录结构 ##
+
+### 7.1.1 按照类型优先、业务功能其次的组织方式 ###
+
+## 7.2 模块组织 ##
+
+### 7.2.1 命名 ###
+
+### 7.2.2 Module声明 ###
+
+### 7.2.3 依赖声明 ###
+
+### 7.2.4 Module组件声明 ###
+
+## 7.3 控制器 ##
+
+### 7.3.1 命名 ###
+
+
+
+### 7.3.2 ControllerAs vm声明 ###
+
+
+
+### 7.3.3 初始化数据 ###
+
