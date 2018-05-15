@@ -714,3 +714,90 @@ $http中的拦截器（interceptors）和装饰器（$provide.decorator）是Ang
 
 ### 7.3.3 初始化数据 ###
 
+将页面中的ng-init初始化数据方式，移到Controller代码中，对于默认配置甚至应该推到服务中。
+
+### 7.3.4 DOM操作 ###
+
+### 7.3.5 依赖的声明 ###
+
+### 7.3.6 精简控制器逻辑 ###
+
+$scope上，应该仅仅添加与视图相关的行为和数据。
+
+### 7.3.7 禁止用$rootScope传递数据 ###
+
+禁止利用$rootScope来传递和共享数据。
+
+$emit，$broadcast，$on等发送通知
+
+通知所有下级$scope，$broadcast；通知所有上级$scope，$emit
+
+可以利用Factory等服务的“单例”特性，为它们注入一个共享对象来传递数据，还可以通过共同的上级scope来传递数据。
+
+### 7.3.8 格式化显示逻辑 ###
+
+对与需要将原始数据转换为特定的用户格式，如货币、时间、过滤、数字格式化，应该将这部分逻辑抽取成一个Filter。
+
+### 7.3.9 Resolve ###
+
+Resolve是一个对象，它的Key
+
+## 7.4 服务 ##
+
+### 7.4.1 命名 ###
+
+### 7.4.2 代码复用 ###
+
+Serivce是复用代码逻辑的组件，所以建议将控制器、指令中的业务逻辑封装到Service中去。但要注意：不能将$scope这类参数传递到Service中去，可将需要传入的对象封装为参数对象，且应该只传递所需要的数据。
+
+Serivce具有单例的特性。
+
+### 7.4.3 使用场景 ###
+
+* 对于项目的配置信息，可以选择Constant
+* Factory
+* Service
+
+
+### 7.4.4 Service ###
+
+返回Promise对象，使用时统一通过then（success，error）或catch（error）方式
+
+对于同步函数，通过$q.when()将其封装为Promise形式，实现AOP。
+
+### 7.4.5 缓存不变数据 ###
+
+通过$http或者$resource等方式从后端获取的数据，如果在SPA的生命周期内不会发生变化，就应该将其缓存起来，就应该将其缓存起来，减少服务器的负荷。
+
+	$http.post('/url', {
+		id: 1,
+		name: "greengerong"
+	}, {
+		..
+		cache: true
+		...
+	})
+
+### 7.4.6 RESTful ###
+
+$resource是在$http基础上为RESTful API专门封装的服务，对资源的CRUD操作提供了统一的调用接口。
+
+## 7.5 过滤器 ##
+
+### 7.5.1 命名 ###
+
+转换为一个名为[filterName]Filter的服务。
+
+### 7.5.2 重用已有Filter ###
+
+如果在其他非View的地方，如Controller、Service等需要复用已有Filter的逻辑，那么可以使用[filtername]Filter的方式注入该Filter服务以重用它的逻辑；
+
+### 7.5.3 禁止复杂的Filter ###
+
+Filter在每次View渲染的时候，都会被重新执行，所以尽可能的简化过滤器的逻辑，不要在Filter中写大量低效率的复杂逻辑，否则会拖慢整个应用。
+
+## 7.6 指令 ##
+
+## 7.9 其他 ##
+
+### 7.9.1 内置$服务代替原生服务 ###
