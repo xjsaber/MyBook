@@ -1,5 +1,6 @@
 ﻿using ExtensionMethodsExample;
 using System;
+using System.Threading.Tasks;
 
 namespace code
 {
@@ -30,13 +31,25 @@ namespace code
             //object obj = str;
 
             //Console.ReadKey();
-            Program p = new Program();
-            Console.WriteLine(p.ToString());
-            Console.WriteLine(p.FullName);
+            string result = MakeRequest().Result;
+            Console.WriteLine(result);
             Console.ReadKey();
-
         }
 
+
+        public static async Task<string> MakeRequest()
+        {
+            var client = new System.Net.Http.HttpClient();
+            var steamTask = client.GetStringAsync("https://localhost:10000");
+            try
+            {
+                var responseText = await steamTask;
+                return responseText;
+            } catch(System.Net.Http.HttpRequestException e) when (e.Message.Contains("301"))
+            {
+                return "Site Moved";
+            }
+        }
         
 
         static int Give()
