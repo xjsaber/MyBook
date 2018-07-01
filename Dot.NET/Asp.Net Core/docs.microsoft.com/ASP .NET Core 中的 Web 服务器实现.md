@@ -56,7 +56,26 @@ Kestrel支持以下功能：
 
 ## 如何在ASP.NET Core应用中使用Kestrel ##
 
-Microsoft.AspNetCore.All元包
+Microsoft.AspNetCore.All元包 中包括 Microsoft.AspNetCore.Server.Kestrel 包
+
+**Kestrel选项**
+
+**客户端最大连接数**
+
+**请求正文自打大小**
+
+**请求正文最大大小**
+
+TODO 限制HTTP请求可以之后回来继续看
+
+**请求正文最小数据速率**
+
+**终结点配置**
+
+默认情况下，ASP.NET Core绑定到 http://localhost:5000。在KestrelServerOptions上调用Listen或ListenUnixSocket方法，从而配置Kestrel的URL前缀和端口。UseUrls、--urls命令行参数、urls主机配置健以及ASPNETCORE_URLS环境变量。
+
+urls主机配置键必须来自主机配置，而不是应用配置。将urls健和值添加到appsetting.json不影响主机配置，因为是在从配置文件读取配置时对主机进行完全初始化。
+
 
 
 # ASP.NET Core中的请求功能 #

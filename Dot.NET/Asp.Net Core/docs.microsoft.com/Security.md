@@ -22,7 +22,64 @@
 
 ### 启用 ASP.NET Core 中的跨域请求 (CORS) ###
 
-### 什么是“相同源” ###
+#### 什么是“相同源” ####
+
+#### CORS设置 ####
+
+若要为整个应用程序启用 CORS，请使用 `UseCors` 扩展方法向请求管道添加 CORS 中间件。
+
+#### 启用CORS的中间件 ####
+
+**每个操作**
+
+**将预检过期时间设置**
+
+	options.AddPolicy("SetPreflightExpiration",
+    builder =>
+    {
+        builder.WithOrigins("http://example.com")
+               .SetPreflightMaxAge(TimeSpan.FromSeconds(2520));
+    });
+
+#### CORS策略选项 ####
+
+**设置允许的来源**
+
+#### CORS的工作原理 ####
+
+CORS 规范引入了几个新的 HTTP 标头启用跨域请求。 如果浏览器支持 CORS，则将设置为跨源请求自动这些标头。 不需要启用 CORS 自定义 JavaScript 代码。
+
+`Origin`标头提供的域的正在发出请求的站点
+
+	GET http://myservice.azurewebsites.net/api/test HTTP/1.1
+	Referer: http://myclient.azurewebsites.net/
+	Accept: */*
+	Accept-Language: en-US
+	Origin: http://myclient.azurewebsites.net
+	Accept-Encoding: gzip, deflate
+	User-Agent: Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; WOW64; Trident/6.0)
+	Host: myservice.azurewebsites.net
+
+如果服务器允许该请求，则将在响应中设置的访问控制的允许的域标头。 此标头的值匹配的 Origin 标头请求，或是通配符值"*"，允许任何来源的含义
+
+	HTTP/1.1 200 OK
+	Cache-Control: no-cache
+	Pragma: no-cache
+	Content-Type: text/plain; charset=utf-8
+	Access-Control-Allow-Origin: http://myclient.azurewebsites.net
+	Date: Wed, 20 May 2015 06:27:30 GMT
+	Content-Length: 12
+	
+	Test message
+
+**预检请求**
+
+对于某些 CORS 请求，浏览器发送一个其他的请求，调用"预检请求"，再将发送实际请求的资源。
+
+* 请求方法是 GET、 HEAD 或 POST 和
+* 应用程序不设置任何请求标头以外，接受语言内容 Accept-language、 内容类型或最后一个事件 ID 和
+* 内容类型标头 (如果设置) 是以下之一：
+   application/x-www-form-urlencoded、multipart/窗体的数据、文本/无格式
 
 ## 在应用之间共享Cookie ##
 

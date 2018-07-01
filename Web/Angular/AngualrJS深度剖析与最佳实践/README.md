@@ -240,6 +240,12 @@ angular-ui-router
 
 服务是对公共代码的抽象，比如，如果在多个控制器中都出现了相似的代码，那么把它们提取出来，封装成一个服务，将更加遵循DRY原则（即：不要重复）
 
+* 常亮（Constant）：用于声明不会被修改的值。
+* 变量（Value）：用于声明不会被修改的值。
+* 服务（Service）：用于声明不会被修改的值。
+* 工厂（Factory）：跟“服务”不同，不会被new出来，Angular会调用这个函数，获得返回值，然后保存这个返回值，供他到处注入。
+* 供应商（Provider）：对规格进行配置，以便获得定制化的产品
+
 #### 2.9.1 服务 ####
 
 	angular.module('com.ngnice.app').service('greeting', function() {
@@ -402,6 +408,8 @@ jasmine
 
 ### 2.13 端到端测试 ###
 
+protractor
+
 端到端测试（e2e test）， 也称为场景测试。
 
 * 用户打开http://xxx地址。
@@ -438,6 +446,10 @@ Angular：拥有或者需要怎么样的Model数据，然后设计交互数据�
 
 封装到Angular的指令中
 
+#### 3.2 Angular启动过程 ####
+
+![Angular启动过程](img/2018-05-20_23-13-23.png)
+
 **3. Angular启动过程**
 
 1. 浏览器下载HTML/CSS/JavaScript等
@@ -445,6 +457,9 @@ Angular：拥有或者需要怎么样的Model数据，然后设计交互数据�
 2. 浏览器开始构建DOM树
 
 3. jQuery初始化
+
+按名字创建一个模块，所谓的模块就是一个对象，它是其他Angular对象的注册表。
+在这个模块中注册各种Angular对象，如Controller、Service、Directive。常见的myModule.controller('xxx', ...)其实就是$controllerProvider.register的快捷方式；myModule.service('xxx',...)就是$provier.service的快捷方式。
 
 4. Angular初始化
 
@@ -548,6 +563,26 @@ $digest是一个内部函数，正常的应用代码中是不应该直接调用�
 ## 4.1 调整开发写作流程 ##
 
 ## 4.2 前后端分离部署 ##
+
+Nginx
+
+	http {
+		...
+		server {
+			listen 80;
+			server_name your.domain.name;
+			location / {
+				root /var/www/yourDocRoot/;
+				index index.html index.htm;
+			}
+			location /api/ {
+				proxy_set_header Host $http_host;
+				proxy_pass http://another.domain.name:8080/api/;
+			}
+		}
+	}
+
+cookie path机制，即让http://localhost/api和http://localhost/api2的cookie不能互相访问，如果把/api/的请求转发到/api2/下，由于cookie path不互通，提供proxy_cookie_path来解决问题。
 
 ## 4.3 样式中心页 ##
 
@@ -686,6 +721,20 @@ $http中的拦截器（interceptors）和装饰器（$provide.decorator）是Ang
 
 ### 5.5.2 拦截器源码分析 ###
 
+### 5.5.3 Angular中的装饰器 ###
+
+### 5.5.4 Angular装饰器源码分析 ###
+
+$provide服务是Angular内部用于创建所有Provider服务的服务对象。
+
+## 5.6 Ajax请求和响应数据的转换 ##
+
+### 5.6.1 兼容老式API ###
+
+#### 1. 部分Ajax调用request设置 ####
+
+
+
 # 第7章 编码规范 #
 
 ## 7.1 目录结构 ##
@@ -801,3 +850,166 @@ Filter在每次View渲染的时候，都会被重新执行，所以尽可能的�
 ## 7.9 其他 ##
 
 ### 7.9.1 内置$服务代替原生服务 ###
+
+* $timeout替代setTimeout
+* $Interval替代setInterval
+* $window替代window
+* $document替代document
+* $resource或$http替代$.ajax
+* angular.element替代$
+
+### 7.9.2 Promise解决回调地狱 ###
+
+$q服务提供了when方法把变量封装为Promise，提供了all方法来合并多个Promise对象。
+
+### 7.9.3 减少$watch ###
+
+在大量表哥数据需要显示的情况下，大多数字段只需要一次绑定就够了，这种情况下，可以尝试使用Angular1.3引入的one-time绑定语法：{{:item}}
+
+### 7.9.4 TDD ###
+
+# 第8章 工具 #
+
+## 8.4 Swagger ##
+
+### 8.4.1 前后端分离 ###
+
+### 8.4.2 Swagger ###
+
+### 8.4.3 契约测试 ###
+
+## 8.5 TSD ##
+
+## 8.6 Postman ##
+
+
+# 第9章 杂项知识 #
+
+## 9.1 Angular2.0 ##
+
+## 9.2 SEO ##
+
+
+
+## 9.3 IE兼容性 ##
+
+## 9.6 国际化 ##
+
+angular-translate
+
+## 9.7 动画 ##
+
+### 9.7.1 CSS动画 ###
+
+### 9.7.2 JavaScript动画 ###
+
+## 9.8 手机版开发 ##
+
+### 9.8.1 Hybird应用 ###
+
+* 避免强制指定宽度、高度的像素数，而是用百分比或者让它根据内容自动确定大小。
+* 使用流式布局，让它在必要时自动拆行，而不是变得过小。
+* 使用响应式布局，利用媒体查询功能在小分辨率自动改变一些参数，如边距、位置等。
+
+### 9.8.2 Ionic ###
+
+# 附录A #
+
+## A.1.2 前端公共知识 ##
+
+认知与设计——理解UI设计准则
+
+简约至上：交互式设计四策略
+
+## A.1.3 MDN ##
+
+## A.1.4 CSS ##
+
+精通CSS-高级Web标准解决方案
+
+## A.1.5 Sass语法 ##
+
+## A.1.7 Javascript进阶 ##
+
+* JavaScript语言精粹
+* 编写可维护的JavaScript
+* 基于MVC的JavaScript Web富应用开发
+* 高性能的JavaScript
+* DOM启蒙
+
+## A.1.8 REST ##
+
+REST实战
+
+## A.1.9 编程风格与习惯 ##
+
+* 代码简洁之道
+* 重构：改善既有代码的设计
+* 高效程序员的45个习惯
+
+## A.2 Css&Sass ##
+
+### A.2.1 选择器类型 ###
+
+### A.2.4 盒子模型 ###
+
+margin，border，padding，width/height
+
+### A.2.5 元素布局模式 ###
+
+* 块元素：如div，它会尝试占据父元素的一整行。如果指定了它的宽度，那么他的显示宽度会改变，但是仍然会占据整行，没有内容的部分则会保持空白。
+* 行内元素：如span，没有宽度和高度的概念，也没办法给他们指定宽度和高度。
+* 行内块元素：如img，可以指定宽度和高度，在布局时只会占据这个“宽度*高度”的空间。可以和文字混排。
+
+### A.2.6 定位 ###
+
+### A.2.7 浮动 ###
+
+浮动影响的是行内元素。
+
+### A.2.8 继承规则 ###
+
+### A.2.9 响应式布局 ###
+
+### A.2.10 使用技巧 ###
+
+#### 1. 块元素水平居中 ####
+
+	width: margin-left: auto; margin-right: auto;
+
+#### 2. 元素垂直居中 ####
+
+	display: table-cell;
+	vertical-align: middle
+
+#### 3. 超长内容自动显示省略号 ####
+
+	span {
+		text-overflow: ellipsis; /*溢出的文本变成省略号*/
+		overflow: hidden; /*不显示溢出的部分*/
+		width: 10em; /*最多10字符宽*/
+		display: inline-block; /*显示为行内块才能指定宽度*/
+	}
+
+#### 4. 用:not代替层叠规则做特例处理 ####
+
+### A.2.11 原则：如何设计可维护的CSS框架 ###
+
+1. 恰当命名
+2. 避免特例处理
+3. 避免使用style属性
+4. 避免强制指定元素的宽度、高度
+
+### A.2.12 常见的坑 ###
+
+#### 1. 非块元素不允许包含块元素 ####
+
+比如<span><div></div></span>
+
+#### 2. 指定width：100%后父元素出现滚动条 ####
+
+当前元素具有padding、border或margin导致的。
+
+# 后记 #
+
+提问的智慧
