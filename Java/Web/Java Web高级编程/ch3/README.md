@@ -6,7 +6,13 @@ Servlet用于接收的响应终端用户的请求。
 
 Servlet是一个运行在Web服务器中的Java小程序。Servlet将会接收和响应来自Web客户端请求，使用HTTP（超文本传输协议）进行通信。
 
+Servlet是所有Web应用程序的核心类，是唯一的既可以直接处理和响应用户请求，也可以将处理工作委托给应用中的其他部分的类。
+
 ### 3.1.1 选择要继承的Servlet类 ###
+
+Servlet继承自`javax.servlet.GenericServlet`。
+
+GenericServlet是一个不依赖于具体协议的Servlet。
 
 ### 3.1.2 使用初始化方法和销毁方法 ###
 
@@ -82,6 +88,9 @@ getWriter将返回一个java.io.PrintWriter
 
 ## 3.4 使用参数和接受表单提交 ##
 
+
+
+
 ## 3.5 使用初始化参数配置应用程序 ##
 
 通过上下文初始化参数（简称初始化参数）和Servlet初始化参数进行配置
@@ -114,9 +123,12 @@ getWriter将返回一个java.io.PrintWriter
 
 ## 3.6 通过表单上传文件 ##
 
+Servlet3.0 multipart配置选项，并为HttpServletRequest添加了getPart和getParts方法。
+
 ### 3.6.1 介绍客户支持项目 ###
 
 ### 3.6.2 配置Servlet支持文件上传 ###
+
 Ticket类、Attachment类和TickServlet类。
 
 	@MultipartConfig(
@@ -124,12 +136,23 @@ Ticket类、Attachment类和TickServlet类。
 	        maxFileSize = 20_971_520L, //20MB
 	        maxRequestSize = 41_943_040L //40MB
 	)
+注解@MultipartConfig将告诉Web容器为该Servlet提供文件上传支持。
+location、fileSizeThreshold将告诉Web容器文件必须达到多大才能写入临时目录中。maxFileSize和maxRequestSize
+
 ## 3.7 编写多线程安全的应用程序 ##
 
 ### 3.7.1 理解请求、线程和方法执行 ###
+
 在JavaEE世界里，Web容器通常会包含某种类型的线程池，它们被称为连接池或执行池。
 
+Tomcat中最大的线程池大小默认是200。
+
 线程池有个可以配置的大小属性。
+
+Ps：JavaEE6中的Servlet3.0规范添加了异步请求上下文的概念。实际上，当Servlet处理请求时，调用ServletRequest的startAsync方法，返回一个包含了请求对象的javax.servlet.AsyncContext对象。然后Servlet将从service方法返回，不需要对请求作出响应，所使用的线程也被返回到线程池中。
+
+ch9 异步上下文
+ch10 长轮询（long polling） 
 
 ### 3.7.2 保护共享资源 ###
 
@@ -140,8 +163,18 @@ Servlet中的静态变量和实例变量都可以被多个线程同时访问。
 
 	private volatile int TICKET_ID_SEQUENCE = 1;
 
+	synchronized(this){
+		id = this.TICKET_ID_SEQUENCE++;
+		this.ticketDatabase.put(id, ticket);
+	}
+
+在该代码块中完成了两个操作：将TICKET_ID_SEQUENCE变量自增1并将修改后的值赋给id，将变量ticket插入到哈希map中。这两个变量都是Servlet的实例变量，这意味着多个线程可以同事访问它们。将这些操作添加到同步代码块中，可以保证其他线程都无法同时执行这两行代码。
+
+Warming：在编写Servlet方法时，永远不要在静态或实例变量中存储请求或响应对象。
+
 ## 3.8 小结 ##
 
+`GenericServlet` 和 `HttpServlet抽象类`，还有`HttpServletRequest` 和 `HttpServletResponse` 接口
 
 
 

@@ -3,30 +3,52 @@
 ## 12.1 Spring Framework简介 ##
 
 ### 12.1.1 反转控制和依赖注入 ###
-反转控制（IoC）和依赖注入（DI）。一段程序代码（Spring Framework的一个类）可以声明它依赖于另一块程序代码（一个接口），然后组装器可以在运行时注入它依赖的实例（通常并不总是单例）。
+
+反转控制（IoC）和依赖注入（DI）。
+
+IoC是一个软件设计模式：组装器将在运行时而不是编译时绑定对象。
+
+一段程序代码（Spring Framework的一个类）可以声明它依赖于另一块程序代码（一个接口），然后组装器可以在运行时注入它依赖的实例（通常并不总是单例）。
+
 ### 12.1.2 面向切面编程 ###
-负责实例化和依赖注入，通过封装注入依赖的实例，使用其他行为对方法调用进行装饰。
+
+因为Spring Framework负责处理实例化和依赖注入，通过封装注入依赖的实例，使用其他行为对方法调用进行装饰。
+
 ### 12.1.3 数据访问和事务管理 ###
+
 对Java Persistent APJ（JPA）和对象关系映射的广泛支持。
+
+Spring Data，在关系数据库以及MongoDB和Redis这样的NoSQL数据库持久化变成了一个简单的任务。
+
 ### 12.1.4 应用程序消息 ###
+
 Spring Framework提供了一个松耦合的消息系统，它使用的是发布-订阅模式：系统中的组件通过订阅消息，声明它对该消息感兴趣，然后这些消息的生产者将会发布该消息，而无须关心谁对消息感兴趣。使用Spring Framework时，一个由Spring管理的bean可以通过实现一个通用接口订阅特定的消息类型，其他由Spring管理的对象可以发布这些消息到Spring Framework中，然后由Spring Framework将消息发送到已订阅的bean中。该系统也可以被扩展和配置为跨应用程序的群几种发布消息。
 
 ### 12.1.5 Web应用程序和模型-视图-控制器模式 ###
+
 提供了一个模型-视图-控制器（MVC）模式框架，简化创建交互式Web应用程序的过程。
 
-模型将以Map<String, Object>的形式从控制器传递到视图，控制器返回的视图或视图名称将使Spring把模型转发到合适的JSP视图。
+隐藏Servlet、HttpServletRequest\HttpServletResponse以及JSP转发，Spring将处理这些任务。
+
+模型将以Map<String, Object>的形式从控制器传递到视图，控制器返回的视图或视图名称将使Spring把模型转发到合适的JSP视图。请求和URL路径参数将被自动转换为原始或复杂的控制器方法参数。
+
 ## 12.2 使用SpringFramework的原因 ##
 
 ### 12.2.1 逻辑代码分组 ###
 
+一个处理用户配置的Servlet可以有数十个方法，每个含有不同路由的逻辑的方法都将添加到doGet和doPost的方法中。
+
+使用Spring的Web MVC框架时，控制器类的行为非常像使用方法级别映射的Servlet。每个方法都可以拥有一个指向特定URL、请求方法、参数存在性、头的值、内容类型和/或期望相应类型的唯一映射。
+
 ### 12.2.2 使用同一个代码库的多个用户界面 ###
- 
 
 ## 12.3 了解应用上下文 ##
 
+Spring Framework容器以一个或多个应用上下文的形式存在，由org.springframework.context.ApplicationContext接口表示。
+
 一个应用上下文管理着一组bean、执行业务逻辑的Java对象、执行任务、持久化和获取持久化数据、响应HTTP请求等。由Spring管理的bean可以自动进行依赖注入、消息通知、定时方法执行、bean验证和执行其他关键的Spring服务。
 
-一个Spring应用程序至少需要一个应用上下文。
+一个Spring应用程序至少需要一个应用上下文，并且有时这就是所有的要求。不过，也可以使用由多个应用上下文组成的层次结构。在这样的层次结构中，任何由Spring管理的bean都可以访问相同的应用上下文、父亲的父亲应用上下文中的bean。
 
 ApplicationContext
 * ConfigurableApplicationContext使可配置的，而基本的ApplicationContext是只读的。
@@ -34,7 +56,8 @@ ApplicationContext
 * 具体类ClassPathXmlApplicationContext和FileSystemXmlApplicationContext被设计用于在独立运行的应用程序中从XML文件加载Spring配置，而XmlWebApplicationContext被设计用于在JavaEE Web应用程序中实现相同的目标。
 * 如果需要使用Java而不是使用XML以编程方式对Spring进行配置，那么AnnotationConfigApplication和AnnotationConfigWebApplicationContext类分别可用于独立运行的应用程序和JavaEE Web应用程序中
 
-每个DispatcherServlet实例都有自己的应用上下文，其中包含了对Web应用程序的Servlet
+每个DispatcherServlet实例都有自己的应用上下文，其中包含了对Web应用程序的ServletContext和它自己的ServletConfig的引用。整个Web应用程序的全局应用上下文是所有DispatcherServlet应用上下文的父亲，它将通过org.springframework.web.context.ContextLoaderListener创建。
+
 ## 12.4 启动Spring Framework ##
 
 ### 12.4.1 使用部署描述符启动Spring(XML启动) ###
