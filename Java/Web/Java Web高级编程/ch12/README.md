@@ -61,7 +61,8 @@ ApplicationContext
 ## 12.4 启动Spring Framework ##
 
 ### 12.4.1 使用部署描述符启动Spring(XML启动) ###
-传统的Spring Framework应用程序总是使用JavaEE部署描述符启动Spring。
+
+传统的Spring Framework应用程序总是使用JavaEE部署描述符启动Spring。至少，在配置文件中创建DispatcherServlet的一个实例，所以以contextConfigLocation
 
 1. 创建DispatcherServlet的一个实例。
 2. 以contextConfigLocation启动参数的形式为它提供配置文件。
@@ -71,7 +72,29 @@ ContextLoaderListener将在Web应用程序启动时被初始化（因为它实�
 rootContext.xml文件中加载根应用上下文，并启动根应用上下文。
 
 ### 12.4.2 在初始化器中使用编程的方式启动Spring（Java启动） ###
-监听器的contextInitizlized方法可能在其他监听器之后调用。JavaEE6中天加了一个新的接口ServletContainerInitializer。实现了ServletContainerInitializer。实现了ServletCOntainerInitializer接口的类将在应用程序开始启动时，并在所有监听器启动之前调用它们的onStartup方法。 
+
+监听器的contextInitizlized方法可能在其他监听器之后调用。
+
+JavaEE6中天加了一个新的接口ServletContainerInitializer。实现了ServletContainerInitializer。实现了ServletCOntainerInitializer接口的类将在应用程序开始启动时，并在所有监听器启动之前调用它们的onStartup方法。 
+
+**派生器Servlet映射**
+
+不要将DispatcherServlet映射到URL模式/*。在多数情况下，URL模式必须以星号开头或结尾，但在映射到应用程序根时，只使用前斜线/，不使用星号，就足以使Servlet响应应用程序的所有URL，并且Servlet容器的JSP机制仍然可以处理JSP请求。
+
+如果计划将DispatcherServlet映射到应用程序根，当任何一个Servlet被映射到应用程序根时（不使用星号）。更具体的URL模式总是会覆盖它。
+
+XML
+
+	<servlet-mapping>
+		<servlet-name>default</servlet-name>
+		<url-pattern>/resource/*</url-pattern>
+		<url-pattern>*.css</url-pattern>
+		<url-pattern>*.js</url-pattern>
+	</servlet-mapping>
+
+Java
+
+	servletContext.getServletRegistration("default").addMapping("/resources/*", "*.css", "*.js", "*.png", "*.git");
 
 ## 12.5 配置Sprng Framework ##
 
@@ -85,16 +108,28 @@ rootContext.xml文件中加载根应用上下文，并启动根应用上下文�
         <property name="greetingService" ref="greetingServiceImpl" />
     </bean>
 
-将告诉Spring实例化GreetingServiceImpl和HelloCOntroller，并将greetingServiceImpl bean注入到helloController bean的greetingService属性中。
+将告诉Spring实例化GreetingServiceImpl和HelloController，并将greetingServiceImpl bean注入到helloController bean的greetingService属性中。
 
-元素`<mvc:annotation-driven />`将指示Spring使用请求映射到控制器方法上。使用`<mvc:annotation-driven />`元素实际上会在幕后创建出特定的bean。
+元素`<mvc:annotation-driven />`将指示Spring使用@RequestMapping、@RequestBody、@RequestParam、@ResponseBody请求映射到控制器方法上。使用`<mvc:annotation-driven />`元素实际上会在幕后创建出特定的bean。
+
+	<servlet-mapping>
+		<serlvet-name>default</serlvet-name>
+		<url-pattern>/resource/*</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>springDispatcher</servlet-name>
+	</servlet>
 
 ### 12.5.2 创建混合配置 ###
-混合配置的核心时组件扫描和注解配置的概念。通过使用组件扫描，Spring将扫描通过特定注解指定的包查找类。所有标注了@org.springframework.stereotype.Component的类（在这些包中），都将变成由Spring管理的bean，这意味着Spring将实例化他们并注入他们的依赖。
+
+混合配置的核心时组件扫描和注解配置的概念。
+
+通过使用组件扫描，Spring将扫描通过特定注解指定的包查找类。所有标注了@org.springframework.stereotype.Component的类（在这些包中），都将变成由Spring管理的bean，这意味着Spring将实例化他们并注入他们的依赖。
 
 任何标注了@Component的注解都将变成组件注解，标注了@Controller、@Repository和@Service的类也将成为Spring管理的bean。
 
-@org.springframework.beans.factoryannotation.Autowired。可以为任何私有、保护和公开字段或者接受一个或多个参数的公开设置方法标注@Autowired。@Autowired声明了S-pring应该都在实例化应该在实例化之后注入的依赖，并且它也可以用于标注构造器。
+@org.springframework.beans.factoryannotation.Autowired。可以为任何私有、保护和公开字段或者接受一个或多个参数的公开设置方法标注@Autowired。@Autowired声明了Spring应该都在实例化应该在实例化之后注入的依赖，并且它也可以用于标注构造器。（通常由Spring管理的bean必须有无参构造器，但对于只含有一个标注了@Autowire的构造器的类，Spring将使用该构造器并注入所有的构造器参数）
 
 Spring无法为依赖找到匹配的bean，它将抛出并记录一个异常，然后启动失败；如果它为依赖找到多个匹配的bean，它也将抛出并记录一个异常，然后启动失败，可以使用@org.springframework.beans.factory.annotation.Qualifier或@org.springframework.context.annotation.Primary注解避免第二个问题。@Qualifier可以指定应该使用的额bean的名字，也可以使用@Primary标记一个组件标注的bean，表示在出现多个符合依赖的候选bean时应该优先使用它。
 
@@ -102,20 +137,65 @@ Spring无法为依赖找到匹配的bean，它将抛出并记录一个异常，�
 
 * ApplicationEventPublisherAware 用于获得发布应用程序事件的bean。
 * BeanFactroyAware 用于获得BeanFactory，通过它可以手动获得或创建bean。
-* EnvironmentAware 用于获得Environment对象，通过它可以手动或创建bean。
+* EnvironmentAware 用于获得Environment对象，通过它可以从属性源中获得属性。
 * MessageSourceAware 用于获得国际化消息源。
 * ServletSontextAware 用于获得JavaEE Web应用环境中的ServletContext。
 * ServletConfigAware 用于获得DispatcherServlet Web应用上下文管理的bean ServletConfig。
 
+通常在bean的所有依赖后，在它作为依赖被注入其他bean之前，可以在该bean上执行某种初始化操作。只需要使用org.springframework.beans.factory.InitializingBean接口。
+
 ### 12.5.3 使用@Configuration配置Spring ###
 
+* XML配置难于调试。
+* 不能对XML配置进行单元测试。
+
+Spring Framework的纯Java配置可以通过编程的方式配置Spring容器。
+
+AnnotationConfigWebApplicationContext启动编程式Spring配置。使用该类时，通过register方法注册配置类即可。这些配置类（必须标注上@org.springframework.context.annotation.Configuration，也必须有默认构造器）将通过标注了@Bean的无参方法注册bean。
+
+@Configuration注解是标注了@Component的元数据注解，意味着@Configuration类可以使用@Autowired或@Inject进行依赖注入；可以实现Aware接口、InitializingBean或DisposableBean中的任意一个；也可以使用@PostConstruct和@PreDestory方法。如果@Configuration需要直接访问框架bean或者在另一个@Configuration类中创建bean。
+
+如果需要在注入自己的依赖之后，但在Spring调用它的@Bean之前，初始化两个或多个被依赖的bean。
+
+@ComponentScan
+
+@EnableAspectAutoProxy
+
+@EnableAsync
+
+@EnableCache
+
+@EnableLoadTimeWwaving
+
+@EnableScheduling
+
+@EnableSpringConfigured
+
+@EnableTransactionManagement
+
+@EnableWebMvc
 
 
 ## 12.6 使用bean definition profile ##
 
+* 在一个多层次的应用环境中，需要让一些bean运行在一个层次中，而让另外一些bean运行在另一层中。
+
 ### 12.6.1 了解profile的工作远离 ###
-Spring bean definition profile有两个组件：声明和激活。可以在XML配置文件中使用<beans>元素声明profile，或者在@Configutation类或@Components上使用@org.springfraework.context.anotation.Profile注解，火炬噢这同时使用
+
+Spring bean definition profile有两个组件：声明和激活。可以在XML配置文件中使用<beans>元素声明profile，或者在@Configutation类或@Components上使用@org.springfraework.context.anotation.Profile注解，或者同时使用这两种方式。
+
+任意的<beans>中都可以包含profile特性，表示它的bean
+
 ### 12.6.2 考虑反模式和安全问题 ###
 
+* 有没有更简单的方法可以实现相同的目标呢？
+
+* 你的profile中存在的bean类型都有哪些？
+
+* 使用bean definition profile的安全意义是什么？
+
+
+
 ## 12.7 小结 ##
+
 Spring Framework，bean，应用上下文和派发器Servlet，讲解了依赖注入（DI）和反转控制（IoC）、面向切面编程、事务管理、发布-订阅应用程序消息和Spring的MVC框架。
