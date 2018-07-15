@@ -1,16 +1,22 @@
 # 第17章 创建RESTful和SOAP Web服务 #
 
+spring-aop
+
 ## 17.1 了解Web服务 ##
 
 ### 17.1.1 最初的SOAP ###
-SOAP源自于简单对象访问协议（Simple Object Access Protocol），他是一种使用XML消息形式结构化数据再机器与机器
+
+SOAP源自于简单对象访问协议（Simple Object Access Protocol），他是一种使用XML消息形式结构化数据再机器与机器之间进行交互协议。
+
 ### 17.1.2 RESTful Web提供了一种更简单的方式 ###
 
 
 ## 17.2 在SpringMVC中配置RESTful Web服务 ##
 
 ### 5.2.1 了解会话cookie ###
+
 HTTP cookie。cookie是一种必要的通信机制，可以通过Set-Cookie响应头在服务器和浏览器之间传递任意的数据，并存储在用户计算机中，然后在通过请求头Cookie从浏览器返回到服务器中。
+
 ### 5.2.2 URL中的会话ID ###
 
 <%@ 这是一个指令 %>
