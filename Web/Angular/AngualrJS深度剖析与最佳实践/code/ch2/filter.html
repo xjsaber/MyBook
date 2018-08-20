@@ -1,0 +1,35 @@
+<html lang="en" >
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Angular Material style sheet -->
+</head>
+<body ng-app="com.xjsaber.angular" ng-cloak>
+  <!--
+    Your HTML content here
+    
+  -->  
+  {{1|myFilter}}
+  <!-- Angular Material requires Angular.js Libraries -->
+  <script src="https://cdn.bootcss.com/angular.js/1.6.9/angular.min.js"></script>
+
+  <!-- Your application bootstrap  -->
+  <script type="text/javascript">    
+    /**
+     * You must include the dependency on 'ngMaterial' 
+     */
+    angular.module('com.xjsaber.angular', []).filter('myFilter', function(){
+        return function(input){
+            var result = 2;
+            //TODO: 把input替换成result;
+            return result;
+        }
+    });
+  </script>
+  
+</body>
+</html>
+
+<!--
+Copyright 2016-2018 Google Inc. All Rights Reserved. 
+Use of this source code is governed by an MIT-style license that can be found in the LICENSE file at https://material.angularjs.org/latest/license.
+-->
