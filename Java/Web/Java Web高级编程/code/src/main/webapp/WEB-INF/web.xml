@@ -17,4 +17,13 @@
         <url-pattern>/salutation</url-pattern>
         <url-pattern>/wazzup</url-pattern>
     </servlet-mapping>
+
+    <context-param>
+        <param-name>settingOne</param-name>
+        <param-value>foo</param-value>
+    </context-param>
+    <context-param>
+        <param-name>settingTwo</param-name>
+        <param-value>bar</param-value>
+    </context-param>
 </web-app>
