@@ -1,3 +1,4 @@
-ToolSet: w64 4.0@E:\WorkPlace\SDK\C\TDM-GCC-64
+ToolSet: w64 4.0@C:\WorkPlace\SDK\TDM-GCC-64
 Options: 
-CMake: 3.8.2@F:\Program Files\JetBrains\CLion 2017.2.3\bin\cmake\bin\cmake.exe
+
+Options:
