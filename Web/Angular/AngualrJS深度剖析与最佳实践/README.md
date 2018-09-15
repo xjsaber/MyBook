@@ -32,9 +32,22 @@ https://github.com/ng-nice/code
 	
 	yo gulp-angular@0.8.1
 
+如果以前用过cnpm和npm，那么会出现一些版本不匹配的警告。这些一般不会导致，不过如果要去掉这些警告，那么可以用如下命令清除一些缓存，并重新安装：
+
+	npm cache clean
+	cnpm cache clean
+	rm -fr node_modules
+	cnpm install
+
 #### 1.3.2 FrontJet ####
 
+	cnpm install -g fj
+
 1. 使用FrontJet创建项目
+
+	mkdir ~/dev && cd ~/dev
+	fj create BookForum
+
 2. 启动开发服务器
 3. 项目结构
 
@@ -52,10 +65,15 @@ https://github.com/ng-nice/code
 
 	app/config.router.js
 
+'use strict';声明此JavaScript为严格模式，以回避一些JavaScript的低级错误。
+
+
 如果已经有UX（用户体验设计师）或BA（业务分析师）给出的原型图
 ，俺么建议从设计Model的数据结构开始，这样有助于更深入的理解Angular开发中最显著的特点：模型驱动。
 
 #### 1.4.3 把后端程序跑起来 ####
+
+Grails
 
 #### 1.4.4 连接后端程序 ####
 
@@ -64,6 +82,15 @@ https://github.com/ng-nice/code
 #### 1.4.5 添加验证器 ####
 
 数据验证
+
+数据验证包括两个主题：一是定义验证规则，用于验证数据的有效性；二是显示验证结果，要把验证结果的结果用友好的方式显示给用户。
+
+#### 1.4.6 “错误信息提示” ####
+
+
+#### 14.7 用过滤器生成用户友好的提示信息 ####
+
+#### 1.5.3 实现分页功能 ####
 
 #### 1.5.6 实现“查看详情”功能 ####
 
@@ -100,9 +127,9 @@ Ajax登录
 
 ### 2.1 什么是UI ###
 
-* 内容
-* 外观
-* 交互
+* 内容 Model
+* 外观 View
+* 交互 Controller
 
 对应Angular中的概念，“静态内容”对应模版，“动态内容”对应Scope，交互对应Controller，外观部分略微复杂点：CSS决定样式，过滤器（filter）则决定格式。
 
@@ -124,7 +151,16 @@ Controller操作scope，View则展现scope的内容，传统前端程序中大�
 Angular的控制器（controller）用来对模块（scope）进行操作，包括初始化数据和定义事件响应函数。
 
 	angular.module('com.ngnice.app').controller('UserListCtrl', function() {......})；
+
 其中：angular.module('com.ngnice.app')返回一个现有的module实例，而Controller就是这个module实例上的一个方法，作用是把后面的函数以UserListCtrl为名字，注册到模块中去，以便需要时可以根据名字找到他。
+
+	var scope = $rootScope.$new();
+	var ctrl = $controller('UserListCtrl');
+	ctrl(scope);
+
+其中的$controller是Angular提供的一个系统的服务，用以查找以前通过module.controller('UserListCtrl', function(){...});注册的控制函数
+	
+创建一个scope，找到一个控制器，然后用控制器对scope进行初始化，最后把scope绑定到视图，生成Live DOM渲染出来。生成Live DOM时涉及$compile。
 
 ### 2.5 视图 ###
 
@@ -135,6 +171,10 @@ Angular中实现的视图的主题是模版。最常见的模版形式当然是H
 * 绑定表达式：形式如{sername}，绑定表达式可以出现在HTML中的文本部分或节点的属性部分。
 * 指令：形式如<span ng-bind="username"></span>，事实上任何指令都可以用来展示动态信息，展示的方式取决于指令的内在实现逻辑。
 
+PS不要在方法中返回一个新对象或者数组，否则会出现“10$digest iterations reached”。
+
+Angular中信息对格式化的机制是过滤器（Filter），如：{irthday|date}。
+
 ### 2.6 指令 ###
 
 指令（directive），相当于一个自定义的HTML元素，在Angular官方文档中称它为HTML语言的DSL（特定领域语言）扩展。
@@ -144,6 +184,12 @@ Angular中实现的视图的主题是模版。最常见的模版形式当然是H
 组件型指令主要是为了将复杂而庞大的View分离，使得页面的View具有更强的可读性和维护性，实现“高内聚低耦合”和“分离关注点”的有效手段；而装饰器型指令则是为DOM添加行为，使其具有某种能力，如自动聚焦（autoFocus）、双向绑定，可点击（ngClick）、条件显示/隐藏(ngShow/ngHide)等能力，同时它也是链接Model和View之间的桥梁，保持View和Model的同步。在Angular中内置的大多数指令，是属于装饰期型指令，他们负责收集和创建$watch，然后利用Angular的“脏检查机制”保持View的同步。
 
 #### 2.6.1 组件型指令 ####
+
+组件型指令是一个小型的、自封装的和内聚的一个中体，它包含业务所需要显示的视图以及交互的逻辑。
+
+组件型指令应该是封装满足封装的自治性、内聚性的，它不应该直接引用当前页面的DOM结构
+
+scope有三种取值：不指定（undefined）/false、true和一个哈希对象。
 
 PS.拆除两个指令的直接目的不是为了复用，而是分离View，促进代码结构的优化。
 
@@ -164,6 +210,7 @@ PS.拆除两个指令的直接目的不是为了复用，而是分离View，促�
 			}
 		}
 	}
+
 指令中return，称之为“指令定义对象”。
 
 restrict属性用来表示这个指令的应用放肆，取值可以是E（元素）、A（属性）、C（类名）、M（注释）
@@ -184,6 +231,8 @@ scope有三种取值：不指定（undefined）/false、true或一个哈希对�
 			}
 		}
 	}
+
+
 
 ### 2.7 过滤器 ###
 
@@ -240,15 +289,17 @@ angular-ui-router
 
 服务是对公共代码的抽象，比如，如果在多个控制器中都出现了相似的代码，那么把它们提取出来，封装成一个服务，将更加遵循DRY原则（即：不要重复）
 
-* 常亮（Constant）：用于声明不会被修改的值。
-* 变量（Value）：用于声明不会被修改的值。
-* 服务（Service）：用于声明不会被修改的值。
+* 常量（Constant）：用于声明不会被修改的值。
+* 变量（Value）：用于声明会被修改的值。
+* 服务（Service）：声明一个类，等待Angular把它new出来，然后保存这个实例，供它到处注入。
 * 工厂（Factory）：跟“服务”不同，不会被new出来，Angular会调用这个函数，获得返回值，然后保存这个返回值，供他到处注入。
-* 供应商（Provider）：对规格进行配置，以便获得定制化的产品
+* 供应商（Provider）：更加灵活，对规格进行配置，以便获得定制化的产品
+
+除了Constant外，所有类型的服务，背后都是通过Provider实现的，可以看作让Provider更容易写的语法糖。一个明显的佐证是：当使用一个未定义的服务时，Angular给你的错误提示是它对应的Provier未找到，比如我们使用一个未定义的服务：test，那么Angular给出的提示是：Unknown provider：testProvider<-test。
 
 #### 2.9.1 服务 ####
 
-	angular.module('com.ngnice.app').service('greeting', function() {
+	angular.module('com.xjsaber.angular').service('greeting', function() {
 		this.sayHello = function(name) {
 			return 'Hello, ' + name;
 		};
@@ -256,7 +307,7 @@ angular-ui-router
 
 等价于：
 
-	angular.module('com.ngnice.app').provider('greeting', function() {
+	angular.module('com.xjsaber.angular').provider('greeting', function() {
 		this.$get = function() {
 			var Greeting = function(){
 				this.sayHello = function(name){
@@ -269,20 +320,20 @@ angular-ui-router
 
 使用时：
 
-	angualr.module('com.ngnice.app').controller('SomeCtrl', functon($scope, greeting) {
+	angualr.module('com.xjsaber.angular').controller('SomeCtrl', functon($scope, greeting) {
 		$scope.message = greeting.sayHello('world');
 	});
 
 
 #### 2.9.2 工厂 ####
 
-	angular.module('com.ngnice.app').factory('greeting', function() {
+	angular.module('com.xjsaber.angular').factory('greeting', function() {
 		return 'Hello, world';
 	});
 
 等价于：
 
-	angular.module('com.ngnice.app').provider('greeting', function() {
+	angular.module('com.xjsaber.angular').provider('greeting', function() {
 		this.$get = function(){
 			var greeting = function(){
 				return 'Hellom world';
@@ -293,9 +344,18 @@ angular-ui-router
 
 使用时：
 
-	angualr.module('com.ngnice.app').controller('SomeCtrl', functon($scope, greeting) {
+	angualr.module('com.xjsaber.angular').controller('someCtrl', functon($scope, greeting) {
 		$scope.message = greeting;
 	});
+
+在Angular源码中，实现的是这样的：
+
+	function factory(name, factoryFn) {
+		return provider(name, {$get: factoryFn});}
+		function service(name, construcotr) {
+			return $injectort.instantiate(constructor);
+		}
+	}
 
 Angular提供多种形式的服务：
 
@@ -316,7 +376,15 @@ Angular提供多种形式的服务：
 |在config阶段可用|否|否|否|是|是|
 |可用于创建函数/原生对象|是|否|是|是|是|
 
+* 可以依赖其他服务：由于Value和Constant的特殊声明形式，显然没有进行依赖注入的时机。
+* 使用类型友好的注入：由于Factory可以根据逻辑返回不同的数据类型，所以我们无法推断其结果是什么类型，也就是对类型不够友好。Provider由于其灵活性比Factory更高，因此在类型友好性上和Factory是一样的。
+* 在config阶段可用：只有Constant和Provider类型在config阶段可用，其他都是Provider实例化之后的结果，所以只有config阶段完成后才可用。
+
+可用于创建函数/原生对象：由于Service是new出来的，所以其结果必然是类实例，也就无法直接返回一个可供调用的函数或数字等原生对象。
+
 ### 2.10 承诺 ###
+
+Promise全称是Futures and promises（未来与承若）
 
 流行的库叫做Q（https://github.com/kriskowal/q）。而Angular的$q就是从它引入的。
 
@@ -324,8 +392,7 @@ Angular提供多种形式的服务：
 
 Promise解决的是异步编程的问题。
 
-
-**2. 回调地域和Promise**
+**2. 回调地狱和Promise**
 
 Promise在任何时刻都处于以下三种状态之一：未完成（pending）、已完成（resolved）和拒绝（rejected）三个状态。以CommonJS Promise/A标准为例，Promise对象上的then方法负责添加针对已完成和拒绝状态下的处理函数。then方法会返回一个Promise对象，以便于形成Promise管道，这种返回Promise对象的方式能够让开发人员把异步操作串联起来，如then(resolvedHandler，rejectedHandler)。resolvedHandler回调函数在Promise对象进入完成状态时会触发，并传递结果；rejectedHandler函数会在拒绝状态下调用。
 
@@ -368,8 +435,6 @@ Promise，最简单的是$timeout的实现。
 		return false;
 	}
 
-
-
 ### 2.11 消息 ###
 
 消息（message）机制非常有用，特别是消息冒泡机制，让我们不用额外的代码可以实现“职责链”模式。
@@ -385,18 +450,24 @@ Promise，最简单的是$timeout的实现。
 	scope1.$on('name', funcction(event)) {
 		event.stopPropagation();
 	}
+
 scope1.1和scope1都将正常收到这个消息，但rootScope就接收不到这个消息了。
 
+这个stopPropagation函数将阻止冒泡，也就是说scope1.1和scope1都将正常收到这个消息，但srootScope就接收到这个消息了。
+
+当一个前套结构具有树形的业务含义时，优先使用消息机制来通讯。或者从另一个角度，符合“职责链”模式的适用场景时，消息机制比较合适。反之，应该使用普通的回调函数。
 
 ### 2.12 单元测试 ###
 
 #### 2.12.1 MOCK的使用方式 ####
 
-Mock一个普通对象不需要进行特别处理。比如，如果一个测试函数需要
+Mock一个普通对象不需要进行特别处理。比如，如果一个测试函数需要访问scope中的一个变量：name，但不用访问$watch等scope的特有函数，那么传入一个普通的哈希对象{name: 'someName'}即可，并不需要new出scope来。
 
 * 网络的不稳定性
 * 网络响应的速度会拖慢整体速度。
 * 网络的异步性
+
+Angular对网络和定时器等进行封装，变成了$http、$timeout、$interval等服务。
 
 #### 2.12.2 测试工具与断言库 ####
 
@@ -416,18 +487,23 @@ protractor
 * 在搜索框中输入了abc。
 * 然后点击其后的搜索按钮。
 
-1)
-
-2)
+1. 去看 HomePage.js
+2. 去看 demoSpec.js
 
 ## 第3章 背后的原理 ##
 
 ### 3.1 Angular中的MVVM模式 ###
 
+$scope对象可以看做是被Controller函数装饰的ViewModel。而Controller则是装饰、加工处理这个ViewModel的JavaScript函数。
+
+MVVM模式是Model-View-ViewModel（模型-视图-视图模型）模式的简称，MVVM模式利用框架内置的双向绑定技术对MVP（Model-View-Presenter）模式变型，引入了专门的ViewModel（视图模型）来“粘合”View和Model，让View和Model进一步分离和解耦。
+
 * 低耦合：View可以独立于Model变化和修改，同一个ViewModel可以被多个View复用；并且可以做到View和Model的变化互不影响。
 * 可重用性：可以把一些视图的逻辑放在ViewModel，让多个View复用。
 * 独立开发：开发人员可以专注于业务逻辑和数据的开放（ViewModel），界面设计人员可以专注于UI（View）的设计
 * 可测试性：清晰的View分层，使得针对表现层业务逻辑的测试更容易，更简单。
+
+![MVVM模式](img/2018-08-20_16-31-35.jpg)
 
 * View：专注于界面的显示和渲染，在Angular中则是包含一堆声明式Directive的视图模板。
 * ViewModel：它是View和Model的粘合体，负责View和Model的交互与协作，它负责给View提供显示的数据，以及供View操作Model的途径。在Angular中$scope对象充当了这个ViewModel的角色，ViewModel上有两种不同来源的数据：一种是展示信息的业务数据，另一种是描述交互的派生数据，如：表格上的复选框，如果点击“全选”则会选中所有列表中的复选框，在这里就需要一个类似“isSelectAll”的派生数据被放置在ViewModel上。
@@ -446,40 +522,77 @@ Angular：拥有或者需要怎么样的Model数据，然后设计交互数据�
 
 封装到Angular的指令中
 
+$scope.$apply()来通知angular你的ViewModel已经改编了，需要启动“脏检查机制”来更新你的改变的View。
+
 #### 3.2 Angular启动过程 ####
 
-![Angular启动过程](img/2018-05-20_23-13-23.png)
+![Angular启动过程](img/2018-08-20_16-40-01.png)
 
 **3. Angular启动过程**
 
 1. 浏览器下载HTML/CSS/JavaScript等
 
+下载HTML文件，开启了辅助线程下载所关联到的其他文件。
+
 2. 浏览器开始构建DOM树
+
+在下载文件的同时，浏览器就会开始构建DOM树。
 
 3. jQuery初始化
 
-按名字创建一个模块，所谓的模块就是一个对象，它是其他Angular对象的注册表。
-在这个模块中注册各种Angular对象，如Controller、Service、Directive。常见的myModule.controller('xxx', ...)其实就是$controllerProvider.register的快捷方式；myModule.service('xxx',...)就是$provier.service的快捷方式。
+引入脚本中有一个是jQuery（或内嵌在Angular.js中的jQLite），它的启动代码会给自己挂接上document对象的DOMContentLoaded事件，通过调用jQuery.ready(callback)把一个回调函数注册到这个事件。但是这个回调函数的代码还要等一会才会执行，在此之前，还有更多的脚本需要加载。
+
+	angular.element('selector') === $('selector')
 
 4. Angular初始化
 
+1. 按名字创建一个模块，所谓的模块就是一个对象，它是其他Angular对象的注册表。
+2. 在这个模块中注册各种Angular对象，如Controller、Service、Directive。常见的myModule.controller('xxx', ...)其实就是$controllerProvider.register的快捷方式；myModule.service('xxx',...)就是$provier.service的快捷方式。
+
+在这个模块中注册“config回调函数”，它将在模块刚刚被初始化时执行。
+在这个模块中注册“run回调函数”，它将在模块初始化完毕时执行。
+
 5. jQuery启动
+
+等到页面及其直接引用的js文件都下载完毕时，DOM也构建完毕了。
 
 6. Angular启动
 
+Angular及其子模块（module），也包括程序和第三方模块。
+
+各种Angular模块的初始化过程。
+
+各种Angular模块的初始化过程大致相同
+
+Angular的自动启动方式，只会启用第一个ng-app的module。对于多个ng-app启动方式，必须采用手动angular-bootstrap方式来启动。
+
+
 7. 加载子模块
+
+在Angular把模块和DOM节点关联起来之前，这些DOM是“死”的，它们和数据模型之间还没有建立任何关联，因此无法反应数据模型的变动。前面都是准备工作，到了这一步才会开始把它们变成“活”的——具有双向绑定功能，能展示数据，能响应事件等等。
+
+在这个阶段，Angular会首先创建一个注入器（injector），并且把它关联到所在节点上。我们在前面注册那一堆Angular对象，都需要通过注入器才能被其他代码使用。接下来，会对当前节点所关联的模块，以及它所依赖的模块进行初始化。这时候，前面注册的所有“config回调函数”都会被顺序执行。
+
+注意，前面注册的大多数的对象都尚未就绪，因此不能使用。在config回调函数能够使用的只有注册的常量（Constant）对象和Provider类。这个阶段也是程序中唯一可以直接访问Provider类对服务进行配置的地方。比如路由服务的Provider就是在这个阶段进行初始化，但是只负责记录一个URL到“模板/控制器”组的映射表，供后面的步骤使用。
 
 8. 启动子模块
 
+模块加载完毕之后，会执行所有的“run回调函数”，在这个阶段，各种Angular对象都可以使用了，包括各种Service、Factory等。接下来，路由模块会获得控制权，使用$location服务解析当前页面的URL，然后根据这个URl查找相应的“模板/控制器”对，来准备渲染一个页面。
+
 9. 渲染页面
+
+路由模块会先创建一个Scope对象，并且加载模板，加载完毕后吧它的额内容传给$compile对象。$compile会先把它解析成一个静态DOM树，然后逐个扫描这棵DOM树中的指令，通过这些指令把Scope对象和DOM树关联起来，包括渲染内容的函数和进行事件处理的函数。最后用它替换一个特定的指令所在的节点，在angular-ui-router中则是带有ui-view的节点。
+
 
 10. 数据绑定与摘要循环
 
 Angular会给每一个Scope成员变量求出一个摘要值（能够唯一标识一个变量），并在保存在一个变量中。当调用Scope对象的$digest/$apply方法的时候，会重新算一遍摘要值，只要数据变化
 
+当调用Scope对象的$digest/$apply方法的时候，会重新算一遍摘要值，只要数据变化变化，就会更新界面。
+
 ### 3.3 依赖注入 ###
 
-DI
+依赖注入的英文呢是Dependency Injection，简称DI。
 
 #### 3.3.1 什么是依赖注入 ####
 
@@ -512,24 +625,39 @@ DI
 	        delay: 1
 	    }
 	}
-	
+	// 注入函数
 	var inject = function(func, thisForFunc){
+		// 获取func的源码，这样我们才能知道func需要什么参数
 	    var sourceCode = func.toString();
-	    var matcher = sourceCode.match();
+		// 用正则表达式解析源码
+	    var matcher = sourceCode.match(); //正则表达式有些复杂，省略
+		// 从matcher中解析出各个参数的名称，解析过程省略
 	    var objects = [];
+		// 准备调用func时用的参数表
 	    for (var i = 0; i < objectIds.length; i++){
 	        var objectName = objectIds[i];
+			// 根据对象名称查阅出相应的对象
 	        var object = registry[objectName];
+			// 放到数组中准备作为参数传过去
 	        objects.push(object);
 	    }
+		// 通过apply调用func函数，并且把参数表传过去
 	    func.apply(thisForFunc || func, objects);
 	};
 
+使用时调用inject(giveMe)或inject(giveMe, anotherThis)即可。
+
 #### 3.3.3 Angular中的DI ####
+
+在Angular中，所有编程元素都需要通过某种方式注册进去，比如myModule.service('serviceName', function() ...)实际上就是把后面的这个函数加入到一个容器中，并且命名为serviceName。
+
+Angular全面实现了延迟初始化（当这个对象没有被别人需要的时候，是不会被创建的——提高性能有一定的帮助，加快了启动速度）。
+
+#### 3.3.4 DI与minify ####
 
 minify
 
-#### 3.3.4 DI与minify ####
+ngAnnotate(原名ngMin)，找到代码中的controller等定义，然后把它修改为annotation的形式。比较完善的Angular工具链，在build过程中，都会先调用ngAnnotate工具，然后再进行minify。
 
 ### 3.4 赃检查机制 ###
 
@@ -541,10 +669,55 @@ Angular将双向绑定转换为一堆watch表达式，然后递归检查这些wa
 
 JavaScript是靠事件循环工作的。浏览器中存在一个事件循环池，它被设计成一个无限循环以保持执行过程的可用，等待事件（例如layout、paint、用户点击事件、交互控件的键盘事件等）并执行它们。
 
+来自浏览者或者键盘等外设的事件，都会放入事件队列中，然后会依次被单线程的Event Loop（事件循环）分派给相应的事件回调处理，最后浏览器更新DOM状态。
+
+![浏览器事件循环](img/2018-08-22_8-33-16.png)
+
+Angular中在View上声明的事件指令，如：ngClick、ngChange等，会将浏览器的事件转发给$scope这个ViewModel的响应函数。等待响应函数中改变Model，紧接着就会触发“脏检查机制”刷新View。
+
+$rootScope对象是Angular中所有$scope对象的祖先。所有的$scope都是直接或者间接利用$rootScope提供的$new方法创建的。它们都从$rootScope中继承了$new、$watch、$watchGroup、$watchCollection、$digest、$destory、$eval、$evalAsync、$apply、$on、$emit、$broadcast等方法，并且有$id、$parent这两个属性。
+
 #### 3.4.2 Angular中的$watch函数 ####
 
 大部分指令都会依赖watcher函数来监听Model的改变，以更新View的显示，它是Angular中“脏检查机制”的核心之一。
 
+	$watch: function(watchExp, listener, objectEquality){
+        var scope = this,
+        get = compileToFn(watchExp, 'watch'),
+        array = scope.$$watchers,
+        watcher = {
+            // 监听函数
+            fn : listener,
+            // 上次的值
+            last: initWatchVal,
+            // 获取监听表达式的值
+            get: get,
+            // 监听表达式
+            exp: watchExp,
+            // 是否需要深度比对
+            eq: !! objectEquality
+        };
+        lastDirtyWatch = null;
+
+        if (!array){
+            array = scope.$$watchers = [];
+        }
+        array.unshift(watcher);
+        return function deregisterWatch() {
+            arrayRemove(array, watcher);
+            lastDirtyWarch = null;
+        }
+    }
+
+每一个watcher对象都包括：监听函数fn、上次变化的值（刚开始为初始值）last、获取监听表达式值的方法get、监听表达式exp，以及是否需要使用深度比对eq。
+
+watch表达式很灵活：可以是一个函数，可以是$scope上的一个属性名，也可以是一个字符串形式的表达式。$scope上的属性名或表达式，最终仍会被$parse服务解析为响应的获取属性值的函数。
+
+$watch函数会返回一个反注册函数，一旦调用它，就可以移除刚才注册的watcher。
+
+Angular默认是不会使用angular.equals()函数进行深度比较，因为使用===比较会更快，所以，它对数组或者Object进行比较时检查是引用。这就导致内容完全相同的两个表达式被判定会不同。如果需要进行深度比较，第三个可选参数objectEquality，需要显式设置为ture，如$watch('someExp', function() {...}, true)。
+
+Angular还提供了$watchGroup、$watchCollection方法来监听数组或者是一组属性。
 
 #### 3.4.3 Angular的$digest函数 ####
 
@@ -554,9 +727,92 @@ $digest循环发生包括两个while循环，它们分别是：处理$evalAsync�
 
 当$digest循环发生的时候，会遍历当前$scope及其所有子$scope上已注册的所有watchers函数。
 
+遍历一遍所有watcher函数称为一轮脏检查。执行完一轮脏检查，如果任何一个watcher所监听的值改变过，那么就会重新再进行一轮脏检查，直到所有的watcher函数都报告其监听的值不再变了。
+
+从第一轮脏检查到结果变得稳定，这个过程就是一个完整的$digest循环。当$digest循环结束时，才把模型的变化结果更新到DOM中去。这样可以合并多个更新，防止频繁的DOM操作。
+
+PS.在$digest循环结束之前，如果超过10轮“脏数据机制”，就会抛出一个异常，以防止脏检查无限循环下去。
+
+每一个进入Angular的上下文环境，都会执行一次$digest循环。对于ngModel监听的表单交互空间来说，每输入一个字符，就会触发一次循环来检查watcher函数，以便及时更新View。
+
 #### 3.4.4 Angular中的$apply ####
 
 $digest是一个内部函数，正常的应用代码中是不应该直接调用它的。要想主动触发它，就要调用scope.$apply函数，它是触发Angular“脏检查机制”的常用公开接口。
+
+设置$$phase为$apply阶段，并利用$scope.$eval方法来执行传入的Angular表达式，更新Model或者是ViewModel的值；然而不管执行是成功还是失败，它被try、catch、finally包裹了，都会进入Angular的$digest方法中。
+
+Angular只能管理它所已知的行为触发方法。
+
+## 3.5 指令的生命周期 ##
+
+指令（Directive）是Angular中提出的新概念，它为HTML提供了DSL（特定领域语言）的扩展语法。
+
+指令是Angular中学习难度最大的概念之一。在Angular中，一个指令从开始解析到生效，一共会经历Inject、Compile、Controller加载、pre-link、post-link这几个主要阶段。
+
+	angular.module('com.xjsaber.angular').direcrive('directiveLife', function($log){
+		
+	})
+
+### 3.5.1 Injecting ###
+
+在Angular第一次使用这个指令之前，会先调用注入函数来获取它依赖的服务。这个过程，最多就会发生一次，是在首次解析这个指令的时候。
+
+Injecting function directiveLife这个必报中是所有directiveLife指令共享的作用域，设置Directive的默认配置等信息。
+
+Angular中所有的Service也是全局共享。可以尝试将这类配置信息抽取到一个Constant中，然后在指令中注入该Contant，还可以在Angular的config阶段对默认配置信息做定制。
+
+单个Directive注册，以名称和directiveFactory两个对象为参数；另一种，则是以Object对象key/value为参数注册多个Directive：这里key为Directive的名称，value为directiveFactory。
+
+把指令的定义变量hasDirectives[name]的值初始化为一个空数组。这意味着Angular是可以声明多个同名Directive的，按照注册和解析顺序，以及标注的优先级来逐个执行。事实上，Anuglar对input元素的重写，就是利用这种机制完成的。
+
+### 3.5.2 compile和link过程 ###
+
+Angular接下来就会调用指令的compile函数，这个函数是会在每一个指令被实例化时执行一次。它的传入参数有两个，原始的DOM元素节点和它所包含的Attribute的信息。
+
+需要注意是的是在这里传入的DOM节点只是初始声明的节点，还没有被link过。所以在这里虽然我们可以检查DOM的信息，或者将被执行的表达式字符串，但我们无法访问指令的$scope对象，也无法获得表达式的确定值。
+
+![指令生命周期演示图](img/2018-08-28_18-49-12.png)
+
+## 3.6 Angular的$parse、$eval和$observe、$watch ##
+
+
+
+### 3.6.1 $parse和$eval ###
+
+解析/计算Angular表达式的值。
+
+$parse是一个独立服务，可以在任意地方注入后使用，返回一个函数，需要显式地把表达式求值的上下文传给这个函数；而$eval则是scope对象上的API，已经隐式地指定了表达式的求值上下文为所在的scope对象，传入参数之后会返回计算结果。
+
+	$eval: function(expr, locals) {
+		return $parse(expr)(this, locals);
+	}
+
+$eval是为了让$parse在scope中更方便使用而设计的语法糖。
+
+### 3.6.2 $observe和$watch ###
+
+$observe和$watch这两个函数都可以用来监听值的变化，但是有显著的不同。
+
+$observe是用来监听DOM中属性值变化的，而$watch则是用来监听scope中属性值变化的。
+
+	$observe: function(key, fn){
+		$observers = (attrs.$$observers || (attrs.&&observers = {})),
+		listeners = (($$observers[key]||($$observers[key] = []));
+		listeners.push(fn);
+		$rootSCope.$evalAsync(function() {
+			if (!listeners.$$inter) {
+				fn(attrs[key]);
+			}
+		});
+	}
+
+### 3.6.3 使用场景 ###
+
+关于独立scope声明中的“@”、“&”、“=”，三种形式。
+
+## 3.7 REST ##
+
+### 3.7.1 REST的六大要点 ###
 
 # 第4章 最佳实践 #
 

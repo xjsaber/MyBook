@@ -32,7 +32,6 @@
 2. 第二个协议是用户数据报协议（User Datagram Protocol，UDP），它允许接受仿检测被破坏的包，但不保证这些包以正确的顺序传送（或者包有可能根本未传送）。
 3. UDP通常比TCP快。TCP称为可靠的（reliable）协议；UDP是不可靠的（unreliable）协议。
 
-
 ### 应用层 ###
 
 向用户传送数据的层称为应用层（application layer）。它下面的三层共同定义了数据如何从一台计算机传输到另一台计算机。应用层确定了数据传输后的操作。
@@ -748,6 +747,7 @@ URLEncoder.encode()返回输入字符串的一个副本，不过有一些调整�
 超文本传输协议（Hypertext Transfer Protocol, HTTP）是一个标准，定义了Web客户端如何与服务器对话，以及数据如何从服务器传回客户端。
 
 ### HTTP协议 ###
+
 HTTP使Web浏览器和Web服务器之间通信的标准协议。HTTP指定客户端与服务器如何建立连接、客户端如何从服务器请求数据，服务器如何响应请求，以及最后如何关闭连接。
 
 HTTP连接使用TCP/IP来传输数据。对于从客户端导服务器的每一个请求，都有4个步骤：
@@ -759,10 +759,89 @@ HTTP1.0
 3. 服务器向客户端发送响应。响应以响应码开头，后面是包含元数据的首部、一个空行以及所请求的文档或错误消息。
 4. 服务器关闭连接。
 
+请求头
+	GET /index.html HTTP/1.1
+	User-Agent: Mozilla/5.0(Machintosh; Intel Mac OS X 10.8; rv: 20.0) 浏览器版本
+	Gecko/20100101 Firefox/20.0
+	Host: en.wikipedia.org 指定服务器多地名，允许Web服务器区分来自相同IP的不同名的主机
+	Accept-Language: en-US, en;q=0.5 处理哪些数据类型
+	Accept-Encoding: gzip, deflate
+	Accept: text/html,application/xhtml-xml,application/xml;q=0.9,*/*;q=0.8
+响应头
+	HTTP/1.1 200 OK 服务器使用协议（HTTP/1.1）响应码
+	Date: Sun, 21 Apr 2013 15:12:46 GMT 请求的日期（采用服务器的时间帧）
+	Server: Apache 服务器软件（Apache）
+	Connection: close 承若服务器结束时发送时关闭链接
+	Content-Type: text/html;charset=ISO-8859-1 MIME媒体类型
+	Content-length:115 传输文档的长度
+
 HTTP1.1 可以用过一个TCP连接连续发送多个请求和响应。第1步和第4步之间，第2步和第3步可以反复多次。
 
+* text/* 表示人可读的文字。
+* image/* 表示图片。
+* model/* 表示3D模型，如VRML文件。
+
 ### Keep-Alive ###
-客户可以在HTTP请求首部中包括一个Connection字段
+
+HTTP1.0会为每个请求打开一个新连接。实际上，一个典型Web会话中打开和关闭所有连接所花费的时间远远大于实际传输数据的时间，特别是有很多小文档的会话。
+
+在HTTP1.1和以后版本中，服务器不必在发送响应后就关闭连接，可以保持连接打开，在同一个socket上等待来自客户端的新请求。可以在一个TCP连接上连续发送多个请求和响应。
+
+客户可以在HTTP请求首部中包括一个Connection字段，指定值为Keep-Alive，指示它希望重用一个socket：
+
+	Connection: Keep-Alive
+
+* 设置http.keepAlive为“true”或“false”，启用/禁用HTTP keep-Alive(默认是启用的)。
+* 设置http.maxConnections 默认为5。
+* 设置http.keepAlive.remainingData为true，使Java在丢弃连接之后完成清理
+* 设置sun.net.http.errorstream.enableBuffering为true
+* 设置sun.net.http.errorstream.bufferSize为缓冲错误流使用的字节数。默认为4096字节。
+* 设置Set sun.net.http.errorstream.timeout为读错误流超时前的毫秒数。默认为300毫秒。
+
+## Http方法 ##
+
+与HTTP服务器的通信遵循一种请求-响应模式：先是一个无状态的请求，后面是一个无状态的响应。每个HTTP请求包括两个或三个部分：
+
+* 起始行，包含HTTP方法和要执行这个方法的资源的路径。
+* 一个包含名-值字段的首部，可以提供元信息
+* 一个请求主体，包含资源的一个表示（只针对POST和PUT）
+
+4个HTTP方法
+
+* GET
+* POST
+* PUT
+* DELETE
+
+不完成提交的所有安全操作应当使用GET而不是POST。只有真正提交的操作才应当使用POST。
+
+HEAD方法，相当于GET，它只返回资源的首部，而不返回具体的数据。这个方法常用与检查文件的修改日期，查看本地缓存中存储的文件副本是否仍然有效。
+
+OPTIONS和TRACE
+
+## 请求主体 ##
+
+GET方法获取URL锁标识的资源的一个表示。用GET从服务器获取的资源的具体位置由路径和查询字符串的不同部分指定。
+
+POST和PUT要更为复杂。
+
+1. 一个起始行，包括方法、路径和查询字符串，以及HTTP版本。
+2. 一个HTTP首部。
+3. 一个空行（两个连续的回车/换行对）。
+4. 主体。
+
+	POST /cgi-bin/register.pl HTTP 1.0
+	Date: Sun, 27 Apr 2013 12:32:36
+	Host: www.cafeaulait.org
+	Content-type: application/x-www-form-urlencoded
+	Content-length: 54
+
+	username=Elliotte+Harold&email=elharo%40ibiblio.org
+
+application/x-www-form-unlencoded数据
+
+* 一个Content-length手段，指定主体中有多少字节。
+* 一个Content-type字段，指定类型的MIME媒体类型。
 
 ## Cookie ##
 
@@ -782,6 +861,7 @@ HTTP1.1 可以用过一个TCP连接连续发送多个请求和响应。第1步�
 只要服务器不重用cookie，这会使它在多个（否则无状态的）HTTP连接伤跟踪各个用户和会话。
 
 ### CookieManager ###
+
 java5 包括一个抽象类java.net.CookieHandler，它定义了存储和获取cookie的一个API，但不包括这个抽象类的实现。
 
 java.net.CookieManager
