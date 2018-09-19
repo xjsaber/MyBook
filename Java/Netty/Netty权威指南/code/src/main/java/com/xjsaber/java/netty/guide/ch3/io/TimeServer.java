@@ -18,12 +18,13 @@ public class TimeServer {
             server = new ServerSocket(port);
             System.out.println("The time server is start in port: " + port);
             Socket socket;
-            while (true) {
+
+            //创建I/O线程池
+            TimeServerHandlerExecutorPool singleExecutor = new TimeServerHandlerExecutorPool(50, 10000);
+            while (true){
                 socket = server.accept();
-                new Thread(new TimeServerHandler(socket)).start();
+                singleExecutor.executor(new TimeServerHandler(socket));
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         } finally {
             if (server != null){
                 System.out.println("The time server close");

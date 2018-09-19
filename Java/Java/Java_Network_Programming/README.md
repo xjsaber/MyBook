@@ -86,6 +86,8 @@ ISP分配IPv4地址块。
 
 服务器和客户端
 
+Java在其核心网络API中没有显式的对等通信。
+
 ### Internet标准 ###
 
 #### IETF RFC ####
@@ -104,7 +106,7 @@ Java的I/O建立于流（Stream）之上。输入流读取数据；输出流写�
 
 ### 输出流 ###
 
-Java的基本输出流雷是java.io.OutputStream:
+Java的基本输出流类是java.io.OutputStream:
 
 	public abstract class OutputStream
 
@@ -117,6 +119,24 @@ Java的基本输出流雷是java.io.OutputStream:
 	public void close() throws IOException
 
 OutputStream的基本方法是write(int b)，这个方法接受一个0到225之间的整数作为参数，讲对应的字节写入到输出流中。
+
+OutputStream的子类使用这些方法想某种特定介质写入数据。
+
+* FileOutputStream 使用方法将数据写入文件中
+* TelnetOutputStream 使用方法将数据写入网络连接中
+* ByteArrayOutputStream 写入可扩展的字节数组
+
+OutputStream的基本方法是write(int b)，接受一个从0到255之间的整数作为参数，将对应的字节写入到输出流中。
+
+	try{
+	}
+	finally {
+		out.close();
+	}
+
+	try(OutputStream out = new FileOutputStream("/tmp/data.txt")) {
+		// 处理输出流...
+	} 
 
 ### 输入流 ###
 
@@ -186,7 +206,85 @@ InputStream类还有3个不太常用的方法，允许程序备份和重新读�
 
 ### 过滤器流 ###
 
-InputStream和OutputStream是相当原始的类。
+InputStream和OutputStream是相当原始的类。可以单个或成组地读/写字节，但仅此而已。
+
+过滤器有两个版本：过滤器流以及阅读器和书写器。过滤器流仍然主要将原始数据作为字节处理，例如通过压缩数据或解释为二进制数字。
+
+### 将过滤器串联在一起 ###
+
+	FileInputStream fin = new FileInputStream("data.txt");
+	BufferedInputStream bin = new BufferedInputStream(fin);
+
+### 缓冲流 ###
+
+BufferedOutputStream类将写入的数据存储在缓冲区中（一个名为buf的保护字节数组字段），直到缓冲区满或刷新输出流。然后它将数据一次全部写入底层输出流。
+
+BufferedInputStream类也有一个作为缓冲区的保护字节数组，名为buf。
+
+DataOutputStream类提供了下面11种方法，写入特定的Java数据类型
+
+	public final void writeBoolean(boolean b) throws IOException
+	public final void writeByte(int b) throws IOException
+	public final void writeShort(int s) throws IOException
+	public final void writeChar(int c) throws IOException
+	public final void writeInt(int i) throws IOException
+	public final void writeLong(long l) throws IOException
+	public final void writeFloat(float f) throws IOException
+	public final void writeDouble(double d) throws IOException
+	public final void writeChars(String s) throws IOException
+	public final void writeBytes(String s) throws IOException
+	public final void writeUTF(String s) throws IOException
+
+所有的数据都以big-endian格式写入。整数用尽可能少的字节写为2的补码。
+
+DataOutputStream
+
+	public final boolean readBoolean() throws IOException
+	
+### PrintStream ###
+
+### 数据流 ###
+
+### 阅读器和书写器 ###
+
+java.io.Reader类指定读取字符的API。java.io.Writer指定写字符的API。对应输入和输出流使用字节的地方。
+
+#### 书写器 ####
+
+#### OutputStreamWriter ####
+
+#### 阅读器 ####
+
+#### 过滤器阅读器和书写器 ####
+
+InputStreamReader和OutputStreamWriter类相当于输入和输出流之上的装饰器，把面向字节的接口改为面向字符的接口
+
+* BufferedReader
+* BufferedWriter
+* LineNumberReader
+* PushbackReader
+* PrintWriter
+
+BufferedReader和BufferedWriter类是基于字符的，对应于面向字节的BufferedInputStream和BufferedOutputStream类。BufferedInputStream和BufferedOutputStream中使用一个内部字节数组作为缓冲区，相应地，BufferedReader和BufferedWriter使用一个内部字符组作为缓冲区。
+
+BufferedReader和BufferedWriter也有阅读器和书写器关联的常用方法，如read()、ready()、write()和close()。
+
+BufferedReader或BufferedWriter串链到一个底层阅读器或书写器，并设置缓冲区的大小。
+	
+	public BufferedReader(Reader in, int bufferSize)
+	public BufferedReader(Reader in)
+	public BufferedReader(Writer out)
+	public BufferedReader(Writer out, int bufferSize)
+
+#### PrintWriter ####
+
+PrintWriter类用于取代Java1.0的PrintStream类，能正确地处理多字节集和国际化文本。
+
+除了构造函数，PrintWriter类也有与PrintStream几乎相同的方法集。：
+
+	public PrintWriter(Writer out)
+	public PrintWriter(Writer out, boolean autoFlush)
+	public PrintWriter(OutputStream out)
 
 ## ch3 线程 ##
 
@@ -201,6 +299,12 @@ InputStream和OutputStream是相当原始的类。
 
 	Thread t = new Thread();
 	t.start();
+
+关键都在于run()方法，它的签名（signature）是：
+
+	public void run()
+
+当run()方法完成时，线程也就消失了。事实上，run()对于线程就像main()方法对于非线程化传统程序的作用一样。单线程程序会在main()方法返回时退出。多线程程序会在main()方法以及所有非守护线程（nondaemon thread）都返回时才退出（守护线程完成后台任务，如垃圾回收，它们并不阻止虚拟机退出）。
 
 ### 派生Thread ###
 

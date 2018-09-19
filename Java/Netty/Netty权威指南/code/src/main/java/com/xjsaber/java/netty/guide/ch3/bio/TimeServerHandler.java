@@ -6,11 +6,14 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+/**
+ * @author xjsaber
+ */
 public class TimeServerHandler implements Runnable {
 
     private Socket socket;
 
-    TimeServerHandler(Socket socket){
+    public TimeServerHandler(Socket socket){
         this.socket = socket;
     }
 
