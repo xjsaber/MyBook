@@ -19,7 +19,7 @@ UNIX网络编程对I/O模型的分类，UNIX提供了5种I/O模型
 2. 非阻塞I/O模型
 3. I/O复用模型
 4. 信号驱动I/O模型
-5. 异步I/O
+5. 异步I/O：告知內核
 
 #### 1.1.2 I/O多路复用技术 ####
 
@@ -37,7 +37,94 @@ select、pselsect、poll、epoll。
 
 ### 1.2 Java的I/O演进 ###
 
+java.nio
+
+* 进行异步I/O操作的缓冲区ByteBuffer等；
+* 进行异步I/O的管道Pipe；
+* 进行各种I/O操作（异步或者同步）的Channel，包括ServerSocketChannel和SocketChannel；
+* 多种字符集的编码能力和解码能力；
+* 实现非阻塞I/O操作的多路复用器selector；
+* 基于流行的Perl实现的正则表达式类库；
+* 文件通道FileChannel。
+
+
+**Java的I/O发展简史**
+
+### 1.3 总结 ###
+
+
 ## 第2章 Java的I/O演进之路 ##
+
+### 2.1 传统的BIO编程 ###
+
+#### 2.1.1 BIO通信模型图 ####
+
+#### 2.1.2 同步阻塞式I/O创建的TimeServer源码分析 ####
+
+#### 2.1.3 同步阻塞式I/O创建的TimeClient源码分析 ####
+
+客户端通过Socket创建，发送查询时间服务器的“QUERY TIME ORDER”指令，然后读取服务端的响应并将结果打印出来，随后关闭连接，释放资源，程序退出执行。
+
+### 2.2 伪异步I/O编程 ###
+
+通过一个线程池来处理多个客户端的请求接入，形成客户端个数M：线程池最大线程数N的比例关系，其中M可以远远大于N。通过线程池可以灵活地调配线程资源，设置线程的最大值。
+
+#### 2.2.1 伪异步I/O模型图 ####
+
+采用线程池和任务队列 伪异步的I/O通信框架。
+
+当有新 的客户端接入时，将客户端的Socket封装成一个Task（该任务实现java.lang.Runnable接口）投递到后端的线程池中进行处理，JDK的线程池维护一个消息队列和N个活跃线程，对消息队列中的任务继续宁处理。
+
+### 2.3 NIO编程 ###
+
+#### 2.3.1 NIO类库简介 ####
+
+**1. 缓冲区Buffer**
+
+Buffer是一个对象，包含一些要写入或者要读出的数据。再NIO类库中加入Buffer对象，体现了新库与原I/O的一个重要区别。
+
+在面向流的I/O中，数据直接写入或者将数据直接读到Stream对象中。
+
+在NIO库中，所有数据都是用缓冲区处理的。在读取数据时，直接读到缓冲区中的；在写入数据时，写入到缓冲区。任何时候访问NIO中的数据，都是通过缓冲区进行操作。
+
+最常用的缓冲区是ByteBuffer。
+
+* ByteBuffer：字节缓冲区
+* CharBuffer：字符缓冲区
+* ShortBuffer：短整型缓冲区
+* IntBuffer：整形缓冲区
+* LongBuffer：长整形缓冲区
+* FloatBuffer：浮点型缓冲区
+* DoubleBuffer：双精度浮点型缓冲区
+
+**2. 通道Channel**
+
+Channel是一个通道，网络数据通过Channel读取和写入。通道与流的不同之处在于通道是双向的，流只是在一个方向上移动（一个流必须是InputStream或者OutputStream的子类），而通道可以用于读、写或者两者同时进行。
+
+Channel可以分为两大类：用于网络读写的SelectableChannel和用于文件操作的FileChannel。
+
+**3. 多路复用器Selector**
+
+探索多路复用器Selector，是Java NIO编程的基础。
+
+Selector会不断地轮训注册在其上的Channel，如果某个Channel上面发生读或者写事件，这个Channel就处于就绪状态，会被Selector轮训出来，然后通过SelectionKey可以获取就绪Channel的集合，进行后续的I/O操作。
+
+一个多路复用器Selector可以同时轮训多个Channel，由于JDK使用
+
+#### 2.3.2 NIO服务端序列图 ####
+
+
+#### 2.3.3 NIO创建的TimeServer源码分析 ####
+
+
+#### 2.3.4 NIO客户端序列图 ####
+
+
+#### 2.3.5 NIO创建的TimeClient源码分析 ####
+
+
+
+### 2.4 AIO编程 ###
 
 ## 第3章 Netty入门应用 ##
 
