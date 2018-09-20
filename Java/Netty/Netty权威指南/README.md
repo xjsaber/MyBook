@@ -102,6 +102,8 @@ java.nio
 
 ### 2.3 NIO编程 ###
 
+与Socket类和ServerSocket类相对应，NIO也提供了SocketChannel和ServerSocketChannel两种不同的套接字通道实
+
 #### 2.3.1 NIO类库简介 ####
 
 **1. 缓冲区Buffer**
@@ -134,22 +136,122 @@ Channel可以分为两大类：用于网络读写的SelectableChannel和用于�
 
 Selector会不断地轮训注册在其上的Channel，如果某个Channel上面发生读或者写事件，这个Channel就处于就绪状态，会被Selector轮训出来，然后通过SelectionKey可以获取就绪Channel的集合，进行后续的I/O操作。
 
-一个多路复用器Selector可以同时轮训多个Channel，由于JDK使用
+一个多路复用器Selector可以同时轮训多个Channel，由于JDK使用了epoll()代替传统的select实现，所以它并没有最大连接句柄1024/2048的限制。
 
 #### 2.3.2 NIO服务端序列图 ####
 
+1. 打开ServerSocketChannel（NioServer）
+2. 绑定监听地址InetSocketAddress（NioServer）
+3. 创建Selector，启动线程（Reactor Thread）
+4. 将ServerSocketChannel注册到Selector，监听(NioServer->Reactor Thread)
+5. Selector轮询就绪的Key(Reactor Thread)
+6. handleAccept()处理新的客户端接入(ioHandler)
+7. 设置新建客户端连接的Socket参数(Reactor Thread->ioHandler)
+8. 向Selector注册监听读操作SeletionKey.OP_READ(ioHandler->Reactor Thread)
+9. handlerRead()异步读请求消息到ByteBuffer(Reactor Thread->ioHandler)
+10. decode请求消息(IOHandler)
+11. 异步写ByteBuffer到SocketChannel()
+
+代码解析
+
+1. 打开ServerSocketChannel，用于监听客户端的连接，是所有客户端连接的父管道 `ServerSocketChannel acceptorSvr = ServerSocketChannel.open();`
+2. 绑定监听端口，设置连接为非阻塞模式     `acceptorSvr.socket().bind(new InetSocketAddress(InetAddress.getByName("IP"), port)); acceptorSvr.configureBlocking(false);`
+3. 创建Reactor线程，创建多路复用器并启动线程	 `Selector selector = Selector.open(); New Thread(new ReactorTask()).start()`
+4. 将ServerSocketChannel注册到Reactor线程的多路复用器Selector上，监听ACCEPT事件。 SelectionKey key = acceptorSvr.register(selector, SelectionKey.OP_ACCEPT, ioHandler)
+5. 多路复用器在线程run方法的无限循环体内轮询准备就绪的Key。 
+
+	int num = selector.select(); 
+	Set selectedKeys = selector.selectedKeys(); 
+	Iterator it = selectedKeys.iterator(); 
+	while(it.hasNext()) { 
+		SelectionKey key = (SelectionKey)it.next(); 
+		//...deal with I/O event ... 
+	}
+
+6. 多路复用器监听到有新的客户端接入，处理新的接入请求，完成TCP三次握手，建立物理链路。
+
+	SocketChannel channel = svrChannel.accept();
+
+7. 设置客户端链路为非阻塞模式
+
+	channel.configureBlocking(false);
+	channel.socket().setReuseAddress(true);
+
+8. 将新接入的客户端连接注册到Reactor线程的多路复用上，监听读操作，读取客户端发送的网络消息
+
+	SelectionKey key = socketChannal.register(selector, SelectionKey.OP_READ, ioHandler);
+
+9. 异步读取客户端请求消息到缓冲区
+	
+	int readNumber = channel.Read(receivedBuffer);
+
+10. 对ByteBuffer进行编解码，如果有半包消息指针reset，继续读取后续的报文，将解码成功的消息封装成Task，投递到业务线程池中，进行业务逻辑编排。
+
+	Object message = null;
+	while(buffer.hasRemain())
+	{
+		byteBuffer.mark();
+		Object message = decode(byteBuffer);
+		if (message == null)
+		{
+			byteBuffer.reset();
+			break;
+		}
+		messageList.add(message);
+	}
+	if (!byteBuffer.hasRemain())
+		byteBuffer.clear();
+	else 
+		byteBuffer.compact();
+	if (messageList != null &  !messageList.isEmpty()){
+		for (Object messageE : messageList){
+			handlerTask(messageE);
+		}
+	}
+
+11. 将PJO对象encode成ByteBuffer，调用SocketChannel的异步write接口，将消息异步发送给客户端。
+
+	socketChannel.write(buffer);
+
+如果发送区TCP缓冲区满，会导致写半包，此时，需要注册监听写操作位，循环写，直到整包消息写入TCP缓冲区。
 
 #### 2.3.3 NIO创建的TimeServer源码分析 ####
 
 
 #### 2.3.4 NIO客户端序列图 ####
 
+1. 打开SocketChannel
+2. 设置SocketChannel为非阻塞模式，同时设置TCP参数
+3. 异步连接服务端
+4. 判断连接结果，如果连接成功，调到步骤10，否则执行步骤5
+5. 向Reactor线程的多路复用器注册OP_CONECT事件
 
 #### 2.3.5 NIO创建的TimeClient源码分析 ####
 
 
 
 ### 2.4 AIO编程 ###
+
+NIO 2.0引入了新的异步通道的概念，并提供了异步文件通道和异步套接字通道的实现。
+
+* 通过java.util.concurrent.Future类来表示异步操作的结果。
+* 在执行异步操作的时候传入一个java.nio.channels。
+
+CompletionHandler接口的实现类作为操作完成的回调。
+
+NIO2.0的异步套接字通道是真正的异步非阻塞I/O，对应于UNIX网络编程中的事件驱动I/O（AIO）。不需要通过多路复用器（Selector）对注册的通道进行轮询操作即可实现异步读写，从而简化了NIO的编程模型。
+
+#### 2.4.1 AIO创建的TimeServer源码分析 ####
+
+#### 2.4.2 AIO创建的TimeClient源码分析 ####
+
+### 2.5 4种I/O的对比 ###
+
+#### 2.5.1 概念澄清 ####
+
+**1. 异步非阻塞I/O**
+
+NIO框架称为异步非阻塞I/O
 
 ## 第3章 Netty入门应用 ##
 

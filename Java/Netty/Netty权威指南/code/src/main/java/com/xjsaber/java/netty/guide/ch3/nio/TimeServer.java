@@ -13,6 +13,7 @@ public class TimeServer {
                 port = Integer.parseInt(args[0]);
             } catch (NumberFormatException ignored){}
         }
+
         ServerSocket server = null;
         try {
             server = new ServerSocket(port);
@@ -20,7 +21,7 @@ public class TimeServer {
             Socket socket;
             while (true) {
                 socket = server.accept();
-                new Thread(new TimeServerHandler(socket)).start();
+                new Thread(new MultiplexerTimeServer(socket)).start();
             }
         } catch (IOException e) {
             e.printStackTrace();
