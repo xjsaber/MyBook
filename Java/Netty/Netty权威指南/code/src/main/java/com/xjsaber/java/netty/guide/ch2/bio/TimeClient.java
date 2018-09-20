@@ -1,4 +1,4 @@
-package com.xjsaber.java.netty.guide.ch3.bio;
+package com.xjsaber.java.netty.guide.ch2.bio;
 
 import java.io.BufferedReader;
 import java.io.IOException;

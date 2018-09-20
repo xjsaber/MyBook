@@ -1,4 +1,4 @@
-package com.xjsaber.java.netty.guide.ch3.nio;
+package com.xjsaber.java.netty.guide.ch2.nio;
 
 public class TimeClient {
 
@@ -9,6 +9,6 @@ public class TimeClient {
                 port = Integer.valueOf(args[0]);
             } catch (NumberFormatException ignored){}
         }
-//        new Thread(new Ti)
+        new Thread(new TimeClientHandler("", port)).start();
     }
 }

@@ -1,4 +1,4 @@
-package com.xjsaber.java.netty.guide.ch3.io;
+package com.xjsaber.java.netty.guide.ch2.bio;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -18,13 +18,12 @@ public class TimeServer {
             server = new ServerSocket(port);
             System.out.println("The time server is start in port: " + port);
             Socket socket;
-
-            //创建I/O线程池
-            TimeServerHandlerExecutorPool singleExecutor = new TimeServerHandlerExecutorPool(50, 10000);
-            while (true){
+            while (true) {
                 socket = server.accept();
-                singleExecutor.executor(new TimeServerHandler(socket));
+                new Thread(new TimeServerHandler(socket)).start();
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         } finally {
             if (server != null){
                 System.out.println("The time server close");

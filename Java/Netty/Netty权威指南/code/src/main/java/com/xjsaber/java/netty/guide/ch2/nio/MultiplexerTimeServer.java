@@ -1,4 +1,4 @@
-package com.xjsaber.java.netty.guide.ch3.nio;
+package com.xjsaber.java.netty.guide.ch2.nio;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -110,6 +110,9 @@ public class MultiplexerTimeServer implements Runnable {
                 ByteBuffer readBuffer = ByteBuffer.allocate(1024);
                 int readBytes = sc.read(readBuffer);
                 if (readBytes > 0){
+                    // 1. 对readBytes进行flip操作，将缓冲区当前的limit设置为position，position为0，用于后续对缓冲区的读取
+                    // 2. 根据缓冲区可读的字节个数创建字节数组，调用ByteBuffer的get操作将缓冲区可读的字节数组复制到新创建的字节组
+                    // 3.调用字符串的构造函数创建消息体并打印
                     readBuffer.flip();
                     byte[] bytes = new byte[readBuffer.remaining()];
                     readBuffer.get(bytes);
@@ -130,6 +133,8 @@ public class MultiplexerTimeServer implements Runnable {
 
     /**
      * 将输出流写入到Socket通道中
+     * 1. 将字符串编码成字节数组，根据字节数组的容量创建ByteBuffer，调用ByteBuffer的put操作将字节数组复制到缓冲区，
+     * 2. 然后对缓冲区进行flip操作，最后调用SocketChannel的write方法，将缓冲区中的字节数组发送出去
      * @param channel socket通道
      * @param response 输出内容
      * @throws IOException
