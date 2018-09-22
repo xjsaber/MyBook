@@ -6,9 +6,10 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 /**
- * 事件处理
+ * 事件处理 Netty时间服务器服务端 TimeServerHandler
  * @author xjsaber
  */
 public class TimeServerHandler extends ChannelInboundHandlerAdapter {
@@ -28,16 +29,12 @@ public class TimeServerHandler extends ChannelInboundHandlerAdapter {
         ByteBuf buf = (ByteBuf)msg;
         byte[] req = new byte[buf.readableBytes()];
         buf.readBytes(req);
-        try {
-            String body = new String(req, "UTF-8").substring(0, req.length - System.getProperty("line.separator").length());
-            System.out.println(" The time server receive order: " + body + " ; the counter is : " + ++counter);
-            String currentTime = "QUERY TIME ORDER".equalsIgnoreCase(body) ? new java.util.Date(System.currentTimeMillis()).toString() : "BAD ORDER";
-            currentTime = currentTime + System.getProperty("line.separator");
-            ByteBuf resp = Unpooled.copiedBuffer(currentTime.getBytes());
-            ctx.writeAndFlush(resp);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        String body = new String(req, StandardCharsets.UTF_8).substring(0, req.length - System.getProperty("line.separator").length());
+        System.out.println(" The time server receive order: " + body + " ; the counter is : " + ++counter);
+        String currentTime = "QUERY TIME ORDER".equalsIgnoreCase(body) ? new java.util.Date(System.currentTimeMillis()).toString() : "BAD ORDER";
+        currentTime = currentTime + System.getProperty("line.separator");
+        ByteBuf resp = Unpooled.copiedBuffer(currentTime.getBytes());
+        ctx.writeAndFlush(resp);
     }
 
     @Override

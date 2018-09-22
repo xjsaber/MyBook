@@ -18,6 +18,7 @@ public class TimeServer {
         // 创建两个NIO的线程组
         // 01. 服务器接受客户端的连接
         // 02. 用于进行SocketChannel的网络读写
+        // NioEventLoopGroup是个线程组，包含一组NIO线程，专门用于网络事件的处理（实际是Reactor线程组，一个用户服务器端接受客户端的连接，一个
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
@@ -26,10 +27,13 @@ public class TimeServer {
                     .channel(NioServerSocketChannel.class)
                     .option(ChannelOption.SO_BACKLOG, 1024)
                     .childHandler(new ChildChannelHandler());
+            // 绑定端口，同步等待成功
             ChannelFuture f = b.bind(port).sync();
+            // 等待服务端监听端口关闭
             f.channel().closeFuture().sync();
         }
         finally {
+            // 优雅退出，释放线程池资源
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
         }
