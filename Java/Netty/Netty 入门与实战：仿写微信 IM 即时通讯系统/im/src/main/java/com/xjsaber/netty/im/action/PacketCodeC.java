@@ -17,16 +17,34 @@ public class PacketCodeC {
 
         // 3. 实际编码过程
         byteBuf.writeInt(MAGIC_NUMBER);
+        byteBuf.writeByte(packet.getVersion());
+        byteBuf.writeByte(Serializer.DEFAULT.getSerializerAlogrithm());
         byteBuf.writeByte(packet.getCommand());
-        byteBuf.writeByte(MAGIC_NUMBER);
-        byteBuf.writeByte(packet.getCommand());
-        byteBuf.writeInt(MAGIC_NUMBER);
-//        byteBuf.writeBytes();
+        byteBuf.writeInt(bytes.length);
+        byteBuf.writeBytes(bytes);
+
+        return byteBuf;
     }
 
-//    public Packet decode(ByteBuf byteBuf){
-//        // 跳过 magic number
-//        byteBuf.skipBytes(4);
-//
-//    }
+    public Packet decode(ByteBuf byteBuf){
+        // 跳过 magic number
+        byteBuf.skipBytes(4);
+
+        // 跳过版本号
+        byteBuf.skipBytes(1);
+
+        // 序列化算法标识
+        byte serializeAlgorithm = byteBuf.readByte();
+
+        // 指令
+        byte command = byteBuf.readByte();
+
+        // 数据包长度
+        int length = byteBuf.readInt();
+
+        byte[] bytes = new byte[length];
+        byteBuf.readBytes(bytes);
+
+        Class<? extends Packet> requestType = 
+    }
 }
