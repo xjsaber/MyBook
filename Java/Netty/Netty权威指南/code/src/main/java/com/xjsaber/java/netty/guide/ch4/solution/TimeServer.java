@@ -1,4 +1,4 @@
-package com.xjsaber.java.netty.guide.ch4;
+package com.xjsaber.java.netty.guide.ch4.solution;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -30,7 +30,7 @@ public class TimeServer {
             b.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
                     .option(ChannelOption.SO_BACKLOG, 1024)
-                    .childHandler(new TimeServerHandler());
+                    .childHandler(new ChildChannelHandler());
             // 绑定端口，同步等待成功
             ChannelFuture f = b.bind(port).sync();
 
@@ -43,3 +43,12 @@ public class TimeServer {
     }
 }
 
+class ChildChannelHandler extends ChannelInitializer<SocketChannel> {
+
+    @Override
+    protected void initChannel(SocketChannel socketChannel) throws Exception {
+        socketChannel.pipeline().addLast(new LineBasedFrameDecoder(1024));
+        socketChannel.pipeline().addLast(new StringDecoder());
+        socketChannel.pipeline().addLast(new TimeServerHandler());
+    }
+}

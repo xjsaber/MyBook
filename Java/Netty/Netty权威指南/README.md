@@ -326,7 +326,7 @@ JDK1.4和1.5update10版本之前，JDK的Selector基于select/poll模型实现�
 
 ### 3.3 Netty客户端开发 ###
 
-
+见code
 
 ### 3.4 运行和调试 ###
 
@@ -378,9 +378,15 @@ TCP是个“流”协议，所谓流，就是没有界限的一串数据。
 
 #### 4.2.1 TimeServer的改造 ####
 
+见code
+
 #### 4.2.2 TimeClient的改造 ####
 
+见code
+
 #### 4.2.3 运行结果 ####
+
+见code
 
 ### 4.3 利用LineBasedFrameDecoder解决TCP粘包问题 ###
 
