@@ -55,8 +55,8 @@ public class TimeServer {
             } catch (NumberFormatException e) {
                 // 采用默认值
             }
-            new TimeServer().bind(port);
         }
+        new TimeServer().bind(port);
     }
 }
 

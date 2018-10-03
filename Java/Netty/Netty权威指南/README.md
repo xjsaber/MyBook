@@ -340,11 +340,11 @@ JDK1.4和1.5update10版本之前，JDK的Selector基于select/poll模型实现�
 
 ## 第4章 TCP粘包/拆包问题的解决之道 ##
 
-TCP是个“流”协议，所谓流，也就是没有界限的一串数据。
-
 ### 4.1 TCP粘包/拆包 ###
 
 TCP是个“流”协议，所谓流，就是没有界限的一串数据。
+
+会根据TCP缓冲区的实际情况进行包的划分，在业务上认为，一个完整的包可能会被 TCP 拆分成多个包进行发送，也有可能把多个小的包装成一个大的数据包发送，也即是所谓的TCP粘包和拆包问题。
 
 #### 4.1.1 TCP 粘包/拆包问题说明 ####
 
@@ -395,17 +395,22 @@ TCP是个“流”协议，所谓流，就是没有界限的一串数据。
 #### 4.3.2 支持TCP粘包的TimeClient ####
 
 
+
 #### 4.3.3 运行支持TCP粘包的时间服务器程序 ####
 
+TimeServer和TimeClient
 
+使用LineBaseFrameDecoder 和 StringDecoder 成功解决了TCP粘包导致的读半包问题。对于使用者来说，只要将支持半包解码的 Handler 添加到 ChannelPipeline中即可。
 
 #### 4.3.4 LineBasedFrameDecoder和StringDecoder的原理分析 ####
 
 LineBasedFrameDecoder依次遍历ByteBuf的可读字节，判断看是否有"\n"护着"\r\n"，如果有，则是以此为结束位置，从可读索引到结束位置区间的就组成一行，以换行符为结束的解码器，支持携带结束符或者不携带结束符两种解码方式。
 
-4.4 总结
+### 4.4 总结 ###
 
 对TCP粘包，拆包进行了解，会造成什么问题，然后有什么解决方案
+
+使用LineBasedFrameDecoder + StringDecoder来解决TCP粘包/拆包问题。
 
 ## 第5章 分隔符和定长解码器的应用 ##
 
