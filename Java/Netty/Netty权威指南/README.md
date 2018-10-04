@@ -448,7 +448,18 @@ DelimiterBasedFrameDecoder用于对使用分隔符结尾的消息进行自动解
 
 ## 第6章 编解码技术 ##
 
+基于Java提供的对象输入/输出流ObjectInputStream和ObjectOutputStream，可以直接把Java杜希昂作为可存储的字节数组写入文件，也可以传输到网络上。
+
+Java序列化的目的主要有两个二：
+
+* 网络传输
+* 对象持久化
+
+Java序列化从JDK1.1版本就已经提供，不需要添加额外的类库，只需实现java.io.Serializable并生成序列ID即即可。
+
 ### 6.1.1 无法跨语言 ###
+
+
 
 ### 6.1.2 序列化后的码流太大 ###
 
