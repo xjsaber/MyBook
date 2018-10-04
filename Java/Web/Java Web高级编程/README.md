@@ -14,9 +14,15 @@
 
 第13章 使用控制器代替Servlet
 
+第14章 使用服务和仓库支持
 
+第15章 使用 Spring Frameworki18n国际化应用程序
+
+第16章 使用JSR349、Spring Framework和Hibernate Validator执行 Bean验证
 
 第17章 创建RESTful和SOAP Web服务
+
+第18章 使用消息传送和群集实现灵活性和可靠性
 
 第25章 介绍Spring Security
 
