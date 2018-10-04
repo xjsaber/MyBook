@@ -412,6 +412,8 @@ TimeServer和TimeClient
 
 LineBasedFrameDecoder依次遍历ByteBuf的可读字节，判断看是否有"\n"护着"\r\n"，如果有，则是以此为结束位置，从可读索引到结束位置区间的就组成一行，以换行符为结束的解码器，支持携带结束符或者不携带结束符两种解码方式。
 
+StringDecoder就是将接收到的对象转换成字符串
+
 ### 4.4 总结 ###
 
 对TCP粘包，拆包进行了解，会造成什么问题，然后有什么解决方案
@@ -427,12 +429,20 @@ LineBasedFrameDecoder依次遍历ByteBuf的可读字节，判断看是否有"\n"
 3. 将特殊的分隔符作为消息的结束标志
 4. 通常在消息头中定义长度字段来标识消息的总长度
 
-De
+
+### 5.1 DelimiterBasedFrameDecoder应用开发 ###
+
+### 5.2 FixedLengthFrameDecodeer应用开发 ###
+
+FixedLengthFrameDecoder是固定长度解码器，能够按照指定的长度对消息进行自动解码。开发者不需要考虑TCP的粘包/拆包问题。
+
+### 5.3 总结 ###
+
+DelimiterBasedFramerDecoder和FixedLengthFrameDecoder
+
+DelimiterBasedFrameDecoder用于对使用分隔符结尾的消息进行自动解码，FixedLengthFrameDecoder用于对固定长度的消息进行自动解码。
 
 
-5.1 DelimiterBasedFrameDecoder应用开发
-
-5.2 
 
 中级篇 Netty编解码开发指南
 
