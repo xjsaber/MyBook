@@ -1,11 +1,10 @@
-package com.xjsaber.java.netty.guide.ch4;
+package com.xjsaber.java.netty.guide.ch4.solution;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.logging.Logger;
 
@@ -36,12 +35,8 @@ public class TimeClientHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg){
-        ByteBuf buf = (ByteBuf) msg;
-        byte[] req = new byte[buf.readableBytes()];
-        buf.readBytes(req);
-        String body = new String(req, StandardCharsets.UTF_8);
-        System.out.println("Now is :" + body);
-        System.out.println("the counter is : " + ++ counter);
+        String body = (String)msg;
+        System.out.println("Now is : " + body + " ; the counter is : " +  ++counter);
     }
 
     @Override
