@@ -287,3 +287,31 @@ Spring模式注解装配
 
 ## 2-6 自定义条件装配 ##
 
+### 基于配置方式实现 -@Profile ###
+
+计算服务，多整数求和 sum
+
+@Profile("Java7"):for循环
+@Profile("Java8"):Lambda
+
+### 基于编程方式实现 - @ConditionalOnSystemProperty ###
+
+condition 包名
+
+Java 系统属性 条件判断
+
+getPropertyCondition
+
+## 2-7 基于编程方式实现条件装配 ##
+
+## 2-8 SpringBoot自动装配 ##
+
+Condition
+
+Spring Boot自动装配
+
+* 定义：基于约定大于配置的原则，实现Spring组件自动装配的目的。
+* 装配：模式注解、@Enable模块、条件装配、工厂加载机制
+* 实现：激活自动装配、实现自动装配、配置自动装配实现
+
+
