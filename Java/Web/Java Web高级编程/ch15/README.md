@@ -27,3 +27,8 @@ Spring消息源提供了对资源包的抽象和封装。
 
 ### 15.3.1 创建消息源 ###
 
+### 15.3.3 使用处理拦截器修改区域设置 ###
+
+## 15.5 小结 ##
+
+<spring:message>、<fmt:message>、Java字符串以及Spring的MessageSource对JSP视图进行国际化处理。
