@@ -314,4 +314,57 @@ Spring Boot自动装配
 * 装配：模式注解、@Enable模块、条件装配、工厂加载机制
 * 实现：激活自动装配、实现自动装配、配置自动装配实现
 
+### 底层装配技术 ###
 
+* Spring模式注解装配
+* Spring`@Enable`模块装配
+* Spring条件装置装配
+* Spring工厂加载机制
+	* 实现类：`SpringFactoriesLoader`
+	* 配置资源：`META-INF/spring.factories`
+
+### 自动装配举例 ###
+
+参考`META-INF/spring.factories`
+
+### 实现方法 ###
+
+1. 激活自动装配-`@EnableAutoConfiguration`
+2. 实现自动装配-`XXXAutoConfiguration`
+3. 配置自动装配实现-`META-INF/spring.factories`
+
+## 2-9 自定义自动装配 ##
+
+HelloWorldAutuConfiguration
+
+* 条件判断：`user.name == "Mercy"`
+* 模式注解 @Configuration
+* @Enable模块： `@EnableHelloWorld` -> `HelloWorldImportSelector` -> `HelloWorldConfiguration` -> `helloWorld`
+
+## 3-1 理解SpringBootApplication ##
+
+## 3-2 基础技术和衍生技术 ##
+
+### 基础技术 ###
+
+* Spring 模式注解
+* Spring 应用上下文
+* Spring 工厂加载机制 
+* Spring 应用上下文初始器
+* Spring Environment抽象
+* Spring 应用事件/监听器
+
+### 衍生技术 ###
+
+#### Spring Boot ####
+
+* SpringApplication
+* SpringApplication Builder API
+* SpringApplication 运行监听器
+* SpringApplication 参数
+* SpringApplication 故障分析
+* Spring Boot 应用事件/监听器
+
+## 3-3 合并工程 ##
+
+## 3-4 SpringApplication准备阶段 ##

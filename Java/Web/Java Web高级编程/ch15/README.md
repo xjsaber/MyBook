@@ -8,6 +8,8 @@ HttpServletRequest包含了getLocal和getLocals方法。
 
 ### 15.1.2 直接本地化错误信息 ###
 
+
+
 ## 15.2 使用基本的国际化和本地化API ##
 
 ### 15.2.1 了解资源包和消息格式 ###
@@ -20,8 +22,6 @@ Spring消息源提供了对资源包的抽象和封装。
 * org.springframework.context.support.ReloadableResourceBundleMessageSource
 
 ### 15.2.3 使用消息源国际化JSP ###
-
-
 
 ## 15.3 在Spring Framework中配置国际化 ##
 
