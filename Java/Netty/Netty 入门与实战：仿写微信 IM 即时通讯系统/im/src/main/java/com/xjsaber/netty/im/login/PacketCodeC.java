@@ -1,9 +1,7 @@
-package com.xjsaber.netty.im.action;
+package com.xjsaber.netty.im.login;
 
-import com.xjsaber.netty.im.login.LoginRequestPacket;
-import com.xjsaber.netty.im.login.Packet;
-import com.xjsaber.netty.im.action.serialize.JSONSerializer;
-import com.xjsaber.netty.im.action.serialize.Serializer;
+import com.xjsaber.netty.im.login.serialize.JSONSerializer;
+import com.xjsaber.netty.im.login.serialize.Serializer;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 
@@ -16,7 +14,7 @@ import static com.xjsaber.netty.im.action.Command.LOGIN_REQUEST;
 public class PacketCodeC {
 
     private static final int MAGIC_NUMBER = 0x12345678;
-
+    public static final PacketCodeC INSTANCE = new PacketCodeC();
 
     private static final Map<Byte, Class<? extends Packet>> packetTypeMap;
     private static final Map<Byte, Serializer> serializerMap;
