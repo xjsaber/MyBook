@@ -194,9 +194,37 @@ writeBytes(byte[] src)
 
 ## ch11 pipeline与channelHandler ##
 
+客户端写在ClientHandler，服务端写在ServerHandler。
+
+### pipeline与channelHandler的构成 ###
+
+在Netty整个框架里面，一条连接对应着一个Channel，这条Channel所有的处理逻辑都在一个叫做`ChannelPipeline`的对象里面，`ChannelPipeline`是一个双向链表结构，他和Channel之间是一对一的关系。
+
+### channelHandler的分类 ###
+
+1. 第一个子接口是ChannelInboundHandler是处理读数据的逻辑。
+2. 第二个子接口是ChannelOutboundHandler是处理写数据的逻辑。
+
+### ChannelInboundHandler的事件传播 ###
+
+在服务端的pipeline添加三个`ChannelInboundHandler`。
+
+每个inBoundHandler都继承自`ChannelInboundHandlerAdapter`，然后实现了channelRead()方法。
+
+在channelRead()方法里面，打印当前handler的信息，然后调用弗雷的`channelRead()`方法，而这里父类的`channelRead()`方法会自动调用到下一个inBoundhandler的`channelRead()`方法，并且会把当前inBoundHandler里处理完毕的对象 传递到下一个inBoundHandler。
+
+addLast()方法来为pipeline添加inBoundHandler，A->B->C
+
+### ChannelOutboundHandler的事件传播 ###
 
 
 
+### 总结 ###
+
+1. 引出pipeline和channelHandler的概念
+2. channelHandler分为inBound和outBound两种类型的接口，分别是处理数据读和数据写的逻辑，可与tcp协议栈联系起来。
+3. 两种类型的handler均有相应的默认实现，默认会把事件传递到下一个，这里的传递时间其实说
+4. inBoundHandler的执行顺序与实际添加的孙婿相同，而outBoundHandler则相反。
 
 ## ch12 实战：构建客户端与服务端pipeline ##
 
