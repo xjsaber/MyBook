@@ -6,6 +6,7 @@
 
     <groupId>com.xjsaber.netty</groupId>
     <artifactId>im</artifactId>
+    <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
     <build>
         <plugins>
@@ -19,6 +20,9 @@
             </plugin>
         </plugins>
     </build>
+    <modules>
+        <module>message</module>
+    </modules>
 
     <dependencies>
         <!-- https://mvnrepository.com/artifact/io.netty/netty-all -->
