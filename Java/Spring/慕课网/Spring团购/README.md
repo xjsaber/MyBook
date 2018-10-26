@@ -61,6 +61,7 @@ Maven
 
 ### 工程划分 ###
 
+
 Admin
 
 ImageServer
@@ -68,3 +69,31 @@ ImageServer
 Service
 
 Site
+
+## 3-3 技术组件概述及功能包划分 ##
+
+### 页面组件 ###
+
+* Servlet
+* Filter
+* Intercepter
+* Resource
+* SpringMVC-ext
+* Layout
+
+### 核心组件 ###
+
+* Aspect
+* SpringContext
+* Entity
+* Cache
+* Page&Search
+* BaseDAO
+
+### 辅助组件 ###
+
+* Constant
+* Util
+
+
+

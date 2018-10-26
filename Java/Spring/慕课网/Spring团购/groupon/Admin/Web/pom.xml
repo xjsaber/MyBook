@@ -13,8 +13,48 @@
     <groupId>com.xjsaber.spring.groupon-admin</groupId>
     <artifactId>groupon-admin-web</artifactId>
     <version>1.0</version>
-    <packaging>pom</packaging>
-    <name>${project.artifactId}</name>
+    <packaging>war</packaging>
 
+    <name>${project.artifactId}</name>
+    <description>Web.</description>
+
+    <properties>
+        <skip_maven_deploy>true</skip_maven_deploy>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.xjsaber.spring.groupon-admin</groupId>
+            <artifactId>groupon-admin-controller</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.sitemesh</groupId>
+            <artifactId>sitemesh</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>opensymphony</groupId>
+            <artifactId>sitemesh</artifactId>
+            <version>2.4.2</version>
+        </dependency>
+        <dependency>
+            <groupId>jstl</groupId>
+            <artifactId>jstl</artifactId>
+            <version>1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.freemarker</groupId>
+            <artifactId>freemarker</artifactId>
+        </dependency>
+    </dependencies>
 
 </project>

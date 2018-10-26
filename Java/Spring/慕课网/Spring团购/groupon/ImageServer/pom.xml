@@ -12,8 +12,20 @@
 
     <artifactId>image-server</artifactId>
     <version>1.0</version>
-    <packaging>pom</packaging>
-    <name>${project.artifactId}</name>
+    <packaging>war</packaging>
 
+    <name>${project.artifactId}</name>
+    <description>Image server.</description>
+
+    <properties>
+        <skip_maven_deploy>true</skip_maven_deploy>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+        </dependency>
+    </dependencies>
 
 </project>
