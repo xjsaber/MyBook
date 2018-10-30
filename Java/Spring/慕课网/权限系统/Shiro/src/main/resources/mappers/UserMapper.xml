@@ -18,6 +18,12 @@
     </resultMap>
 
     <select id="findByUsername" parameterType="String" resultMap="userMap">
-
+        SELECT u.*, r.*, p.*
+            FROM user u
+                INNER JOIN user_role ur on ur.uid = u.uid
+                INNER JOIN role r on r.rid = ur.rid
+                INNER JOIN permission_role pr on pr.rid = r.rid
+                INNER JOIN permission p on p.pid = pr.rid
+        WHERE u.username = #{username}
     </select>
 </mapper>

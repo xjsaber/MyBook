@@ -140,7 +140,9 @@ SessionManager
 ## 3-7 环境搭建及使用 ##
 
 * 快速搭建Spring Boot + Apache Shiro 环境
-* 蝉蛹Case实现		preHandler 预处理
+* 常用Case实现		preHandler 预处理
+
+
 
 # 第5章 #
 
