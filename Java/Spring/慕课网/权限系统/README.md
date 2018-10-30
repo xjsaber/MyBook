@@ -140,4 +140,9 @@ SessionManager
 ## 3-7 环境搭建及使用 ##
 
 * 快速搭建Spring Boot + Apache Shiro 环境
-* 蝉蛹Case实现
+* 蝉蛹Case实现		preHandler 预处理
+
+# 第5章 #
+
+## 5-1 Spring MVC开发环境搭建-pom.xml配置 ##
+
