@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<mapper namespace="com.xjsaber.java.shiro.mapper.UserMapper">
+
+    <resultMap id="userMap" type="com.xjsaber.java.shiro.model.User">
+        <id property="uid" column="uid"/>
+        <result property="username" column="username"/>
+        <result property="password" column="password"/>
+        <collection property="roles" ofType="com.xjsaber.java.shiro.model.Role">
+            <id property="rid" column="rid"/>
+            <result property="rname" column="name"/>
+            <collection property="permissions" column="com.xjsaber.java.shiro.model.Permission">
+                <id property="pid" column="pid"/>
+                <result property="name" column="name"/>
+                <result property="url" column="url"/>
+            </collection>
+        </collection>
+    </resultMap>
+
+    <select id="findByUsername" parameterType="String" resultMap="userMap">
+
+    </select>
+</mapper>

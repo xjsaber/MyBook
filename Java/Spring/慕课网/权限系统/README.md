@@ -109,9 +109,11 @@ WebSupport Caching Concurrery Testing “Run As” RememberMe
 
 ## 3-4 Apache Shiro-权限拦截 ##
 
-Filter<-AbstractFilter<-NameableFilter<-OncePerRequestFilter<-AbstractShiroFilter<-ShiroFilter
-
-Filter<-AbstractFilter<-NameableFilter<-OncePerRequestFilter<-AdviceFilter<-PathMatchingFilter<-AccessControlFilter
+	Filter<-AbstractFilter<-NameableFilter<-OncePerRequestFilter<-AbstractShiroFilter<-ShiroFilter
+	
+	Filter<-AbstractFilter<-NameableFilter<-OncePerRequestFilter<-AdviceFilter<-PathMatchingFilter<-AccessControlFilter
+	
+	ProxiedFilterChain
 
 	AdviceFilter	
 		preHandler 预处理
@@ -120,3 +122,22 @@ Filter<-AbstractFilter<-NameableFilter<-OncePerRequestFilter<-AdviceFilter<-Path
 
 	PathMatch
 		preHandler 预处理
+
+	onAccessDenied
+
+Diagram
+
+## 3-5 Apache Shiro会话管理讲解 ##
+
+SessionManager
+
+## 3-6 Apache Shiro 权限缓存 ##
+
+	Cache 
+	EaCache
+	MapCache
+
+## 3-7 环境搭建及使用 ##
+
+* 快速搭建Spring Boot + Apache Shiro 环境
+* 蝉蛹Case实现
