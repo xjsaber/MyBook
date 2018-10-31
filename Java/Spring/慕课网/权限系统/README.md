@@ -146,5 +146,17 @@ SessionManager
 
 # 第5章 #
 
-## 5-1 Spring MVC开发环境搭建-pom.xml配置 ##
+code
+
+# 第6章 #
+
+编码部分
+
+## 6-1 核心类生成-Mybatis Generator ##
+
+mysql test和varchar的用途（6-1 视频）
+
+
+
+
 
