@@ -73,7 +73,7 @@
     <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
-      <version>5.1.38</version>
+      <version>8.0.13</version>
     </dependency>
 
     <!-- Lombok -->
@@ -90,6 +90,24 @@
       <version>2.9.7</version>
     </dependency>
 
+    <!-- https://mvnrepository.com/artifact/ch.qos.logback/logback-core -->
+    <!-- logback -->
+    <!-- 1.logback更快 2.可以世界使用slf4japi，而org.sfj4japi需要使用转换 3.热启动-->
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-core</artifactId>
+      <version>1.2.3</version>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>1.2.3</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.25</version>
+    </dependency>
 
     <dependency>
       <groupId>junit</groupId>

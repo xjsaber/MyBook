@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+    <!--Configuration-->
+    <!--查看默认值，选择勾选-->
+    <settings>
+        <setting name="safeRowBoundsEnabled" value="true"/>
+        <setting name="cacheEnabled" value="false"/>
+        <setting name="useGeneratedKeys" value="true"/>
+    </settings>
+
+    <!-- 别名-->
+    <!--<typeAliases>-->
+        <!--<typeAlias type="com.xxx" alias="bb"/>-->
+    <!--</typeAliases>-->
+
+    <!--监听 SQL执行的时间和效率 -->
+    <!--<plugins>-->
+        <!--<plugin interceptor="" alias="bb"/>-->
+    <!--</plugins>-->
+
+    <!--数据库无法映射的时候，通过typeHandlers进行转义-->
+    <!--<typeHandlers>-->
+        <!--<typeHandler handler=""-->
+    <!--</typeHandlers>-->
+
+</configuration>
+

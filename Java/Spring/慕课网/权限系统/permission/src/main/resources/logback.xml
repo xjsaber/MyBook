@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--scan配置文件发生改变，会重新加载-->
+<!--scanPeriod修改是否有时间间隔，默认的时间间隔是1分钟，默认单位是毫秒-->
+<configuration scan="true" scanPeriod="60 seconds">
+
+    <!--定义一种log的输出形式-->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <!-- -5level level表示级别，-5表示level从左显示的5位-->
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <!--log名称-->
+    <!--<logger></logger>-->
+
+    <!--针对不同的日志发送给不同的人-->
+
+    <!--特殊的Append 根据时间进行压缩日志归档-->
+    <!--<appender name="permission" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
+        <!--<file>${catalina.home}/logs/permission.log</file>-->
+        <!--<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedFileNamingAndTriggeringPolicy">-->
+            <!--&lt;!&ndash;配置的时间格式，对日志进行压缩，按照时间的粒度进行压缩&ndash;&gt;-->
+            <!--<FileNamePattern>${catalina.home}/logs/permission.%d{yyyy-MM-dd}log.gz</FileNamePattern>-->
+        <!--</rollingPolicy>-->
+        <!--<layout class="ch.qos.logback.classic.PatternLayout">-->
+            <!--<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger - %msg%n</pattern>-->
+        <!--</layout>-->
+    <!--</appender>-->
+
+    <!--<logger name="xxx" level="INFO">-->
+        <!--<appender-ref ref="permission"/>-->
+    <!--</logger>-->
+
+    <!--log的级别-->
+    <!--TRACE < DEBUG < INFO < WARNING < ERROR-->
+    <root level = "INFO">
+        <appender-ref ref="STDOUT" />
+     </root>
+
+</configuration>
