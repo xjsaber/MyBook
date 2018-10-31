@@ -157,7 +157,79 @@ SessionManager
 * 易于扩展，能灵活适应需求的变化
 * 所有管理都有界面方便操作
 
+## 4-3 部门表设计 ##
 
+### 详细表结构设计 ###
+
+用户表、部门表
+
+	[Class]SysDept(sys表示系统级别的)
+	id Integer
+	name String
+	level String
+	seq Integer
+	remark String
+	parentId Integer
+	operator String
+	operateTime Date
+	operateIp String
+
+## 4-4 用户表设计 ##
+
+### 详细表结构设计 ###
+
+	[Class]SysUser(sys表示系统级别的)
+	id Integer
+	username String
+	telphonse String
+	mail String
+	password String
+	remark String
+	deptId Integer
+	status Integer
+	operator String
+	operateTime Date
+	operateIp String
+
+## 4-5 权限模块表设计 ##
+
+### 详细表结构设计 ###
+
+	[Class]SysAclModule(sys表示系统级别的)
+	id Integer
+	name String
+	parentId Integer
+	level String
+	seq Integer
+	remark String
+	operator String
+	operateTime Date
+	operateIp String
+
+## 4-6 权限表设计 ##
+
+### 详细表结构设计 ###
+
+	[Class]SysAcl(sys表示系统级别的)
+	id Integer
+	code String
+	name String
+	aclModuleId Integer
+	url	String
+	type Integer
+	status Integer
+	seq Integer
+	remark String
+	operator String
+	operateTime Date
+	operateIp String
+
+
+## 4-7 角色表设计 ##
+
+## 4-8 角色-用户，角色-权限关联关系表设计 ##
+
+## 4-9 权限相关Log表设计 ##
 
 
 # 第5章 #
