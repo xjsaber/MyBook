@@ -55,3 +55,7 @@ zoo.cfg配置
 
 ## zookeeper配置文件介绍，运行zk ##
 
+# 第3章 ZooKeeper基本数据模型 #
+
+## 3-1 zk数据模型介绍 ##
+
