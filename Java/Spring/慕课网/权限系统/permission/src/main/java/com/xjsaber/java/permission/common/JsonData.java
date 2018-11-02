@@ -3,6 +3,9 @@ package com.xjsaber.java.permission.common;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Getter
 @Setter
 public class JsonData {
@@ -43,5 +46,13 @@ public class JsonData {
         JsonData jsonData = new JsonData(true);
         jsonData.msg = msg;
         return jsonData;
+    }
+
+    public Map<String, Object> toMap(){
+        Map<String, Object> map = new HashMap<>();
+        map.put("ret", ret);
+        map.put("msg", msg);
+        map.put("data", data);
+        return map;
     }
 }

@@ -17,6 +17,7 @@
 
     <!--使用RequestMapping找到接口应该怎么处理-->
     <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping" />
+    <bean class="com.xjsaber.java.permission.common.SpringExceptionResolver"/>
     <!--应该返回什么样的数据-->
     <bean class="org.springframework.web.servlet.view.BeanNameViewResolver" />
     <!--指定JSON的处理-->

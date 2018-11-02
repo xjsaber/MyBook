@@ -176,8 +176,6 @@ SessionManager
 
 ## 4-4 用户表设计 ##
 
-### 详细表结构设计 ###
-
 	[Class]SysUser(sys表示系统级别的)
 	id Integer
 	username String
@@ -193,8 +191,6 @@ SessionManager
 
 ## 4-5 权限模块表设计 ##
 
-### 详细表结构设计 ###
-
 	[Class]SysAclModule(sys表示系统级别的)
 	id Integer
 	name String
@@ -207,8 +203,6 @@ SessionManager
 	operateIp String
 
 ## 4-6 权限表设计 ##
-
-### 详细表结构设计 ###
 
 	[Class]SysAcl(sys表示系统级别的)
 	id Integer
@@ -227,10 +221,41 @@ SessionManager
 
 ## 4-7 角色表设计 ##
 
+	[Class]SysRole(sys表示系统级别的)
+	id Integer
+	name String
+	type Integer
+	status Integer
+	remark String
+	operator String
+	operateTime Date
+	operateIp String
+
 ## 4-8 角色-用户，角色-权限关联关系表设计 ##
+
+角色相关表
+
+	[Class]SysRoleAcl(sys表示系统级别的)
+	id Integer
+	roleId Integer
+	aclId Integer
+	operator String
+	operateTime Date
+	operateIp String
 
 ## 4-9 权限相关Log表设计 ##
 
+权限相关更新记录表
+
+	[Class]SysLog(sys表示系统级别的)
+	id Integer
+	type Integer
+	targetId Integer
+	oldValue String
+	newValue String
+	operator String
+	operateTime Date
+	operateIp String
 
 # 第5章 #
 
@@ -244,7 +269,16 @@ code
 
 mysql test和varchar的用途（6-1 视频）
 
+## 6-2 权限管理开发-准备 ##
 
+* 核心类生成-Mybatis generater
+* 项目接口定义 - json，page
+
+
+## 6-4 校验工具-BeanValidator开发 ##
+
+* 校验工具-validator
+* JsonConvert Jackson Convert
 
 
 
