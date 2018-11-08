@@ -355,7 +355,40 @@ update_time：数据更新时间
 
 ## 4-1 项目初始化概要 ##
 
+## 4-2 数据库初始化 ##
+
+## 4-3 idea项目开发工具安装实操（mac） ##
+
+## 4-4 idea项目开发工具安装实操（windows） ##
+
+## 4-5 jdk、tomcat、maven配置及初始化 ##
+
+## 4-6 git初始化 ##
+
 ## 4-7 maven的pom文件配置 ##
 
 ## 4-8 项目包结构初始化 ##
 
+## 4-9 mybatis三剑客之mybatis-generator配置 ##
+
+
+
+## 4-10 mybatis三剑客之mybatis-generator生成数据对象和时间戳优化 ##
+
+## 4-11 mybatis三剑客之mybatis-plugin讲解 ##
+
+## 4-12 mybatis三剑客之mybatis-pagehelper分页插件讲解 ##
+
+## 4-13 spring官方demo指引及配置 ##
+
+## 4-14 spring、springmvc配置实操 ##
+
+## 4-15 logback配置讲解 ##
+
+## 4-16 ftp服务器配置讲解 ##
+
+## 4-17 idea的注入和自动编译配置 ##
+
+## 4-18 项目初始化代码提交 ##
+
+## 4-19 两个提高工作效率的神器-Restlet Client和fe助手 ##
