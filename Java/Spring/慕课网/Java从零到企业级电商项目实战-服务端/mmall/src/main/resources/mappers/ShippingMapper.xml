@@ -40,7 +40,7 @@
     values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{receiveName,jdbcType=VARCHAR}, 
       #{receivePhone,jdbcType=VARCHAR}, #{receiveMobile,jdbcType=VARCHAR}, #{receiveProvince,jdbcType=VARCHAR}, 
       #{receiveCity,jdbcType=VARCHAR}, #{receiveDistrict,jdbcType=VARCHAR}, #{receiveAddress,jdbcType=VARCHAR}, 
-      #{receiveZip,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}
+      #{receiveZip,jdbcType=VARCHAR}, now(), now()
       )
   </insert>
   <insert id="insertSelective" parameterType="com.mmall.pojo.Shipping" >
@@ -173,7 +173,7 @@
       receive_address = #{receiveAddress,jdbcType=VARCHAR},
       receive_zip = #{receiveZip,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=TIMESTAMP},
-      update_time = #{updateTime,jdbcType=TIMESTAMP}
+      update_time = now()
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

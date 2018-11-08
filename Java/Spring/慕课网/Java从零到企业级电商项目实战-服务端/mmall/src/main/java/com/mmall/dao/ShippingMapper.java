@@ -1,4 +1,4 @@
-package com.mmall.dao.com.mmall.dao;
+package com.mmall.dao;
 
 import com.mmall.pojo.Shipping;
 

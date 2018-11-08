@@ -377,7 +377,11 @@ update_time：数据更新时间
 
 ## 4-11 mybatis三剑客之mybatis-plugin讲解 ##
 
+安装mybatis-plugin
+
 ## 4-12 mybatis三剑客之mybatis-pagehelper分页插件讲解 ##
+
+github上的mybatis-pagehelper开源分页控件
 
 ## 4-13 spring官方demo指引及配置 ##
 
