@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+    PUBLIC="-//mybatis.org//DTD Mybatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+
+        <generatorConfiguration>
+            <!--导入属性配置-->
+            <properties resource="datasource.properties"></properties>
+
+            <!--指定特定数据库的jdbc驱动jar包的位置-->
+            <classPathEntity location="${db.driverLocation}"/>
+
+            <context id="default" targetRuntime="Mybatis3">
+
+                <!--optional，皆在创建class时，对注释进行控制-->
+                <commentGenerator>
+                    <property name="suppressDate" value="true" />
+                    <property name="suppressAllComments" value="true" />
+                </commentGenerator>
+
+                <jdbcConnection
+                    driverClass="${db.p}">
+
+                </jdbcConnection>
+        </generatorConfiguration>
+
