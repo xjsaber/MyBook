@@ -34,4 +34,17 @@ public class UserServiceImpl implements IUserService {
         user.setPassword(StringUtils.EMPTY);
         return ServerResponse.createBySuccess("登录成功", user);
     }
+
+    @Override
+    public ServerResponse<User> register(User user) {
+        int resultCount = userMapper.checkUsername(user.getUsername());
+        if (resultCount > 0){
+            return ServerResponse.createByErrorMessage("用户名已经存在");
+        }
+        int result = userMapper.insert(user);
+        if (result > 0){
+            return ServerResponse.createBySuccess();
+        }
+        return ServerResponse.createByError();
+    }
 }

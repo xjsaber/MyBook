@@ -1,5 +1,8 @@
 package com.mmall.controller.portal;
 
+import com.mmall.common.Const;
+import com.mmall.common.ServerResponse;
+import com.mmall.pojo.User;
 import com.mmall.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -9,6 +12,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
 
+/**
+ * @author xjsaber
+ */
 @Controller
 @RequestMapping("/user/")
 public class UserController {
@@ -29,15 +35,16 @@ public class UserController {
      */
     @ResponseBody
     @RequestMapping(value = "login", method = RequestMethod.POST)
-    public Object login(String username, String password, HttpSession session){
+    public ServerResponse<User> login(String username, String password, HttpSession session){
 //        service -> mybatis -> dao
-        return "login success";
+        return iUserService.login(username, password);
     }
 
     @ResponseBody
     @RequestMapping(value = "register", method = RequestMethod.POST)
-    public Object register(){
-        return "register success";
+    public ServerResponse<String> register(User user){
+        iUserService.register(user);
+        return ServerResponse.createBySuccess();
     }
 
     @ResponseBody
@@ -51,6 +58,14 @@ public class UserController {
     public Object getUserInfo(){
         return "get_user_info success";
     }
+
+    @ResponseBody
+    @RequestMapping(value = "logout.do", method = RequestMethod.GET)
+    public ServerResponse<String> loginOut(HttpSession session){
+        session.removeAttribute(Const.CURRENT_USER);
+        return ServerResponse.createBySuccess();
+    }
+
 
 
 }
