@@ -22,6 +22,7 @@
     <org.mybatis.version>3.4.6</org.mybatis.version>
     <org.mybatis.spring.version>1.3.2</org.mybatis.spring.version>
     <org.tomcat.version>9.0.12</org.tomcat.version>
+    <com.jackson.version>2.9.7</com.jackson.version>
   </properties>
 
   <dependencies>
@@ -122,6 +123,25 @@
       <groupId>commons-net</groupId>
       <artifactId>commons-net</artifactId>
       <version>3.1</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>${com.jackson.version}</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+      <version>${com.jackson.version}</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>${com.jackson.version}</version>
     </dependency>
 
     <!-- mybatis paper -->

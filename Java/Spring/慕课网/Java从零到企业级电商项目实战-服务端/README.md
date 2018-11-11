@@ -432,3 +432,212 @@ Restlet Client和fe助手
 * 横向越权、纵向越权安全漏洞
 	* 横向越权：攻击者尝试访问与他拥有相同权限的用户的资源
 	* 纵向越权：低级别攻击者尝试访问高级别用户的资源
+
+### 接口设计 ###
+
+#### 前台用户接口设计 ####
+
+* /user/login.do(POST) 登录接口 
+	* request
+		1. username
+		2. password
+	* response
+		1. fail	
+			{
+			    "status": 1,
+			    "msg": "密码错误"
+			}
+		2. success 
+			{
+			    "status": 0,
+			    "data": {
+			        "id": 12,
+			        "username": "aaa",
+			        "email": "aaa@163.com",
+			        "phone": null,
+			        "role": 0,
+			        "createTime": 1479048325000,
+			        "updateTime": 1479048325000
+			    }
+			}
+* /user/register.do(POST) 注册接口
+	* request
+		1. username
+		2. password
+		3. email
+		4. phone
+		5. question
+		6. answer
+	* response
+		1. success
+		{
+		    "status": 0,
+		    "msg": "校验成功"
+		}
+		2. fail
+		{
+		    "status": 1,
+		    "msg": "用户已存在"
+		}
+* /user/check_valid.do(GET) 检查用户名是否有效
+	* request
+		1. str 是用户名也可以是email
+		2. type username和email
+	* response
+		1. success
+		{
+		    "status": 0,
+		    "msg": "校验成功"
+		}
+		2. fail
+		{
+		    "status": 1,
+		    "msg": "用户已存在"
+		}
+* /user/get_user_info.do(GET) 获取登录用户信息
+	* request
+
+	* response
+		1. success
+		{
+		    "status": 0,
+		    "data": {
+		        "id": 12,
+		        "username": "aaa",
+		        "email": "aaa@163.com",
+		        "phone": null,
+		        "role": 0,
+		        "createTime": 1479048325000,
+		        "updateTime": 1479048325000
+		    }
+		}
+		2. fail
+		{
+		    "status": 1,
+		    "msg": "用户未登录,无法获取当前用户信息"
+		}
+* /user/forget_get_question.do(POST) 忘记密码
+	* request
+		1. username
+	* response
+		1. success
+		{
+		    "status": 0,
+		    "data": "这里是问题"
+		}
+		2. fail
+		{
+		    "status": 1,
+		    "msg": "该用户未设置找回密码问题"
+		}
+* /user/forget_check_answer.do(GET) 提交问题答案
+	* request	
+		1. username
+		2. question
+		3. answer
+	* reponse
+		1. success
+		{
+		    "status": 0,
+		    "data": "531ef4b4-9663-4e6d-9a20-fb56367446a5"
+		}
+		2. fail
+		{
+		    "status": 1,
+		    "msg": "问题答案错误"
+		}
+* /user/forget_reset_password.do（GET）忘记密码的重设密码
+	* request
+		1. username
+		2. passwordNew
+		3. forgetToken （不设置token则任何username和password都可以直接更新密码，常规30min）
+	* response
+		1. success
+		{
+		    "status": 0,
+		    "msg": "修改密码成功"
+		}
+		2. fail
+		{
+		    "status": 1,
+		    "msg": "修改密码操作失效"
+		}
+* /user/reset_password.do(POST) 登录中状态重置密码
+	* request
+		1. passwordOld
+		2. passwordNew
+	* response 
+		1. success
+		{
+		    "status": 0,
+		    "msg": "修改密码成功"
+		}
+		2. fail
+		{
+		    "status": 1,
+		    "msg": "旧密码输入错误"
+		}
+* /user/update_information.do(POST) 登录状态更新个人信息
+	* request
+		1. email
+		2. phone
+		3. question
+		4. answer
+	* response  
+		1. success
+		{
+		    "status": 0,
+		    "msg": "更新个人信息成功"
+		}
+		2. fail
+		{
+		    "status": 1,
+		    "msg": "用户未登录"
+		}
+* /user/get_information.do(GET) 获取当前登录用户的详细信息，并强制登录
+	* request
+	* response
+		1. success
+		2. fail 
+		{
+		    "status": 10,
+		    "msg": "用户未登录,无法获取当前用户信息,status=10,强制登录"
+		}
+* /user/logout.do(GET) 退出登录
+
+#### 后台用户接口设计 ####
+
+* /manager/user/login.do 后台管理员登录
+	* request
+		1. username
+		2. password
+	* response
+		1. success
+		{
+		    "status": 0,
+		    "data": {
+		        "id": 12,
+		        "username": "aaa",
+		        "email": "aaa@163.com",
+		        "phone": null,
+		        "role": 0,
+		        "createTime": 1479048325000,
+		        "updateTime": 1479048325000
+		    }
+		}
+		2. fail
+		{
+		    "status": 1,
+		    "msg": "密码错误"
+		}
+* /manager/user/list.do 用户列表
+	* request
+		1. pageSize(default=10)
+		2. pageNum(default=1)
+	* response
+		1. success
+		2. fail
+		{
+		  "status": 1,
+		  "msg": "没有权限"
+		}
