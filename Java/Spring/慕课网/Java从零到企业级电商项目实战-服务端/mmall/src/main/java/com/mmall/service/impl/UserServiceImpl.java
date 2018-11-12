@@ -1,5 +1,6 @@
 package com.mmall.service.impl;
 
+import com.mmall.common.Const;
 import com.mmall.common.ServerResponse;
 import com.mmall.dao.UserMapper;
 import com.mmall.pojo.User;
@@ -41,10 +42,14 @@ public class UserServiceImpl implements IUserService {
         if (resultCount > 0){
             return ServerResponse.createByErrorMessage("用户名已经存在");
         }
-        int result = userMapper.insert(user);
-        if (result > 0){
-            return ServerResponse.createBySuccess();
+        resultCount = userMapper.insert(user);
+        if (resultCount > 0){
+            return ServerResponse.createByErrorMessage("Email已经存在");
         }
+
+        user.setRole(Const.Role.ROLE_CUSTOMER);
+        //MD5加密
+
         return ServerResponse.createByError();
     }
 }
