@@ -4,6 +4,10 @@ public class Const {
 
     public static final String CURRENT_USER = "currentUser";
 
+    public static final String EMAIL = "email";
+
+    public static final String USERNAME = "username";
+
     /**
      * 不像枚举这么重，可以使用接口类中的接口进行分类
      */

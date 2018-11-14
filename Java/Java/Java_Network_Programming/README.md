@@ -890,6 +890,22 @@ HTTP1.1 可以用过一个TCP连接连续发送多个请求和响应。第1步�
 * text/* 表示人可读的文字。
 * image/* 表示图片。
 * model/* 表示3D模型，如VRML文件。
+* audio/* 表示声音
+* video/* 表示移动的图片，可能包含声音。
+* application/* 表示二进制数据。
+* message/* 表示协议特定的信封，如email消息和http响应。
+* multipart/* 表示多个文档和资源的容器。
+
+|响应码和消息|含义|HttpURLConnection常量|
+|--|--|--|
+|1XX|信息||
+|100 Continue|服务器准备接手请求主体，客户端应当接受发送请求主体；这允许客户端在请求中发送大量数据之前访问服务器是否将接受请求||
+|101 Switching Protocols|服务器接受客户端||
+|2XX Successful|请求成功||
+|200 OK|请求成功||
+|201 Created|服务器已经在响应主体中指定的URL处创建了资源。客户端现在应当尝试加载该URL。这个响应码只有在响应POST请求时发送||
+|202 Accepted||
+|203 NonauthoriInformation|由缓存代理或其他本地源返回资源的表示，不能保证是最新的|HTTP_NOT_AUTHORIATIVE|
 
 ### Keep-Alive ###
 
@@ -1009,6 +1025,23 @@ CookieStore类允许增加、删除和列出cookie，使能控制在正常HTTP�
 
 
 ## ch7 URLConnection ##
+
+URLConnection是一个抽象类，表示指向URL指定资源的活动连接。
+
+1. URLConnection可以检查服务器发送的首部，并相应地做出响应。
+2. URLCOnnection类是Java的协议处理器（protocol handler）机制的一部分	，这个机制还包括URLStreamHandler类。协议处理器的思想很简单：
+
+### 打开URLConnection ###
+
+1. 构造一个URL对象。
+2. 调用这个URL对象的openConnection()获取一个对应该URL的URLConnection对象。
+3. 配置这个URLConnnection。
+4. 读取首部字段。
+5. 获得输入流并读取数据。
+6. 获得输出流并写入数据。
+7. 关闭连接
+
+### 读取服务器的数据 ###
 
 ## ch8 客户端Socket ##
 
