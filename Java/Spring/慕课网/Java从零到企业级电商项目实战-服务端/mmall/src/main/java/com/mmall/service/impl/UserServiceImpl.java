@@ -10,6 +10,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service("iUserService")
 public class UserServiceImpl implements IUserService {
 
@@ -81,8 +83,27 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public ServerResponse<User> getUserInfo() {
+    public ServerResponse selectQuestion(String username) {
+        ServerResponse validResponse = this.checkValid(username, Const.USERNAME);
+        if (validResponse.isSuccess()){
+            // 用户不存在
+            return ServerResponse.createByErrorMessage("用户不存在");
+        }
+        String question = userMapper.selectQuestionByUsername(username);
+        if (StringUtils.isBlank(question)){
+            return ServerResponse.createByErrorMessage("找回密码的问题为空");
+        }
+        return ServerResponse.createBySuccess(question);
+    }
 
+    @Override
+    public ServerResponse<String> checkAnswer(String username, String question, String answer){
+        int requestCount = userMapper.checkAnswer(username, question, answer);
+        if (requestCount > 0){
+            String forgetToken = UUID.randomUUID().toString();
+            return ServerResponse.createByErrorMessage("答案错误");
+        }
+        return ServerResponse.createBySuccess();
     }
 
 }

@@ -4,7 +4,6 @@ import com.mmall.common.Const;
 import com.mmall.common.ServerResponse;
 import com.mmall.pojo.User;
 import com.mmall.service.IUserService;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -64,13 +63,15 @@ public class UserController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "forget_password", method = RequestMethod.GET)
-    public ServerResponse<String> forgetGetQuestion(HttpSession session){
-        User user = (User)session.getAttribute(Const.CURRENT_USER);
-        if (user != null){
-            return ServerResponse.createBySuccess(user);
-        }
-        return ServerResponse.createByErrorMessage("用户未登录，无法获取当前用户的信息");
+    @RequestMapping(value = "forget_get_question.do", method = RequestMethod.GET)
+    public ServerResponse forgetGetQuestion(String username){
+        return iUserService.selectQuestion(username);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "forget_get_question.do", method = RequestMethod.GET)
+    public ServerResponse forgetCheckAnswer(String username, String question, String answer){
+        return iUserService.selectQuestion(username);
     }
 
     @ResponseBody

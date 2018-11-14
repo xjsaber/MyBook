@@ -4,14 +4,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.io.Serializable;
-
 /**
+ * 保证序列化json的时候，如果时null的对象，key会消失
  * 使用JsonSerialize inclusion.NOT_NULL时，当status有值，msg和data没值
  * 则msg和data不会出现在序列化的json字符串中
  * @param <T>
  */
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-// 保证序列化json的时候，如果时null的对象，key会消失
 public class ServerResponse<T> implements Serializable {
 
     private int status;
@@ -35,8 +34,10 @@ public class ServerResponse<T> implements Serializable {
         this.msg = msg;
     }
 
+    /**
+     * 使之不在json序列化结果当中
+     */
     @JsonIgnore
-    // 使之不在json序列化结果当中
     public boolean isSuccess(){
         return this.status == ResponseCode.SUCCESS.getCode();
     }
