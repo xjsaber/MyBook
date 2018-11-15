@@ -8,6 +8,8 @@ public class Const {
 
     public static final String USERNAME = "username";
 
+    public static final String NULL = "null";
+
     /**
      * 不像枚举这么重，可以使用接口类中的接口进行分类
      */

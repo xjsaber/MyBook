@@ -178,4 +178,24 @@
     from mmall_user
     where username = #{username} and question = #{question} and answer = #{answer};
   </select>
+  <update id="updatePasswordByUsername" parameterType="string">
+    update mmall_user
+           set password = #{passwordNew}, update_time = now()
+    where username = #{username};
+  </update>
+  <select id="checkPassword" resultType="int" parameterType="map">
+    select count(1)
+            from mmall_user
+    where password = #{password} and id = #{userId};
+  </select>
+  <update id="updatePasswordByPasswordOld" parameterType="string">
+    update mmall_user
+    set password = #{passwordNew}, update_time = now()
+    where password = #{passwordOld};
+  </update>
+  <select id="checkEmailByUserId" resultType="int" parameterType="string">
+    select count(1)
+      from mmall_user
+    where email = #{email} and id != #{userId}
+  </select>
 </mapper>
