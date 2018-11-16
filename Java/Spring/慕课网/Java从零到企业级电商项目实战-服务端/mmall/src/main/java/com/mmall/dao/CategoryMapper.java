@@ -3,6 +3,7 @@ package com.mmall.dao;
 import com.mmall.pojo.Category;
 
 public interface CategoryMapper {
+
     int deleteByPrimaryKey(Integer id);
 
     int insert(Category record);
@@ -14,4 +15,6 @@ public interface CategoryMapper {
     int updateByPrimaryKeySelective(Category record);
 
     int updateByPrimaryKey(Category record);
+
+    Category selectCategory(Integer categoryId);
 }

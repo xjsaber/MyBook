@@ -5,6 +5,10 @@ import com.mmall.pojo.User;
 
 public interface IUserService {
 
+//******************
+//*** portal
+//******************
+
     ServerResponse<User> login(String username, String password);
 
     ServerResponse<String> register(User user);
@@ -22,4 +26,15 @@ public interface IUserService {
     ServerResponse<User> updateInformation(User user);
 
     ServerResponse<User> getInformation(int userId);
+
+//******************
+//*** backend
+//******************
+
+    /**
+     * 校验是否是管理员
+     * @param user 用户实体
+     * @return
+     */
+    ServerResponse<User> checkAdminRole(User user);
 }

@@ -198,4 +198,9 @@
       from mmall_user
     where email = #{email} and id != #{userId}
   </select>
+  <select id="checkAdmin" resultType="int" parameterType="int">
+    select count(1)
+      from mmall_user
+    where id = #{userId} and role = #{role}
+  </select>
 </mapper>

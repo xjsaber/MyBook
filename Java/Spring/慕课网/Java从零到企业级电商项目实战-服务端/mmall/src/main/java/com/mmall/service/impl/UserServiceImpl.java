@@ -7,6 +7,7 @@ import com.mmall.dao.UserMapper;
 import com.mmall.pojo.User;
 import com.mmall.service.IUserService;
 import com.mmall.util.MD5Util;
+import com.sun.xml.internal.ws.server.ServerRtException;
 import net.sf.jsqlparser.schema.Server;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -193,5 +194,13 @@ public class UserServiceImpl implements IUserService {
     public ServerResponse<User> getInformation(int userId){
         User user = userMapper.selectByPrimaryKey(userId);
         return ServerResponse.createBySuccess(user);
+    }
+
+    @Override
+    public ServerResponse<User> checkAdmin(User user) {
+        if (user != null && user.getRole() == Const.Role.ROLE_ADMIN){
+            return ServerResponse.createBySuccess();
+        }
+        return ServerResponse.createByError();
     }
 }

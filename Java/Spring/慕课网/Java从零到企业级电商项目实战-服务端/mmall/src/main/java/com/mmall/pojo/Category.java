@@ -2,6 +2,9 @@ package com.mmall.pojo;
 
 import java.util.Date;
 
+/**
+ * @author xjsaber
+ */
 public class Category {
     private Integer id;
 

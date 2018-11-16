@@ -43,4 +43,12 @@ public interface UserMapper {
     int checkPassword(@Param(value="password") String password, @Param("userId") Integer userId);
 
     int checkEmailByUserId(@Param("email") String email, @Param("userId") Integer userId);
+
+    /**
+     * 验证管理员
+     * @param userId 用户编号
+     * @param role 角色编号
+     * @return
+     */
+    int checkAdmin(Integer userId, Integer role);
 }
