@@ -5,6 +5,7 @@ import com.mmall.common.ServerResponse;
 import com.mmall.pojo.User;
 import com.mmall.service.IUserService;
 import net.sf.jsqlparser.schema.Server;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -72,18 +73,12 @@ public class UserController {
     @ResponseBody
     @RequestMapping(value = "forget_check_answer.do", method = RequestMethod.GET)
     public ServerResponse forgetCheckAnswer(String username, String question, String answer){
-        return iUserService.selectQuestion(username);
+        return iUserService.checkAnswer(username, question, answer);
     }
 
     @ResponseBody
     @RequestMapping(value = "forget_reset_password.do", method = RequestMethod.GET)
     public ServerResponse forgetResetPassword(String username, String passwordNew, String forgetToken){
-        return iUserService.forgetResetPassword(username, passwordNew, forgetToken);
-    }
-
-    @ResponseBody
-    @RequestMapping(value = "forget_reset_password.do", method = RequestMethod.GET)
-    public ServerResponse resetPassword(String username, String passwordNew, String forgetToken){
         return iUserService.forgetResetPassword(username, passwordNew, forgetToken);
     }
 
@@ -105,7 +100,7 @@ public class UserController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "update_information.do", method = RequestMethod.GET)
+    @RequestMapping(value = "update_information.do", method = RequestMethod.POST)
     public ServerResponse<User> updateInformation(HttpSession session, User user){
         User currentUser = (User)session.getAttribute(Const.CURRENT_USER);
         if (currentUser == null){
@@ -124,20 +119,13 @@ public class UserController {
 
     @ResponseBody
     @RequestMapping(value = "get_information.do", method = RequestMethod.GET)
-    public ServerResponse<User> getInformation(HttpSession session, User user){
+    public ServerResponse<User> getInformation(HttpSession session, Integer userId){
         User currentUser = (User)session.getAttribute(Const.CURRENT_USER);
         if (currentUser == null){
             return ServerResponse.createByErrorMessage("用户未登录");
         }
 
-        user.setId(currentUser.getId());
-        user.setUsername(currentUser.getUsername());
-        ServerResponse<User> response = iUserService.updateInformation(user);
-        if (response.isSuccess()){
-            response.getData().setUsername(currentUser.getUsername());
-            session.setAttribute(Const.CURRENT_USER, response.getData());
-        }
-        return response;
+        return iUserService.getInformation(userId);
     }
 
 }

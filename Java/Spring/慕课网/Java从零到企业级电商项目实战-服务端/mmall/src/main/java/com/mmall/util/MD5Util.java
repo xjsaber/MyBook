@@ -1,5 +1,6 @@
 package com.mmall.util;
 
+import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -39,8 +40,10 @@ public class MD5Util {
             MessageDigest md = MessageDigest.getInstance("MD5");
             if (charsetName == null || "".endsWith(charsetName)){
                 resultString = byteArrayToHexString(md.digest(resultString.getBytes()));
+            } else {
+                resultString = byteArrayToHexString(md.digest(resultString.getBytes(charsetName)));
             }
-        } catch (NoSuchAlgorithmException e) {
+        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
             e.printStackTrace();
         }
         return resultString.toUpperCase();
@@ -51,5 +54,5 @@ public class MD5Util {
         return MD5Encode(origin, "UTF-8");
     }
 
-    private static final String HEX_DIGITS[] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"};
+    private static final String[] HEX_DIGITS = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"};
 }

@@ -4,8 +4,18 @@ import com.mmall.pojo.User;
 import org.apache.ibatis.annotations.Param;
 
 public interface UserMapper {
+    /**
+     * 删除
+     * @param id
+     * @return
+     */
     int deleteByPrimaryKey(Integer id);
 
+    /**
+     * 新增
+     * @param record
+     * @return
+     */
     int insert(User record);
 
     int insertSelective(User record);

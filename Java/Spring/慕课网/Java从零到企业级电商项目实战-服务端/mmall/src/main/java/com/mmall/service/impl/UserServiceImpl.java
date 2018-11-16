@@ -7,6 +7,7 @@ import com.mmall.dao.UserMapper;
 import com.mmall.pojo.User;
 import com.mmall.service.IUserService;
 import com.mmall.util.MD5Util;
+import net.sf.jsqlparser.schema.Server;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -54,6 +55,7 @@ public class UserServiceImpl implements IUserService {
             return validResponse;
         }
 
+        //TODO 增加密码的时候会有错误
         user.setRole(Const.Role.ROLE_CUSTOMER);
         //MD5加密
         user.setPassword(MD5Util.MD5EncodeUTF8(user.getPassword()));
@@ -68,8 +70,9 @@ public class UserServiceImpl implements IUserService {
     public ServerResponse<String> checkValid(String str, String type) {
         if (org.apache.commons.lang3.StringUtils.isNotBlank(type)){
             // 开始校验
-            int resultCount = userMapper.checkEmail(str);
+            int resultCount;
             if (Const.USERNAME.equals(type)){
+                resultCount = userMapper.checkUsername(str);
                 if (resultCount > 0){
                     return ServerResponse.createByErrorMessage("用户名已经存在");
                 }
@@ -184,5 +187,11 @@ public class UserServiceImpl implements IUserService {
             return ServerResponse.createBySuccess("更新个人信息成功", updateUser);
         }
         return ServerResponse.createByErrorMessage("更新个人信息失败");
+    }
+
+    @Override
+    public ServerResponse<User> getInformation(int userId){
+        User user = userMapper.selectByPrimaryKey(userId);
+        return ServerResponse.createBySuccess(user);
     }
 }
