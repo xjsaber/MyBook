@@ -11,15 +11,10 @@ import java.util.List;
 public interface ICategoryService {
 
     /**
-<<<<<<< .mine
      * 查询分类只包含同级
-=======
-     * 获得分类的列表
->>>>>>> .theirs
      * @param categoryId 分类id
      * @return
      */
-    ServerResponse<Category> getCategory(Integer categoryId);
     ServerResponse<List<Category>> getCategory(Integer categoryId);
 
     /**

@@ -176,4 +176,19 @@
       update_time = now()
     where id = #{id,jdbcType=INTEGER}
   </update>
+  <select id="listProduct" resultMap="BaseResultMap" parameterType="Map" >
+    select
+    <include refid="Base_Column_List"/>
+    from mall_product
+    where
+    <if test="categoryId != null">
+      AND category_id = #{categoryId}
+    </if>
+    <if test="keyword != null">
+      AND name like #{keyword}
+    </if>
+    <if test="orderBy != ''">
+      order by #{orderBy}
+    </if>
+  </select>
 </mapper>
