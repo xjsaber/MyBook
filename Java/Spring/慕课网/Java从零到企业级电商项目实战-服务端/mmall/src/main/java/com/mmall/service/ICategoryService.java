@@ -3,17 +3,19 @@ package com.mmall.service;
 import com.mmall.common.ServerResponse;
 import com.mmall.pojo.Category;
 
+import java.util.List;
+
 /**
  * @author xjsaber
  */
 public interface ICategoryService {
 
     /**
-     *
+     * 获得分类的列表
      * @param categoryId 分类id
      * @return
      */
-    ServerResponse<Category> getCategory(Integer categoryId);
+    ServerResponse<List<Category>> getCategory(Integer categoryId);
 
     /**
      * 增加分类

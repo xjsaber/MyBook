@@ -15,12 +15,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
+import java.util.List;
 
 /**
  * @author xjsaber
  */
 @Controller
-@RequestMapping("/manager/category/")
+@RequestMapping("/manage/category/")
 public class CategoryManagerController {
 
     @Autowired
@@ -31,7 +32,7 @@ public class CategoryManagerController {
 
     @ResponseBody
     @RequestMapping(value = "get_category.do", method = RequestMethod.GET)
-    public ServerResponse<Category> getCategory(@RequestParam(value = "categoryId", defaultValue = "0") Integer categoryId){
+    public ServerResponse<List<Category>> getCategory(@RequestParam(value = "categoryId", defaultValue = "0") Integer categoryId){
         return iCategoryService.getCategory(categoryId);
     }
 

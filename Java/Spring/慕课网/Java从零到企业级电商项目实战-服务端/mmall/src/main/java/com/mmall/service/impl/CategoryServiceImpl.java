@@ -8,6 +8,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.mmall.pojo.Category;
+import org.springframework.util.CollectionUtils;
+
+import java.util.List;
 
 /**
  * @author xjsaber
@@ -19,10 +22,10 @@ public class CategoryServiceImpl implements ICategoryService {
     private CategoryMapper categoryMapper;
 
     @Override
-    public ServerResponse<Category> getCategory(Integer categoryId) {
-        Category category = categoryMapper.selectCategory(categoryId);
-        if (category != null){
-            return ServerResponse.createBySuccess(category);
+    public ServerResponse<List<Category>> getCategory(Integer categoryId) {
+        List<Category> categoryList = categoryMapper.selectCategory(categoryId);
+        if (!CollectionUtils.isEmpty(categoryList)){
+            return ServerResponse.createBySuccess(categoryList);
         }
         return ServerResponse.createByErrorMessage("没有这个分类");
     }

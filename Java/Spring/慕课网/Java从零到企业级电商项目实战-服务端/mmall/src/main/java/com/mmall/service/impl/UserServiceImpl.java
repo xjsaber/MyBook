@@ -18,7 +18,7 @@ import java.util.UUID;
 /**
  * @author xjsaber
  */
-@Service("iUserService")
+@Service("userService")
 public class UserServiceImpl implements IUserService {
 
     private UserMapper userMapper;
