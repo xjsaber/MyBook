@@ -11,20 +11,15 @@ import java.util.List;
 public interface ICategoryService {
 
     /**
-<<<<<<< .mine
-     * 查询分类只包含同级
-=======
      * 获得分类的列表
->>>>>>> .theirs
      * @param categoryId 分类id
      * @return
      */
-    ServerResponse<Category> getCategory(Integer categoryId);
     ServerResponse<List<Category>> getCategory(Integer categoryId);
 
     /**
      * 增加分类
-     * @param categoryId 父类id
+     * @param parentId 父类id
      * @param categoryName 分类名称
      * @return
      */
@@ -43,12 +38,5 @@ public interface ICategoryService {
      * @param categoryId 分类编号
      * @return
      */
-    ServerResponse<List<Category>> getChildrenParallelCategory(Integer categoryId);
-
-    /**
-     * 深度获得子类同级的分类
-     * @param categoryId 分类编号
-     * @return
-     */
-    ServerResponse<List<Integer>> selectCategoryAndChildrenById(Integer categoryId);
+    ServerResponse<Category> getDeepCategory(Integer categoryId);
 }

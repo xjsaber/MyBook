@@ -115,10 +115,4 @@
     from mmall_category
     where parent_id = #{categoryId}
   </select>
-  <select id="selectChildrenParallelCategory" resultMap="BaseResultMap" parameterType="Integer">
-    select
-    <include refid="Base_Column_List" />
-    from mmall_category
-    where parent_id = #{parentId}
-  </select>
 </mapper>
