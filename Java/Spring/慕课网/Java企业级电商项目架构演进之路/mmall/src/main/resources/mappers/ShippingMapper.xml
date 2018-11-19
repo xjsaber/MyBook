@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mmall.dao.ShippingMapper" >
+  <resultMap id="BaseResultMap" type="com.mmall.pojo.Shipping" >
+    <constructor >
+      <idArg column="id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="user_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="receive_name" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="receive_phone" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="receive_mobile" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="receive_province" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="receive_city" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="receive_district" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="receive_address" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="receive_zip" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="create_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+      <arg column="update_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, user_id, receive_name, receive_phone, receive_mobile, receive_province, receive_city, 
+    receive_district, receive_address, receive_zip, create_time, update_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from mmall_shipping
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from mmall_shipping
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.mmall.pojo.Shipping" >
+    insert into mmall_shipping (id, user_id, receive_name, 
+      receive_phone, receive_mobile, receive_province, 
+      receive_city, receive_district, receive_address, 
+      receive_zip, create_time, update_time
+      )
+    values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{receiveName,jdbcType=VARCHAR}, 
+      #{receivePhone,jdbcType=VARCHAR}, #{receiveMobile,jdbcType=VARCHAR}, #{receiveProvince,jdbcType=VARCHAR}, 
+      #{receiveCity,jdbcType=VARCHAR}, #{receiveDistrict,jdbcType=VARCHAR}, #{receiveAddress,jdbcType=VARCHAR}, 
+      #{receiveZip,jdbcType=VARCHAR}, now(), now()
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.mmall.pojo.Shipping" >
+    insert into mmall_shipping
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="receiveName != null" >
+        receive_name,
+      </if>
+      <if test="receivePhone != null" >
+        receive_phone,
+      </if>
+      <if test="receiveMobile != null" >
+        receive_mobile,
+      </if>
+      <if test="receiveProvince != null" >
+        receive_province,
+      </if>
+      <if test="receiveCity != null" >
+        receive_city,
+      </if>
+      <if test="receiveDistrict != null" >
+        receive_district,
+      </if>
+      <if test="receiveAddress != null" >
+        receive_address,
+      </if>
+      <if test="receiveZip != null" >
+        receive_zip,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="receiveName != null" >
+        #{receiveName,jdbcType=VARCHAR},
+      </if>
+      <if test="receivePhone != null" >
+        #{receivePhone,jdbcType=VARCHAR},
+      </if>
+      <if test="receiveMobile != null" >
+        #{receiveMobile,jdbcType=VARCHAR},
+      </if>
+      <if test="receiveProvince != null" >
+        #{receiveProvince,jdbcType=VARCHAR},
+      </if>
+      <if test="receiveCity != null" >
+        #{receiveCity,jdbcType=VARCHAR},
+      </if>
+      <if test="receiveDistrict != null" >
+        #{receiveDistrict,jdbcType=VARCHAR},
+      </if>
+      <if test="receiveAddress != null" >
+        #{receiveAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="receiveZip != null" >
+        #{receiveZip,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.mmall.pojo.Shipping" >
+    update mmall_shipping
+    <set >
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="receiveName != null" >
+        receive_name = #{receiveName,jdbcType=VARCHAR},
+      </if>
+      <if test="receivePhone != null" >
+        receive_phone = #{receivePhone,jdbcType=VARCHAR},
+      </if>
+      <if test="receiveMobile != null" >
+        receive_mobile = #{receiveMobile,jdbcType=VARCHAR},
+      </if>
+      <if test="receiveProvince != null" >
+        receive_province = #{receiveProvince,jdbcType=VARCHAR},
+      </if>
+      <if test="receiveCity != null" >
+        receive_city = #{receiveCity,jdbcType=VARCHAR},
+      </if>
+      <if test="receiveDistrict != null" >
+        receive_district = #{receiveDistrict,jdbcType=VARCHAR},
+      </if>
+      <if test="receiveAddress != null" >
+        receive_address = #{receiveAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="receiveZip != null" >
+        receive_zip = #{receiveZip,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.mmall.pojo.Shipping" >
+    update mmall_shipping
+    set user_id = #{userId,jdbcType=INTEGER},
+      receive_name = #{receiveName,jdbcType=VARCHAR},
+      receive_phone = #{receivePhone,jdbcType=VARCHAR},
+      receive_mobile = #{receiveMobile,jdbcType=VARCHAR},
+      receive_province = #{receiveProvince,jdbcType=VARCHAR},
+      receive_city = #{receiveCity,jdbcType=VARCHAR},
+      receive_district = #{receiveDistrict,jdbcType=VARCHAR},
+      receive_address = #{receiveAddress,jdbcType=VARCHAR},
+      receive_zip = #{receiveZip,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = now()
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>
