@@ -25,11 +25,15 @@ public class ProductServiceImpl implements IProductService {
     @Override
     public ServerResponse<List<Product>> list(int categoryId, String keyword, int pageNum, int pageSize, String orderBy) {
         List<Product> list = productMapper.listProduct(categoryId, keyword, pageNum, pageSize, orderBy);
-        return null;
+        return ServerResponse.createBySuccess(list);
     }
 
     @Override
     public ServerResponse<Product> detail(int productId) {
-        return null;
+        Product product = productMapper.selectByPrimaryKey(productId);
+        if (product != null){
+            ServerResponse.createBySuccess(product);
+        }
+        return ServerResponse.createBySuccessMessage("没有该产品信息");
     }
 }

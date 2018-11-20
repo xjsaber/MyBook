@@ -190,5 +190,6 @@
     <if test="orderBy != ''">
       order by #{orderBy}
     </if>
+    limit #{pageIndex-1}*#{pageSize}, #{pageIndex}*#{pageSize}
   </select>
 </mapper>
