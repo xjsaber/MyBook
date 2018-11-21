@@ -4,6 +4,7 @@ import com.mmall.common.ServerResponse;
 import com.mmall.dao.ProductMapper;
 import com.mmall.pojo.Product;
 import com.mmall.service.IProductService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,16 @@ public class ProductServiceImpl implements IProductService {
 
     @Autowired
     private ProductMapper productMapper;
+
+    @Override
+    public ServerResponse saveOrUpdateProduct(Product product) {
+        if (product != null){
+            if (StringUtils.isNotBlank(product.getSubImages())){
+
+            }
+        }
+        return ServerResponse.createByErrorMessage("新增或更新产品参数不正确");
+    }
 
     @Override
     public ServerResponse<List<Product>> list(int categoryId, String keyword, int pageNum, int pageSize, String orderBy) {
