@@ -11,8 +11,20 @@ import java.util.List;
 public interface IProductService {
 
     /**
+     *
+     * @param product
+     * @return
+     */
+    ServerResponse saveOrUpdateProduct(Product product);
+
+    /**
      * 商品列表
-     * @return list
+     * @param categoryId
+     * @param keyword
+     * @param pageNum
+     * @param pageSize
+     * @param orderBy
+     * @return
      */
     ServerResponse<List<Product>> list(int categoryId, String keyword, int pageNum, int pageSize, String orderBy);
 
