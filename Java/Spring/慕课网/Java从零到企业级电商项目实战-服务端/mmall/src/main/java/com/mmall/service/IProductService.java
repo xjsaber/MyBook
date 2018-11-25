@@ -18,6 +18,14 @@ public interface IProductService {
     ServerResponse saveOrUpdateProduct(Product product);
 
     /**
+     *
+     * @param productId
+     * @param status
+     * @return
+     */
+    ServerResponse<String> setSaleStatus(Integer productId, Integer status) ;
+
+    /**
      * 商品列表
      * @param categoryId
      * @param keyword
@@ -33,5 +41,7 @@ public interface IProductService {
      * @param productId 商品编号
      * @return product
      */
-    ServerResponse<Product> detail(int productId);
+    ServerResponse<Product> managerProductDetail(Integer productId);
+
+
 }

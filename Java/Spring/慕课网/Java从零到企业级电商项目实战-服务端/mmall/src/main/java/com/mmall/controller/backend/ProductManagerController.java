@@ -10,8 +10,11 @@ import com.mmall.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
+import java.util.List;
 
 /**
  * @author xjsaber
@@ -38,7 +41,47 @@ public class ProductManagerController {
 
     }
 
+    @ResponseBody
+    @RequestMapping("unload.do")
+    public ServerResponse unload(){
+
+    }
+
+    @ResponseBody
+    @RequestMapping("save.do")
     public ServerResponse productSave(HttpSession session, Product product){
+        User user = (User)session.getAttribute(Const.CURRENT_USER);
+        if (user == null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录，请登录管理员");
+        }
+        if (iUserService.checkAdminRole(user).isSuccess()){
+            // 填充我们增加产品的业务逻辑
+            return iProductService.saveOrUpdateProduct(product);
+
+        } else {
+            return ServerResponse.createByErrorMessage("无权限操作");
+        }
+    }
+
+    @ResponseBody
+    @RequestMapping("set_sale_status.do")
+    public ServerResponse setSaleStatus(HttpSession session, Integer productId, Integer status){
+        User user = (User)session.getAttribute(Const.CURRENT_USER);
+        if (user == null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录，请登录管理员");
+        }
+        if (iUserService.checkAdminRole(user).isSuccess()){
+            // 填充我们增加产品的业务逻辑
+            return iProductService.setSaleStatus(productId, status);
+
+        } else {
+            return ServerResponse.createByErrorMessage("无权限操作");
+        }
+    }
+
+    @ResponseBody
+    @RequestMapping("detail.do")
+    public ServerResponse getDetail(HttpSession session, Product product){
         User user = (User)session.getAttribute(Const.CURRENT_USER);
         if (user == null){
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录，请登录管理员");
