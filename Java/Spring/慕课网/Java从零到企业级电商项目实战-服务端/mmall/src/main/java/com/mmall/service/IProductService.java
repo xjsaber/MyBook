@@ -11,19 +11,21 @@ import java.util.List;
 public interface IProductService {
 
     /**
-     *
-     * @param product
+     * 保存和修改产品
+     * @param product 产品
      * @return
      */
     ServerResponse saveOrUpdateProduct(Product product);
 
     /**
-     *
-     * @param productId
-     * @param status
+     * 修改商品状态
+     * @param productId 产品编号
+     * @param status 状态值
      * @return
      */
     ServerResponse<String> setSaleStatus(Integer productId, Integer status) ;
+
+
 
     /**
      * 商品列表

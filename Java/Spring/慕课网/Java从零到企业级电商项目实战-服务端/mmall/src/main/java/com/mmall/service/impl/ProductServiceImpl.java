@@ -2,9 +2,12 @@ package com.mmall.service.impl;
 
 import com.mmall.common.ResponseCode;
 import com.mmall.common.ServerResponse;
+import com.mmall.dao.CategoryMapper;
 import com.mmall.dao.ProductMapper;
+import com.mmall.pojo.Category;
 import com.mmall.pojo.Product;
 import com.mmall.service.IProductService;
+import com.mmall.util.PropertiesUtil;
 import com.mmall.vo.ProductDetailVo;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -12,6 +15,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -21,6 +26,9 @@ import java.util.List;
 public class ProductServiceImpl implements IProductService {
 
     private Logger logger = LoggerFactory.getLogger(CategoryServiceImpl.class);
+
+    @Autowired
+    private CategoryMapper categoryMapper;
 
     @Autowired
     private ProductMapper productMapper;
@@ -100,9 +108,22 @@ public class ProductServiceImpl implements IProductService {
         productDetailVo.setStock(product.getStock());
 
         // imageHost;
+        productDetailVo.setImageHost(PropertiesUtil.getProperty("ftp.server.http.prefix", "http://img.happymmall.com/"));
         // parentCategoryId
+        Category category = categoryMapper.selectByPrimaryKey(product.getCategoryId());
+        if (category == null){
+            productDetailVo.setParentCategoryId(0);
+        }
+        else {
+            productDetailVo.setParentCategoryId(category.getParentId());
+        }
+
         // createTime
         // updateTime
+        Date createTime = product.getCreateTime();
+        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").;
+        productDetailVo.setCreateTime(0);
+        productDetailVo.setUpdateTime(0);
     }
 
     @Override
