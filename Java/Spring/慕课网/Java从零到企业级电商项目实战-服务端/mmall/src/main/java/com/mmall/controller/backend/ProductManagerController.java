@@ -29,24 +29,6 @@ public class ProductManagerController {
     @Autowired
     private IProductService iProductService;
 
-	@ResponseBody
-    @RequestMapping("list.do")
-    public ServerResponse<List<Product>> list(@RequestParam(value = "pageNum", defaultValue = "1") int pageNum, @RequestParam(value = "pageSize", defaultValue = "10") int pageSize){
-
-    }
-
-    @ResponseBody
-    @RequestMapping("search.do")
-    public ServerResponse<List<Product>> list(String productName, int productId,@RequestParam(value = "pageNum", defaultValue = "1") int pageNum, @RequestParam(value = "pageSize", defaultValue = "10") int pageSize){
-
-    }
-
-    @ResponseBody
-    @RequestMapping("unload.do")
-    public ServerResponse unload(){
-
-    }
-
     @ResponseBody
     @RequestMapping("save.do")
     public ServerResponse productSave(HttpSession session, Product product){
@@ -73,7 +55,6 @@ public class ProductManagerController {
         if (iUserService.checkAdminRole(user).isSuccess()){
             // 填充我们增加产品的业务逻辑
             return iProductService.setSaleStatus(productId, status);
-
         } else {
             return ServerResponse.createByErrorMessage("无权限操作");
         }
@@ -81,19 +62,44 @@ public class ProductManagerController {
 
     @ResponseBody
     @RequestMapping("detail.do")
-    public ServerResponse getDetail(HttpSession session, Product product){
+    public ServerResponse getDetail(HttpSession session, Integer productId){
         User user = (User)session.getAttribute(Const.CURRENT_USER);
         if (user == null){
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录，请登录管理员");
-
-            if (iUserService.checkAdminRole(user).isSuccess()){
-                // 填充我们增加产品的业务逻辑
-
-
-            } else {
-                return ServerResponse.createByErrorMessage("无权限操作");
-            }
         }
+        if (iUserService.checkAdminRole(user).isSuccess()){
+            // 填充我们增加产品的业务逻辑
+            return iProductService.managerProductDetail(productId);
+        } else {
+            return ServerResponse.createByErrorMessage("无权限操作");
+        }
+    }
+
+    @ResponseBody
+    @RequestMapping("list.do")
+    public ServerResponse<List<Product>> getList(HttpSession session, @RequestParam(value = "pageNum", defaultValue = "1") int pageNum, @RequestParam(value = "pageSize", defaultValue = "10") int pageSize){
+        User user = (User)session.getAttribute(Const.CURRENT_USER);
+        if (user == null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录，请登录管理员");
+        }
+        if (iUserService.checkAdminRole(user).isSuccess()){
+            // 填充我们增加产品的业务逻辑
+            return iProductService.managerProductDetail(productId);
+        } else {
+            return ServerResponse.createByErrorMessage("无权限操作");
+        }
+    }
+
+    @ResponseBody
+    @RequestMapping("search.do")
+    public ServerResponse<List<Product>> list(String productName, int productId,@RequestParam(value = "pageNum", defaultValue = "1") int pageNum, @RequestParam(value = "pageSize", defaultValue = "10") int pageSize){
+        return null;
+    }
+
+    @ResponseBody
+    @RequestMapping("unload.do")
+    public ServerResponse unload(){
+        return null;
     }
 
 }

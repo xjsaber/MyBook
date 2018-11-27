@@ -176,20 +176,26 @@
       update_time = now()
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <select id="listProduct" resultMap="BaseResultMap" parameterType="Map" >
+  <select id="selectList" resultMap="BaseResultMap" parameterType="Map" >
     select
     <include refid="Base_Column_List"/>
     from mall_product
-    where
-    <if test="categoryId != null">
-      AND category_id = #{categoryId}
-    </if>
-    <if test="keyword != null">
-      AND name like #{keyword}
-    </if>
-    <if test="orderBy != ''">
-      order by #{orderBy}
-    </if>
-    limit #{pageIndex-1}*#{pageSize}, #{pageIndex}*#{pageSize}
+    order by id asc
   </select>
+  <!--<select id="seletList" resultMap="BaseResultMap" parameterType="Map" >-->
+    <!--select-->
+    <!--<include refid="Base_Column_List"/>-->
+    <!--from mall_product-->
+    <!--where-->
+    <!--<if test="categoryId != null">-->
+      <!--AND category_id = #{categoryId}-->
+    <!--</if>-->
+    <!--<if test="keyword != null">-->
+      <!--AND name like #{keyword}-->
+    <!--</if>-->
+    <!--<if test="orderBy != ''">-->
+      <!--order by #{orderBy}-->
+    <!--</if>-->
+    <!--limit #{pageIndex-1}*#{pageSize}, #{pageIndex}*#{pageSize}-->
+  <!--</select>-->
 </mapper>

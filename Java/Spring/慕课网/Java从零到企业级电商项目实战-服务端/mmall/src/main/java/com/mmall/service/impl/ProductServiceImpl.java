@@ -1,10 +1,12 @@
 package com.mmall.service.impl;
 
+import com.github.pagehelper.PageHelper;
 import com.mmall.common.ResponseCode;
 import com.mmall.common.ServerResponse;
 import com.mmall.dao.ProductMapper;
 import com.mmall.pojo.Product;
 import com.mmall.service.IProductService;
+import com.mmall.util.DateTimeUtil;
 import com.mmall.vo.ProductDetailVo;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -72,7 +74,7 @@ public class ProductServiceImpl implements IProductService {
     }
 
     @Override
-    public ServerResponse<Product> managerProductDetail(Integer productId) {
+    public ServerResponse<ProductDetailVo> managerProductDetail(Integer productId) {
         if (productId == null){
             return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(), ResponseCode.ILLEGAL_ARGUMENT.getDesc());
         }
@@ -82,8 +84,8 @@ public class ProductServiceImpl implements IProductService {
         }
         // VO对象--value object
         // pojo->bo(business object)->vo(view object)
-        ServerResponse.createBySuccess(product);
-        return ServerResponse.createBySuccessMessage("没有该产品信息");
+        ProductDetailVo productDetailVo = assembleProductDetailVo(product);
+        return ServerResponse.createBySuccess(productDetailVo);
     }
 
     private ProductDetailVo assembleProductDetailVo(Product product){
@@ -103,12 +105,27 @@ public class ProductServiceImpl implements IProductService {
         // parentCategoryId
         // createTime
         // updateTime
+
+        productDetailVo.setCreateTime(DateTimeUtil.dateToStr(product.getCreateTime()));
+        productDetailVo.setUpdateTime(DateTimeUtil.dateToStr(product.getUpdateTime()));
+
+        return productDetailVo;
     }
 
     @Override
-    public ServerResponse<List<Product>> list(int categoryId, String keyword, int pageNum, int pageSize, String orderBy) {
-        List<Product> list = productMapper.listProduct(categoryId, keyword, pageNum, pageSize, orderBy);
+    public ServerResponse<List<Product>> getProductList(int pageNum, int pageSize) {
+        // startPage -- start
+        // 填充自己的SQL查询逻辑
+        // pageHelper -- 收尾
+        PageHelper.startPage(pageNum, pageSize);
+        List<Product> list = productMapper.selectList();
         return ServerResponse.createBySuccess(list);
     }
+
+//    @Override
+//    public ServerResponse<List<Product>> list(int categoryId, String keyword, int pageNum, int pageSize, String orderBy) {
+//        List<Product> list = productMapper.listProduct(categoryId, keyword, pageNum, pageSize, orderBy);
+//        return ServerResponse.createBySuccess(list);
+//    }
 
 }

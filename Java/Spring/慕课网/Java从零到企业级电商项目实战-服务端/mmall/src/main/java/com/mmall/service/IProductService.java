@@ -2,6 +2,7 @@ package com.mmall.service;
 
 import com.mmall.common.ServerResponse;
 import com.mmall.pojo.Product;
+import com.mmall.vo.ProductDetailVo;
 
 import java.util.List;
 
@@ -41,7 +42,8 @@ public interface IProductService {
      * @param productId 商品编号
      * @return product
      */
-    ServerResponse<Product> managerProductDetail(Integer productId);
+    ServerResponse<ProductDetailVo> managerProductDetail(Integer productId);
 
+    ServerResponse getProductList(int pageNum, int pageSize);
 
 }

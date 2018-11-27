@@ -17,5 +17,7 @@ public interface ProductMapper {
 
     int updateByPrimaryKey(Product record);
 
-    List<Product> listProduct(int categoryId, String keyword, int pageIndex, int pageSize, String orderBy);
+    List<Product> selectList();
+
+//    List<Product> seletList(int categoryId, String keyword, int pageIndex, int pageSize, String orderBy);
 }
