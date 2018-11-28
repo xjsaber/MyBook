@@ -1,6 +1,7 @@
 package com.mmall.service.impl;
 
 import com.github.pagehelper.PageHelper;
+import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.mmall.common.Const;
 import com.mmall.common.ResponseCode;
@@ -58,6 +59,19 @@ public class CartServiceImpl implements ICartService {
         return ServerResponse.createBySuccess(cartVo);
     }
 
+    @Override
+    public ServerResponse<CartVo> update(Integer userId, Integer productId, Integer count) {
+        if (productId == null || count == null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(), ResponseCode.ILLEGAL_ARGUMENT.getDesc());
+        }
+        Cart cart = cartMapper.selectCartByUserIdProductId(userId, productId);
+        if (cart != null){
+            cart.setQualtity(count);
+        }
+        CartVo cartVo = this.getCartVoLimit(userId);
+        return ServerResponse.createBySuccess(cartVo);
+    }
+
     /**
      * 全选，半选，反选
      * 存疑问
@@ -87,7 +101,7 @@ public class CartServiceImpl implements ICartService {
                     cartProductVo.setProductPrice(product.getPrice());
                     cartProductVo.setProductStock(product.getStock());
                     // 判断库存
-                    int buyLimitCount = 0;
+                    int buyLimitCount;
                     if (product.getStock() >= cartItem.getQualtity()){
                         buyLimitCount = cartItem.getQualtity();
                         cartProductVo.setLimitQuantity(Const.Cart.LIMIT_NUM_SUCCESS);
@@ -126,10 +140,9 @@ public class CartServiceImpl implements ICartService {
     }
 
     @Override
-    public ServerResponse<List<Cart>> getList(int pageNum, int pageSize) {
-        PageHelper.startPage(pageNum, pageSize);
-        List<Cart> list = cartMapper.selectList();
-        return ServerResponse.createBySuccess(list);
+    public ServerResponse<CartVo> getList(Integer userId) {
+        CartVo cartVo = this.getCartVoLimit(userId);
+        return ServerResponse.createBySuccess(cartVo);
     }
 
 
@@ -155,16 +168,17 @@ public class CartServiceImpl implements ICartService {
     }
 
     @Override
-    public ServerResponse<String> delete(Integer cartId) {
-        if (cartId == null){
+    public ServerResponse<CartVo> deleteProduct(Integer userId, String productIds) {
+        if (productIds == null){
             return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(), ResponseCode.ILLEGAL_ARGUMENT.getDesc());
         }
-        int resultRow = cartMapper.deleteByPrimaryKey(cartId);
-        if (resultRow > 0){
-            return ServerResponse.createBySuccess("删除成功");
-        }else {
-            return ServerResponse.createBySuccess("删除失败");
+        List<String> productIdList = Splitter.on(",").splitToList(productIds);
+        if (CollectionUtils.isEmpty(productIdList)){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(), ResponseCode.ILLEGAL_ARGUMENT.getDesc());
         }
+        cartMapper.deleteByUserIdProductIds(userId, productIdList);
+        CartVo cartVo = this.getCartVoLimit(userId);
+        return ServerResponse.createBySuccess(cartVo);
     }
 
     @Override

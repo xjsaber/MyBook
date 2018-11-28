@@ -13,11 +13,10 @@ public interface ICartService {
 
     /**
      * 列表
-     * @param pageNum
-     * @param pageSize
+     * @param userId 用户编号
      * @return
      */
-    ServerResponse<List<Cart>> getList(int pageNum, int pageSize);
+    ServerResponse<CartVo> getList(Integer userId);
 
     /**
      * 新增或者修改
@@ -36,11 +35,21 @@ public interface ICartService {
     ServerResponse<CartVo> add(Integer userId, Integer productId, Integer count);
 
     /**
-     * 删除
-     * @param cartId
+     * 修改
+     * @param userId
+     * @param productId
+     * @param count
      * @return
      */
-    ServerResponse<String> delete(Integer cartId);
+    ServerResponse<CartVo> update(Integer userId, Integer productId, Integer count);
+
+    /**
+     * 删除
+     * @param userId
+     * @param productIds product编号，用“，”相连
+     * @return
+     */
+    ServerResponse<CartVo> deleteProduct(Integer userId, String productIds);
 
     /**
      * 搜索
