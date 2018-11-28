@@ -2,6 +2,7 @@ package com.mmall.service;
 
 import com.mmall.common.ServerResponse;
 import com.mmall.pojo.Cart;
+import com.mmall.vo.CartVo;
 
 import java.util.List;
 
@@ -32,7 +33,7 @@ public interface ICartService {
      * @param count
      * @return
      */
-    ServerResponse<String> add(Integer userId, Integer productId, Integer count);
+    ServerResponse<CartVo> add(Integer userId, Integer productId, Integer count);
 
     /**
      * 删除
