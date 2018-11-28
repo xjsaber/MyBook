@@ -26,6 +26,15 @@ public interface ICartService {
     ServerResponse<String> addOrUpdate(Cart cart);
 
     /**
+     * 新增
+     * @param userId
+     * @param productId
+     * @param count
+     * @return
+     */
+    ServerResponse<String> add(Integer userId, Integer productId, Integer count);
+
+    /**
      * 删除
      * @param cartId
      * @return

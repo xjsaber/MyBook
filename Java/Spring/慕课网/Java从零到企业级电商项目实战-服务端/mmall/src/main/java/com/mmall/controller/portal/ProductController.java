@@ -30,6 +30,7 @@ public class ProductController {
     @ResponseBody
     @RequestMapping(value = "detail.do", method = RequestMethod.GET)
     public ServerResponse<Product> detail(int productId){
-        return productService.detail(productId);
+        return null;
+//        return productService.detail(productId);
     }
 }

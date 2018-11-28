@@ -128,4 +128,10 @@
     from mall_cart
     where user_id = #{userId} and product_id = #{productId}
   </select>
+  <select id="selectCartByUserId" resultMap="BaseResultMap" parameterType="Integer">
+    select
+    <include refid="Base_Column_List"/>
+    from mall_cart
+    where user_id = #{userId}
+  </select>
 </mapper>
