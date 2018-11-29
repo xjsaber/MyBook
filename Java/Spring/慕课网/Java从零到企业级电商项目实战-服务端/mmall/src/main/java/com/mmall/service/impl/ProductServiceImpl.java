@@ -1,6 +1,8 @@
 package com.mmall.service.impl;
 
 import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
 import com.mmall.common.ResponseCode;
 import com.mmall.common.ServerResponse;
 import com.mmall.dao.CategoryMapper;
@@ -11,6 +13,7 @@ import com.mmall.service.IProductService;
 import com.mmall.util.DateTimeUtil;
 import com.mmall.util.PropertiesUtil;
 import com.mmall.vo.ProductDetailVo;
+import com.mmall.vo.ProductListVo;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -133,19 +136,35 @@ public class ProductServiceImpl implements IProductService {
     }
 
     @Override
-    public ServerResponse<List<Product>> getProductList(int pageNum, int pageSize) {
+    public ServerResponse<PageInfo> getProductList(int pageNum, int pageSize) {
         // startPage -- start
         // 填充自己的SQL查询逻辑
         // pageHelper -- 收尾
         PageHelper.startPage(pageNum, pageSize);
-        List<Product> list = productMapper.selectList();
-        return ServerResponse.createBySuccess(list);
+        List<Product> productList = productMapper.selectList();
+
+        List<ProductListVo> productListVoList = Lists.newArrayList();
+        for (Product productItem : productList){
+            ProductListVo productListVo = assembleProductListVo(productItem);
+            productListVoList.add(productListVo);
+        }
+        PageInfo pageResult = new PageInfo(productList);
+        pageResult.setList(productListVoList);
+        return ServerResponse.createBySuccess(pageResult);
     }
 
-//    @Override
-//    public ServerResponse<List<Product>> list(int categoryId, String keyword, int pageNum, int pageSize, String orderBy) {
-//        List<Product> list = productMapper.listProduct(categoryId, keyword, pageNum, pageSize, orderBy);
-//        return ServerResponse.createBySuccess(list);
-//    }
+    private ProductListVo assembleProductListVo(Product product) {
+        ProductListVo productListVo = new ProductListVo();
+        productListVo.setId(product.getId());
+        productListVo.setCategoryId(product.getCategoryId());
+        productListVo.setName(product.getName());
+        productListVo.setPrice(product.getPrice());
+        productListVo.setSubTitle(product.getSubtitle());
+        productListVo.setMainImage(product.getMainImage());
+        productListVo.setStatus(product.getStatus());
+        productListVo.setStock(product.getStock());
+
+        return productListVo;
+    }
 
 }
