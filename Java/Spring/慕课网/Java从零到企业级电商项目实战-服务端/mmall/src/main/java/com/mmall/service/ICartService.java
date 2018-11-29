@@ -3,6 +3,7 @@ package com.mmall.service;
 import com.mmall.common.ServerResponse;
 import com.mmall.pojo.Cart;
 import com.mmall.vo.CartVo;
+import org.omg.CORBA.INTERNAL;
 
 import java.util.List;
 
@@ -58,4 +59,12 @@ public interface ICartService {
      */
     ServerResponse<Cart> selectCart(Integer cartId);
 
+    ServerResponse<Integer> getCartProductCount(Integer userId);
+
+    /**
+     *
+     * @param cartId
+     * @return
+     */
+    ServerResponse<CartVo> selectOrUnSelect(Integer cartId, Integer productId, Integer checked);
 }
