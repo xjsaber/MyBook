@@ -6,6 +6,9 @@
 
 <script>
 export default {
-  name: 'app'
+  name: 'App',
+  created: function(){
+
+  }
 }
 </script>
