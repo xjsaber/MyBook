@@ -39,10 +39,9 @@ Learn/DataStructure/C++Programming-Program Design Include Data Structures/Test/
 **/.gradle
 **/.idea
 **/classes
+**/node_modules
 Db/Redis/Redis实战/code/pRedis/config_local.py
 **/cmake-build-debug
 Java/Java/Think_In_Java/code/test.dat
-Web/Living/Webrtc/LearnWebrtc/LearnWebrtcCode/ch4/node_modules/
 .idea
 .vs
-**/node_modules
