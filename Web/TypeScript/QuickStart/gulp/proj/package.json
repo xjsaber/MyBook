@@ -1,0 +1,16 @@
+{
+  "name": "proj",
+  "version": "1.0.0",
+  "description": "* Type annotations\r * Interfaces\r * Classes",
+  "main": "greeter.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "gulp": "^4.0.0",
+    "gulp-typescript": "^5.0.1",
+    "typescript": "^3.3.3333"
+  }
+}
