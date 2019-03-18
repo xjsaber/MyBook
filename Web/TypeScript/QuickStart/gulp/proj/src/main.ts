@@ -1,4 +1,4 @@
-function hello(compile: string) {
-    console.log(`Hello from`)
+function hello(name: string) {
+    console.log(`Hello from ${name}`)
 }
 hello("TypeScript")

@@ -494,11 +494,74 @@ TypeScript的核心原则之一是对值所具有的结构进行类型检查。
 
 #### 接口初探 ####
 
+类型检查器会查看printLabel的调用。 printLabel有一个参数，并要求这个对象参数有一个名为label类型为string的属性。 需要注意的是，我们传入的对象参数实际上会包含很多属性，但是编译器只会检查那些必需的属性是否存在，并且其类型是否匹配。
+
+LabelledValue接口就好比一个名字，用来描述上面例子里的要求。 它代表了有一个 label属性且类型为string的对象。
+
+#### 可选属性 ####
+
+带有可选属性的接口与普通的接口定义差不多，只是在可选属性名字定义的后面加一个?符号。
+
+#### 只读属性 ####
+
+	interface Point {
+		readonly x: number;
+		readonly y: number;
+	}
+
+	let p1: Point = {x: 10, y:20 };
+	p1.x = 5; //error!
+
+做为变量使用的话用 const，若做为属性则使用readonly。
+
+#### 额外的属性检查 ####
+
+	interface SquareConfig {
+		color?: string;
+		width?: number;
+		[propName: string]: any;
+	}
+
+#### 函数类型 ####
+
+接口能够描述JavaScript中对象拥有的各种各样的外形。 除了描述带有属性的普通对象外，接口也可以描述函数类型。
+
+	interface SearchFunc {
+	  (source: string, subString: string): boolean;
+	}
+
+	let mySearch: SearchFunc;
+		mySearch = function(source: string, subString: string) {
+		  let result = source.search(subString);
+		  return result > -1;
+	}
+
+	let mySearch: SearchFunc;
+	mySearch = function(src: string, sub: string): boolean {
+	  let result = src.search(sub);
+	  return result > -1;
+	}
+
+#### 可索引的类型 ####
+
+可索引类型具有一个 *索引签名*，它描述了对象索引的类型，还有相应的索引返回值类型。 
+
+	interface StringArray {
+	  [index: number]: string;
+	}
+	
+	let myArray: StringArray;
+	myArray = ["Bob", "Fred"];
+	
+	let myStr: string = myArray[0];
+
+TypeScript支持两种索引签名：字符串和数字。
+
+#### 类类型 ####
+
 ### 类 ###
 
 #### 介绍 ####
-
-#### 类 ####
 
 #### 继承 ####
 
@@ -636,7 +699,49 @@ let greeter: Greeter，意思是Greeter类的实例的类型是Greeter。
 
 ### 泛型 ###
 
+#### 介绍 ####
+
+#### 泛型之Hello World ####
+
+identity函数
+
+	function identity<T>(arg: T): T {
+	    return arg;
+	}
+
+	let output = identity<string>("myString");  // type of output will be 'string'
+
+	let output = identity("myString");  // type of output will be 'string'
+
+#### 使用泛型变量 ####
+
+	function loggingIdentity<T>(arg: T): T {
+	    console.log(arg.length);  // Error: T doesn't have .length
+	    return arg;
+	}
+
+	function loggingIdentity<T>(arg: T[]): T[] {
+	    console.log(arg.length);  // Array has a .length, so no more error
+	    return arg;
+	}
+
+#### 泛型类型 ####
+
+	function identity<T>(arg: T): T {
+	    return arg;
+	}
+	
+	let myIdentity: <T>(arg: T) => T = identity;
+
+**在泛型约束中使用类型参数**
+
+
+**在泛型里使用类类型**
+
 ### 枚举 ###
+
+
+
 
 ### 声明合并 ###
 
