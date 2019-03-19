@@ -1,11 +1,15 @@
-package com.xjsaber.netty.im.netty;
+package com.xjsaber.netty.im.handler;
 
+import com.xjsaber.netty.im.login.PacketCodeC;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelInitializer;
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.string.StringEncoder;
+
+import java.util.Date;
+import java.util.Scanner;
 
 public class NettyClient {
 
@@ -24,9 +28,10 @@ public class NettyClient {
                     @Override
                     protected void initChannel(Channel channel) throws Exception {
                         channel.pipeline().addLast(new StringEncoder());
+                        channel.pipeline().addLast(new ClientHandler());
                     }
                 });
-        Channel channel = bootstrap.connect("127.0.0.1", 8080).addListener(future -> {
+        Channel channel = bootstrap.connect("127.0.0.1", 8081).addListener(future -> {
             if (future.isSuccess()){
                 System.out.println("连接成功！");
             }
@@ -35,9 +40,9 @@ public class NettyClient {
             }
         }).channel();
 
-//        while (true){
-//            channel.writeAndFlush(new Date() + ": hello world!");
-//            Thread.sleep(2000);
-//        }
+        while (true){
+            channel.writeAndFlush(new Date() + ": hello world!");
+            Thread.sleep(2000);
+        }
     }
 }
