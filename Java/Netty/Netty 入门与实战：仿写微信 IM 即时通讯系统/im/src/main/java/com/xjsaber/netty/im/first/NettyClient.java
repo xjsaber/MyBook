@@ -1,11 +1,10 @@
-package com.xjsaber.netty.im.action;
+package com.xjsaber.netty.im.first;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.string.StringEncoder;
 
 import java.util.Date;
 
@@ -28,7 +27,7 @@ public class NettyClient {
                         channel.pipeline().addLast(new FirstClientHandler());
                     }
                 });
-        Channel channel = bootstrap.connect("127.0.0.1", 8080).addListener(future -> {
+        Channel channel = bootstrap.connect("127.0.0.1", 8081).addListener(future -> {
             if (future.isSuccess()){
                 System.out.println("连接成功！");
             }

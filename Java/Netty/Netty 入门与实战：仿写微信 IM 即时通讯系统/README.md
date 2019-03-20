@@ -29,14 +29,17 @@ NIO编程模型，新来一个连接不再创建一个新的线程，而是可�
 
 # ch4 服务端启动流程 #
 
+1. 创建两个NioEventLoopGroup，传统IO编程模型的两大线程组，`bossGroup`表示监听端口，accept新连接的线程组，`workerGroup`表示处理每一条连接的数据读写的线程组。
+2. 创建一个引导类ServerBootstrap
+3. .group(bossGroup, workerGroup)给引导类配置两大线程组
+4. .channel(NioServerSocketChannel.class)
+5. childHandler()方法，个i这个引导类创建一个`ChannelInitializer`
+
+BioServerSocketChannel和NioSocketChannel的概念可以和BIO编程模型种的ServerSocket以及Socket两个概念对应上
+
 ## 自动绑定递增端口 ##
 
-1. 创建两个NioEventLoopGroup，创痛IO编程模型的两大线程组，`bossGroup`表示监听端口，accept新连接的线程组，`workerGroup`表示处理每一条连接的数据读写的线程组。
-2. 创建一个引导类ServerBootstrap
-3. .group(bossGroup, workerGroup)
-4. .channel(NioServerSocketChannel.class)
-5. childHandler()方法
-
+`serverBootstrap.bind(8000);`这个方法施一步方法，调用之后立即返回的，返回值是一个`ChannelFuture`，给这个ChannelFuture添加一个监听器`GenericFutureListener`，然后再`GenericFutureListener`和`operationComplete`方法里面，可以监听端口是否绑定成功
 
 ## 服务端启动其他方法 ##
 
@@ -46,11 +49,15 @@ childHandler() 指定处理新连接数据的读写处理逻辑，handler()用�
 
 #### attr()方法 ####
 
+	serverBootstrap.attr(AttributeKey.newInstance("serverName"), "nettyServer")
+
 attr()方法可以给服务端的 channel，也就是NioServerSocketChannel指定一些自定义属性，然后我们可以通过channel.attr()取出这个属性。
 
 #### childAttr()方法 ####
 
 	serverBootstrap.childAttr(AttributeKey.newInstance('clientKey', 'clientValue')
+
+给每一条连接指定自定义属性，然后后续可以通过channel.attr()取出该属性。
 
 #### childOption()方法 ####
 
@@ -81,10 +88,18 @@ childOption()可以给每条连接设置一些TCP底层相关的属性。
 
 对于客户端的启动来说，和服务端的启动类似，依然需要线程模型、IO模型、以及IO业务处理逻辑三大参数。
 
-### 失败重连 ###
+客户端启动的引导类是 Bootstrap，负责启动客户端以及连接服务端，服务端的启动的时候，这个辅导类是 ServerBootstrap，引导类创建完成之后。
 
+1. 创建客户端引导类`Bootstrap`
+2. 指定io类型为nio
+3. io处理逻辑
+4. 
 
-### 客户端启动其他方法 ###
+## 失败重连 ##
+
+# TODO
+
+## 客户端启动其他方法 ##
 
 #### attr()方法 ####
 
@@ -92,7 +107,16 @@ childOption()可以给每条连接设置一些TCP底层相关的属性。
 
 `attr()`方法可以给客户端Channel，也即是说`NioSocketChannel`绑定自定义属性，然后通过`channel.attr()`取出这个属性。
 
+`NioSocketChannel`维护一个map
+
 #### option()方法 ####
+	
+	Bootstrap
+	        .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000)
+	        .option(ChannelOption.SO_KEEPALIVE, true)
+	        .option(ChannelOption.TCP_NODELAY, true)
+
+`option()`方法可以给连接设置一些TCP底层相关的属性。
 
 * ChannelOption.CONNECT_TIMEOUT_MILLIS 表示连接的超时时间，超过这个时间还是建立不上的话则代表连接失败
 * CHannelOption.SO_KEEPALIVE 表示是否开启TCP底层心跳机制，true为开启
@@ -111,6 +135,11 @@ childOption()可以给每条连接设置一些TCP底层相关的属性。
 ## ch6 实战：客户端与服务端双向通信 ##
 
 ### 客户端发数据到服务端 ###
+
+客户端相关的数据读写逻辑是通过 `Bootstrap` 的 `handler()` 方法指定，我们在 `initChannel()` 方法里面给客户端添加一个逻辑处理器，这个处理器的作用就是负责向服务端写数据。
+
+1. `ch.pipeline()`返回的是和这条连接相关的逻辑处理链，采用了责任链模式。
+2. 然后再调用addLast()方法添加一个逻辑处理器，这个逻辑处理器为的就是再客户端建立成功之后，向服务端写数据。
 
 ### 服务端读取客户端数据 ###
 
@@ -135,10 +164,21 @@ childOption()可以给每条连接设置一些TCP底层相关的属性。
 
 ### 容量API ###
 
-	capacity()
-	maxCapacity()
-	readableBytes()与isReadable()
-	writableBytes()、isWritable()与maxWritableBytes()
+* capacity()
+
+表示ByteBuf底层占用了多少字节的内存（包括丢弃的字节、可读字节、可写字节），不同的底层实现机制有不同的计算方式。
+
+* maxCapacity()
+
+表示ByteBuf底层最大能够占用多少字节的内存，当向ByteBuf种写数据的时候，如果发现容量不足，则进行扩容，直到扩容到maxCapacity，超过这个数，就抛异常
+
+* readableBytes()与isReadable()
+
+readableBytes()表示ByteBuf当前可读的字节数，它的值等于writeIndex-readerIndex，如果两者相等，则不可读，isReadable()方法返回false
+
+* writableBytes()、isWritable()与maxWritableBytes()
+
+writeableBytes()表示ByteBuf当前可写的字节数，它的值等于capacity-writeIndex，如果两者相等，则表示不可写，isWritable()方法false
 
 ### 读写指针相关的API ###
 

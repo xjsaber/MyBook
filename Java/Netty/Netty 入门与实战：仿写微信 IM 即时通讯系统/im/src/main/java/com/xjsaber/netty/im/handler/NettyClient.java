@@ -32,10 +32,15 @@ public class NettyClient {
                     }
                 });
         Channel channel = bootstrap.connect("127.0.0.1", 8081).addListener(future -> {
+            int retry = 5;
             if (future.isSuccess()){
                 System.out.println("连接成功！");
             }
+            else if (retry == 0) {
+                System.err.println("重试次数的已用完，放弃连接！");
+            }
             else {
+
                 System.out.println("连接失败！");
             }
         }).channel();

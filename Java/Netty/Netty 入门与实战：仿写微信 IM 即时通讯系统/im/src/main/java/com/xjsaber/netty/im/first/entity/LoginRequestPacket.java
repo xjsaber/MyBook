@@ -1,4 +1,4 @@
-package com.xjsaber.netty.im.action.entity;
+package com.xjsaber.netty.im.first.entity;
 
 public class LoginRequestPacket extends Packet {
     private Integer userId;

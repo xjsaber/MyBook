@@ -1,4 +1,4 @@
-package com.xjsaber.netty.im.action.entity;
+package com.xjsaber.netty.im.first.entity;
 
 public interface Command {
 
