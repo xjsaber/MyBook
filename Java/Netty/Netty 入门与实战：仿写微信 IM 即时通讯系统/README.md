@@ -178,7 +178,7 @@ readableBytes()表示ByteBuf当前可读的字节数，它的值等于writeIndex
 
 * writableBytes()、isWritable()与maxWritableBytes()
 
-writeableBytes()表示ByteBuf当前可写的字节数，它的值等于capacity-writeIndex，如果两者相等，则表示不可写，isWritable()方法false
+writeableBytes()表示ByteBuf当前可写的字节数，它的值等于capacity-writeIndex，如果两者相等，则表示不可写，isWritable()方法false，但是这个时候，并不代表不能往ByteBuf重写数据了，如果发现往ByteBuf重写数据写不进去的话，Netty会自动扩容ByteBuf，直到扩容到底层的内存大小为maxCapacity，而maxWritableBytes()就表示可写的最大字节数，它的值等于maxCapacity-writeIndex
 
 ### 读写指针相关的API ###
 
@@ -187,13 +187,18 @@ writeableBytes()表示ByteBuf当前可写的字节数，它的值等于capacity-
 前者表示返回当前的读指针readerIndex，后者表示设置读指针。
 
 	writeIndex()与writeIndex(int)
+
+前者表示返回当前的写指针writeIndex，后者表示设置写指针。
+
 	markReaderIndex()与resetReaderIndex()
 	
 前者表示把当前的读指针保存起来，后者表示把当前的读指针恢复到之前保存的值。
 
 ### 读写API ###
 
-writeBytes(byte[] src)
+关于ByteBuf的读写都可以看作从指针开始的地方开始读写数据
+
+	writeBytes(byte[] src)与buffer.readBytes(byte[] dst)
 
 多次释放
 
