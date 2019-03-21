@@ -10,6 +10,9 @@ import java.util.Map;
 
 import static com.xjsaber.netty.im.first.Command.LOGIN_REQUEST;
 
+/**
+ * @author xjsaber
+ */
 @SuppressWarnings("Duplicates")
 public class PacketCodeC {
 

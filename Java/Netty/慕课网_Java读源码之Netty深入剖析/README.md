@@ -1,5 +1,21 @@
 # 慕课网 Java读源码之Netty深入剖析 笔记 #
 
+# ch1 Netty深入剖析 # 
+
+Dubbo、RocketMQ、Spart、Elasticsearch、Cassandra、Flink、Netty-SocketIO、Spring5、Play、Grpc
+
+* 异步事件驱动框架，用于快速开发高性能服务端和客户端
+* 封装了JDK底层BIO和NIO模型，提供高度可用的API
+* 自带编解码器解决拆包粘包问题，用户只用关心业务逻辑
+* 精心设计的ractor线程模型支持高并发海量连接
+* 自带各种协议栈让你处理任何一种通用协议都不用亲自动手
+
+## Netty是什么？ ##
+
+## 技术储备 ##
+
+# ch2 # 
+
 ## 2.1 一个简单的socket例子 ##
 
 ## 2.2 Netty对于socket的抽象 ##
@@ -119,7 +135,90 @@ TODO 表示服务端channel创建的流程
 		pipeline.fireChannelActive()[传播事件]
 			HeadContext.readIfIsAutoRead()
 
-## 第4章 NioEventLoop ##
+## 3.3 服务端Channel的初始化 ##
+
+### 初始化服务端Channel ###
+
+* bind()[用户代码入口]
+
+	* initAndRegister()[初始化并注册]
+
+		* newChannel()[创建服务端channel]
+
+			* init()[初始化服务端channel]
+
+				* set ChannelOptions，ChannelAttrs
+				
+				* set ChildlOptions，ChildAttrs
+
+				* config handler[配置服务端pipeline]
+
+				* add ServerBootstrapAcceptor[添加连接器]
+
+####  set ChannelOptions，ChannelAttrs ####
+
+ServerBootStrap
+
+绑定用户自定义属性，把option全部拿出来，最后绑定到channel上
+
+	final Map<ChannelOption<?>, Object> options = options0();
+
+    synchronized (options) {
+        setChannelOptions(channel, options, logger);
+    }
+
+	final Map<AttributeKey<?>, Object> attrs = attrs0();
+    synchronized (attrs) {
+        for (Entry<AttributeKey<?>, Object> e: attrs.entrySet()) {
+            @SuppressWarnings("unchecked")
+            AttributeKey<Object> key = (AttributeKey<Object>) e.getKey();
+            channel.attr(key).set(e.getValue());
+        }
+    }
+
+####  set ChildlOptions，ChildAttrs ####
+
+    synchronized (childOptions) {
+        currentChildOptions = childOptions.entrySet().toArray(newOptionArray(0));
+    }
+    synchronized (childAttrs) {
+        currentChildAttrs = childAttrs.entrySet().toArray(newAttrArray(0));
+    }
+
+#### config handler[配置服务端pipeline] ####
+
+	final ChannelPipeline pipeline = ch.pipeline();
+	ChannelHandler handler = config.handler();
+	if (handler != null) {
+	    pipeline.addLast(handler);
+	}
+
+#### add ServerBootstrapAcceptor[添加连接器] ####
+
+	ch.eventLoop().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        pipeline.addLast(new ServerBootstrapAcceptor(
+                                ch, currentChildGroup, currentChildHandler, currentChildOptions, currentChildAttrs));
+                    }
+                });
+
+## 3.4 注册selector ##
+
+* AbstractChannel.register(channel)[入口]
+	* this.eventLoop = eventLoop [绑定线程]
+	* resgiter0()[实际注册]
+		* doRegister()[调用jdk底层注册]
+		* invokeHandlerAddedIfNeeded()
+		* fireChannelRegistered()[传播事件]
+
+### doRegister()[调用jdk底层注册] ###
+
+	this.selectionKey = this.javaChannel().register(this.eventLoop().unwrappedSelector(), 0, this);
+
+使用jdk底层的channel注册方式，将服务端的channel注册到selector上
+
+# 第4章 NioEventLoop #
 
 三个问题
 
