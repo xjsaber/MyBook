@@ -1,16 +1,44 @@
 # 慕课网 Java读源码之Netty深入剖析 笔记 #
 
+## 2.1 一个简单的socket例子 ##
+
+## 2.2 Netty对于socket的抽象 ##
+
+![2019-03-21_9-54-13.png](img/2019-03-21_9-54-13.png)
+
+线程：监听连接
+
+在监听连接中的一个线程中：监听信息
+
+![2019-03-21_10-09-29.png](img/2019-03-21_10-09-29.png)
+
 ## 2.3 Netty 组建简单介绍 ##
 
 ### Netty基本组件 ###
 
-Channel -> Socket
+* NioEventLoop -> Thread
 
-ByteBuf -> IO Byte
+run方法
 
-Pipeline -> 逻辑链
+监听客户端链接，处理客户端读写
 
-ChannelHandler -> 逻辑处理块
+* Channel -> Socket
+
+ServerSocketChannel 对应的底层Nio模型的SocketChannel（父类就是一个channel）
+
+对简单的连接进行封装
+
+# TODO 了解的还不够精细，需要加大力度
+
+* ByteBuf -> IO Byte
+
+* Pipeline -> 逻辑链（logic chain）
+
+每个channel都会有个pipeline，最终把逻辑的链路加到对应的channel中间
+
+ChannelHandler -> 逻辑处理块（logic）
+
+对逻辑的动态增加、更改。加入到ChannelHandler中数据流每次读写都会被ChannelHandler处理
 
 NioEventLoop 启用了两种线程
 
@@ -24,20 +52,52 @@ NioEventLoop 启用了两种线程
 
 ### 3.2 服务端Channel的创建 ###
 
+#### 两个问题 #### 
+
+1. 服务端的socket在哪里初始化？
+2. 在哪里accept连接
+
+### Netty服务端启动 ###
+
 * 创建服务端Channel
 * 初始化服务端Channel
 * 注册selector
 * 端口绑定
 
-创建服务端CHannel
+### 创建服务端Channel ###
 
-bind()[用户代码入口]
+	bind()[用户代码入口]
+	
+		initAndRegister()[初始化并注册]
+	
+			反射创建服务单Channel
+	
+				newSocket()[通过jdk来创建底层jdk channel]
 
-initAndRegister()[初始化并注册]
+bind方法->doBind方法->initAndRegister方法->channelFactory.newChannel()->.channel->ReflectiveChannelFactory
 
-反射创建服务单Channel
+### 反射创建服务端Channel ###
 
-newSocket()[通过jdk来创建底层jdk channel]
+	newSocket()[通过jdk来创建底层jdk channel]
+	
+	* NioServerSocketChannel->newSocket->java.nio.channel.ServerSocketChannel->provider.openServerSocketChannel()->SelectorProvider.provider()
+
+	NioServerSocketChannelConfig()[tcp参数配置类]
+	
+	* ServerSocket配置的抽象
+
+	AbstractNioChannel()
+
+		configureBlocking(false)[阻塞模式]
+
+		AbstractChannel()[创建id，unsafe，pipeline]
+
+		* 对channel的抽象
+		 id = newId();
+		 unsafe = newUnsafe();
+		 pipeline = newChannelPipeline();
+
+TODO 表示服务端channel创建的流程
 
 ### 初始化服务端Channel ###
 
@@ -49,6 +109,7 @@ newSocket()[通过jdk来创建底层jdk channel]
 			doRegister()[调用jdk底层注册]
 			invokeHandlerAddedIfNeeded()
 			fireChannelRegistered()[传播事件]
+
 
 ### 端口绑定 ###
 
