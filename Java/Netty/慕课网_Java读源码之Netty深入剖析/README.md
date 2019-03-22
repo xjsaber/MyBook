@@ -218,7 +218,64 @@ ServerBootStrap
 
 使用jdk底层的channel注册方式，将服务端的channel注册到selector上
 
-# 第4章 NioEventLoop #
+## 3.5 服务端口的绑定 ##
+
+* AbstractUnsafe.bind()[入口]
+	* doBind()
+		* javaChannel().bind() [jdk底层绑定]
+	* pipeline.fireChannelActive()[传播事件]
+		* HeadContext.readIfIsAutoRead() 
+
+### doBind ###
+
+	boolean wasActive = isActive();
+	try {
+	    doBind(localAddress);
+	} catch (Throwable t) {
+	    safeSetFailure(promise, t);
+	    closeIfClosed();
+	    return;
+	}
+	
+	// TODO	在你绑定之前不是active，在你绑定之后是active的
+	if (!wasActive && isActive()) {
+	    invokeLater(new Runnable() {
+	        @Override
+	        public void run() {
+	            pipeline.fireChannelActive();
+	        }
+	    });
+	}
+
+### boBeginRead ###
+
+	// Channel.read() or ChannelHandlerContext.read() was called
+    final SelectionKey selectionKey = this.selectionKey;
+    if (!selectionKey.isValid()) {
+        return;
+    }
+
+    readPending = true;
+
+    final int interestOps = selectionKey.interestOps();
+    if ((interestOps & readInterestOp) == 0) {
+        selectionKey.interestOps(interestOps | readInterestOp);
+    }
+
+端口绑定->触发active事件->最终调用read事件->我可以读了（即新的连接）
+
+## 3.6 服务启动总结 ##
+
+newChannel() -> init() -> register() -> doBind()
+
+* newChannel —— 调用jdk底层的api生成jdk的channel，生成一些组件（pipeline等）
+* init —— 初始化，为服务端channel添加一个连接处理器
+* register —— 注册selector，将jdk底层的channel注册到事件轮询器
+* doBind —— 重新向selector注册readInterestOp，可以接受新的连接
+
+# ch4 NioEventLoop #
+
+## 4.1 NioEventLoop概述 ##
 
 三个问题
 
@@ -228,32 +285,174 @@ ServerBootStrap
 
 * NioEventLoop创建
 * NioEventLoop启动
+* NioEventLoop执行逻辑
 
+### NioEventLoop创建 ###
 
-NioEventLoop创建
+* new NioEventLoopGroup()[线程，默认2*cpu]
+	* new ThreadPerTaskExecutor()[线程创建器]
+	* for(){newChild()}[构造NioEventLoop]
+	* chooserFactory.newChooser()[线程选择器]
 
-	new NioEventLoopGroup()[线程，默认2*cpu]
-		new ThreadPerTaskExecutor()[线程创建器]
-		for(){newChild()}[构造NioEventLoop]
-		chooserFactory.newChooser()[线程选择器]
+#### new ThreadPerTaskExecutor()[线程创建器] ####
 
-### 创建NioEventLoop线程 ###
+	if (executor == null) {
+	    executor = new ThreadPerTaskExecutor(newDefaultThreadFactory());
+	}
+
+#### for(){newChild()}[构造NioEventLoop] ####
+
+	for (int i = 0; i < nThreads; i ++) {
+	    boolean success = false;
+	    try {
+	        children[i] = newChild(executor, args);
+	        success = true;
+	    } catch (Exception e) {
+	        // TODO: Think about if this is a good exception type
+	        throw new IllegalStateException("failed to create a child event loop", e);
+	    } finally {
+	        if (!success) {
+	            for (int j = 0; j < i; j ++) {
+	                children[j].shutdownGracefully();
+	            }
+	
+	            for (int j = 0; j < i; j ++) {
+	                EventExecutor e = children[j];
+	                try {
+	                    while (!e.isTerminated()) {
+	                        e.awaitTermination(Integer.MAX_VALUE, TimeUnit.SECONDS);
+	                    }
+	                } catch (InterruptedException interrupted) {
+	                    // Let the caller handle the interruption.
+	                    Thread.currentThread().interrupt();
+	                    break;
+	                }
+	            }
+	        }
+	    }
+	}
+
+#### chooserFactory.newChooser()[线程选择器] ####
+
+	chooser = chooserFactory.newChooser(children);
+
+## 4-3 ThreadPerTaskThread ##
+
+ThreadPerTaskExecutor
+
+* 每次执行任务都会创建一个线程实体
+* NioEventLoop线程命名规则nioEventLoop-1-xx
+
+ThreadPerTaskExecutor(newDefaultThreadFactory)
+
+newThread -> new FastThreadLocalThread
+
+#TODO 深入理解下
+
+## 4.4 创建NioEventLoop线程 ##
+
+### newchild() ###
 
 * 保存线程执行器ThreadPerTaskExecutor
 * 创建一个MpscQueue
 * 创建一个selector
 
-newchild()
+newTaskQueue -> newMpscQueue
+
+### 4.5 创建线程选择器 ###
 
 chooserFactory.newChooser()
 
-chooser.next()
+chooser.next() 
 
 NioEvenentLoop[] 0 1 2 ... N
 当n+1个链接进来的时候会循环从0开始绑定
 
-	isPowerOfTwo()[判断是否是2的幂，如2、4、8、16]
-		PowerOfTwoEventExecutorChooser[优化]
-			index++ &(length-1)
-		GenericEventExecutorChhoser[普通]
-			abs(index++ % length)
+* isPowerOfTwo()[判断是否是2的幂，如2、4、8、16]
+	* PowerOfTwoEventExecutorChooser[优化]
+		* index++ &(length-1)
+	* GenericEventExecutorChhoser[普通]
+		* abs(index++ % length)
+
+#### PowerOfTowEventExecutorChooser ####
+
+ids.getAndIncrement() & executors.length - 1
+
+# TODO
+
+				idx 111010
+						 &
+	executor.length-1 1111
+			 result   1010
+
+二进制的性能比取模来要高效得多
+
+## 4.6 NioEventLoop启动触发器 ##
+
+* 服务端启动绑定端口
+* 新连接接入通过chooser绑定一个NioEventLoop
+
+### NioEventLoop启动 ###
+
+* bind() -> execute(task)[入口]
+	* startThread() -> doStartThread()[创建线程]
+		* ThreadPerTaskExecutor.execute()
+			* thread = Thread.currentThread()
+			* NioEventLoop.run[启动]  
+
+#### bind() -> execute(task)[入口] ####
+
+	// This method is invoked before channelRegistered() is triggered.  Give user handlers a chance to set up
+	// the pipeline in its channelRegistered() implementation.
+	channel.eventLoop().execute(new Runnable() {
+	    @Override
+	    public void run() {
+	        if (regFuture.isSuccess()) {
+	            channel.bind(localAddress, promise).addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+	        } else {
+	            promise.setFailure(regFuture.cause());
+	        }
+	    }
+	});
+
+Runable即是一个task，具体做的就是绑定端口的事情
+
+#### startThread() -> doStartThread()[创建线程] ####
+	
+	// 判断是否是在本线程里面，这里的话，线程还没创建，自然返回的是不等false
+	boolean inEventLoop = inEventLoop();
+	if (inEventLoop) {
+	    addTask(task);
+	} else {
+		// ThreadPerTaskExecutor 创建一个线程并启用
+	    startThread();
+	    addTask(task);
+	    if (isShutdown() && removeTask(task)) {
+	        reject();
+	    }
+	}
+
+netty服务端启动的过程中，主线程最终会调用一个bind的方法，而这个bind的方法最终会把实际绑定的流程封装成一个task，调用服务端channel的一个方executor的方法去具体的执行。Netty会判断调用executor的方法不是Nio方法，调用doStartThread方法创建线程
+
+## 4.7 NioEventLoop执行 ##
+
+	SingleThreadEventExecutor.this.run()
+
+	case SelectStrategy.CONTINUE:
+        continue;
+    case SelectStrategy.SELECT:
+        select(wakenUp.getAndSet(false));
+
+轮询IO事件-》处理IO事件
+
+ioRatio默认是50
+
+轮询IO事件，处理IO事件是1比1
+
+### NioEventLoop.run() ###
+
+* run() -> for(;;)
+	* select()[检查是否有io事件]
+	* processSelectedKeys()[处理io事件]
+	* runAllTasks()[处理异步任务队列]
+
