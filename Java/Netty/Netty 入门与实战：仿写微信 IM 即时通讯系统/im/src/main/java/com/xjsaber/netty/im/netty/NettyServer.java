@@ -3,7 +3,6 @@ package com.xjsaber.netty.im.netty;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -26,17 +25,17 @@ public class NettyServer {
                 .channel(NioServerSocketChannel.class)
                 .childHandler(new ChannelInitializer<NioSocketChannel>() {
                     @Override
-                    protected void initChannel(NioSocketChannel nioSocketChannel) throws Exception {
+                    protected void initChannel(NioSocketChannel nioSocketChannel) {
                         nioSocketChannel.pipeline().addLast(new StringDecoder());
                         nioSocketChannel.pipeline().addLast(new ChannelInitializer<NioSocketChannel>() {
                             @Override
-                            protected void initChannel(NioSocketChannel nioSocketChannel1) throws Exception {
+                            protected void initChannel(NioSocketChannel nioSocketChannel1) {
                                 System.out.println("服务端启动中");
                             }
                         });
                         nioSocketChannel.pipeline().addLast(new SimpleChannelInboundHandler<String>() {
                             @Override
-                            protected void channelRead0(ChannelHandlerContext channelHandlerContext, String s) throws Exception {
+                            protected void channelRead0(ChannelHandlerContext channelHandlerContext, String s) {
                                 System.out.println(s);
                             }
                         });

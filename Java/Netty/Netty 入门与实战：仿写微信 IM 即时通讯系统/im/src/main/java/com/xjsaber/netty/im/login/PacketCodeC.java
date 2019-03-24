@@ -8,8 +8,11 @@ import io.netty.buffer.ByteBufAllocator;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.xjsaber.netty.im.action.Command.LOGIN_REQUEST;
+import static com.xjsaber.netty.im.first.Command.LOGIN_REQUEST;
 
+/**
+ * @author xjsaber
+ */
 @SuppressWarnings("Duplicates")
 public class PacketCodeC {
 

@@ -1,16 +1,16 @@
-package com.xjsaber.netty.im.action;
+package com.xjsaber.netty.im.first;
 
 import com.xjsaber.netty.im.login.LoginRequestPacket;
 import com.xjsaber.netty.im.login.Packet;
-import com.xjsaber.netty.im.action.serialize.JSONSerializer;
-import com.xjsaber.netty.im.action.serialize.Serializer;
+import com.xjsaber.netty.im.first.serialize.JSONSerializer;
+import com.xjsaber.netty.im.first.serialize.Serializer;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.xjsaber.netty.im.action.Command.LOGIN_REQUEST;
+import static com.xjsaber.netty.im.first.Command.LOGIN_REQUEST;
 
 @SuppressWarnings("Duplicates")
 public class PacketCodeC {

@@ -5,9 +5,9 @@ import lombok.Data;
 @Data
 public abstract class Packet {
 
-    Byte LOGIN_REQUEST = 1;
+    final Byte LOGIN_REQUEST = 1;
 
-    Byte MESSAGE_REQUEST = 2;
+    final Byte MESSAGE_REQUEST = 2;
 
     /**
      * 协议版本

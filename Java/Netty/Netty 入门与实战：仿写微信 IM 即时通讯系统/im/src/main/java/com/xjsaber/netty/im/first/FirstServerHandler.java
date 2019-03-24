@@ -1,4 +1,4 @@
-package com.xjsaber.netty.im.action;
+package com.xjsaber.netty.im.first;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;

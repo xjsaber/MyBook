@@ -1,4 +1,4 @@
-package com.xjsaber.netty.im.action;
+package com.xjsaber.netty.im.first;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
@@ -25,7 +25,7 @@ public class NettyServer {
                     protected void initChannel(NioSocketChannel nioSocketChannel) throws Exception {
                         nioSocketChannel.pipeline().addLast(new FirstServerHandler());
                     }
-                }).bind(8080);
+                }).bind(8081);
 
     }
 }

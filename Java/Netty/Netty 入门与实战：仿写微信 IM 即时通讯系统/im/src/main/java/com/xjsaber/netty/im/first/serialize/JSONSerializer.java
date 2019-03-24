@@ -1,4 +1,4 @@
-package com.xjsaber.netty.im.action.serialize;
+package com.xjsaber.netty.im.first.serialize;
 
 import com.alibaba.fastjson.JSON;
 

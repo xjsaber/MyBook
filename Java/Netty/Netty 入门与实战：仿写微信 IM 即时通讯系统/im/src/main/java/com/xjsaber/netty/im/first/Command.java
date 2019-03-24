@@ -1,4 +1,4 @@
-package com.xjsaber.netty.im.action;
+package com.xjsaber.netty.im.first;
 
 /**
  * @author xjsaber

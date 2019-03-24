@@ -1,4 +1,4 @@
-package com.xjsaber.netty.im.action.serialize;
+package com.xjsaber.netty.im.first.serialize;
 
 public interface Serializer {
 
