@@ -1,9 +1,12 @@
 {
+    // 包含需要转化的ts
     "files": [
-        "src/main.ts"
+        "src/main.ts",
+        "src/greeter.ts"
     ],
     "compilerOptions": {
         "noImplicitAny": true,
+        //转化后的对应的js版本
         "target": "es5"
     }
 }
