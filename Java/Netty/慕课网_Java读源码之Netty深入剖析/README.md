@@ -456,3 +456,86 @@ ioRatio默认是50
 	* processSelectedKeys()[处理io事件]
 	* runAllTasks()[处理异步任务队列]
 
+## 4.8 检测IO事件 ##
+
+### select()方法执行逻辑 ###
+
+* deadline以及任务穿插逻辑处理
+* 阻塞式select
+* 避免jdk空轮训的bug
+
+#### deadline以及任务穿插逻辑处理 ####
+
+#### 阻塞式select ####
+
+    if (selectedKeys != 0 || oldWakenUp || wakenUp.get() || hasTasks() || hasScheduledTasks()) {
+        // - Selected something, select!=0 表明轮训到
+        // - waken up by user, or
+        // - the task queue has a pending task.
+        // - a scheduled task is ready for processing
+        break;
+    }
+
+#### 避免jdk空轮训的bug ####
+
+已经执行过一次
+
+	long time = System.nanoTime();
+
+减掉超轮训时间
+
+    if (time - TimeUnit.MILLISECONDS.toNanos(timeoutMillis) >= currentTimeNanos) {
+	// time - currentTimeNanos > TimeUnit.MILLSECONDS.toNanos(timeoutMillis) 当前时间减去
+        // timeoutMillis elapsed without anything selected.
+        selectCnt = 1;
+    }
+
+
+# TODO rebuildSelector
+
+
+## 4.9 处理IO事件 ##
+
+### processSelectedKey()执行逻辑 ###
+
+* selected keySet优化
+* processSelectedKeysOptimized()
+
+	provider = selectorProvider;
+	selector = openSelector();
+
+	SelectedSelectionKeySet => SelectionKey[] keysA, int keysASize = size
+
+	selectedKeys
+
+	final AbstractNioChannel.NioUnsafe unsafe = ch.unsafe(); 一个unsafe跟一个channel绑定
+
+#TODO 听不懂……继续深入
+
+# ch5 Netty新连接的接入 #
+
+## 5.1 Netty新连接接入处理逻辑 ##
+
+1. 检测新连接
+2. 创建NioSocketChannel
+3. 分配线程及注册selector
+4. 向selector注册读事件
+
+### 两个问题 ###
+
+* Netty是在哪里检测有新连接接入的？
+* 新连接是怎样注册到NioEventLoop线程的？
+
+## 5.2 检测新连接 ##
+
+服务端启动的时候会绑定boss进程，selector io事件
+
+* processSelectedKey(key, channel)[入口]
+	* NioMessageUnsafe.read()
+		* doReadMessages() [while循环]
+			* javaChannel().accept()   
+
+
+
+
+
