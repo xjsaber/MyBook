@@ -535,7 +535,16 @@ ioRatio默认是50
 		* doReadMessages() [while循环]
 			* javaChannel().accept()   
 
+## 5.3 NioSocketChannel的创建 ##
 
+## 5.4 Channel的分类 ##
 
+## 5.5 新连接NioEventLoop的分配和 ##
+
+## 5.6 NioSocketChannel读事件的注册 ##
+
+## 5.7 新连接接入总结 ##
+
+# 第6章 # 
 
 
