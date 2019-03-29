@@ -535,6 +535,34 @@ ioRatio默认是50
 		* doReadMessages() [while循环]
 			* javaChannel().accept()   
 
+
+#### NioMessageUnsafe.read() ###
+
+readyOps & (SelectionKey.OP_READ | SelectionKey.OP_ACCEPT)) != 0 || readyOps == 0
+
+会进入 unsafe.read() —— AbstractNioMessageChannel$NioMessageUnsafe
+
+#### doReadMessages() [while循环] ####
+
+	do {
+	    int localRead = doReadMessages(readBuf);
+	    if (localRead == 0) {
+	        break;
+	    }
+	    if (localRead < 0) {
+	        closed = true;
+	        break;
+	    }
+	
+	    allocHandle.incMessagesRead(localRead);
+	} while (allocHandle.continueReading());
+
+#### javaChannel().accept() ####
+
+服务端启动的jdk channel
+
+TODO 生成jdk的channel然后包装成netty自身的channel
+
 ## 5.3 NioSocketChannel的创建 ##
 
 ## 5.4 Channel的分类 ##
