@@ -565,6 +565,35 @@ TODO 生成jdk的channel然后包装成netty自身的channel
 
 ## 5.3 NioSocketChannel的创建 ##
 
+* processSelectedKey(key, channel)[入口]
+	* NioMessageUnsafe.read()
+		* doReadMessages()[while循环]
+			* javaChannel().accept()
+
+### 创建NioSocketChannel ### 
+
+* new NioSocketChannel(parent, ch)[入口] 
+	* AbstractNioByteChannel(p, ch, op_read)
+		* configureBlocking(false) & save op
+		* create id, unsafe, pipeline
+	* new NioSocketChannelConfig()
+		* setTcoNoDelay(true) 禁止Nagle算法
+
+#### new NioSocketChannel(parent, ch)[入口] ####
+
+这里的ch是客户端的channel
+
+直接使用new关键词来创建，而服务端channel使用反射的方法来创建
+
+#### AbstractNioByteChannel(p, ch, op_read) ####
+
+channel的read事件，后续如果有事件读写，那么请告诉我
+
+
+#### create id, unsafe, pipeline ####
+
+
+
 ## 5.4 Channel的分类 ##
 
 ## 5.5 新连接NioEventLoop的分配和 ##
