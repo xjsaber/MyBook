@@ -544,6 +544,15 @@ readyOps & (SelectionKey.OP_READ | SelectionKey.OP_ACCEPT)) != 0 || readyOps == 
 
 #### doReadMessages() [while循环] ####
 
+表示服务端NioServerSocket的config和pipeline
+
+    final ChannelConfig config = config();
+    final ChannelPipeline pipeline = pipeline();
+
+控制速率
+
+    final RecvByteBufAllocator.Handle allocHandle = unsafe().recvBufAllocHandle();
+
 	do {
 	    int localRead = doReadMessages(readBuf);
 	    if (localRead == 0) {
@@ -557,11 +566,26 @@ readyOps & (SelectionKey.OP_READ | SelectionKey.OP_ACCEPT)) != 0 || readyOps == 
 	    allocHandle.incMessagesRead(localRead);
 	} while (allocHandle.continueReading());
 
+通过拿到服务端channel底层的jdk的channel
+
+	SocketChannel ch = SocketUtils.accept(javaChannel());
+
+通过将channel封装成NioSocketChannel并添加到buf（上层对象添加容器的对象）
+
+	buf.add(new NioSocketChannel(this, ch));
+
+#### continueReading ####
+
+	return config.isAutoRead() &&
+		attemptedBytesRead == lastBytesRead &&
+		totalMessages(1) < maxMessagePerRead(16) &&
+		totalBytesRead < Integer.MAX_VALUE
+
+如果没有读到新的链接则会把while循环break掉
+
 #### javaChannel().accept() ####
 
-服务端启动的jdk channel
-
-TODO 生成jdk的channel然后包装成netty自身的channel
+将NioSocketChannel 转化为 服务端启动的jdk channel
 
 ## 5.3 NioSocketChannel的创建 ##
 
@@ -577,7 +601,7 @@ TODO 生成jdk的channel然后包装成netty自身的channel
 		* configureBlocking(false) & save op
 		* create id, unsafe, pipeline
 	* new NioSocketChannelConfig()
-		* setTcoNoDelay(true) 禁止Nagle算法
+		* setTcoNoDelay(true) 禁止Nagle算法，小的数据包尽可能发出去降低延时
 
 #### new NioSocketChannel(parent, ch)[入口] ####
 
@@ -585,16 +609,73 @@ TODO 生成jdk的channel然后包装成netty自身的channel
 
 直接使用new关键词来创建，而服务端channel使用反射的方法来创建
 
+    public NioSocketChannel(Channel parent, SocketChannel socket) {
+        super(parent, socket); // 创建一个NioSocketChannel
+		//         super(parent, ch, SelectionKey.OP_READ); 表示我对这个事件的读事件感兴趣，如果后续有读事件，则表示会继续关注
+        config = new NioSocketChannelConfig(this, socket.socket()); // 创建一个NioSocketChannelConfig
+    }
+
+
+设置此channel为非阻塞模式
+
+	ch.configureBlocking(false)
+
 #### AbstractNioByteChannel(p, ch, op_read) ####
 
 channel的read事件，后续如果有事件读写，那么请告诉我
 
-
 #### create id, unsafe, pipeline ####
 
+AbstractChannel
 
+	this.parent = parent; // 创建此channel的服务端channel
+	id = newId(); // 创建id
+	unsafe = newUnsafe(); // 创建channel的unsafe
+	pipeline = newChannelPipeline();  // 创建服务端channel的pipeline
+
+#### new NioSocketChannelConfig() ####
+
+	if (PlatformDependent.canEnableTcpNoDelayByDefault()) {
+        try {
+            setTcpNoDelay(true);
+        } catch (Exception e) {
+            // Ignore.
+        }
+    }
+
+    private static final boolean CAN_ENABLE_TCP_NODELAY_BY_DEFAULT = !isAndroid();
+
+netty支持安卓上网络通信，netty一般在linux上运行比较多，所以一般在这返回是false，则通过非关系返回true
+
+#### setTcpNoDelay(true) 禁止Nagle算法 ####
+
+通过刚保存的javaSocket进行tcpNoDelay的设置
+
+### 小结 ###
+
+创建NioSocketChannel可以分成两个部分
+
+1. 逐层调用父类函数，该channel的阻塞模式为false，把对应的读事件进行保存，接下来创建一系列的id，unsafe，pipeline
+2. 创建跟这个channel相关的config，这个config设置tcpNoDelay为true
 
 ## 5.4 Channel的分类 ##
+
+NioServerSocketChannel的class
+
+* NioServerSocketChannel
+* NioSocketChannel 新连接接入
+* Unsafe
+
+### Channel的层级关系 ###
+
+Channel -> AbstractChannel(pipeline) -> AbstractNioChannel
+
+1. Channel
+2. AbstractChannel
+3. AbstractNioChannel
+4. 
+	* Ab
+	* AbstractNioMessageChannel
 
 ## 5.5 新连接NioEventLoop的分配和 ##
 
@@ -602,6 +683,11 @@ channel的read事件，后续如果有事件读写，那么请告诉我
 
 ## 5.7 新连接接入总结 ##
 
-# 第6章 # 
+检测新连接 -> 创建NioSocketChannel -> 分配线程及注册selector -> 向selector注册读事件
+
+* Netty是在哪里检测有新连接接入的？ boss线程的，jdk底层的channel方法去创建这个连接
+* 新连接是怎样注册到NioEventLoop线程的？
+
+# 第6章 pipeline # 
 
 
