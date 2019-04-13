@@ -690,4 +690,21 @@ Channel -> AbstractChannel(pipeline) -> AbstractNioChannel
 
 # 第6章 pipeline # 
 
+## 6.1 三个问题 ##
 
+* netty是如何判断ChannelHandler类型的？
+* 对于ChannelHandler的添加应该遵循什么样的顺序？
+* 用户手动触发时间创传播，不同的触发方式有什么样的区别？
+
+---
+
+* pipeline的初始化
+* 添加删除ChannelHandler
+* 事件和异常的传播
+
+
+## 6.2 pipeline初始化 ##
+
+* pipeline在创建Channel的时候被创建
+* pipeline节点数据结构：ChannelHandlerContext
+* pipeline中的两大哨兵：head和tail
