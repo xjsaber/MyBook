@@ -674,10 +674,29 @@ Channel -> AbstractChannel(pipeline) -> AbstractNioChannel
 2. AbstractChannel
 3. AbstractNioChannel
 4. 
-	* Ab
-	* AbstractNioMessageChannel
+	* 4.1 AbstractNioByteChannel
+		* 4.1.1 NioSocketChannel
+			* 4.1.1.1 NioSocketChannelConfig 
+		* 4.1.2 NioByteUnsafe 
+	* 4.2 AbstractNioMessageChannel
+		* 4.2.1 NioMessageUnsafe
+		* 4.2.2 NioServerSocketChannel
+			* NioServerSocketChannelConfig 
 
-## 5.5 新连接NioEventLoop的分配和 ##
+## 5.5 新连接NioEventLoop的分配和selector注册 ##
+
+#### 服务端Channel的pipeline构成 ####
+
+Head -> ServerBootstrapAcceptor -> Tail
+
+#### ServerBootstrapAcceptor ####
+
+* 添加childHandler
+* 设置options和attrs
+* 选择NioEventLoop并注册selector
+
+	child.pipeline().addLast(childHandler);
+
 
 ## 5.6 NioSocketChannel读事件的注册 ##
 
