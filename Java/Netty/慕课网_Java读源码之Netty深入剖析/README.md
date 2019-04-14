@@ -727,3 +727,79 @@ Head -> ServerBootstrapAcceptor -> Tail
 * pipeline在创建Channel的时候被创建
 * pipeline节点数据结构：ChannelHandlerContext
 * pipeline中的两大哨兵：head和tail
+
+#### pipeline在创建Channel的时候被创建 ####
+
+    protected AbstractChannel(Channel parent) {
+        this.parent = parent;
+        id = newId();
+        unsafe = newUnsafe();
+        pipeline = newChannelPipeline();
+    }
+
+	// this 指我们的channel 
+	return new DefaultChannelPipeline(this);
+
+    this.channel = ObjectUtil.checkNotNull(channel, "channel");
+    succeededFuture = new SucceededChannelFuture(channel, null);
+    voidPromise =  new VoidChannelPromise(channel, true);
+	// 创建两个节点，一个是tailContext，一个是headContext
+    tail = new TailContext(this);
+    head = new HeadContext(this);
+	// 组成双向链表
+    head.next = tail;
+    tail.prev = head;
+
+#### pipeline节点数据结构：ChannelHandlerContext ####
+
+ChannelHandlerContext => AbstractChannelHandlerContext
+
+继承于
+
+* AttributeMap 存储自己的属性
+* ChannelInboundInvoker 传播读事件，inBound事件的传播
+* ChannelOutboundInvoker 传播写事件，outBound事件的传播
+
+ChannelInboundInvoker传播读事件
+
+ChannelOutboundInvoker传播写事件
+
+AbstractChannelHandlerContext
+
+    volatile AbstractChannelHandlerContext next;
+    volatile AbstractChannelHandlerContext prev;
+
+#### pipeline中的两大哨兵：head和tail ####
+
+	tail = new TailContext(this)
+	head = new HeadContext(this)
+
+    TailContext(DefaultChannelPipeline pipeline) {
+        super(pipeline, null, TAIL_NAME, true, false);
+        setAddComplete();
+    }
+
+TailContext主要做收尾的事情，如果一层没有处理好，则tail则对事件进行后续处理（inbound：true，outbound：false）
+
+HeadContext（inbound：false，outbound：true）
+
+读写操作，最后都会委托到unsafe中进行操作
+
+TODO 分析tail跟head各自充当什么角色
+
+## 6.3 添加ChannelHandler ##
+
+#### addLast ####
+
+* 判断是否重复添加
+* 创建节点并添加至链表
+* 回调添加完成事件
+
+ChannelHandler 包装成 ChannelHandlerContext
+
+	ChannelPipeline addLast(ChannelHandler... handlers)
+	支持多个ChannelHandler，可变参数
+
+	checkMultiplicity(handler); // 判断是否重复添加
+	TODO
+
