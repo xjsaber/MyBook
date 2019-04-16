@@ -27,6 +27,7 @@ public class NettyServer {
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel ch) {
+                            ch.pipeline().addLast(new AuthHandler());
                             ch.pipeline().addLast(new ChannelInboundHandlerAdapter());
                             ch.pipeline().addLast(new ChannelOutboundHandlerAdapter());
                         }

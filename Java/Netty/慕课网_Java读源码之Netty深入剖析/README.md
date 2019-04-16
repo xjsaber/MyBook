@@ -803,3 +803,74 @@ ChannelHandler 包装成 ChannelHandlerContext
 	checkMultiplicity(handler); // 判断是否重复添加
 	TODO
 
+## 6-4 删除ChannelHandler ##
+
+* 找到节点
+* 链表的删除
+* 回调删除Handler事件
+
+#### 找到节点 ####
+
+	getContextOrDie(handler)
+
+	AbstractChannelHandlerContext ctx = head.next;
+	for (;;) {
+	    if (ctx == null) {
+	        return null; //边离到节点，如果最后还是没有节点的话则返回null
+	    }
+	    if (ctx.handler() == handler) {
+	        return ctx;
+	    }
+	    ctx = ctx.next;
+	}
+
+拿到这个节点
+
+#### 链表的删除 ####
+
+	assert ctx != head && ctx != tail; // head节点和tail节点不可被删除
+
+    private static void remove0(AbstractChannelHandlerContext ctx) {
+        AbstractChannelHandlerContext prev = ctx.prev;
+        AbstractChannelHandlerContext next = ctx.next;
+        prev.next = next;
+        next.prev = prev;
+    }
+
+#### 回调删除Handler事件 ####
+
+	try {
+	    ctx.handler().handlerRemoved(ctx);
+	} finally {
+	    ctx.setRemoved();
+	}
+
+# 第七章 ByteBuf #
+
+## 8.1 三个问题 ##
+
+* 内存的类别有哪些
+* 如何减少多线程内存分配之间的竞争
+* 不同大小的内存是如何进行分配的
+
+———
+
+* 内存与内存管理器的抽象
+* 不同规格大小和不同类别的内存的分配策略
+* 内存的回收过程
+
+## 8.2 ByteBuf结构以及重要API ##
+
+* ByteBuf结构
+
+readIndex、writeIndex和capacity
+
+	readIndex <= writeIndex <= capacity
+
+![2019-04-16_16-35-21.png](img/2019-04-16_16-35-21.jpg)
+
+* discardable bytes表示无用信息
+* readable bytes表示可读取信
+* writable bytes表示可写入信息（空白区域）
+
+maxCapacity
