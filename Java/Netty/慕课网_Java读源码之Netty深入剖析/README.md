@@ -845,6 +845,28 @@ ChannelHandler 包装成 ChannelHandlerContext
 	    ctx.setRemoved();
 	}
 
+## 6.5 inBound事件的传播 ##
+
+* 何为inBound事件以及ChannelInboundHandler
+* ChannelRead事件的传播
+* SimpleInBoundHandler处理器
+
+# TODO
+
+#### 何为inBound事件以及ChannelInboundHandler ####
+
+#### ChannelRead事件的传播 ####
+
+#### SimpleInBoundHandler处理器 ####
+
+
+## 6.6 outBound事件的传播 ##
+
+## 6.7 异常的处理 ##
+
+## 6.8 pipeline总结 ##
+
+
 # 第七章 ByteBuf #
 
 ## 8.1 三个问题 ##
