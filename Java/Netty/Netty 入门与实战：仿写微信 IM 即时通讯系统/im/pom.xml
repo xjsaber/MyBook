@@ -23,6 +23,7 @@
     <modules>
         <module>message</module>
         <module>pipeline</module>
+        <module>connect</module>
     </modules>
 
     <dependencies>
