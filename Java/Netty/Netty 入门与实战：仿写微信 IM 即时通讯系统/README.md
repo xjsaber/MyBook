@@ -57,6 +57,12 @@
 
 # ch2 Netty是什么？ #
 
+## IO编程 ##
+
+1. 线程资源受限：线程是操作系统中非常宝贵的资源，同一时刻有大量的线程处于阻塞状态是非常严重的资源浪费，操作系统耗不起
+2. 线程切换效率低下：单机 CPU 核数固定，线程爆炸之后操作系统频繁进行线程切换，应用性能急剧下降。
+3. 除了以上两个问题，IO 编程中，我们看到数据读写是以字节流为单位。
+
 ## NIO编程 ##
 
 #### 线程资源受限 ####
@@ -70,6 +76,11 @@ NIO编程模型，新来一个连接不再创建一个新的线程，而是可�
 **IO读写以字节为单位**
 
 	 Set<SelectionKey> set = serverSelector.selectedKeys();
+
+1. NIO模型中通常有两个县城，每个线程绑定一个轮询器selector，在我们这个例子中serverSelector负责轮询是否有新的连接，clientSelector负责轮询连接是否有数据可读
+2. 服务端监测到新的连接之后，不再创建一个新的线程，而是直接将新连接绑定到clientSelector上，这样就不用 IO 模型中 1w 个 while 循环在死等，参见(1)
+3. clientSelector被一个 while 死循环包裹着，如果在某一时刻有多条连接有数据可读，那么通过 clientSelector.select(1)方法可以轮询出来，进而批量处理，参见(2)
+4. 数据的读写面向Buffer，参见（3）
 
 ## Netty编程 ##
 
@@ -110,9 +121,23 @@ ChannelInitializer这个类中，我们注意到有一个泛型参数NioSocketCh
 
 BioServerSocketChannel和NioSocketChannel的概念可以和BIO编程模型种的ServerSocket以及Socket两个概念对应上
 
-要启动一个Netty服务端，必须要指定三类属性，分别是线程模型、IO 模型、连接读写处理逻辑，有了这三者，之后在调用bind(8000)。
-
-## 自动绑定递增端口 ##
+要启动一个Netty服务端，必须要指定三类属性，分别是线程模型、IO 模型、连接读写处理逻辑，有了这三者，之后在调用bind(8000)。public class NettyServer {
+	    public static void main(String[] args) {
+	        NioEventLoopGroup bossGroup = new NioEventLoopGroup();
+	        NioEventLoopGroup workerGroup = new NioEventLoopGroup();
+	
+	        ServerBootstrap serverBootstrap = new ServerBootstrap();
+	        serverBootstrap
+	                .group(bossGroup, workerGroup)
+	                .channel(NioServerSocketChannel.class)
+	                .childHandler(new ChannelInitializer<NioSocketChannel>() {
+	                    protected void initChannel(NioSocketChannel ch) {
+	                    }
+	                });
+	
+	        serverBootstrap.bind(8000);
+	    }
+	}## 自动绑定递增端口 ##
 
 `serverBootstrap.bind(8000);`这个方法施一步方法，调用之后立即返回的，返回值是一个`ChannelFuture`，给这个ChannelFuture添加一个监听器`GenericFutureListener`，然后再`GenericFutureListener`和`operationComplete`方法里面，可以监听端口是否绑定成功
 
