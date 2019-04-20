@@ -422,10 +422,11 @@ attr()方法可以给服务端的 channel，也就是NioServerSocketChannel指�
 
 1. ByteBuf是一个字节容器，容器里面的数据分为三个部分。
 2. 以上三段内容是被两个指针给划分出来的，从左到右，依次是读指针（readerIndex）、写指针（writerIndex），然后还有一个变量capacity，表示ByteBuf底层内存的总容量
-3. 从ByteBuf从
+3. 从ByteBuf中每读取一个字节，readIndex自增1，ByteBuf 里面总共有 writerIndex-readerIndex 个字节可读, 由此可以推论出当 readerIndex 与 writerIndex 相等的时候，ByteBuf 不可读
+4. 写数据是从 writerIndex 指向的部分开始写，每写一个字节，writerIndex 自增1，直到增到 capacity，这个时候，表示 ByteBuf 已经不可写了
+5. ByteBuf 里面其实还有一个参数 maxCapacity，当向 ByteBuf 写数据的时候，如果容量不足，那么这个时候可以进行扩容，直到 capacity 扩容到 maxCapacity，超过 maxCapacity 就会报错
 
 废弃字节、可读字节和可写字节
-
 
 ### 容量API ###
 
