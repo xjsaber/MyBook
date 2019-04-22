@@ -460,6 +460,21 @@ writeableBytes()表示ByteBuf当前可写的字节数，它的值等于capacity-
 	
 前者表示把当前的读指针保存起来，后者表示把当前的读指针恢复到之前保存的值。
 
+	// 代码片段1
+	int readerIndex = buffer.readerIndex();
+	// .. 其他操作
+	buffer.readerIndex(readerIndex);
+	
+	
+	// 代码片段二
+	buffer.markReaderIndex();
+	// .. 其他操作
+	buffer.resetReaderIndex();
+
+
+
+	markWriterIndex() 与 resetWriterIndex()
+
 ### 读写API ###
 
 关于ByteBuf的读写都可以看作从指针开始的地方开始读写数据
@@ -480,19 +495,91 @@ writeByte()表示往ByteBuf中写一个字节，而buffer.readByte()表示从Byt
 
 Netty的ByteBuf是通过引用技术的方式来管理的，如果一个 ByteBuf 没有地方被引用到，需要回收底层内存。
 
+* retain 加一
+* release 减一
+
+减完之后如果发现引用计数为0，则直接回收 ByteBuf 底层的内存。
+
 	slice()、duplicate()、copy()
 
-1. slice()方法从原始ByteBuf中
+1. slice()方法从原始ByteBuf中截取一段，这段数据是从readerIndex到writeIndex，同时，返回的新的ByteBuf的最大容量maxCapacity为原始ByteBuf的readableBytes()
+2. duplicate() 方法把整个 ByteBuf 都截取出来，包括所有的数据，指针信息
+3. slice()方法与duplicate()方法的相同点是：底层内存以及引用次数与原始的ByteBuf共享，也就是说经过slice()或者duplicate()方法的相同点是：
+4. slice()方法与duplicate()不同点就是：slice()只截取从readerIndex到writerIndex之间的数据，它返回的ByteBuf的最大容量被限制到原始ByteBuf的readableBytes()
+5. slice() 方法与 duplicate() 方法不会拷贝数据，它们只是通过改变读写指针来改变读写的行为，而最后一个方法 copy() 会直接从原始的 ByteBuf 中拷贝所有的信息，包括读写指针以及底层对应的数据，因此，往 copy() 返回的 ByteBuf 中写数据不会影响到原始的 ByteBuf。
+6. slice() 和 duplicate() 不会改变 ByteBuf 的引用计数，所以原始的 ByteBuf 调用 release() 之后发现引用计数为零，就开始释放内存，调用这两个方法返回的 ByteBuf 也会被释放，这个时候如果再对它们进行读写，就会报错。因此，我们可以通过调用一次 retain() 方法 来增加引用，表示它们对应的底层的内存多了一次引用，引用计数为2，在释放内存的时候，需要调用两次 release() 方法，将引用计数降到零，才会释放内存。
+7. 这三个方法均维护着自己的读写指针，与原始的 ByteBuf 的读写指针无关，相互之间不受影响。
 
 	retainedSlice()与retainedDuplicate()
 
-# TODO
+相信读者应该已经猜到这两个 API 的作用了，它们的作用是在截取内存片段的同时，增加内存的引用计数，分别与下面两段代码等价
 
-多次释放
+	// retainedSlice 等价于
+	slice().retain();
+	
+	// retainedDuplicate() 等价于
+	duplicate().retain()
 
-不释放造成内存泄漏
+使用到 slice 和 duplicate 方法的时候，千万要理清内存共享，引用计数共享，读写指针不共享几个概念
+
+**1. 多次释放**
+
+	Buffer buffer = xxx;
+	doWith(buffer);
+	// 一次释放
+	buffer.release();
+	
+	
+	public void doWith(Bytebuf buffer) {
+	// ...    
+	    
+	// 没有增加引用计数
+	Buffer slice = buffer.slice();
+	
+	foo(slice);
+	
+	}
+	
+	
+	public void foo(ByteBuf buffer) {
+	    // read from buffer
+	    
+	    // 重复释放
+	    buffer.release();
+	}
+
+这里的 *doWith* 有的时候是用户自定义的方法，有的时候是 Netty 的回调方法，比如 *channelRead()* 等等
+
+**2. 不释放造成内存泄漏**
+
+	Buffer buffer = xxx;
+	doWith(buffer);
+	// 引用计数为2，调用 release 方法之后，引用计数为1，无法释放内存 
+	buffer.release();
+	
+	
+	public void doWith(Bytebuf buffer) {
+	// ...    
+	    
+	// 增加引用计数
+	Buffer slice = buffer.retainedSlice();
+	
+	foo(slice);
+	
+	// 没有调用 release
+	
+	}
+	
+	
+	public void foo(ByteBuf buffer) {
+	    // read from buffer
+	}
+
+在一个函数体里面，只要增加了引用计数（包括 ByteBuf 的创建和手动调用 retain() 方法），就必须调用 release() 方法
 
 ### 实战 ###
+
+
 
 ### 总结 ###
 
@@ -520,14 +607,53 @@ slice方法
 
 1. 魔数，固定的几个字节（通常是4个），首先取出前面四个字节进行比对，能够在第一时间识别出这个数据包并非遵循自定义协议，也就是无效数据包
 2. 版本号
-3. 序列化算法表示如何把Java对象转换二进制数据以及二进制数据如何转换回Java对象
-4. 字段表示指令
+3. 序列化算法表示如何把Java对象转换二进制数据以及二进制数据如何转换回Java对象，比如Java自带的序列化，json，hessian等序列化方式
+4. 字段表示指令，服务端或者客户端每收到一种指令都会又相应的处理逻辑，这里，我们用一个字节来表示，最高支持256种指令。
 5. 数据部分长度，占四个字节
 6. 数据内容，每一种指令对应的数据是不一样的。
 
 ### 通信协议的实现 ###
 
+把 Java 对象根据协议封装成二进制数据包的过程成为编码，而把从二进制数据包中解析出 Java 对象的过程成为解码。
+
 #### Java对象 ####
+
+	@Data
+	public abstract class Packet {
+	    /**
+	     * 协议版本
+	     */
+	    private Byte version = 1;
+	
+	    /**
+	    * 指令
+	    * /
+	    public abstract Byte getCommand();
+	}
+
+以上是通信过程中 Java 对象的抽象类，可以看到，我们定义了一个版本号（默认值为 1 ）以及一个获取指令的抽象方法，所有的指令数据包都必须实现这个方法，这样我们就可以知道某种指令的含义。
+
+	public interface Command {
+	
+	    Byte LOGIN_REQUEST = 1;
+	}
+	
+	@Data
+	public class LoginRequestPacket extends Packet {
+	    private Integer userId;
+	
+	    private String username;
+	
+	    private String password;
+	
+	    @Override
+	    public Byte getCommand() {
+	        
+	        return LOGIN_REQUEST;
+	    }
+	}
+
+登录请求数据包继承自 `Packet`，然后定义了三个字段，分别是用户 ID，用户名，密码，这里最为重要的就是覆盖了父类的 `getCommand()` 方法，值为常量 `LOGIN_REQUEST`。
 
 #### 序列化 ####
 

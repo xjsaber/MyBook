@@ -23,8 +23,9 @@
     <modules>
         <module>message</module>
         <module>pipeline</module>
-        <module>connect</module>
-    </modules>
+
+        <module>connect</module>        <module>bytebuf</module>
+        <module>login</module>    </modules>
 
     <dependencies>
         <!-- https://mvnrepository.com/artifact/io.netty/netty-all -->
