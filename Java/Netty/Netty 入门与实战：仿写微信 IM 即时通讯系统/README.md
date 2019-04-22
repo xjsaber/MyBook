@@ -575,10 +575,64 @@ Netty的ByteBuf是通过引用技术的方式来管理的，如果一个 ByteBuf
 	    // read from buffer
 	}
 
-在一个函数体里面，只要增加了引用计数（包括 ByteBuf 的创建和手动调用 retain() 方法），就必须调用 release() 方法
+在一个函数体里面，只要增加了引用计数（包括 `ByteBuf` 的创建和手动调用 `retain()` 方法），就必须调用 `release()` 方法
 
 ### 实战 ###
 
+	public class ByteBufTest {
+	    public static void main(String[] args) {
+	        ByteBuf buffer = ByteBufAllocator.DEFAULT.buffer(9, 100);
+	
+	        print("allocate ByteBuf(9, 100)", buffer);
+	
+	        // write 方法改变写指针，写完之后写指针未到 capacity 的时候，buffer 仍然可写
+	        buffer.writeBytes(new byte[]{1, 2, 3, 4});
+	        print("writeBytes(1,2,3,4)", buffer);
+	
+	        // write 方法改变写指针，写完之后写指针未到 capacity 的时候，buffer 仍然可写, 写完 int 类型之后，写指针增加4
+	        buffer.writeInt(12);
+	        print("writeInt(12)", buffer);
+	
+	        // write 方法改变写指针, 写完之后写指针等于 capacity 的时候，buffer 不可写
+	        buffer.writeBytes(new byte[]{5});
+	        print("writeBytes(5)", buffer);
+	
+	        // write 方法改变写指针，写的时候发现 buffer 不可写则开始扩容，扩容之后 capacity 随即改变
+	        buffer.writeBytes(new byte[]{6});
+	        print("writeBytes(6)", buffer);
+	
+	        // get 方法不改变读写指针
+	        System.out.println("getByte(3) return: " + buffer.getByte(3));
+	        System.out.println("getShort(3) return: " + buffer.getShort(3));
+	        System.out.println("getInt(3) return: " + buffer.getInt(3));
+	        print("getByte()", buffer);
+	
+	
+	        // set 方法不改变读写指针
+	        buffer.setByte(buffer.readableBytes() + 1, 0);
+	        print("setByte()", buffer);
+	
+	        // read 方法改变读指针
+	        byte[] dst = new byte[buffer.readableBytes()];
+	        buffer.readBytes(dst);
+	        print("readBytes(" + dst.length + ")", buffer);
+	
+	    }
+	
+	    private static void print(String action, ByteBuf buffer) {
+	        System.out.println("after ===========" + action + "============");
+	        System.out.println("capacity(): " + buffer.capacity());
+	        System.out.println("maxCapacity(): " + buffer.maxCapacity());
+	        System.out.println("readerIndex(): " + buffer.readerIndex());
+	        System.out.println("readableBytes(): " + buffer.readableBytes());
+	        System.out.println("isReadable(): " + buffer.isReadable());
+	        System.out.println("writerIndex(): " + buffer.writerIndex());
+	        System.out.println("writableBytes(): " + buffer.writableBytes());
+	        System.out.println("isWritable(): " + buffer.isWritable());
+	        System.out.println("maxWritableBytes(): " + buffer.maxWritableBytes());
+	        System.out.println();
+	    }
+	}
 
 
 ### 总结 ###
@@ -590,7 +644,7 @@ Netty的ByteBuf是通过引用技术的方式来管理的，如果一个 ByteBuf
 
 ## 思考 ##
 
-slice方法
+slice 方法可能用在什么场景？欢迎留言讨论。
 
 ## ch8 客户端与服务端通信协议编解码 ##
 
@@ -721,7 +775,70 @@ slice方法
 
 我们就实现了序列化相关的逻辑，如果想要实现其他序列化算法的话，只需要继承一下 `Serializer`，然后定义一下序列化算法的标识，再覆盖一下两个方法即可。
 
+	PacketCodeC.java
 
+	private static final int MAGIC_NUMBER = 0x12345678;
+	
+	public ByteBuf encode(Packet packet) {
+	    // 1. 创建 ByteBuf 对象
+	    ByteBuf byteBuf = ByteBufAllocator.DEFAULT.ioBuffer();
+	    // 2. 序列化 Java 对象
+	    byte[] bytes = Serializer.DEFAULT.serialize(packet);
+	
+	    // 3. 实际编码过程
+	    byteBuf.writeInt(MAGIC_NUMBER);
+	    byteBuf.writeByte(packet.getVersion());
+	    byteBuf.writeByte(Serializer.DEFAULT.getSerializerAlgorithm());
+	    byteBuf.writeByte(packet.getCommand());
+	    byteBuf.writeInt(bytes.length);
+	    byteBuf.writeBytes(bytes);
+	
+	    return byteBuf;
+	}
+
+1. 创建一个ByteBuf，调用Netty的ByteBuf分配器来创建，`ioBuffer()`方法来返回适配io读写相关的内存，尽可能创建一个直接内存，直接内存可以理解为不受jvm堆管理的内存空间，写到IO缓存区的效果更高。
+2. 将Java对象序列化成二进制数据包
+3. 对照本小节开头协议的设计以及`ByteBuf`的API，逐个往`ByteBuf`写入字段，即实现了编码过程。
+
+Netty会将此ByteBuf写到另外一端，另外一端拿到的也是一个ByteBuf对象，基于这个ByteBuf对象，就可以反解出在对端创建的Java对象，这个过程称作为解码。
+
+	PacketCodeC.java
+	
+	public Packet decode(ByteBuf byteBuf) {
+	    // 跳过 magic number
+	    byteBuf.skipBytes(4);
+	
+	    // 跳过版本号
+	    byteBuf.skipBytes(1);
+	
+	    // 序列化算法标识
+	    byte serializeAlgorithm = byteBuf.readByte();
+	
+	    // 指令
+	    byte command = byteBuf.readByte();
+	
+	    // 数据包长度
+	    int length = byteBuf.readInt();
+	
+	    byte[] bytes = new byte[length];
+	    byteBuf.readBytes(bytes);
+	
+	    Class<? extends Packet> requestType = getRequestType(command);
+	    Serializer serializer = getSerializer(serializeAlgorithm);
+	
+	    if (requestType != null && serializer != null) {
+	        return serializer.deserialize(requestType, bytes);
+	    }
+	
+	    return null;
+	}
+
+解码流程
+
+1. 假定`decode`方法传递进来的`ByteBuf`已经是合法的，即首四个字节是定义的魔数`0x12345678`，调用`skipBytes`跳过这四个字节。
+2. 通常在没有遇到协议升级的时候，这个字段暂时不处理
+3. 调用`ByteBuf`的API分别拿到序列化算法标识、指令、数据包的长度。
+4. 根据拿到的数据包的长度取出数据，通过指令拿到该数据包对应的Java对象的类型，根据序列化算法标识拿到序列化对象，将字节数组转换为Java对象。
 
 ### 总结 ###
 
@@ -739,7 +856,7 @@ slice方法
 
 ## 登录流程 ##
 
-![2019-03-29_11-03-16](img/2019-03-29_11-03-16.png)
+![1653028b36ee5d81](img/1653028b36ee5d81.jpg)
 
 1. 客户端会构建一个登录请求对象，然后通过编码把请求对象编码为ByteBuf，写到服务端
 2. 服务端接受到ByteBuf之后，首先通过解码把ByteBuf解码为登录请求响应，然后进行校验
@@ -748,10 +865,30 @@ slice方法
 
 ## 逻辑处理器 ##
 
-### 客户端发送登录请求 ###
+	public class ClientHandler extends ChannelInboundHandlerAdapter {
+	}
+
+	bootstrap.handler(new ChannelInitializer<SocketChannel>() {
+	            @Override
+	            public void initChannel(SocketChannel ch) {
+	                ch.pipeline().addLast(new ClientHandler());
+	            }
+	        });
+
+在客户端侧，Netty 中 IO 事件相关的回调就能够回调到我们的 `ClientHandler`。
 
 
 
+## 客户端发送登录请求 ##
+
+
+## 总结 ##
+
+
+
+## 思考 ##
+
+客户端登录成功或者失败之后，如果把成功或者失败的标识绑定在客户端的连接上？服务端又是如何高效避免客户端重新登录？ 欢迎留言讨论。
 
 # ch10 实战：实现客户端与服务端收发消息 #
 
