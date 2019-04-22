@@ -23,6 +23,8 @@
     <modules>
         <module>message</module>
         <module>pipeline</module>
+        <module>bytebuf</module>
+        <module>login</module>
     </modules>
 
     <dependencies>
