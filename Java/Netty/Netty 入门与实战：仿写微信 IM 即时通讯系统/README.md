@@ -93,14 +93,6 @@ NIO编程模型，新来一个连接不再创建一个新的线程，而是可�
 
 # ch4 服务端启动流程 #
 
-1. 创建两个NioEventLoopGroup，传统IO编程模型的两大线程组，`bossGroup`表示监听端口，accept新连接的线程组，`workerGroup`表示处理每一条连接的数据读写的线程组。
-2. 创建一个引导类ServerBootstrap
-3. .group(bossGroup, workerGroup)给引导类配置两大线程组
-4. .channel(NioServerSocketChannel.class)
-5. childHandler()方法，个i这个引导类创建一个`ChannelInitializer`
-
-BioServerSocketChannel和NioSocketChannel的概念可以和BIO编程模型种的ServerSocket以及Socket两个概念对应上
-
 	public class NettyServer {
 	    public static void main(String[] args) {
 	        NioEventLoopGroup bossGroup = new NioEventLoopGroup();
@@ -119,17 +111,60 @@ BioServerSocketChannel和NioSocketChannel的概念可以和BIO编程模型种的
 	    }
 	}
 
+1. 创建两个NioEventLoopGroup，传统IO编程模型的两大线程组，`bossGroup`表示监听端口，accept新连接的线程组，`workerGroup`表示处理每一条连接的数据读写的线程组。
+2. 创建一个引导类ServerBootstrap，这个类将引导我们进行服务端的启动工作，直接new出来。
+3. .group(bossGroup, workerGroup)给引导类配置两大线程组，这个引导类的线程模型也就定型了。
+4. 指定服务端的IO模型为*NIO*，.channel(NioServerSocketChannel.class)来指定IO模型，如果你想指定 IO 模型为 BIO，那么这里配置上OioServerSocketChannel.class类型即可，因为Netty的优势就在于NIO。
+5. childHandler()方法，给这个引导类创建一个`ChannelInitializer`，定义后续每条连接的数据读写，业务处理逻辑。
 
+ChannelInitializer这个类中，我们注意到有一个泛型参数NioSocketChannel，这个类呢，就是 Netty 对 NIO 类型的连接的抽象，而我们前面NioServerSocketChannel也是对 NIO 类型的连接的抽象，NioServerSocketChannel和NioSocketChannel的概念可以和 BIO 编程模型中的ServerSocket以及Socket两个概念对应上
 
-## 自动绑定递增端口 ##
+BioServerSocketChannel和NioSocketChannel的概念可以和BIO编程模型种的ServerSocket以及Socket两个概念对应上
+
+要启动一个Netty服务端，必须要指定三类属性，分别是线程模型、IO 模型、连接读写处理逻辑，有了这三者，之后在调用bind(8000)。public class NettyServer {
+	    public static void main(String[] args) {
+	        NioEventLoopGroup bossGroup = new NioEventLoopGroup();
+	        NioEventLoopGroup workerGroup = new NioEventLoopGroup();
+	
+	        ServerBootstrap serverBootstrap = new ServerBootstrap();
+	        serverBootstrap
+	                .group(bossGroup, workerGroup)
+	                .channel(NioServerSocketChannel.class)
+	                .childHandler(new ChannelInitializer<NioSocketChannel>() {
+	                    protected void initChannel(NioSocketChannel ch) {
+	                    }
+	                });
+	
+	        serverBootstrap.bind(8000);
+	    }
+	}## 自动绑定递增端口 ##
 
 `serverBootstrap.bind(8000);`这个方法施一步方法，调用之后立即返回的，返回值是一个`ChannelFuture`，给这个ChannelFuture添加一个监听器`GenericFutureListener`，然后再`GenericFutureListener`和`operationComplete`方法里面，可以监听端口是否绑定成功
+
+	serverBootstrap.bind(8000).addListener(new GenericFutureListener<Future<? super Void>>() {
+	    public void operationComplete(Future<? super Void> future) {
+	        if (future.isSuccess()) {
+	            System.out.println("端口绑定成功!");
+	        } else {
+	            System.err.println("端口绑定失败!");
+	        }
+	    }
+	});
+
+	bind(serverBootstrap, 1000)
+
 
 ## 服务端启动其他方法 ##
 
 #### handler()方法 ####
 
-childHandler() 指定处理新连接数据的读写处理逻辑，handler()用于指定再服务端启动过程中的一些逻辑。
+	serverBootstrap.handler(new ChannelInitializer<NioServerSocketChannel>() {
+	    protected void initChannel(NioServerSocketChannel ch) {
+	        System.out.println("服务端启动中");
+	    }
+	})
+
+`handler()`方法呢，可以和`childHandler()`方法对应起来，`childHandler()`用于指定处理新连接数据的读写处理逻辑，`handler()`用于指定在服务端启动过程中的一些逻辑
 
 #### attr()方法 ####
 
@@ -141,7 +176,7 @@ attr()方法可以给服务端的 channel，也就是NioServerSocketChannel指�
 
 	serverBootstrap.childAttr(AttributeKey.newInstance('clientKey', 'clientValue')
 
-给每一条连接指定自定义属性，然后后续可以通过channel.attr()取出该属性。
+`childAttr`给每一条连接指定自定义属性，然后后续可以通过channel.attr()取出该属性。
 
 #### childOption()方法 ####
 
@@ -149,10 +184,10 @@ attr()方法可以给服务端的 channel，也就是NioServerSocketChannel指�
 		.childOption(ChannelOption.SO_KEEPALIVE, true)
 		.childOption(ChannelOption.TCP_NODELAY, true)
 
-childOption()可以给每条连接设置一些TCP底层相关的属性。
+`childOption()`可以给每条连接设置一些TCP底层相关的属性。
 
 * `ChannelOption.SO_KEEPALIVE`表示是否开启TCP底层心跳机制，true为开启
-* `ChannelOption.TCP_NODELAY`表示是否开始Nagle算法，true表示关闭，false表示开启，通俗地说，如果要求高实时性，有数据发送时就马上发送，就关闭，如果需要减少发送次数减少网络交互，就开启
+* `ChannelOption.TCP_NODELAY`表示是否开始Nagle算法，true表示关闭，false表示开启，如果要求高实时性，有数据发送时就马上发送，就关闭，如果需要减少发送次数减少网络交互，就开启
 
 #### option()方法 ####
 
@@ -160,28 +195,117 @@ childOption()可以给每条连接设置一些TCP底层相关的属性。
 
 	serverBootstrap.option(ChannelOption_SO_BACkLOG, 1024)
 
+表示系统用于临时存放已完成三次握手的请求的队列的最大长度，如果连接建立频繁，服务器处理创建新连接较慢，可以适当调大这个参数。
+
 ### 总结 ###
 
 * 本文中，首先学习了Netty服务端启动的流程，一句话来说就是：创建一个引导类，然后给他指定线程模型，IO模型，连接读写处理逻辑，绑定端口之后，服务端就启动起来了。
 * 然后学习到bind方法是异步的，通过这个异步机制来实现端口递增绑定。
 * 讨论了Netty服务端启动额外的参数，主要包括给服务端Channel或者客户端Channel设置属性值，设置底层TCP参数。
 
-## 客户端启动流程 ##
+# ch5 客户端启动流程 #
 
-### 客户端启动Demo ###
+## 客户端启动Demo ##
 
 对于客户端的启动来说，和服务端的启动类似，依然需要线程模型、IO模型、以及IO业务处理逻辑三大参数。
 
 客户端启动的引导类是 Bootstrap，负责启动客户端以及连接服务端，服务端的启动的时候，这个辅导类是 ServerBootstrap，引导类创建完成之后。
 
-1. 创建客户端引导类`Bootstrap`
+	public class NettyClient {
+	    public static void main(String[] args) {
+	        NioEventLoopGroup workerGroup = new NioEventLoopGroup();
+	        
+	        Bootstrap bootstrap = new Bootstrap();
+	        bootstrap
+	                // 1.指定线程模型
+	                .group(workerGroup)
+	                // 2.指定 IO 类型为 NIO
+	                .channel(NioSocketChannel.class)
+	                // 3.IO 处理逻辑
+	                .handler(new ChannelInitializer<SocketChannel>() {
+	                    @Override
+	                    public void initChannel(SocketChannel ch) {
+	                    }
+	                });
+	        // 4.建立连接
+	        bootstrap.connect("juejin.im", 80).addListener(future -> {
+	            if (future.isSuccess()) {
+	                System.out.println("连接成功!");
+	            } else {
+	                System.err.println("连接失败!");
+	            }
+	
+	        });
+	    }
+	}
+
+客户端启动的引导类是`Bootstrap`，负责启动客户端以及连接服务端，服务端启动的时候辅导类是`ServerBootstrap`
+
+1. 创建客户端引导类`Bootstrap`,
 2. 指定io类型为nio
 3. io处理逻辑
-4. 
+4. 建立连接
+
+————————
+
+1. 首先，与服务端的启动一样，我们需要给它指定线程模型，驱动着连接的数据读写，这个线程的概念可以和 `IOClient.java` 创建的线程联系起来
+2. 然后，我们指定 IO 模型为 `NioSocketChannel`，表示 IO 模型为 NIO，当然，你可以可以设置 IO 模型为 `OioSocketChannel`，但是通常不会这么做，因为 Netty 的优势在于 NIO
+3. 接着，给引导类指定一个 `handler`，这里主要就是定义连接的业务处理逻辑
+4. 配置完线程模型、IO 模型、业务处理逻辑之后，调用 `connect` 方法进行连接，可以看到 `connect` 方法有两个参数，第一个参数可以填写 IP 或者域名，第二个参数填写的是端口号，*由于 connect 方法返回的是一个 `Future`，也就是说这个方是异步的*，我们通过 `addListener` 方法可以监听到连接是否成功，进而打印出连接信息
 
 ## 失败重连 ##
 
-# TODO
+尝试重新连接，重新连接的逻辑写在连接失败的逻辑块里
+
+	bootstrap.connect("juejin.im", 80).addListener(future -> {
+	    if (future.isSuccess()) {
+	        System.out.println("连接成功!");
+	    } else {
+	        System.err.println("连接失败!");
+	        // 重新连接
+	    }
+	});
+
+把建立连接的逻辑先抽取出来，然后在重连失败的时候，递归调用自身
+
+	private static void connect(Bootstrap bootstrap, String host, int port) {
+	    bootstrap.connect(host, port).addListener(future -> {
+	        if (future.isSuccess()) {
+	            System.out.println("连接成功!");
+	        } else {
+	            System.err.println("连接失败，开始重连");
+	            connect(bootstrap, host, port);
+	        }
+	    });
+	}
+
+
+
+	connect(bootstrap, "juejin.im", 80, MAX_RETRY);
+	
+	private static void connect(Bootstrap bootstrap, String host, int port, int retry) {
+	    bootstrap.connect(host, port).addListener(future -> {
+	        if (future.isSuccess()) {
+	            System.out.println("连接成功!");
+	        } else if (retry == 0) {
+	            System.err.println("重试次数已用完，放弃连接！");
+	        } else {
+	            // 第几次重连
+	            int order = (MAX_RETRY - retry) + 1;
+	            // 本次重连的间隔
+	            int delay = 1 << order;
+	            System.err.println(new Date() + ": 连接失败，第" + order + "次重连……");
+	            bootstrap.config().group().schedule(() -> connect(bootstrap, host, port, retry - 1), delay, TimeUnit
+	                    .SECONDS);
+	        }
+	    });
+	}
+
+1. 如果连接成功则打印连接成功的消息
+2. 如果连接失败但是重试次数已经用完，放弃连接
+3. 如果连接失败但是重试次数仍然没有用完，则计算下一次重连间隔 `delay`，然后定期重连
+
+我们定时任务是调用 `bootstrap.config().group().schedule()`, 其中 bootstrap.config() 这个方法返回的是 BootstrapConfig，他是对 Bootstrap 配置参数的抽象，然后 bootstrap.config().group() 返回的就是我们在一开始的时候配置的线程模型 workerGroup，调 workerGroup 的 schedule 方法即可实现定时任务逻辑。
 
 ## 客户端启动其他方法 ##
 
@@ -189,9 +313,7 @@ childOption()可以给每条连接设置一些TCP底层相关的属性。
 
 	bootstrap.attr(AttributeKey.newInstant"clientName"), "nettyClient");
 
-`attr()`方法可以给客户端Channel，也即是说`NioSocketChannel`绑定自定义属性，然后通过`channel.attr()`取出这个属性。
-
-`NioSocketChannel`维护一个map
+`attr()`方法可以给客户端Channel，也即是说`NioSocketChannel`绑定自定义属性，然后通过`channel.attr()`取出这个属性，比如，上面的代码我们指定我们客户端Channel的一个`clientName`属性，属性值为`nettyClient`，`NioSocketChannel`维护一个map，后续再`NioSocketChannel`通过参数传来传去的时候，通过`NioSocketChannel`来取出设置的属性。
 
 #### option()方法 ####
 	
@@ -216,26 +338,83 @@ childOption()可以给每条连接设置一些TCP底层相关的属性。
 
 与服务端启动相比，客户端启动的引导类少了哪些方法，为什么不需要这些方法？欢迎留言讨论
 
-## ch6 实战：客户端与服务端双向通信 ##
+# ch6 实战：客户端与服务端双向通信 #
 
-### 客户端发数据到服务端 ###
+## 客户端发数据到服务端 ##
+
+	public class FirstClientHandler extends ChannelInboundHandlerAdapter {
+	    @Override
+	    public void channelActive(ChannelHandlerContext ctx) {
+	        System.out.println(new Date() + ": 客户端写出数据");
+	
+	        // 1. 获取数据
+	        ByteBuf buffer = getByteBuf(ctx);
+	
+	        // 2. 写数据
+	        ctx.channel().writeAndFlush(buffer);
+	    }
+	
+	    private ByteBuf getByteBuf(ChannelHandlerContext ctx) {
+	        // 1. 获取二进制抽象 ByteBuf
+	        ByteBuf buffer = ctx.alloc().buffer();
+	        
+	        // 2. 准备数据，指定字符串的字符集为 utf-8
+	        byte[] bytes = "你好，闪电侠!".getBytes(Charset.forName("utf-8"));
+	
+	        // 3. 填充数据到 ByteBuf
+	        buffer.writeBytes(bytes);
+	
+	        return buffer;
+	    }
+	}
 
 客户端相关的数据读写逻辑是通过 `Bootstrap` 的 `handler()` 方法指定，我们在 `initChannel()` 方法里面给客户端添加一个逻辑处理器，这个处理器的作用就是负责向服务端写数据。
 
 1. `ch.pipeline()`返回的是和这条连接相关的逻辑处理链，采用了责任链模式。
 2. 然后再调用addLast()方法添加一个逻辑处理器，这个逻辑处理器为的就是再客户端建立成功之后，向服务端写数据。
 
-### 服务端读取客户端数据 ###
+## 服务端读取客户端数据 ##
 
-### 服务端回数据给客户端 ###
 
-### 总结 ###
+
+## 服务端回数据给客户端 ##
+
+服务端向客户端写数据逻辑与客户端侧的写数据逻辑一样，先创建一个 ByteBuf，然后填充二进制数据，最后调用 writeAndFlush() 方法写出去。
+
+	public class FirstServerHandler extends ChannelInboundHandlerAdapter {
+	
+	    @Override
+	    public void channelRead(ChannelHandlerContext ctx, Object msg) {
+	        // ... 收数据逻辑省略
+	
+	        // 回复数据到客户端
+	        System.out.println(new Date() + ": 服务端写出数据");
+	        ByteBuf out = getByteBuf(ctx);
+	        ctx.channel().writeAndFlush(out);
+	    }
+	
+	    private ByteBuf getByteBuf(ChannelHandlerContext ctx) {
+	        byte[] bytes = "你好，欢迎关注我的微信公众号，《闪电侠的博客》!".getBytes(Charset.forName("utf-8"));
+	
+	        ByteBuf buffer = ctx.alloc().buffer();
+	
+	        buffer.writeBytes(bytes);
+	
+	        return buffer;
+	    }
+	}
+
+
+
+## 总结 ##
 
 1. 通过给逻辑处理链 `pipeline` 添加逻辑处理器，来编写数据的读写逻辑
 2. 客户端连接成功之后会回调到逻辑处理器的` channelActive()` 方法，而不管是服务端还是客户端，收到数据后都会调用 `channelRead` 方法。
 3. 写数据调用 `writeAndFlush` 方法，客户端与服务端交互的二进制数据载体为 `ByteBuf`，`ByteBuf` 通过连接的内存管理器创建，字节数据填充到 `ByteBuf` 之后才能写到对端。
 
+## 思考题 ##
 
+如何实现新连接接入的时候，服务端主动向客户端推送消息，客户端回复服务端消息？欢迎留言讨论。
 
 ## ch7 数据传输载体ByteBuf介绍 ##
 
@@ -243,9 +422,9 @@ childOption()可以给每条连接设置一些TCP底层相关的属性。
 
 1. ByteBuf是一个字节容器，容器里面的数据分为三个部分。
 2. 以上三段内容是被两个指针给划分出来的，从左到右，依次是读指针（readerIndex）、写指针（writerIndex），然后还有一个变量capacity，表示ByteBuf底层内存的总容量
-3. 从ByteBuf中每读取一个字节，readerIndex自增1，ByteBuf里面总共有writeIndex-readerIndex个字节可读，由此可以推论出当readerIndex与writerIndex相等的时候，ByteBuf不可读
-4. 写数据是从writeIndex指向的部分开始写，每写一个字节，writeIndex自增1，直到增到capacity，这个时候，表示ByteBuf已经不可写了
-5. ByteBuf里面其实还有一个参数maxCapacity，当向ByteBuf写数据的时候，如果容量不足，那么这个时候可以进行扩容，直到capacity扩容到maxCapacity，超过maxCapacity就会报错
+3. 从ByteBuf中每读取一个字节，readIndex自增1，ByteBuf 里面总共有 writerIndex-readerIndex 个字节可读, 由此可以推论出当 readerIndex 与 writerIndex 相等的时候，ByteBuf 不可读
+4. 写数据是从 writerIndex 指向的部分开始写，每写一个字节，writerIndex 自增1，直到增到 capacity，这个时候，表示 ByteBuf 已经不可写了
+5. ByteBuf 里面其实还有一个参数 maxCapacity，当向 ByteBuf 写数据的时候，如果容量不足，那么这个时候可以进行扩容，直到 capacity 扩容到 maxCapacity，超过 maxCapacity 就会报错
 
 废弃字节、可读字节和可写字节
 
