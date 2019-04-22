@@ -531,6 +531,72 @@ slice方法
 
 #### 序列化 ####
 
+	public interface Serializer {
+	
+	    /**
+	     * 序列化算法
+	     */
+	    byte getSerializerAlgorithm();
+	    
+	    /**
+	     * java 对象转换成二进制
+	     */
+	    byte[] serialize(Object object);
+	
+	    /**
+	     * 二进制转换成 java 对象
+	     */
+	    <T> T deserialize(Class<T> clazz, byte[] bytes);
+	}
+
+序列化接口有三个方法，`getSerializerAlgorithm()` 获取具体的序列化算法标识，`serialize()` 将 Java 对象转换成字节数组，`deserialize()` 将字节数组转换成某种类型的 Java 对象
+
+	public interface SerializerAlgorithm {
+	    /**
+	     * json 序列化标识
+	     */
+	    byte JSON = 1;
+	}
+	
+	
+	public class JSONSerializer implements Serializer {
+	   
+	    @Override
+	    public byte getSerializerAlgorithm() {
+	        
+	        return SerializerAlgorithm.JSON;
+	    } 
+	
+	    @Override
+	    public byte[] serialize(Object object) {
+	        
+	        return JSON.toJSONBytes(object);
+	    }
+	
+	    @Override
+	    public <T> T deserialize(Class<T> clazz, byte[] bytes) {
+	        
+	        return JSON.parseObject(bytes, clazz);
+	    }
+	}
+
+序列化算法的类型以及默认序列化算法
+
+	public interface Serializer {
+	    /**
+	     * json 序列化
+	     */
+	    byte JSON_SERIALIZER = 1;
+	
+	    Serializer DEFAULT = new JSONSerializer();
+	
+	    // ...
+	}
+
+我们就实现了序列化相关的逻辑，如果想要实现其他序列化算法的话，只需要继承一下 `Serializer`，然后定义一下序列化算法的标识，再覆盖一下两个方法即可。
+
+
+
 ### 总结 ###
 
 1. 通信协议是为了服务端与客户端交互，双方协商出来的满足一定规则的二进制数据格式。
@@ -538,7 +604,7 @@ slice方法
 3. Java对象以及序列化，目的就是实现Java对象与二进制数据的互转。
 4. 依照设计的协议以及ByteBuf的API实现了通信协议，这个过程称为编解码过程。
 
-Q 
+### 思考题 ###
 
 1. 除了json序列化之外，还有哪些序列化方式？如何实现
 2. 序列化和编码都是把 Java 对象封装成二进制数据的过程，这两者有什么区别和联系？
