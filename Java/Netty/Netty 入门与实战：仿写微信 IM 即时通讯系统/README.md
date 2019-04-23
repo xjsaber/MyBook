@@ -1043,11 +1043,68 @@ Netty会将此ByteBuf写到另外一端，另外一端拿到的也是一个ByteB
 	    Byte MESSAGE_RESPONSE = 4;
 	}
 
-## 判断客户都安是否登陆成功 ##
+## 判断客户端是否登陆成功 ##
 
 ## 控制台输入消息并发送 ##
 
+	private static void connect(Bootstrap bootstrap, String host, int port, int retry) {
+	    bootstrap.connect(host, port).addListener(future -> {
+	        if (future.isSuccess()) {
+	            Channel channel = ((ChannelFuture) future).channel();
+	            // 连接成功之后，启动控制台线程
+	            startConsoleThread(channel);
+	        } 
+	        // ...
+	    });
+	}
+
+	private static void startConsoleThread(Channel channel) {
+	    new Thread(() -> {
+	        while (!Thread.interrupted()) {
+	            if (LoginUtil.hasLogin(channel)) {
+	                System.out.println("输入消息发送至服务端: ");
+	                Scanner sc = new Scanner(System.in);
+	                String line = sc.nextLine();
+	                
+	                MessageRequestPacket packet = new MessageRequestPacket();
+	                packet.setMessage(line);
+	                ByteBuf byteBuf = PacketCodeC.INSTANCE.encode(channel.alloc(), packet);
+	                channel.writeAndFlush(byteBuf);
+	            }
+	        }
+	    }).start();
+	}
+
+调用 `startConsoleThread()` 开始启动控制台线程，然后在控制台线程中，判断只要当前 channel 是登录状态，就允许控制台输入消息。
+
+从控制台获取消息之后，将消息封装成消息对象，然后将消息编码成 `ByteBuf`，最后通过 `writeAndFlush()` 将消息写到服务端。
+
 ## 服务端收发消息处理 ##
+
+	public void channelRead(ChannelHandlerContext ctx, Object msg) {
+	    ByteBuf requestByteBuf = (ByteBuf) msg;
+	
+	    Packet packet = PacketCodeC.INSTANCE.decode(requestByteBuf);
+	
+	    if (packet instanceof LoginRequestPacket) {
+	        // 处理登录..
+	    } else if (packet instanceof MessageRequestPacket) {
+	        // 处理消息
+	        MessageRequestPacket messageRequestPacket = ((MessageRequestPacket) packet);
+	        System.out.println(new Date() + ": 收到客户端消息: " + messageRequestPacket.getMessage());
+	
+	        MessageResponsePacket messageResponsePacket = new MessageResponsePacket();
+	        messageResponsePacket.setMessage("服务端回复【" + messageRequestPacket.getMessage() + "】");
+	        ByteBuf responseByteBuf = PacketCodeC.INSTANCE.encode(ctx.alloc(), messageResponsePacket);
+	        ctx.channel().writeAndFlush(responseByteBuf);
+	    }
+	}
+
+服务端在收到消息之后，仍然是回调到 `channelRead()` 方法，解码之后用一个 `else` 分支进入消息处理的流程。
+
+1. 服务端将收到的消息打印到控制台，然后封装一个消息响应对象 MessageResponsePacket
+2. 先编码成 ByteBuf
+3. 调用 writeAndFlush() 将数据写到客户端
 
 ## 客户端收消息处理 ##
 
@@ -1085,7 +1142,7 @@ Netty中的pipeline和channelHandler通过责任链设计模式组织代码逻�
 
 对应的默认实现，`ChannelInboundHandlerAdapter`和`ChanneloutBoundHandlerAdapter`，分别实现了两大接口的所有功能，默认情况会把读写事件传播到下一个handler。
 
-### ChannelInboundHandler的事件传播 ###
+## ChannelInboundHandler的事件传播 ##
 
 在服务端的pipeline添加三个`ChannelInboundHandler`。
 
@@ -1095,7 +1152,7 @@ Netty中的pipeline和channelHandler通过责任链设计模式组织代码逻�
 
 addLast()方法来为pipeline添加inBoundHandler，A->B->C
 
-### ChannelOutboundHandler的事件传播 ###
+## ChannelOutboundHandler的事件传播 ##
 
 ChanneloutBoundHandler -> write()
 
@@ -1103,14 +1160,21 @@ ChanneloutBoundHandler -> write()
 
 可以使用这几种特殊的 channelHandler 来改造我们的客户端和服务端逻辑，解决掉 if else 泛滥的问题
 
-### 总结 ###
+## 总结 ##
 
 1. 引出pipeline和channelHandler的概念 #TODO
 2. channelHandler分为inBound和outBound两种类型的接口，分别是处理数据读和数据写的逻辑，可与tcp协议栈联系起来。
 3. 两种类型的handler均有相应的默认实现，默认会把事件传递到下一个，这里的传递时间其实说
-4. inBoundHandler的执行顺序与实际添加的孙婿相同，而outBoundHandler则相反。
+4. inBoundHandler的执行顺序与实际添加的顺序相同，而outBoundHandler则相反。
+
+## 思考 ##
+
+1. 往pipeline里面添加handler的顺序不变，要在控制台打印打印出 inboundA -> inboundC -> outboundB -> outboundA。该如何实现
+2. 如何在每个handler里面打印上一个handler处理结束的时间点？
 
 # ch12 实战：构建客户端与服务端pipeline #
+
+学习 Netty 内置的 ChannelHandler 来逐步构建我们的 pipeline。
 
 ## ChannelInboundHandlerAdapter 与 ChannelOutboundHandlerAdapter ##
 
