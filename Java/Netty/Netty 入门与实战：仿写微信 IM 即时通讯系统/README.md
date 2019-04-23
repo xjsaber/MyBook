@@ -865,8 +865,12 @@ Netty会将此ByteBuf写到另外一端，另外一端拿到的也是一个ByteB
 
 ## 逻辑处理器 ##
 
+客户端启动的时候，我们会在引导类 `Bootstrap` 中配置客户端的处理逻辑。
+
 	public class ClientHandler extends ChannelInboundHandlerAdapter {
 	}
+
+客户端启动的时候，我们给 `Bootstrap` 配置上这个逻辑处理器
 
 	bootstrap.handler(new ChannelInitializer<SocketChannel>() {
 	            @Override
@@ -877,7 +881,73 @@ Netty会将此ByteBuf写到另外一端，另外一端拿到的也是一个ByteB
 
 在客户端侧，Netty 中 IO 事件相关的回调就能够回调到我们的 `ClientHandler`。
 
+在服务端引导类 `ServerBootstrap` 也配置一个逻辑处理器 `ServerHandler`
+
+	public class ServerHandler extends ChannelInboundHandlerAdapter {
+	}
+	
+	
+	serverBootstrap.childHandler(new ChannelInitializer<NioSocketChannel>() {
+	            protected void initChannel(NioSocketChannel ch) {
+	                ch.pipeline().addLast(new ServerHandler());
+	            }
+	        }
+
+在服务端侧，Netty 中 IO 事件相关的回调就能够回调到我们的 `ServerHandler`。
+
 ## 客户端发送登录请求 ##
+
+#### 客户端处理登录请求 ####
+
+我们实现在客户端连接上服务端之后，立即登录。在连接上服务端之后，Netty 会回调到 `ClientHandler` 的 `channelActive()` 方法，我们在这个方法体里面编写相应的逻辑
+
+	public void channelActive(ChannelHandlerContext ctx) {
+	    System.out.println(new Date() + ": 客户端开始登录");
+	
+	    // 创建登录对象
+	    LoginRequestPacket loginRequestPacket = new LoginRequestPacket();
+	    loginRequestPacket.setUserId(UUID.randomUUID().toString());
+	    loginRequestPacket.setUsername("flash");
+	    loginRequestPacket.setPassword("pwd");
+	
+	    // 编码
+	    ByteBuf buffer = PacketCodeC.INSTANCE.encode(ctx.alloc(), loginRequestPacket);
+	
+	    // 写数据
+	    ctx.channel().writeAndFlush(buffer);
+	}
+
+1. 在编码的环节，我们把 `PacketCodeC` 变成单例模式，然后把 `ByteBuf` 分配器抽取出一个参数，这里第一个实参 `ctx.alloc()` 获取的就是与当前连接相关的 `ByteBuf` 分配器。
+2. 写数据的时候，我们通过 `ctx.channel()` 获取到当前连接（Netty 对连接的抽象为 Channel，后面小节会分析），然后调用 `writeAndFlush()` 就能把二进制数据写到服务端。
+
+#### 服务端处理登录请求 ####
+
+	public void channelRead(ChannelHandlerContext ctx, Object msg) {
+	    ByteBuf requestByteBuf = (ByteBuf) msg;
+	
+	    // 解码
+	    Packet packet = PacketCodeC.INSTANCE.decode(requestByteBuf);
+	
+	    // 判断是否是登录请求数据包
+	    if (packet instanceof LoginRequestPacket) {
+	        LoginRequestPacket loginRequestPacket = (LoginRequestPacket) packet;
+	
+	        // 登录校验
+	        if (valid(loginRequestPacket)) {
+	            // 校验成功
+	        } else {
+	            // 校验失败
+	        }
+	    }
+	}
+	
+	private boolean valid(LoginRequestPacket loginRequestPacket) {
+	    return true;
+	}
+
+向服务端引导类 `ServerBootstrap` 中添加了逻辑处理器 `ServerHandler` 之后，Netty 在收到数据之后，会回调 `channelRead()` 方法，这里的第二个参数 `msg`，在我们这个场景中，可以直接强转为 `ByteBuf`，为什么 Netty 不直接把这个参数类型定义为 ByteBuf ？
+
+拿到 `ByteBuf` 之后，首先要做的事情就是解码，解码出 java 数据包对象，然后判断如果是登录请求数据包 `LoginRequestPacket`，就进行登录逻辑的处理，这里，我们假设所有的登录都是成功的，`valid()` 方法返回 true。 服务端校验通过之后，接下来就需要向客户端发送登录响应，我们继续编写服务端的逻辑。
 
 ## 服务端发送登录相应 ##
 
@@ -931,6 +1001,48 @@ Netty会将此ByteBuf写到另外一端，另外一端拿到的也是一个ByteB
 
 ## 收发消息对象 ##
 
+客户端发送至服务端的消息对象定义为 `MessageRequestPacket`。
+
+	@Data
+	public class MessageRequestPacket extends Packet {
+	
+	    private String message;
+	
+	    @Override
+	    public Byte getCommand() {
+	        return MESSAGE_REQUEST;
+	    }
+	}
+
+指令为 `MESSAGE_REQUEST ＝ 3`
+
+服务端发送至客户端的消息对象定义为 `MessageResponsePacket`
+
+	@Data
+	public class MessageResponsePacket extends Packet {
+	
+	    private String message;
+	
+	    @Override
+	    public Byte getCommand() {
+	
+	        return MESSAGE_RESPONSE;
+	    }
+	}
+
+指令为 `MESSAGE_RESPONSE = 4`
+
+	public interface Command {
+	
+	    Byte LOGIN_REQUEST = 1;
+	
+	    Byte LOGIN_RESPONSE = 2;
+	
+	    Byte MESSAGE_REQUEST = 3;
+	
+	    Byte MESSAGE_RESPONSE = 4;
+	}
+
 ## 判断客户都安是否登陆成功 ##
 
 ## 控制台输入消息并发送 ##
@@ -943,7 +1055,14 @@ Netty会将此ByteBuf写到另外一端，另外一端拿到的也是一个ByteB
 
 ## 总结 ##
 
+1. 定义了收发消息的Java对象进行消息的收发。
+2. 然后学到了channel的attr()的实际用法：可以通过给channel绑定属性来设置状态，获取某些状态，不需要额外的map来维持。
+3. 在控制台获取消息并且发送至服务端。
+4. 实现了服务端回消息，客户端响应的逻辑。
+
 ## 思考 ##
+
+随着我们实现的指令越来越多，如何避免 `channelRead()` 中对指令处理的 `if else` 泛滥？欢迎留言讨论。
 
 # ch11 pipeline与channelHandler #
 

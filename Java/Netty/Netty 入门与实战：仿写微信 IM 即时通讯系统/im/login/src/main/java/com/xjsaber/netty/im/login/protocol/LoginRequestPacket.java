@@ -9,7 +9,7 @@ import static com.xjsaber.netty.im.login.protocol.command.Command.LOGIN_REQUEST;
  */
 @Data
 public class LoginRequestPacket extends Packet {
-    private Integer userId;
+    private String userId;
 
     private String username;
 
@@ -18,6 +18,10 @@ public class LoginRequestPacket extends Packet {
     @Override
     public Byte getCommand() {
         return LOGIN_REQUEST;
+    }
+
+    public boolean isSuccess(){
+        return true;
     }
 }
 

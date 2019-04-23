@@ -5,6 +5,7 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.DefaultEventLoopGroup;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
@@ -15,15 +16,15 @@ public class NettyServer {
 
     public static void main(String[] args) {
         ServerBootstrap serverBootstrap = new ServerBootstrap();
-        EventLoopGroup boss = new DefaultEventLoopGroup();
-        EventLoopGroup worker = new DefaultEventLoopGroup();
+        NioEventLoopGroup boss = new NioEventLoopGroup();
+        NioEventLoopGroup worker = new NioEventLoopGroup();
 
         serverBootstrap.group(boss, worker)
                 .channel(NioServerSocketChannel.class)
                 .option(ChannelOption.SO_BACKLOG, 1024)
                 .childOption(ChannelOption.SO_KEEPALIVE, true)
                 .childOption(ChannelOption.TCP_NODELAY, true)
-                .handler(new ChannelInitializer<SocketChannel>() {
+                .childHandler(new ChannelInitializer<SocketChannel>() {
 
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
@@ -31,5 +32,6 @@ public class NettyServer {
                     }
                 });
 
+        serverBootstrap.bind(8000);
     }
 }

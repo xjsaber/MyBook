@@ -1,5 +1,7 @@
 package com.xjsaber.netty.im.login.serialize;
 
+import lombok.Data;
+
 /**
  * @author xjsaber
  */

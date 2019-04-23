@@ -1,6 +1,7 @@
 package com.xjsaber.netty.im.login.serialize;
 
 import com.alibaba.fastjson.JSON;
+import lombok.Data;
 
 /**
  * @author xjsaber
