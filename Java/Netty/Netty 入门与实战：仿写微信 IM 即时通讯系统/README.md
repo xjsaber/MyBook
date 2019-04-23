@@ -877,20 +877,73 @@ Netty会将此ByteBuf写到另外一端，另外一端拿到的也是一个ByteB
 
 在客户端侧，Netty 中 IO 事件相关的回调就能够回调到我们的 `ClientHandler`。
 
-
-
 ## 客户端发送登录请求 ##
 
+## 服务端发送登录相应 ##
+
+#### 服务端处理登录响应 ####
+
+	LoginResponsePacket loginResponsePacket = new LoginResponsePacket();
+	loginResponsePacket.setVersion(packet.getVersion());
+	if (valid(loginRequestPacket)) {
+	    loginResponsePacket.setSuccess(true);
+	} else {
+	    loginResponsePacket.setReason("账号密码校验失败");
+	    loginResponsePacket.setSuccess(false);
+	}
+	// 编码
+	ByteBuf responseByteBuf = PacketCodeC.INSTANCE.encode(ctx.alloc(), loginResponsePacket);
+	ctx.channel().writeAndFlush(responseByteBuf);
+
+服务端逻辑处理器 `ServerHandler` 的 `channelRead()` 方法里，我们构造一个登录响应包 `LoginResponsePacket`，然后在校验成功和失败的时候分别设置标志位，接下来，调用编码器把 Java 对象编码成 `ByteBuf`，调用 `writeAndFlush()` 写到客户端，至此，服务端的登录逻辑编写完成
+
+#### 客户端处理登录响应 ####
+
+客户端接收服务端数据的处理逻辑也是在 `ClientHandler` 的 `channelRead()` 方法
+
+	public void channelRead(ChannelHandlerContext ctx, Object msg) {
+	    ByteBuf byteBuf = (ByteBuf) msg;
+	
+	    Packet packet = PacketCodeC.INSTANCE.decode(byteBuf);
+	
+	    if (packet instanceof LoginResponsePacket) {
+	        LoginResponsePacket loginResponsePacket = (LoginResponsePacket) packet;
+	
+	        if (loginResponsePacket.isSuccess()) {
+	            System.out.println(new Date() + ": 客户端登录成功");
+	        } else {
+	            System.out.println(new Date() + ": 客户端登录失败，原因：" + loginResponsePacket.getReason());
+	        }
+	    }
+	}
+
+客户端拿到数据之后，调用 `PacketCodeC` 进行解码操作。
 
 ## 总结 ##
 
-
+梳理了一下客户端登录的基本流程，然后结合上一小节的编解码逻辑，我们使用 Netty 实现了完整的客户端登录流程。
 
 ## 思考 ##
 
 客户端登录成功或者失败之后，如果把成功或者失败的标识绑定在客户端的连接上？服务端又是如何高效避免客户端重新登录？ 欢迎留言讨论。
 
 # ch10 实战：实现客户端与服务端收发消息 #
+
+## 收发消息对象 ##
+
+## 判断客户都安是否登陆成功 ##
+
+## 控制台输入消息并发送 ##
+
+## 服务端收发消息处理 ##
+
+## 客户端收消息处理 ##
+
+## 控制台输出 ##
+
+## 总结 ##
+
+## 思考 ##
 
 # ch11 pipeline与channelHandler #
 
