@@ -1125,9 +1125,9 @@ Netty会将此ByteBuf写到另外一端，另外一端拿到的也是一个ByteB
 
 客户端写在`ClientHandler`，服务端写在`ServerHandler`。
 
-Netty中的pipeline和channelHandler通过责任链设计模式组织代码逻辑，并且能够支持逻辑的动态添加和删除。
-
 每次发指令数据包都要手动调用编码器编码成 `ByteBuf`，把他们放在一个类中进行模块化处理，使用链式解决。
+
+Netty中的pipeline和channelHandler通过责任链设计模式组织代码逻辑，并且能够支持逻辑的动态添加和删除。Netty能够支持各类的扩展，比如HTTP，Websocket，Redis，靠的就是pipeline和channelHandler。
 
 ## pipeline与channelHandler的构成 ##
 
@@ -1137,8 +1137,10 @@ Netty中的pipeline和channelHandler通过责任链设计模式组织代码逻�
 
 ## channelHandler的分类 ##
 
+`ChannelHandler`有两大子接口：
+
 1. 第一个子接口是`ChannelInboundHandler`是处理读数据的逻辑。最重要的方法是`channelRead()`。将 `ChannelInboundHandler` 的逻辑处理过程与 TCP 的七层协议的解析联系起来，收到的数据一层层从物理层上升到我们的应用层。
-2. 第二个子接口是`ChannelOutboundHandler`是处理写数据的逻辑。最重要的方法是`write()`。将 `ChannelOutBoundHandler` 的逻辑处理过程与 TCP 的七层协议的解析联系起来，收到的数据一层层从物理层上升到我们的应用层。
+2. 第二个子接口是`ChannelOutboundHandler`是处理写数据的逻辑，它是定义一端在组装完响应之后，把数据写到对端的逻辑。最重要的方法是`write()`。将 `ChannelOutBoundHandler` 的逻辑处理过程与 TCP 的七层协议的解析联系起来，收到的数据一层层从物理层上升到我们的应用层。
 
 对应的默认实现，`ChannelInboundHandlerAdapter`和`ChanneloutBoundHandlerAdapter`，分别实现了两大接口的所有功能，默认情况会把读写事件传播到下一个handler。
 
@@ -1146,15 +1148,100 @@ Netty中的pipeline和channelHandler通过责任链设计模式组织代码逻�
 
 在服务端的pipeline添加三个`ChannelInboundHandler`。
 
+	serverBootstrap
+	        .childHandler(new ChannelInitializer<NioSocketChannel>() {
+	            protected void initChannel(NioSocketChannel ch) {
+	                ch.pipeline().addLast(new InBoundHandlerA());
+	                ch.pipeline().addLast(new InBoundHandlerB());
+	                ch.pipeline().addLast(new InBoundHandlerC());
+	            }
+	        });
+
 每个inBoundHandler都继承自`ChannelInboundHandlerAdapter`，然后实现了channelRead()方法。
 
-在channelRead()方法里面，打印当前handler的信息，然后调用弗雷的`channelRead()`方法，而这里父类的`channelRead()`方法会自动调用到下一个inBoundhandler的`channelRead()`方法，并且会把当前inBoundHandler里处理完毕的对象 传递到下一个inBoundHandler。
+	public class InBoundHandlerA extends ChannelInboundHandlerAdapter {
+	    @Override
+	    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+	        System.out.println("InBoundHandlerA: " + msg);
+	        super.channelRead(ctx, msg);
+	    }
+	}
+	
+	public class InBoundHandlerB extends ChannelInboundHandlerAdapter {
+	    @Override
+	    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+	        System.out.println("InBoundHandlerB: " + msg);
+	        super.channelRead(ctx, msg);
+	    }
+	}
+	
+	public class InBoundHandlerC extends ChannelInboundHandlerAdapter {
+	    @Override
+	    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+	        System.out.println("InBoundHandlerC: " + msg);
+	        super.channelRead(ctx, msg);
+	    }
+	}
+
+在`channelRead()`方法里面，打印当前handler的信息，然后调用父类的`channelRead()`方法，而这里父类的`channelRead()`方法会自动调用到下一个inBoundhandler的`channelRead()`方法，并且会把当前inBoundHandler里处理完毕的对象 传递到下一个inBoundHandler。
 
 addLast()方法来为pipeline添加inBoundHandler，A->B->C
 
+inBoundHandler嗯但执行顺序与我们通过`addLast()`方法添加的顺序保持一致。
+
 ## ChannelOutboundHandler的事件传播 ##
 
-ChanneloutBoundHandler -> write()
+`ChanneloutBoundHandler` -> `write()`
+
+继续在服务端的pipeline添加三个`ChanneloutBoundHandler`
+
+	serverBootstrap
+	        .childHandler(new ChannelInitializer<NioSocketChannel>() {
+	            protected void initChannel(NioSocketChannel ch) {
+	                // inBound，处理读数据的逻辑链
+	                ch.pipeline().addLast(new InBoundHandlerA());
+	                ch.pipeline().addLast(new InBoundHandlerB());
+	                ch.pipeline().addLast(new InBoundHandlerC());
+	                
+	                // outBound，处理写数据的逻辑链
+	                ch.pipeline().addLast(new OutBoundHandlerA());
+	                ch.pipeline().addLast(new OutBoundHandlerB());
+	                ch.pipeline().addLast(new OutBoundHandlerC());
+	            }
+	        });
+
+每个 outBoundHandler 都继承自 `ChanneloutBoundHandlerAdapter`，然后实现了 `write()` 方法
+
+	public class OutBoundHandlerA extends ChannelOutboundHandlerAdapter {
+	    @Override
+	    public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
+	        System.out.println("OutBoundHandlerA: " + msg);
+	        super.write(ctx, msg, promise);
+	    }
+	}
+	
+	public class OutBoundHandlerB extends ChannelOutboundHandlerAdapter {
+	    @Override
+	    public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
+	        System.out.println("OutBoundHandlerB: " + msg);
+	        super.write(ctx, msg, promise);
+	    }
+	}
+	
+	public class OutBoundHandlerC extends ChannelOutboundHandlerAdapter {
+	    public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
+	        System.out.println("OutBoundHandlerC: " + msg);
+	        super.write(ctx, msg, promise);
+	    }
+	}
+
+在 write() 方法里面，我们打印当前 handler 的信息，然后调用父类的 write() 方法，而这里父类的 write() 方法会自动调用到下一个 outBoundHandler 的 write() 方法，并且会把当前 outBoundHandler 里处理完毕的对象传递到下一个 outBoundHandler。
+
+我们通过 `addLast()` 方法 添加 outBoundHandler 的顺序为 A -> B -> C
+
+outBoundHandler 的执行顺序与我们添加的顺序相反
+
+![2019-04-24_10-35-32.jpg](img/2019-04-24_10-35-32.jpg)
 
 两种类型的handler在一个双向链表离，但是这两类handler分工是不一一样的，inBoundHandler的事件通常只会传播到下一个inBoundHandler，outBoundHandler的事件通常只会传播到下一个outBoundHandler，两者相互不受干扰。
 
@@ -1174,25 +1261,476 @@ ChanneloutBoundHandler -> write()
 
 # ch12 实战：构建客户端与服务端pipeline #
 
-学习 Netty 内置的 ChannelHandler 来逐步构建我们的 pipeline。
+Netty内置的 ChannelHandler 来逐步构建我们的 pipeline。
 
 ## ChannelInboundHandlerAdapter 与 ChannelOutboundHandlerAdapter ##
 
-1. `ChannelInboundHandlerAdapter`,这个适配器主要实现其接口 `ChannelInboundHandler`的所有方法
+1. `ChannelInboundHandlerAdapter`,这个适配器主要实现其接口 `ChannelInboundHandler`的所有方法，编写自己的handler的时候不需要实现handler里面的的每一种方法，而只需要实现我们所关心的方法。
+
+	@Override
+	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+	    ctx.fireChannelRead(msg);
+	}
+
+接收上一个handler的输出，这里的`msg`就是上个handler的输出。默认情况下adapter会通过`fireChannelRead()`方法直接把上一个handler输出结果传递到下一个handler。
+
+与`ChannelInboundHandlerAdapter`类似的类是`ChannelOutboundHandlerAdapter`。
+
+	@Override
+	public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
+	    ctx.write(msg, promise);
+	}
+
+默认情况下，这个adapter把对象传递到下一个outBound节点，它的传播顺序与inboundHandler相反。
+
+	@Override
+	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+	        ByteBuf requestByteBuf = (ByteBuf) msg;
+	        // 解码
+	        Packet packet = PacketCodeC.INSTANCE.decode(requestByteBuf);
+	        // 解码后的对象传递到下一个 handler 处理
+	        ctx.fireChannelRead(packet)
+	}
 
 ## ByteToMessageDecoder ##
 
-1. 把二进制转换成一个Java对象。
+把二进制转换成一个Java对象。
+
+	public class PacketDecoder extends ByteToMessageDecoder {
+	
+	    @Override
+	    protected void decode(ChannelHandlerContext ctx, ByteBuf in, List out) {
+	        out.add(PacketCodeC.INSTANCE.decode(in));
+	    }
+	}
+
+继承了`ByteToMessageDecoder`这个类之后，需要实现`decode()`这个方法
+
+堆外内存我们需要自行释放，在我们前面小节的解码的例子中，其实我们已经漏掉了这个操作，这一点是非常致命的，随着程序运行越来越久，内存泄露的问题就慢慢暴露出来了， 而这里我们使用 `ByteToMessageDecoder`，Netty 会自动进行内存的释放，我们不用操心太多的内存管理方面的逻辑，关于如何自动释放内存大家有兴趣可以参考一下 ByteToMessageDecoder的实现原理(8-2)。
 
 ## SimpleChannelInboundHandler ##
 
+	if (packet instanceof LoginRequestPacket) {
+	    // ...
+	} else if (packet instanceof MessageRequestPacket) {
+	    // ...
+	} else if ...
+
+通过 `if else` 逻辑进行逻辑的处理，当我们要处理的指令越来越多的时候，代码会显得越来越臃肿，我们可以通过给 pipeline 添加多个 handler(ChannelInboundHandlerAdapter的子类) 来解决过多的 if else 问题
+
+	if (packet instanceof XXXPacket) {
+	    // ...处理
+	} else {
+	   ctx.fireChannelRead(packet); 
+	}
+
+编写指令处理 handler 的时候，依然编写了一段我们其实可以不用关心的 if else 判断，然后还要手动传递无法处理的对象 (XXXPacket) 至下一个指令处理器，这也是一段重复度极高的代码，因此，Netty 基于这种考虑抽象出了一个 `SimpleChannelInboundHandler` 对象，类型判断和对象传递的活都自动帮我们实现了，而我们可以专注于处理我们所关心的指令即可。
+
+	public class LoginRequestHandler extends SimpleChannelInboundHandler<LoginRequestPacket> {
+	    @Override
+	    protected void channelRead0(ChannelHandlerContext ctx, LoginRequestPacket loginRequestPacket) {
+	        // 登录逻辑
+	    }
+	}
+
+`SimpleChannelInboundHandler`，我们在继承这个类的时候，给他传递一个泛型参数，然后在 `channelRead0()` 方法里面，我们不用再通过 if 逻辑来判断当前对象是否是本 handler 可以处理的对象，也不用强转，不用往下传递本 handler 处理不了的对象，这一切都已经交给父类 `SimpleChannelInboundHandler` 来实现了，我们只需要专注于我们要处理的业务逻辑即可。
+
+	public class MessageRequestHandler extends SimpleChannelInboundHandler<MessageRequestPacket> {
+	    @Override
+	    protected void channelRead0(ChannelHandlerContext ctx, MessageRequestPacket messageRequestPacket) {
+	
+	    }
+	}
+
+## MessageToByteEncoder ##
+
+	public class LoginRequestHandler extends SimpleChannelInboundHandler<LoginRequestPacket> {
+	    @Override
+	    protected void channelRead0(ChannelHandlerContext ctx, LoginRequestPacket loginRequestPacket) {
+	        LoginResponsePacket loginResponsePacket = login(loginRequestPacket);
+	        ByteBuf responseByteBuf = PacketCodeC.INSTANCE.encode(ctx.alloc(), loginResponsePacket);
+	        ctx.channel().writeAndFlush(responseByteBuf);
+	    }
+	}
+	
+	public class MessageRequestHandler extends SimpleChannelInboundHandler<MessageRequestPacket> {
+	    @Override
+	    protected void channelRead0(ChannelHandlerContext ctx, MessageRequestPacket messageRequestPacket) {
+	        MessageResponsePacket messageResponsePacket = receiveMessage(messageRequestPacket);
+	        ByteBuf responseByteBuf = PacketCodeC.INSTANCE.encode(ctx.alloc(), messageRequestPacket);
+	        ctx.channel().writeAndFlush(responseByteBuf);
+	    }
+	}
+
+我们处理每一种指令完成之后的逻辑是类似的，都需要进行编码，然后调用 writeAndFlush() 将数据写到客户端，这个编码的过程其实也是重复的逻辑，而且在编码的过程中，我们还需要手动去创建一个 ByteBuf。
+
+	public ByteBuf encode(ByteBufAllocator byteBufAllocator, Packet packet) {
+	    // 1. 创建 ByteBuf 对象
+	    ByteBuf byteBuf = byteBufAllocator.ioBuffer();
+	    // 2. 序列化 java 对象
+	
+	    // 3. 实际编码过程
+	
+	    return byteBuf;
+	}
+
+Netty 提供了一个特殊的 channelHandler 来专门处理编码逻辑，我们不需要每一次将响应写到对端的时候调用一次编码逻辑进行编码，也不需要自行创建 ByteBuf，这个类叫做 MessageToByteEncoder，从字面意思也可以看出，它的功能就是将对象转换到二进制数据。
+
+	public class PacketEncoder extends MessageToByteEncoder<Packet> {
+	
+	    @Override
+	    protected void encode(ChannelHandlerContext ctx, Packet packet, ByteBuf out) {
+	        PacketCodeC.INSTANCE.encode(out, packet);
+	    }
+	}
+
+`PacketEncoder` 继承自 `MessageToByteEncoder`，泛型参数 `Packet` 表示这个类的作用是实现 `Packet` 类型对象到二进制的转换。
+
+
+
+	// 更改前的定义
+	public ByteBuf encode(ByteBufAllocator byteBufAllocator, Packet packet) {
+	    // 1. 创建 ByteBuf 对象
+	    ByteBuf byteBuf = byteBufAllocator.ioBuffer();
+	    // 2. 序列化 java 对象
+	
+	    // 3. 实际编码过程
+	
+	    return byteBuf;
+	}
+	// 更改后的定义
+	public void encode(ByteBuf byteBuf, Packet packet) {
+	    // 1. 序列化 java 对象
+	
+	    // 2. 实际编码过程
+	}
+
+`PacketCodeC` 不再需要手动创建对象，不再需要再把创建完的 ByteBuf 进行返回。当我们向 pipeline 中添加了这个编码器之后，我们在指令处理完毕之后就只需要 writeAndFlush java 对象即可
+
+	public class LoginRequestHandler extends SimpleChannelInboundHandler<LoginRequestPacket> {
+	    @Override
+	    protected void channelRead0(ChannelHandlerContext ctx, LoginRequestPacket loginRequestPacket) {
+	        ctx.channel().writeAndFlush(login(loginRequestPacket));
+	    }
+	}
+	
+	public class MessageRequestHandler extends SimpleChannelInboundHandler<MessageResponsePacket> {
+	    @Override
+	    protected void channelRead0(ChannelHandlerContext ctx, MessageResponsePacket messageRequestPacket) {
+	        ctx.channel().writeAndFlush(receiveMessage(messageRequestPacket));
+	    }
+	}
+
 ## 构建客户端与服务端pipeline ##
+
+	服务端
+
+	serverBootstrap
+               .childHandler(new ChannelInitializer<NioSocketChannel>() {
+                    protected void initChannel(NioSocketChannel ch) {
+                        ch.pipeline().addLast(new PacketDecoder());
+                        ch.pipeline().addLast(new LoginRequestHandler());
+                        ch.pipeline().addLast(new MessageRequestHandler());
+                        ch.pipeline().addLast(new PacketEncoder());
+                    }
+            });
+
+	客户端
+
+	bootstrap
+        .handler(new ChannelInitializer<SocketChannel>() {
+            @Override
+            public void initChannel(SocketChannel ch) {
+                ch.pipeline().addLast(new PacketDecoder());
+                ch.pipeline().addLast(new LoginResponseHandler());
+                ch.pipeline().addLast(new MessageResponseHandler());
+                ch.pipeline().addLast(new PacketEncoder());
+            }
+        });
 
 ### 总结 ###
 
-## ch13 实战：拆包粘包理论与解决方案 ##
+通过内置的 channelHandler 可以减少很多重复逻辑。
 
-## ch14 channelHandler的生命周期 ##
+1. 基于 ByteToMessageDecoder，我们可以实现自定义解码，而不用关心 ByteBuf 的强转和解码结果的传递。
+2. 基于 SimpleChannelInboundHandler，我们可以实现每一种指令的处理，不再需要强转，不再有冗长乏味的 `if else` 逻辑，不需要手动传递对象。
+3. 基于 `MessageToByteEncoder`，我们可以实现自定义编码，而不用关心 ByteBuf 的创建，不用每次向对端写 Java 对象都进行一次编码。
+
+## 思考 ##
+
+在 `LoginRequestHandler` 以及 `MessageRequestHandler` 的 `channelRead0()` 方法中，第二个参数对象（XXXRequestPacket）是从哪里传递过来的？ 
+
+# ch13 实战：拆包粘包理论与解决方案 #
+
+## 拆包粘包例子 ##
+
+	客户端 FirstClientHandler
+
+	public class FirstClientHandler extends ChannelInboundHandlerAdapter {
+	    @Override
+	    public void channelActive(ChannelHandlerContext ctx) {
+	        for (int i = 0; i < 1000; i++) {
+	            ByteBuf buffer = getByteBuf(ctx);
+	            ctx.channel().writeAndFlush(buffer);
+	        }
+	    }
+	
+	    private ByteBuf getByteBuf(ChannelHandlerContext ctx) {
+	        byte[] bytes = "你好，欢迎关注我的微信公众号，《闪电侠的博客》!".getBytes(Charset.forName("utf-8"));
+	        ByteBuf buffer = ctx.alloc().buffer();
+	        buffer.writeBytes(bytes);
+	        
+	        return buffer;
+	    }
+	}
+
+	服务端 FirstServerHandler
+
+	public class FirstServerHandler extends ChannelInboundHandlerAdapter {
+	
+	    @Override
+	    public void channelRead(ChannelHandlerContext ctx, Object msg) {
+	        ByteBuf byteBuf = (ByteBuf) msg;
+	
+	        System.out.println(new Date() + ": 服务端读到数据 -> " + byteBuf.toString(Charset.forName("utf-8")));
+	    }
+	}
+
+## 为什么会有粘包半包现象？ ##
+
+## 拆包的原理 ##
+
+## Netty自带的拆包器 ##
+
+#### 1. 固定长度的拆包器 FixedLengthFrameDecoder ####
+
+如果你的应用层协议非常简单，每个数据包的长度都是固定的，比如 100，那么只需要把这个拆包器加到 pipeline 中，Netty 会把一个个长度为 100 的数据包 (ByteBuf) 传递到下一个 channelHandler。
+
+#### 2. 行拆包器 LineBasedFrameDecoder ####
+
+从字面意思来看，发送端发送数据包的时候，每个数据包之间以换行符作为分隔，接收端通过 LineBasedFrameDecoder 将粘过的 ByteBuf 拆分成一个个完整的应用层数据包。
+
+#### 3. 分隔符拆包器 DelimiterBasedFrameDecoder ####
+
+DelimiterBasedFrameDecoder 是行拆包器的通用版本，只不过我们可以自定义分隔符。
+
+#### 4. 基于长度域拆包器 LengthFieldBasedFrameDecoder ####
+
+最后一种拆包器是最通用的一种拆包器，只要你的自定义协议中包含长度域字段，均可以使用这个拆包器来实现应用层拆包。由于上面三种拆包器比较简单，读者可以自行写出 demo，接下来，我们就结合我们小册的自定义协议，来学习一下如何使用基于长度域的拆包器来拆解我们的数据包。
+
+## 如何使用 LengthFieldBasedFrameDecoder ##
+
+	服务端
+
+	ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 7, 4));
+	ch.pipeline().addLast(new PacketDecoder());
+	ch.pipeline().addLast(new LoginRequestHandler());
+	ch.pipeline().addLast(new MessageRequestHandler());
+	ch.pipeline().addLast(new PacketEncoder());
+
+	客户端
+
+	ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 7, 4));
+	ch.pipeline().addLast(new PacketDecoder());
+	ch.pipeline().addLast(new LoginResponseHandler());
+	ch.pipeline().addLast(new MessageResponseHandler());
+	ch.pipeline().addLast(new PacketEncoder());
+
+在后续 `PacketDecoder` 进行 decode 操作的时候，ByteBuf 就是一个完整的自定义协议数据包。
+
+## 拒绝非本协议连接 ##
+
+## 服务端和客户端的 pipeline 结构 ##
+
+## 总结 ##
+
+1. 拆包器的作用就是根据我们的自定义协议，把数据拼装成一个个符合我们自定义数据包大小的 ByteBuf，然后送到我们的自定义协议解码器去解码。
+2. Netty 自带的拆包器包括基于固定长度的拆包器，基于换行符和自定义分隔符的拆包器，还有另外一种最重要的基于长度域的拆包器。通常 Netty 自带的拆包器已完全满足我们的需求，无需重复造轮子。
+3. Netty 自带的拆包器包括基于固定长度的拆包器，基于换行符和自定义分隔符的拆包器，还有另外一种最重要的基于长度域的拆包器。通常 Netty 自带的拆包器已完全满足我们的需求，无需重复造轮子。
+
+## 思考 ##
+
+在我们的 IM 这个 完整的 pipeline 中，如果我们不添加拆包器，客户端连续向服务端发送数据，会有什么现象发生？为什么会发生这种现象？ 欢迎留言讨论。
+
+# ch14 channelHandler的生命周期 #
+
+## ChannelHandler的生命周期详解 ##
+
+对于服务端应用程序来说，我们这里讨论 ChannelHandler 更多的指的是 `ChannelInboundHandler`。
+
+	public class LifeCyCleTestHandler extends ChannelInboundHandlerAdapter {
+	    @Override
+	    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
+	        System.out.println("逻辑处理器被添加：handlerAdded()");
+	        super.handlerAdded(ctx);
+	    }
+	
+	    @Override
+	    public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
+	        System.out.println("channel 绑定到线程(NioEventLoop)：channelRegistered()");
+	        super.channelRegistered(ctx);
+	    }
+	
+	    @Override
+	    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+	        System.out.println("channel 准备就绪：channelActive()");
+	        super.channelActive(ctx);
+	    }
+	
+	    @Override
+	    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+	        System.out.println("channel 有数据可读：channelRead()");
+	        super.channelRead(ctx, msg);
+	    }
+	
+	    @Override
+	    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+	        System.out.println("channel 某次数据读完：channelReadComplete()");
+	        super.channelReadComplete(ctx);
+	    }
+	
+	    @Override
+	    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+	        System.out.println("channel 被关闭：channelInactive()");
+	        super.channelInactive(ctx);
+	    }
+	
+	    @Override
+	    public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
+	        System.out.println("channel 取消线程(NioEventLoop) 的绑定: channelUnregistered()");
+	        super.channelUnregistered(ctx);
+	    }
+	
+	    @Override
+	    public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
+	        System.out.println("逻辑处理器被移除：handlerRemoved()");
+	        super.handlerRemoved(ctx);
+	    }
+	}
+
+我们在每个方法被调用的时候都会打印一段文字，然后把这个事件继续往下传播。这个 handler 添加到我们在上小节构建的 pipeline 中。
+
+	// 前面代码略
+	.childHandler(new ChannelInitializer<NioSocketChannel>() {
+	    protected void initChannel(NioSocketChannel ch) {
+	        // 添加到第一个
+	        ch.pipeline().addLast(new LifeCyCleTestHandler());
+	        ch.pipeline().addLast(new PacketDecoder());
+	        ch.pipeline().addLast(new LoginRequestHandler());
+	        ch.pipeline().addLast(new MessageRequestHandler());
+	        ch.pipeline().addLast(new PacketEncoder());
+	    }
+	});
+
+
+
+	handlerAdded() -> channelRegistered() -> channelActive() -> channelRead() -> channelReadComplete()
+
+1. `handlerAdded()`：指的是当检测到新连接之后，调用 `ch.pipeline().addLast(new LifeCyCleTestHandler());` 之后的回调，表示在当前的 channel 中，已经成功添加了一个 handler 处理器。
+2. `channelRegistered()`：这个回调方法，表示当前的 channel 的所有的逻辑处理已经和某个 NIO 线程建立了绑定关系。BIO 编程中，accept 到新的连接，然后创建一个线程来处理这条连接的读写，只不过 Netty 里面是使用了线程池的方式，只需要从线程池里面去抓一个线程绑定在这个 channel 上即可。这里的 NIO 线程通常指的是 `NioEventLoop`。
+3. `channelActive()`：当 channel 的所有的业务逻辑链准备完毕（也就是说 channel 的 pipeline 中已经添加完所有的 handler）以及绑定好一个 NIO 线程之后，这条连接算是真正激活了，接下来就会回调到此方法。
+4. `channelRead()`：客户端向服务端发来数据，每次都会回调此方法，表示有数据可读。
+5. `channelReadComplete()`：服务端每次读完一次完整的数据之后，回调该方法，表示数据读取完毕。
+
+ChannelHandler 回调方法的执行顺序为
+
+    channelInactive() -> channelUnregistered() -> handlerRemoved()
+
+这里的回调方法的执行顺序是新连接建立时候的逆操作，下面我们还是来解释一下每个方法的含义
+
+1. `channelInactive()`：表面这条连接已经被关闭了，这条连接在 TCP 层面已经不再是 ESTABLISH 状态了
+2. `channelUnregistered()`：既然连接已经被关闭，那么与这条连接绑定的线程就不需要对这条连接负责了，这个回调就表明与这条连接对应的 NIO 线程移除掉对这条连接的处理
+3. `handlerRemoved()`：最后，我们给这条连接上添加的所有的业务逻辑处理器都给移除掉。
+
+![2019-04-24_15-16-11.jpg](img/2019-04-24_15-16-11.jpg)
+
+## ChannelHandler 生命周期各回调方法用法举例 ##
+
+#### 1. ChannelInitializer 的实现原理 ####
+
+在给新连接定义 handler 的时候，其实只是通过 `childHandler()` 方法给新连接设置了一个 handler，这个 handler 就是 `ChannelInitializer`，而在 `ChannelInitializer` 的 `initChannel()` 方法里面，我们通过拿到 channel 对应的 pipeline，然后往里面塞 handler
+
+	.childHandler(new ChannelInitializer<NioSocketChannel>() {
+	    protected void initChannel(NioSocketChannel ch) {
+	        ch.pipeline().addLast(new LifeCyCleTestHandler());
+	        ch.pipeline().addLast(new PacketDecoder());
+	        ch.pipeline().addLast(new LoginRequestHandler());
+	        ch.pipeline().addLast(new MessageRequestHandler());
+	        ch.pipeline().addLast(new PacketEncoder());
+	    }
+	});
+
+这里的 ChannelInitializer 其实就利用了 Netty 的 handler 生命周期中 `channelRegistered()` 与 `handlerAdded()` 两个特性
+
+	 protected abstract void initChannel(C ch) throws Exception;
+	
+	    public final void channelRegistered(ChannelHandlerContext ctx) throws Exception {
+	        // ...
+	        initChannel(ctx);
+	        // ...
+	    }
+	
+	    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
+	        // ...
+	        if (ctx.channel().isRegistered()) {
+	            initChannel(ctx);
+	        }
+	        // ...
+	    }
+	
+	    private boolean initChannel(ChannelHandlerContext ctx) throws Exception {
+	        if (initMap.putIfAbsent(ctx, Boolean.TRUE) == null) {
+	            initChannel((C) ctx.channel());
+	            // ...
+	            return true;
+	        }
+	        return false;
+	    }
+
+1. `ChannelInitializer` 定义了一个抽象的方法 `initChannel()`，这个抽象方法由我们自行实现，我们在服务端启动的流程里面的实现逻辑就是往 pipeline 里面塞我们的 handler 链
+2. `handlerAdded()` 和 `channelRegistered()` 方法，都会尝试去调用 `initChannel()` 方法，`initChannel()` 使用 `putIfAbsent()` 来防止 `initChannel()` 被调用多次
+3. 如果你 debug 了 `ChannelInitializer` 的上述两个方法，你会发现，在 `handlerAdded()` 方法被调用的时候，channel 其实已经和某个线程绑定上了，所以，就我们的应用程序来说，这里的 `channelRegistered()` 其实是多余的，那为什么这里还要尝试调用一次呢？我猜测应该是担心我们自己写了个类继承自 `ChannelInitializer`，然后覆盖掉了 `handlerAdded()` 方法，这样即使覆盖掉，在 `channelRegistered()` 方法里面还有机会再调一次 `initChannel()`，把我们自定义的 handler 都添加到 pipeline 中去。
+
+#### 2. handlerAdded() 与 handlerRemoved() ####
+
+这两个方法通常可以用在一些资源的申请和释放
+
+#### 3. channelActive() 与 channelInActive() ####
+
+1. 对我们的应用程序来说，这两个方法表明的含义是 TCP 连接的建立与释放，通常我们在这两个回调里面统计单机的连接数，channelActive() 被调用，连接数加一，channelInActive() 被调用，连接数减一。
+2. 在 channelActive() 方法中，实现对客户端连接 ip 黑白名单的过滤。
+
+#### 4. channelRead() ####
+
+拆包粘包原理，服务端根据自定义协议来进行拆包，其实就是在这个方法里面，每次读到一定的数据，都会累加到一个容器里面，然后判断是否能够拆出来一个完整的数据包，如果够的话就拆了之后，往下进行传递。
+
+#### 5. channelReadComplete() ####
+
+在每次向客户端写数据的时候，都通过 `writeAndFlush()` 的方法写并刷新到底层，其实这种方式不是特别高效，我们可以在之前调用 `writeAndFlush()` 的地方都调用 `write()` 方法，然后在这个方面里面调用 `ctx.channel().flush()` 方法，相当于一个批量刷新的机制，当然，如果你对性能要求没那么高，`writeAndFlush()` 足矣。
+
+## 总结 ##
+
+1. 详细剖析了 `ChannelHandler`（主要是`ChannelInBoundHandler`）的各个回调方法，连接的建立和关闭，执行回调方法有个逆向的过程
+2. 每一种回调方法都有他各自的用法，但是有的时候某些回调方法的使用边界有些模糊，恰当地使用回调方法来处理不同的逻辑，可以使你的应用程序更为优雅。
+
+## 思考 ##
+
+1. 在服务端每隔一秒输出当前客户端的连接数，当然了，你需要建立多个客户端。
+2. 统计客户端的入口流量，以字节为单位。
+
+# ch15 实战：使用channelHandler的热插拔实现客户端身份校验 #
+
+
+
+# ch16 实战：客户端互聊原理与实现 #
+
+# ch17 实战：群聊的发起与通知 #
+
+# ch18 实战：群聊的成员管理（加入与推出，获取成员列表） #
+
+# ch19 实战：群聊消息的收发及Netty性能优化 #
+
+# ch20 实战：心跳与空闲检测 #
 
 ## 小册总结 ##
 

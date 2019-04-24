@@ -25,6 +25,7 @@
         <module>pipeline</module>
         <module>connect</module>
         <module>login</module>
+        <module>first</module>
     </modules>
     <dependencies>
         <!-- https://mvnrepository.com/artifact/io.netty/netty-all -->
