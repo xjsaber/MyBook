@@ -1498,7 +1498,18 @@ Netty 提供了一个特殊的 channelHandler 来专门处理编码逻辑，我�
 
 ## 为什么会有粘包半包现象？ ##
 
+在应用层面使用了Netty，但对于操作系统来说，只认TCP协议，尽管应用层是按照ByteBuf为单位来发送数据，但是到了底层操作系统仍然是按照字节流发送数据，因此，数据到了服务端，也是按照字节流的方式流入，然后到了Netty应用层面，重新拼装成ByteBuf，而这里的ByteBuf与客户都安按顺序发送的ByteBuf可能是不对等的。因此，我们需要在客户端根据自定义协议来组装我们应用层的数据包，然后在服务端根据我们的应用层的协议来组装数据包，这个过程在服务端称为拆包，而在客户端称为粘包。
+
+拆包和粘包是相对的，一端粘了包，另外一端就需要将粘过的包拆开。
+
+发送端将三个数据包粘成三个数据包粘成两个TCP数据包发送到接收端，接收端就需要根据应用协议将两个数据包重新组装成三个数据包。
+
 ## 拆包的原理 ##
+
+在没有Netty的情况下，用户如果自己需要拆包，基本原理就是不断从TCP缓冲区中读取数据，每次读取完都需要判断是否是一个完整的数据包
+
+1. 如果当前读取的数据不足以拼接成一个完整的业务苏杭举报，那就保留该数据，继续从TCP缓冲区中读取，直到得到一个完整的数据包。
+2. 如果当前读到的数据加上已经读取的数据足够拼装成一个数据包，那就将已经读取的数据拼接上本次读取的数据，构成一个完整的业务数据包传递到业务逻辑，多余的数据仍然保留，比便和下次读到的苏话剧尝试拼接。
 
 ## Netty自带的拆包器 ##
 
@@ -1540,7 +1551,35 @@ DelimiterBasedFrameDecoder 是行拆包器的通用版本，只不过我们可�
 
 ## 拒绝非本协议连接 ##
 
+设计魔数的原因是为了尽早屏蔽非本协议的客户端，通常在第一个 handler 处理这段逻辑。每个客户端发过来的数据包都做一次快速判断，判断当前发来的数据包是否是满足我的自定义协议， 我们只需要继承自 LengthFieldBasedFrameDecoder 的 `decode()` 方法，然后在 decode 之前判断前四个字节是否是等于我们定义的魔数 `0x12345678`
+
+	public class Spliter extends LengthFieldBasedFrameDecoder {
+	    private static final int LENGTH_FIELD_OFFSET = 7;
+	    private static final int LENGTH_FIELD_LENGTH = 4;
+	
+	    public Spliter() {
+	        super(Integer.MAX_VALUE, LENGTH_FIELD_OFFSET, LENGTH_FIELD_LENGTH);
+	    }
+	
+	    @Override
+	    protected Object decode(ChannelHandlerContext ctx, ByteBuf in) throws Exception {
+	        // 屏蔽非本协议的客户端
+	        if (in.getInt(in.readerIndex()) != PacketCodeC.MAGIC_NUMBER) {
+	            ctx.channel().close();
+	            return null;
+	        }
+	
+	        return super.decode(ctx, in);
+	    }
+	}
+
+	//ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 7, 4));
+	// 替换为
+	ch.pipeline().addLast(new Spliter());
+
 ## 服务端和客户端的 pipeline 结构 ##
+
+![2019-04-24_22-53-33.jpg](img/2019-04-24_22-53-33.jpg)
 
 ## 总结 ##
 
