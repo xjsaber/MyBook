@@ -1720,9 +1720,279 @@ ChannelHandler 回调方法的执行顺序为
 
 # ch15 实战：使用channelHandler的热插拔实现客户端身份校验 #
 
+## 1. 身份校验 ##
 
+我们在客户端登录成功之后，标记当前的 channel 的状态为已登录
+
+	LoginRequestHandler.java
+
+	protected void channelRead0(ChannelHandlerContext ctx, LoginRequestPacket loginRequestPacket) {
+	    if (valid(loginRequestPacket)) {
+	        // ...
+	        // 基于我们前面小节的代码，添加如下一行代码
+	        LoginUtil.markAsLogin(ctx.channel());
+	    } 
+	    // ...
+	}
+
+----
+
+	LoginUtil.java
+
+	public static void markAsLogin(Channel channel) {
+	    channel.attr(Attributes.LOGIN).set(true);
+	}
+
+在登录成功之后，我们通过给 channel 打上属性标记的方式，标记这个 channel 已成功登录，那么，接下来，是不是需要在后续的每一种指令的处理前，都要判断一下用户是否登录？
+
+	LoginUtil.java
+
+	public static boolean hasLogin(Channel channel) {
+	    Attribute<Boolean> loginAttr = channel.attr(Attributes.LOGIN);
+	
+	    return loginAttr.get() != null;
+	}
+
+判断一个用户是否登录很简单，只需要调用一下 `LoginUtil.hasLogin(channel)` 即可，但是，Netty 的 pipeline 机制帮我们省去了重复添加同一段逻辑的烦恼，我们只需要在后续所有的指令处理 handler 之前插入一个用户认证 handle：
+
+	NettyServer.java
+
+	.childHandler(new ChannelInitializer<NioSocketChannel>() {
+	    protected void initChannel(NioSocketChannel ch) {
+	        ch.pipeline().addLast(new PacketDecoder());
+	        ch.pipeline().addLast(new LoginRequestHandler());
+	        // 新增加用户认证handler
+	        ch.pipeline().addLast(new AuthHandler());
+	        ch.pipeline().addLast(new MessageRequestHandler());
+	        ch.pipeline().addLast(new PacketEncoder());
+	    }
+	});
+
+在 `MessageRequestHandler` 之前插入了一个 `AuthHandler`，因此 `MessageRequestHandler` 以及后续所有指令相关的 handler（后面小节会逐个添加）的处理都会经过 `AuthHandler` 的一层过滤，只要在 `AuthHandler` 里面处理掉身份认证相关的逻辑，后续所有的 handler 都不用操心身份认证这个逻辑。
+
+	AuthHandler.java
+	
+	public class AuthHandler extends ChannelInboundHandlerAdapter {
+	
+	    @Override
+	    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+	        if (!LoginUtil.hasLogin(ctx.channel())) {
+	            ctx.channel().close();
+	        } else {
+	            super.channelRead(ctx, msg);
+	        }
+	    }
+	}
+
+1. `AuthHandler` 继承自 `ChannelInboundHandlerAdapter`，覆盖了 `channelRead()` 方法，表明他可以处理所有类型的数据
+2. 在 `channelRead()` 方法里面，在决定是否把读到的数据传递到后续指令处理器之前，首先会判断是否登录成功，如果未登录，直接强制关闭连接，否则，就把读到的数据向下传递，传递给后续指令处理器。
+
+`AuthHandler`的处理逻辑其实就是这么简单。
+
+## 2. 移除校验逻辑 ##
+
+handler 其实可以看做是一段功能相对聚合的逻辑，然后通过 pipeline 把这些一个个小的逻辑聚合起来，串起一个功能完整的逻辑链。既然可以把逻辑串起来，也可以做到动态删除一个或多个逻辑。
+
+在客户端校验通过之后，我们不再需要 `AuthHandler` 这段逻辑。
+
+	AuthHandler.java
+	
+	public class AuthHandler extends ChannelInboundHandlerAdapter {
+	
+	    @Override
+	    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+	        if (!LoginUtil.hasLogin(ctx.channel())) {
+	            ctx.channel().close();
+	        } else {
+	            // 一行代码实现逻辑的删除
+	            ctx.pipeline().remove(this);
+	            super.channelRead(ctx, msg);
+	        }
+	    }
+	
+	    @Override
+	    public void handlerRemoved(ChannelHandlerContext ctx) {
+	        if (LoginUtil.hasLogin(ctx.channel())) {
+	            System.out.println("当前连接登录验证完毕，无需再次验证, AuthHandler 被移除");
+	        } else {
+	            System.out.println("无登录验证，强制关闭连接!");
+	        }
+	    }
+	}
+
+判断如果已经经过权限认证，那么就直接调用 `pipeline` 的 `remove()` 方法删除自身，这里的 `this` 指的其实就是 `AuthHandler` 这个对象，删除之后，这条客户端连接的逻辑链中就不再有这段逻辑了。
+
+覆盖了 `handlerRemoved()` 方法
+
+## 3. 身份校验演示 ##
+
+对于客户端侧的代码，我们先把客户端向服务端发送消息的逻辑中，每次都判断是否登录的逻辑去掉，这样我们就可以在客户端未登录的情况下向服务端发送消息
+
+	NettyClient.java
+
+    private static void startConsoleThread(Channel channel) {
+        new Thread(() -> {
+            while (!Thread.interrupted()) {
+                // 这里注释掉
+	//                if (LoginUtil.hasLogin(channel)) {
+                    System.out.println("输入消息发送至服务端: ");
+                    Scanner sc = new Scanner(System.in);
+                    String line = sc.nextLine();
+
+                    channel.writeAndFlush(new MessageRequestPacket(line));
+	//                }
+            }
+        }).start();
+    }
+
+#### 3.1 有身份认证的演示 ####
+
+先启动服务端，再启动客户端，在客户端的控制台，我们输入消息发送至服务端，这个时候服务端与客户端控制台的输出分别为
+
+在客户端第一次发来消息的时候， AuthHandler 判断当前用户已通过身份认证，直接移除掉自身，移除掉之后，回调 handlerRemoved。
+
+#### 3.2 无身份认证的演示 ####
+
+我们再来演示一下，客户端在未登录的情况下发送消息到服务端，我们到 `LoginResponseHandler` 中，删除发送登录指令的逻辑：
+
+	LoginResponseHandler.java
+
+	public class LoginResponseHandler extends SimpleChannelInboundHandler<LoginResponsePacket> {
+	
+	    @Override
+	    public void channelActive(ChannelHandlerContext ctx) {
+	        // 创建登录对象
+	        LoginRequestPacket loginRequestPacket = new LoginRequestPacket();
+	        loginRequestPacket.setUserId(UUID.randomUUID().toString());
+	        loginRequestPacket.setUsername("flash");
+	        loginRequestPacket.setPassword("pwd");
+	
+	        // 删除登录的逻辑
+	//        ctx.channel().writeAndFlush(loginRequestPacket);
+	    }
+	
+	    @Override
+	    public void channelInactive(ChannelHandlerContext ctx) {
+	        System.out.println("客户端连接被关闭!");
+	    }
+	}
+
+把客户端向服务端写登录指令的逻辑进行删除，然后覆盖一下 `channelInactive()` 方法，用于验证客户端连接是否会被关闭。
+
+客户端如果第一个指令为非登录指令，`AuthHandler` 直接将客户端连接关闭，并且，从上小节，我们学到的有关 ChannelHandler 的生命周期相关的内容中也可以看到，服务端侧的 `handlerRemoved`() 方法和客户端侧代码的 `channelInActive`() 会被回调到。
+
+## 总结 ##
+
+1. 如果有很多业务逻辑的 handler 都要进行某些相同的操作，我们完全可以抽取出一个 handler 来单独处理
+2. 如果某一个独立的逻辑在执行几次之后（这里是一次）不需要再执行了，那么我们可以通过 ChannelHandler 的热插拔机制来实现动态删除逻辑，应用程序性能处理更为高效
+
+## 思考 ##
+
+对于最后一部分的演示，对于客户端在登录情况下发送消息以及客户端在未登录情况下发送消息，`AuthHandler` 的其他回调方法分别是如何执行的，为什么？欢迎留言一起讨论。
 
 # ch16 实战：客户端互聊原理与实现 #
+
+## 1. 最终效果 ##
+
+	服务端
+
+	客户端1
+
+	客户端2
+
+1. 客户端启动之后，在控制台输入用户名，服务端随机分配一个userId给客户端，省去了账号密码注册的过程，userId就在服务端随机生成了，生产环境可能会持久化在数据库，然后每次通过账号密码去“捞”。
+2. 当有两个客户端登录成功之后，在控制台输入`userId + 空格 + 消息`，这里的userId是消息接收方的标识，消息接收方的控制条接着就会显示另外一个客户端发来的消息。
+
+## 2. 一对一单聊原理 ##
+
+## 3. 一对一单聊实现 ##
+
+### 3.1 用户登录状态与channel的绑定 ###
+
+	LoginRequestHandler.java
+
+	// 我们略去了非关键部分的代码，详细可以本地更新下代码，切换到本小节名称对应的 git 分支
+	protected void channelRead0(ChannelHandlerContext ctx, LoginRequestPacket loginRequestPacket) {
+	    LoginResponsePacket loginResponsePacket = xxx;
+	    String userId = randomUserId();
+	    loginResponsePacket.setUserId(userId);
+	    SessionUtil.bindSession(new Session(userId, loginRequestPacket.getUserName()), ctx.channel());
+	
+	    // 登录响应
+	    ctx.channel().writeAndFlush(loginResponsePacket);
+	}
+	
+	// 用户断线之后取消绑定
+	public void channelInactive(ChannelHandlerContext ctx) {
+	    SessionUtil.unBindSession(ctx.channel());
+	}
+
+登录成功之后，服务端创建一个 `Session` 对象，这个对象表示用户当前的会话信息，在我们这个应用程序里面，`Session` 只有两个字段
+
+	Session.java
+
+	public class Session {
+	    // 用户唯一性标识
+	    private String userId;
+	    private String userName;
+	}
+
+	SessionUtil.bindSession()
+
+	public class SessionUtil {
+	    // userId -> channel 的映射
+	    private static final Map<String, Channel> userIdChannelMap = new ConcurrentHashMap<>();
+	
+	
+	    public static void bindSession(Session session, Channel channel) {
+	        userIdChannelMap.put(session.getUserId(), channel);
+	        channel.attr(Attributes.SESSION).set(session);
+	    }
+	
+	    public static void unBindSession(Channel channel) {
+	        if (hasLogin(channel)) {
+	            userIdChannelMap.remove(getSession(channel).getUserId());
+	            channel.attr(Attributes.SESSION).set(null);
+	        }
+	    }
+	    
+	    public static boolean hasLogin(Channel channel) {
+	
+	        return channel.hasAttr(Attributes.SESSION);
+	    }
+	
+	    public static Session getSession(Channel channel) {
+	
+	        return channel.attr(Attributes.SESSION).get();
+	    }
+	
+	    public static Channel getChannel(String userId) {
+	
+	        return userIdChannelMap.get(userId);
+	    }
+	}
+
+1. `SessionUtil` 里面维持了一个 useId -> channel 的映射 map，调用 `bindSession()` 方法的时候，在 map 里面保存这个映射关系，`SessionUtil` 还提供了 `getChannel()` 方法，这样就可以通过 userId 拿到对应的 channel。
+2. 除了在 map 里面维持映射关系之外，在 `bindSession()` 方法中，我们还给 channel 附上了一个属性，这个属性就是当前用户的 `Session`，我们也提供了 `getSession()` 方法，非常方便地拿到对应 channel 的会话信息。
+3. 这里的 `SessionUtil` 其实就是前面小节的 `LoginUtil`，这里重构了一下，其中 `hasLogin()` 方法，只需要判断当前是否有用户的会话信息即可。
+4. 在 `LoginRequestHandler` 中，我们还重写了 `channelInactive()` 方法，用户下线之后，我们需要在内存里面自动删除 userId 到 channel 的映射关系，这是通过调用 `SessionUtil.unBindSession()` 来实现的。
+
+### 3.2 服务端接收信息并转发的实现 ###
+
+### 3.3 客户端收消息的逻辑处理 ###
+
+### 3.4 客户端控制台登录和发送消息 ###
+
+## 总结 ##
+
+1. 我们定义一个会话类 `Session` 用户维持用户的登录信息，用户登录的时候绑定 `Session` 与 `channel`，用户登出或者断线的时候解绑 Session 与 channel。
+2. 服务端处理消息的时候，通过消息接收方的标识，拿到消息接收方的channel，调用`writeAndFlush()`将消息发送给消息接收方。
+
+## 思考 ##
+
+我们在本小节其实还少了用户登出请求和响应的指令处理，你是否能说出，对登出指令来说，服务端和客户端分别要干哪些事情？是否能够自行实现？
+
+欢迎留言一起讨论，具体实现也会在下小节对应的代码分支上放出，读者可先自行尝试下实现。
 
 # ch17 实战：群聊的发起与通知 #
 
@@ -1730,21 +2000,218 @@ ChannelHandler 回调方法的执行顺序为
 
 # ch19 实战：群聊消息的收发及Netty性能优化 #
 
+
+
 # ch20 实战：心跳与空闲检测 #
 
-## 小册总结 ##
+## 1. 网络问题 ##
 
-### 1. Netty是什么？ ###
+连接假死：在某一端（服务端或者客户端）看来，底层的 TCP 连接已经断开了，但是应用程序并没有捕获到，因此会认为这条连接仍然是存在的，从 TCP 层面来说，只有收到四次握手数据包或者一个 RST 数据包，连接的状态才表示已断开。
 
-### 2. 服务端和客户端启动 ###
+连接假死会带来以下两大问题
 
-### 3. ByteBuf ###
+1. 对于服务端来说，因为每条连接都会耗费 cpu 和内存资源，大量假死的连接会逐渐耗光服务器的资源，最终导致性能逐渐下降，程序奔溃。
+2. 对于客户端来说，连接假死会造成发送数据超时，影响用户体验。
 
-## 小册读者总结 ##
+通常，连接假死由以下几个原因造成的
 
-## 扩展：进阶学习Netty的方向与资料 ##
+1. 应用程序出现线程阻塞，无法进行数据的读写。
+2. 客户端或者服务端网络相关的设备出现故障
+3. 公网丢包
 
-### 1. 官网与github ###
+如果我们的应用是面向用户的，那么公网丢包这个问题出现的概率是非常大的。对于内网来说，内网丢包，抖动也是会有一定的概率发生。一旦出现此类问题，客户端和服务端都会受到影响，接下来，我们分别从服务端和客户端的角度来解决连接假死的问题。
 
-### 2. 源码解析博客 ###
+## 2. 服务端空闲检测 ##
 
+对于服务端来说，客户端的连接如果出现假死，那么服务端将无法收到客户端的数据，也就是说，如果能一直收到客户端发来的数据，那么可以说明这条连接还是活的，因此，服务端对于连接假死的应对策略就是空闲检测。
+
+何为空闲检测？空闲检测指的是每隔一段时间，检测这段时间内是否有数据读写，简化一下，我们的服务端只需要检测一段时间内，是否收到过客户端发来的数据即可，Netty 自带的 `IdleStateHandler` 就可以实现这个功能。
+
+	public class IMIdleStateHandler extends IdleStateHandler {
+	
+	    private static final int READER_IDLE_TIME = 15;
+	
+	    public IMIdleStateHandler() {
+	        super(READER_IDLE_TIME, 0, 0, TimeUnit.SECONDS);
+	    }
+	
+	    @Override
+	    protected void channelIdle(ChannelHandlerContext ctx, IdleStateEvent evt) {
+	        System.out.println(READER_IDLE_TIME + "秒内未读到数据，关闭连接");
+	        ctx.channel().close();
+	    }
+	}
+
+1. `IMIdleStateHandler`的构造函数，调用父类`IdleStateHandler`的构造函数，有四个参数：
+
+	* 第一个表示读空闲时间，指的是在这段时间内如果没有数据读到，就表示连接假死
+	* 第二个是写空闲时间，指的是在这段时间如果没有写数据，就表示连接假死
+	* 第三个参数是读写空闲时间，表示在这段时间内如果没有产生数据读或者写，就表示连接假死。写空闲和读写空闲为0，表示我们不关心者两类条件
+	* 第四个参数表示时间单位（如何15秒没有读到数据，就表示连接假死）
+2. 连接假死之后会回调`channelIdle()`方法，打印消息，并手动关闭连接。
+
+把这个handler插入到服务端pipeline的最前面
+
+## 3. 客户端定时发心跳 ##
+
+服务端在一段时间内没有收到客户端的数据，这个现象产生的原因有两种：
+
+1. 连接假死
+2. 非假死状态下确认没有发送数据
+
+要排查第二种情况，可以在客户端定期发送数据到服务端，通常这个数据包称为心跳数据包，定义一个handler，定期发送心跳给服务端
+
+	public class HeartBeatTimerHandler extends ChannelInboundHandlerAdapter {
+	
+	    private static final int HEARTBEAT_INTERVAL = 5;
+	
+	    @Override
+	    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+	        scheduleSendHeartBeat(ctx);
+	
+	        super.channelActive(ctx);
+	    }
+	
+	    private void scheduleSendHeartBeat(ChannelHandlerContext ctx) {
+	        ctx.executor().schedule(() -> {
+	
+	            if (ctx.channel().isActive()) {
+	                ctx.writeAndFlush(new HeartBeatRequestPacket());
+	                scheduleSendHeartBeat(ctx);
+	            }
+	
+	        }, HEARTBEAT_INTERVAL, TimeUnit.SECONDS);
+	    }
+	}
+
+`ctx.executor()`返回的是当前的channel绑定的NIO线程，NIO线程有一个方法，`schedule()`，类似jdk的延时任务机制，（可以隔一段时间之后执行一个任务，而我们这边是实现了每隔5秒，向服务端发送一个心跳数据包，这个时间段通常要比服务端的空闲检测时间的一半要短一些，直接定义为空闲检测时间的三分之一，主要为了排除公网偶发的秒级抖动。）
+
+发送心跳间隔时间和空闲检测时间可以略长一些，可以设置为几分钟级别，具体应用可以具体对待，没有强制的规定。
+
+服务端的空闲检测问题，服务端这个时候是能够在一定时间段之内关掉假死的连接，释放连接的资源了，但是对于客户端来说，我们也需要检测到假死的连接。
+
+## 4. 服务端回复心跳与客户端空闲检测 ##
+
+客户端的空闲检测其实和服务端一样，依旧是在客户端 pipeline 的最前方插入 `IMIdleStateHandler`
+
+	bootstrap
+	        .handler(new ChannelInitializer<SocketChannel>() {
+	            public void initChannel(SocketChannel ch) {
+	                // 空闲检测
+	                ch.pipeline().addLast(new IMIdleStateHandler());
+	                ch.pipeline().addLast(new Spliter());
+	                // ...
+
+然后为了排除是否因为服务端在非假死状态下确认没有发送数据，服务端也要定期发送心跳给客户端。
+
+而其实在前面我们已经实现了客户端向服务端定期发送心跳，服务端这边其实只要在收到心跳之后回复客户端，给客户端发送一个心跳响应包即可。如果在一段时间之内客户端没有收到服务端发来的数据，也可以判定这条连接为假死状态。
+
+服务端的pipeline中需要再加上如下一个handler-`HeartBeatRequestHandler`，由于这个handler的处理其实是无需登录的，所以，我们将该handler放置再`AuthHander`前面
+
+	serverBootstrap
+	                ch.pipeline().addLast(new IMIdleStateHandler());
+	                ch.pipeline().addLast(new Spliter());
+	                ch.pipeline().addLast(PacketCodecHandler.INSTANCE);
+	                ch.pipeline().addLast(LoginRequestHandler.INSTANCE);
+	                // 加在这里
+	                ch.pipeline().addLast(HeartBeatRequestHandler.INSTANCE);
+	                ch.pipeline().addLast(AuthHandler.INSTANCE);
+	                ch.pipeline().addLast(IMHandler.INSTANCE);
+	            }
+	        });
+
+## 5. 总结 ##
+
+1. 讨论了连接假死相关的现象以及产生的原因
+2. 要处理假死问题首先要实现客户端与服务端定期发送心跳，在这里，其实服务端只需要对客户端的定时心跳包进行回复。
+3. 客户都安与服务端如果都需要检测假死，那么直接在pipeline的最前方插入一个自定义`IdleStateHandler`，在`channelIdle()`方法里面自定义连接假死之后的逻辑。
+4. 通常空闲检测时间要比发送心跳的时间的两倍要长一些，这是为了排除偶发的公网抖动，防止误判。
+
+## 6. 思考 ##
+
+1. IMIdleStateHandler能够实现为单例模式，为什么？
+2. 如何实现客户都安在断开连接之后自动连接并重新登录？
+
+# 小册总结 #
+
+## 1. Netty是什么？ ##
+
+Netty 其实可以看做是对 BIO 和 NIO 的封装，并提供良好的 IO 读写相关的 API，另外还提供了非常多的开箱即用的 handler，工具类等等。
+
+## 2. 服务端和客户端启动 ##
+
+Netty 提供了两大启动辅助类，`ServerBootstrap` 和 `Bootstrap`， 他们的启动参数类似，都是分为
+
+1. 配置 IO 类型，配置线程模型。
+2. 配置 TCP 参数，attr 属性。
+3. 配置 handler。server 端除了配置 handler，还需要配置 childHandler，他是定义每条连接的处理器。
+
+## 3. ByteBuf ##
+
+Netty 对二进制数据的抽象类 ByteBuf,ByteBuf 底层又可以细分为堆内存和堆外内存，它的 API 要比 jdk 提供的 ByteBuffer 要更好用，ByteBuf 所有的操作其实都是基于读指针和写指针来进行操作的，把申请到的一块内存划分为可读区、可写区，另外还提供了自动扩容的功能。
+
+## 4. 自定义协议拆包与编解码 ##
+
+我们要实现客户端与服务端的通信，需要自定义协议，说白了就是双方商量在字节流里面，对应位置的字节段分别表示什么含义。
+
+最多的协议就是基于长度的协议，一个协议数据包里面包含了一个长度字段，
+1. 从字节流里面根据自定义协议截取出一个个数据包，使用的最多的拆包器就是`LengthFieldBasedFrameDecoder`，只需要给他配置一些参数，即可实现自动拆包
+2. 拆包之后，拿到了代表字节流区段的一个个ByteBuf，解码器的作用就是把这些个ByteBuf变成一个个java对象，将后续的handler进行相应的逻辑的处理。
+
+## 5. handler 与 pipeline ##
+
+Netty 对逻辑处理流的处理其实和 TCP 协议栈的思路非常类似，分为输入和输出，也就是 inBound 和 outBound 类型的 handler，inBound 类 handler 的添加顺序与事件传播的顺序相同，而 outBound 类 handler 的添加顺序与事件传播的顺序相反。
+
+无状态的 handler 可以改造为单例模式，但是千万记得要加 `@ChannelHandler.Sharable` 注解，平行等价的 handler 可以使用压缩的方式减少事件传播路径，调用 `ctx.xxx()` 而不是 `ctx.channel().xxx()` 也可以减少事件传播路径，不过要看应用场景。
+
+每个handler都有自己的生命周期，Netty 会在 channel 或者 channelHandler 处于不同状态的情况下回调相应的方法，channelHandler 也可以动态添加，特别适用于一次性处理的 handler，用完即删除，干干净净。
+
+## 6. 耗时操作的处理与统计 ##
+
+对于耗时的操作，不要直接在 NIO 线程里做，比如，不要在 `channelRead0()` 方法里做一些访问数据库或者网络相关的逻辑，要扔到自定义线程池里面去做，然后要注意这个时候，`writeAndFlush()` 的执行是异步的，需要通过添加监听回调的方式来判断是否执行完毕，进而进行延时的统计。
+
+## 7. 总结 & 思考 ##
+
+
+# 小册读者总结 #
+
+# 扩展：进阶学习Netty的方向与资料 #
+
+## 1. 官网与github ##
+
+[4.x 版本的 Netty 的一个学习指引](https://link.juejin.im/?target=https%3A%2F%2Fnetty.io%2Fwiki%2Fuser-guide-for-4.x.html)
+
+[有哪些开源项目使用了 Netty](https://link.juejin.im/?target=https%3A%2F%2FNetty.io%2Fwiki%2Frelated-projects.html)
+
+## 2. 源码解析博客 ##
+
+关于 Netty 服务端启动的流程可以参考
+
+[Netty 源码分析之服务端启动全解析](https://juejin.im/post/5bc92271e51d450ea4024c75)
+
+关于服务端是如何处理一条新的连接的，可以参考
+
+[Netty 源码分析之新连接接入全解析](https://juejin.im/post/5bcd01ccf265da0aa664f99b)
+
+关于 Netty 里面 NIO 到底干了啥事，为啥可以做到一个 NIO 线程就可以处理上万连接，异步机制又是如何实现的，可以参考以下三篇文章
+
+1. [Netty 源码分析之揭开 reactor 线程的面纱（一）](https://juejin.im/post/5bce54826fb9a05d1f2247a0)
+2. [Netty 源码分析之揭开 reactor 线程的面纱（二）](https://juejin.im/post/5bce54826fb9a05d1f2247a0)
+3. [Netty 源码分析之揭开 reactor 线程的面纱（三）](https://juejin.im/post/5bce54826fb9a05d1f2247a0)
+
+关于事件传播机制 Netty 又是如何实现的，为什么 inBound 和 outBound 的传播顺序与添加顺序的对应规则不同，Netty 又是如何来区分 inBound 和 outBound 的，Netty 的 pipeline 默认又有哪两个 handler，他们的作用分别是什么，一切尽在以下两篇文章
+
+1. [Netty 源码分析之 pipeline (一)](https://juejin.im/post/5bd26334e51d457a496de685)
+2. [Netty 源码分析之 pipeline (二)](https://juejin.im/post/5bd79c39f265da0aa81c47cf)
+
+Netty 中拆包器的原理是什么？可以参考 [Netty 源码分析之拆包器的奥秘](https://juejin.im/post/5bedf8636fb9a049b07cec90)
+
+最后，我们在本小册接触最频繁的 `writeAndFlush()` 方法，它又是如何实现异步化的，可以参考 [Netty 源码分析之 writeAndFlush 全解析](https://link.juejin.im/?target=https%3A%2F%2Fwww.jianshu.com%2Fp%2Ffeaeaab2ce56)
+
+1. [Netty 堆外内存泄露排查盛宴](https://juejin.im/post/5b8dbbd4518825430810d760)
+2. [海量连接服务端 jvm 参数调优杂记](https://link.juejin.im/?target=https%3A%2F%2Fwww.jianshu.com%2Fp%2F051d566e110d)
+3. [一次 Netty "引发的" 诡异 old gc 问题排查过程](https://link.juejin.im/?target=https%3A%2F%2Fwww.jianshu.com%2Fp%2F702ef10102e4)
+
+## 3. 源码解析视频 ##
+
+## 4. 微信公众号 ##
