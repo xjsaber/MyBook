@@ -14,9 +14,6 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 
 import java.util.Date;
 import java.util.Scanner;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -25,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 public class NettyClient {
     private static final int MAX_RETRY = 5;
     private static final String HOST = "127.0.0.1";
-    private static final int PORT = 8080;
+    private static final int PORT = 8000;
 
     public static void main(String[] args) {
         // 引导类，负责启动客户端以及连接服务端（服务端相对的是ServerBootStrap）
@@ -42,8 +39,8 @@ public class NettyClient {
                 // 3. IO处理逻辑
                 .handler(new ChannelInitializer<Channel>() {
                     @Override
-                    protected void initChannel(Channel channel) throws Exception {
-                        channel.pipeline().addLast(new ClientHandler());
+                    protected void initChannel(Channel ch) throws Exception {
+                        ch.pipeline().addLast(new ClientHandler());
                     }
                 });
         connect(bootstrap, HOST, PORT, MAX_RETRY);
