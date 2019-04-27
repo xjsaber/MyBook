@@ -1,5 +1,7 @@
-package com.xjsaber.netty.message.protocol;
+package com.xjsaber.netty.messagev2.codec;
 
+import com.xjsaber.netty.messagev2.protocol.Packet;
+import com.xjsaber.netty.messagev2.protocol.PacketCodeC;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;

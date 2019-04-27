@@ -8,7 +8,7 @@ import io.netty.handler.timeout.IdleStateHandler;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 
+ *
  * @author xjsaber
  */
 public class IMIdleStateHandler extends IdleStateHandler {

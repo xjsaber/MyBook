@@ -1,11 +1,7 @@
-package com.xjsaber.netty.pipeline.server;
+package com.xjsaber.netty.messagev2.server;
 
-import com.xjsaber.netty.pipeline.server.inbound.InBoundHandlerA;
-import com.xjsaber.netty.pipeline.server.inbound.InBoundHandlerB;
-import com.xjsaber.netty.pipeline.server.inbound.InBoundHandlerC;
-import com.xjsaber.netty.pipeline.server.outbound.OutBoundHandlerA;
-import com.xjsaber.netty.pipeline.server.outbound.OutBoundHandlerB;
-import com.xjsaber.netty.pipeline.server.outbound.OutBoundHandlerC;
+import com.xjsaber.netty.messagev2.codec.PacketDecoder;
+import com.xjsaber.netty.messagev2.codec.PacketEncoder;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -18,7 +14,6 @@ import java.util.Date;
 /**
  * @author xjsaber
  */
-@SuppressWarnings("Duplicates")
 public class NettyServer {
 
     public static void main(String[] args){
@@ -38,16 +33,11 @@ public class NettyServer {
                 .childOption(ChannelOption.TCP_NODELAY, true)
                 .childHandler(new ChannelInitializer<NioSocketChannel>() {
                     @Override
-                    protected void initChannel(NioSocketChannel nioSocketChannel) throws Exception {
-                        nioSocketChannel.pipeline().addLast(new InBoundHandlerA());
-                        nioSocketChannel.pipeline().addLast(new InBoundHandlerB());
-                        nioSocketChannel.pipeline().addLast(new InBoundHandlerC());
-
-                        nioSocketChannel.pipeline().addLast(new OutBoundHandlerA());
-                        nioSocketChannel.pipeline().addLast(new OutBoundHandlerB());
-                        nioSocketChannel.pipeline().addLast(new OutBoundHandlerC());
-
-                        nioSocketChannel.pipeline().addLast(new ServerHandler());
+                    protected void initChannel(NioSocketChannel ch) throws Exception {
+                        ch.pipeline().addLast(new PacketDecoder());
+                        ch.pipeline().addLast(new LoginRequestHandler());
+                        ch.pipeline().addLast(new MessageRequestHandler());
+                        ch.pipeline().addLast(new PacketEncoder());
                     }
                 });
         bind(bootstrap, 8000);

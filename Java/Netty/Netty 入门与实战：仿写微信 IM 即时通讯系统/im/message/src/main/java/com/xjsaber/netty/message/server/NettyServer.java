@@ -31,11 +31,11 @@ public class NettyServer {
                 .childOption(ChannelOption.TCP_NODELAY, true)
                 .childHandler(new ChannelInitializer<NioSocketChannel>() {
                     @Override
-                    protected void initChannel(NioSocketChannel nioSocketChannel) throws Exception {
-                        nioSocketChannel.pipeline().addLast(new ServerHandler());
+                    protected void initChannel(NioSocketChannel ch) throws Exception {
+                        ch.pipeline().addLast(new ServerHandler());
                     }
                 });
-        bind(bootstrap, 8080);
+        bind(bootstrap, 8000);
     }
 
     private static void bind(final ServerBootstrap serverBootstrap, final int port) {

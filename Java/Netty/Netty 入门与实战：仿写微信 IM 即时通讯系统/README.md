@@ -2035,7 +2035,213 @@ handler 其实可以看做是一段功能相对聚合的逻辑，然后通过 pi
 
 # ch17 实战：群聊的发起与通知 #
 
+## 1. 最终效果 ##
+
+	服务端
+
+	创建群聊的客户端
+
+	其他客户端
+
+1. 三位用户登录系统
+2. 在控制台 createGroup 指令，提示创建群聊需要输入userid列表，然后输入以英文逗号分隔的userId。
+3. 群聊创建成功之后，分别在服务端和三个客户端弹出提示信息，包括群的ID以及群里各位用户的昵称
+
+## 2. 群聊原理 ##
+
+![2019-04-26_10-06-51.jpg](img/2019-04-26_10-06-51.jpg)
+
+1. A，B，C依然会经历登录流程，服务端保存对应的TCP连接
+2. A发起群聊的时候，将A，B，C的标识发送之服务端，服务端拿到之后建立一个群聊ID，然后把这个ID与A，B，C的标识绑定
+3. 群聊里面任意一方在群聊聊天的时候，将群聊ID发送至服务端，服务端拿到群聊ID之后，取出对应的用户标识，遍历用户标识对应的TCP连接，就可以将消息发送至每一个群聊成员。
+
+## 2. 控制台程序重构 ##
+
+### 2.1 创建控制台命令执行器 ###
+
+我们把在控制台要执行的操作抽象出来，抽象出一个接口
+
+	ConsoleCommand.java
+
+	public interface ConsoleCommand {
+	    void exec(Scanner scanner, Channel channel);
+	}
+
+### 2.2 管理控制台命令执行器 ###
+
+我们创建一个管理类来对这些操作进行管理。
+
+	ConsoleCommandManager.java
+
+	public class ConsoleCommandManager implements ConsoleCommand {
+	    private Map<String, ConsoleCommand> consoleCommandMap;
+	
+	    public ConsoleCommandManager() {
+	        consoleCommandMap = new HashMap<>();
+	        consoleCommandMap.put("sendToUser", new SendToUserConsoleCommand());
+	        consoleCommandMap.put("logout", new LogoutConsoleCommand());
+	        consoleCommandMap.put("createGroup", new CreateGroupConsoleCommand());
+	    }
+	
+	    @Override
+	    public void exec(Scanner scanner, Channel channel) {
+	        //  获取第一个指令
+	        String command = scanner.next();
+	
+	        ConsoleCommand consoleCommand = consoleCommandMap.get(command);
+	
+	        if (consoleCommand != null) {
+	            consoleCommand.exec(scanner, channel);
+	        } else {
+	            System.err.println("无法识别[" + command + "]指令，请重新输入!");
+	        }
+	    }
+	}
+
+1. 在这个管理类中，把所有要管理的控制台指令都塞到一个map中。
+2. 执行具体操作的时候，先获取控制台第一个输入的指令，以字符串代替，然后通过指令拿到对应的控制台命令执行器执行。
+
+我们在控制台输入 `createGroup`，然后我们按下回车，就会进入 `CreateGroupConsoleCommand` 这个类进行处理
+
+	CreateGroupConsoleCommand.java
+
+	public class CreateGroupConsoleCommand implements ConsoleCommand {
+	
+	    private static final String USER_ID_SPLITER = ",";
+	
+	    @Override
+	    public void exec(Scanner scanner, Channel channel) {
+	        CreateGroupRequestPacket createGroupRequestPacket = new CreateGroupRequestPacket();
+	
+	        System.out.print("【拉人群聊】输入 userId 列表，userId 之间英文逗号隔开：");
+	        String userIds = scanner.next();
+	        createGroupRequestPacket.setUserIdList(Arrays.asList(userIds.split(USER_ID_SPLITER)));
+	        channel.writeAndFlush(createGroupRequestPacket);
+	    }
+	
+	}
+
+进入到 `CreateGroupConsoleCommand` 的逻辑之后，我们创建了一个群聊创建请求的数据包，然后提示输入以英文逗号分隔的 `userId` 的列表，填充完这个数据包之后，调用 `writeAndFlush()` 我们就可以发送一个创建群聊的指令到服务端。
+
+## 3. 创建群聊的实现 ##
+
+### 3.1 客户端发送创建群聊请求 ###
+
+我们是发送一个 `CreateGroupRequestPacket` 数据包到服务端，这个数据包的格式为：
+
+	CreateGroupRequestPacket.java
+
+	public class CreateGroupRequestPacket extends Packet {
+	    private List<String> userIdList;
+	}
+
+它只包含了一个列表，这个列表就是需要拉取群聊的用户列表。
+
+### 3.2 服务端处理创建群聊请求 ###
+
+创建一个 handler 来处理新的指令
+
+	NettyServer.java
+
+	.childHandler(new ChannelInitializer<NioSocketChannel>() {
+	    protected void initChannel(NioSocketChannel ch) {
+	        // ...
+	        // 添加一个 handler 
+	        ch.pipeline().addLast(new CreateGroupRequestHandler());
+	        // ...
+	    }
+	});
+
+----
+
+	CreateGroupRequestHandler.java
+
+	public class CreateGroupRequestHandler extends SimpleChannelInboundHandler<CreateGroupRequestPacket> {
+	    @Override
+	    protected void channelRead0(ChannelHandlerContext ctx, CreateGroupRequestPacket createGroupRequestPacket) {
+	        List<String> userIdList = createGroupRequestPacket.getUserIdList();
+	
+	        List<String> userNameList = new ArrayList<>();
+	        // 1. 创建一个 channel 分组
+	        ChannelGroup channelGroup = new DefaultChannelGroup(ctx.executor());
+	
+	        // 2. 筛选出待加入群聊的用户的 channel 和 userName
+	        for (String userId : userIdList) {
+	            Channel channel = SessionUtil.getChannel(userId);
+	            if (channel != null) {
+	                channelGroup.add(channel);
+	                userNameList.add(SessionUtil.getSession(channel).getUserName());
+	            }
+	        }
+	
+	        // 3. 创建群聊创建结果的响应
+	        CreateGroupResponsePacket createGroupResponsePacket = new CreateGroupResponsePacket();
+	        createGroupResponsePacket.setSuccess(true);
+	        createGroupResponsePacket.setGroupId(IDUtil.randomId());
+	        createGroupResponsePacket.setUserNameList(userNameList);
+	
+	        // 4. 给每个客户端发送拉群通知
+	        channelGroup.writeAndFlush(createGroupResponsePacket);
+	
+	        System.out.print("群创建成功，id 为[" + createGroupResponsePacket.getGroupId() + "], ");
+	        System.out.println("群里面有：" + createGroupResponsePacket.getUserNameList());
+	
+	    }
+	}
+
+整个过程可以分为几个过程
+
+1. 创建一个ChannelGroup【可以把多个channel的操作聚合在一起，可以往它里面添加删除channel，可以进行channel的批量读写，关闭等操作】。
+2. 遍历待加入群聊的userId，如果存在该用户，就把对应的channel添加到ChannelGroup中，用户昵称也添加昵称列表中。
+3. 然后，我们创建一个群聊响应的对象，其中groupId是随机生成的，群聊创建结果一共三个字段。
+4. 调用ChannelGroup的聚合发送功能，将拉群的通知批量地发送到客户端，接着服务端控制台打印创建群聊成功地消息。
+
+### 3.3 客户端处理创建群聊响应 ###
+
+客户端依然也是创建一个 handler 来处理新的指令。
+
+	NettyClient.java
+
+	.handler(new ChannelInitializer<SocketChannel>() {
+	    @Override
+	    public void initChannel(SocketChannel ch) {
+	        // ...
+	        // 添加一个新的 handler 来处理创建群聊成功响应的指令
+	        ch.pipeline().addLast(new CreateGroupResponseHandler());
+	        // ...
+	    }
+	});
+
+在我们的应用程序里面，我们仅仅是把创建群聊成功之后的具体信息打印出来。
+
+	CreateGroupResponseHandler.java
+
+	public class CreateGroupResponseHandler extends SimpleChannelInboundHandler<CreateGroupResponsePacket> {
+	
+	    @Override
+	    protected void channelRead0(ChannelHandlerContext ctx, CreateGroupResponsePacket createGroupResponsePacket) {
+	        System.out.print("群创建成功，id 为[" + createGroupResponsePacket.getGroupId() + "], ");
+	        System.out.println("群里面有：" + createGroupResponsePacket.getUserNameList());
+	    }
+	}
+
+在实际生产环境中，`CreateGroupResponsePacket` 对象里面可能有更多的信息，然后以上逻辑的处理也会更加复杂，不过我们这里已经能说明问题了。
+
+## 4. 总结 ##
+
+1. 群聊地原理和单聊类似，无非就是通过标识拿到channel。
+2. 在实际带有 UI 的 IM 应用中，我们输入的第一个指令其实就是对应我们点击 UI 的某些按钮或菜单的操作。
+3. 通过 `ChannelGroup`，我们可以很方便地对一组 channel 进行批量操作。
+
+## 5. 思考 ##
+
+如何实现在某个客户端拉取群聊成员的时候，不需要输入自己的用户 ID，并且展示创建群聊消息的时候，不显示自己的昵称？欢迎留言讨论。
+
 # ch18 实战：群聊的成员管理（加入与推出，获取成员列表） #
+
+## 1. 最终效果 ##
+
+
 
 # ch19 实战：群聊消息的收发及Netty性能优化 #
 

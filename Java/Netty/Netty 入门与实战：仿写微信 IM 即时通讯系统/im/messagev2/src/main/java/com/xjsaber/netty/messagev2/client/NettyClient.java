@@ -1,8 +1,10 @@
-package com.xjsaber.netty.pipeline.client;
+package com.xjsaber.netty.messagev2.client;
 
-import com.xjsaber.netty.pipeline.protocol.PacketCodeC;
-import com.xjsaber.netty.pipeline.protocol.request.MessageRequestPacket;
-import com.xjsaber.netty.pipeline.util.LoginUtil;
+import com.xjsaber.netty.messagev2.protocol.PacketCodeC;
+import com.xjsaber.netty.messagev2.codec.PacketDecoder;
+import com.xjsaber.netty.messagev2.codec.PacketEncoder;
+import com.xjsaber.netty.messagev2.protocol.request.MessageRequestPacket;
+import com.xjsaber.netty.messagev2.util.LoginUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
@@ -19,10 +21,9 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author xjsaber
  */
-@SuppressWarnings("Duplicates")
 public class NettyClient {
     private static final int MAX_RETRY = 5;
-    private static final String HOST = "127.0.0.1";
+    private static final String HOST = "localhost";
     private static final int PORT = 8000;
 
     public static void main(String[] args) {
@@ -35,13 +36,17 @@ public class NettyClient {
                 .group(group)
                 // 2. 指定IO类型为NIO
                 .channel(NioSocketChannel.class)
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000)
                 .option(ChannelOption.SO_KEEPALIVE, true)
                 .option(ChannelOption.TCP_NODELAY, true)
                 // 3. IO处理逻辑
                 .handler(new ChannelInitializer<Channel>() {
                     @Override
-                    protected void initChannel(Channel channel) throws Exception {
-                        channel.pipeline().addLast(new ClientHandler());
+                    protected void initChannel(Channel ch) throws Exception {
+                        ch.pipeline().addLast(new PacketDecoder());
+                        ch.pipeline().addLast(new LoginResponseHandler());
+                        ch.pipeline().addLast(new MessageResponseHandler());
+                        ch.pipeline().addLast(new PacketEncoder());
                     }
                 });
         connect(bootstrap, HOST, PORT, MAX_RETRY);
