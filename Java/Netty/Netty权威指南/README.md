@@ -326,7 +326,15 @@ JDK1.4和1.5update10版本之前，JDK的Selector基于select/poll模型实现�
 
 ### 3.3 Netty客户端开发 ###
 
-见code
+1. NioEventLoopGroup线程组
+2. 客户端辅助启动类Bootstrap
+3. NioSocketChannel
+4. Handler
+5. ChannelHandler
+
+* channelActive
+* channelRead
+* exceptionCaught
 
 ### 3.4 运行和调试 ###
 
@@ -336,17 +344,17 @@ JDK1.4和1.5update10版本之前，JDK的Selector基于select/poll模型实现�
 
 ### 3.5 总结 ###
 
+Netty的优势
 
+# 第4章 TCP粘包/拆包问题的解决之道 #
 
-## 第4章 TCP粘包/拆包问题的解决之道 ##
-
-### 4.1 TCP粘包/拆包 ###
+## 4.1 TCP粘包/拆包 ##
 
 TCP是个“流”协议，所谓流，就是没有界限的一串数据。
 
 会根据TCP缓冲区的实际情况进行包的划分，在业务上认为，一个完整的包可能会被 TCP 拆分成多个包进行发送，也有可能把多个小的包装成一个大的数据包发送，也即是所谓的TCP粘包和拆包问题。
 
-#### 4.1.1 TCP 粘包/拆包问题说明 ####
+### 4.1.1 TCP 粘包/拆包问题说明 ###
 
 假如客户端分别发送了两个数据包D1和D2给服务端，由于服务端一次读取到的字节数是不确定的，存在4种可能
 
@@ -355,13 +363,15 @@ TCP是个“流”协议，所谓流，就是没有界限的一串数据。
 3. 服务端分两次读取到了两个数据包，第一次读取到了完整的D1包和D2包的部分内容，第二次读取到了D2包的剩余内容，这被称为TCp拆包；
 4. 服务端分两次读取到了两个数据包，第一次读取到了D1包的部分内容D1_1，第二次读取到了D1包的剩余内容D1_2和D2包的整包。
 
-#### 4.1.2 TCP 粘包/拆包发生的原因 ####
+### 4.1.2 TCP 粘包/拆包发生的原因 ###
 
 问题原因
 
 1. 应用程序write写入的字节大小大于套接口发送缓冲区大小；
 2. 进行MSS大小的TCP分段；
 3. 以太网帧的payload大于MTU进行IP分片。
+
+![2019-04-28_16-32-07.jpg](img/2019-04-28_16-32-07.jpg)
 
 #### 4.1.3 粘包问题的解决策略 ####
 
@@ -374,7 +384,7 @@ TCP是个“流”协议，所谓流，就是没有界限的一串数据。
 
 ### 4.2 未考虑TCP粘包导致功能异常案例 ###
 
-利用Netty的半包解码器来解决TCP粘包/拆包问题
+利用Netty的半包解码器来解决TCP粘包/拆包问题，在功能测试时往往没有问题，但是一旦压力上来，或者发送大报文之后，就会存在粘包/拆包问题。
 
 #### 4.2.1 TimeServer的改造 ####
 
@@ -392,15 +402,13 @@ TCP是个“流”协议，所谓流，就是没有界限的一串数据。
 
 为了解决TCP粘包/拆包导致的半包读写的问题，Netty默认提供了多种编码器用于处理半包。
 
-
-
 #### 4.3.1 支持TCP粘包的TimeServer ####
 
-
+	LineBasedFrameDecoder和StringDecoder
 
 #### 4.3.2 支持TCP粘包的TimeClient ####
 
-
+	LineBasedFrameDecoder(1024)和StringDecoder
 
 #### 4.3.3 运行支持TCP粘包的时间服务器程序 ####
 
@@ -410,9 +418,9 @@ TimeServer和TimeClient
 
 #### 4.3.4 LineBasedFrameDecoder和StringDecoder的原理分析 ####
 
-LineBasedFrameDecoder依次遍历ByteBuf的可读字节，判断看是否有"\n"护着"\r\n"，如果有，则是以此为结束位置，从可读索引到结束位置区间的就组成一行，以换行符为结束的解码器，支持携带结束符或者不携带结束符两种解码方式。
+LineBasedFrameDecoder依次遍历ByteBuf的可读字节，判断看是否有"\n"护着"\r\n"，如果有，则是以此为结束位置，从可读索引到结束位置区间的就组成一行，以换行符为结束的解码器，支持携带结束符或者不携带结束符两种解码方式，同时支持配置单行的最大长度。如果连续读取到最大长度后仍然没有发现换行符，就会抛出异常，同时忽略掉之前的读到的异常码流。
 
-StringDecoder就是将接收到的对象转换成字符串
+StringDecoder就是将接收到的对象转换成字符串，然后继续调用后面的Handler。LineBasedFrameDecoder + StringDecoder组合就是换行切换的文本解码器，被设计用来支持TCP的粘包和拆包。
 
 ### 4.4 总结 ###
 
@@ -420,7 +428,7 @@ StringDecoder就是将接收到的对象转换成字符串
 
 使用LineBasedFrameDecoder + StringDecoder来解决TCP粘包/拆包问题。
 
-## 第5章 分隔符和定长解码器的应用 ##
+# 第5章 分隔符和定长解码器的应用 #
 
 上层的应用协议为对消息进行区分
 
@@ -429,14 +437,43 @@ StringDecoder就是将接收到的对象转换成字符串
 3. 将特殊的分隔符作为消息的结束标志
 4. 通常在消息头中定义长度字段来标识消息的总长度
 
+## 5.1 DelimiterBasedFrameDecoder应用开发 ##
 
-### 5.1 DelimiterBasedFrameDecoder应用开发 ###
+### 5.1.1 DelimiterBasedFrameDecoder 服务端开发 ###
 
-### 5.2 FixedLengthFrameDecodeer应用开发 ###
+	ByteBuf delimiter = Unpooled.copiedBuffer("$_".getBytes());
+	ch.pipeline().addLast(new DelimiterBasedFrameDecoder(1024, delimiter));
+	ch.pipeline().addLast(new StringDecoder());
+	ch.pipeline().addLast(new EchoServerHandler());
+
+DelimiterBasedFrameDecoder(1024, delimiter); 
+
+1. 1024表示单条消息的最大长度，当达到该长度后仍然没有查找到分隔符，就抛出TooLongFrameException异常，防止由于异常码流缺失分隔符导致的内存溢出
+2. delimiter表示分隔符缓存的对象
+
+### 5.1.2 DelimiterBasedFrameDecoder 客户端开发 ###
+
+	ByteBuf delimiter = Unpooled.copiedBuffer("$_".getBytes());
+	ch.pipeline().addLast(new DelimiterBasedFrameDecoder(1024), delimiter);
+	ch.pipeline().addLast(new StringDecoder);
+	ch.pipeline().addLast(new EchoClientHandler());
+
+### 5.1.3 运行DelimiterBasedFrameDecoder服务端和客户端 ###
+
+# TODO 修改成自定义协议，解决粘包粘包问题 #
+
+## 5.2 FixedLengthFrameDecodeer应用开发 ##
 
 FixedLengthFrameDecoder是固定长度解码器，能够按照指定的长度对消息进行自动解码。开发者不需要考虑TCP的粘包/拆包问题。
 
-### 5.3 总结 ###
+### 5.2.1 FixedLengthFrameDecoder服务端开发 ###
+
+FixedLengthFrameDecoder，长度设置为20
+
+	ch.pipeline().addLast(new FixedLengthFrameDecoder(20));
+	ch.pipeline().addLast(new StringDecoder());
+
+## 5.3 总结 ##
 
 DelimiterBasedFramerDecoder和FixedLengthFrameDecoder
 
