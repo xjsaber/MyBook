@@ -12,6 +12,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 /**
  * @author xjsaber
  */
+@SuppressWarnings("Duplicates")
 public class TimeClient {
 
     private void connect(int port, String host) throws Exception {

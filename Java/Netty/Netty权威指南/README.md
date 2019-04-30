@@ -473,30 +473,32 @@ FixedLengthFrameDecoder，长度设置为20
 	ch.pipeline().addLast(new FixedLengthFrameDecoder(20));
 	ch.pipeline().addLast(new StringDecoder());
 
+### 5.2.2 利用telnet命令行测试EchoServer服务端 ###
+
+	telnet localhost 8080
+
 ## 5.3 总结 ##
 
 DelimiterBasedFramerDecoder和FixedLengthFrameDecoder
 
 DelimiterBasedFrameDecoder用于对使用分隔符结尾的消息进行自动解码，FixedLengthFrameDecoder用于对固定长度的消息进行自动解码。
 
+# 中级篇 Netty编解码开发指南 #
 
+# 第6章 编解码技术 #
 
-中级篇 Netty编解码开发指南
-
-## 第6章 编解码技术 ##
-
-基于Java提供的对象输入/输出流ObjectInputStream和ObjectOutputStream，可以直接把Java杜希昂作为可存储的字节数组写入文件，也可以传输到网络上。
+基于Java提供的对象输入/输出流ObjectInputStream和ObjectOutputStream，可以直接把Java对象作为可存储的字节数组写入文件，也可以传输到网络上。
 
 Java序列化的目的主要有两个二：
 
 * 网络传输
 * 对象持久化
 
-Java序列化从JDK1.1版本就已经提供，不需要添加额外的类库，只需实现java.io.Serializable并生成序列ID即即可。
+Java序列化从JDK1.1版本就已经提供，不需要添加额外的类库，只需实现java.io.Serializable并生成序列ID即可。
+
+## 6.1 Java序列化的缺点 ✔##
 
 ### 6.1.1 无法跨语言 ###
-
-
 
 ### 6.1.2 序列化后的码流太大 ###
 
@@ -506,6 +508,8 @@ Java序列化从JDK1.1版本就已经提供，不需要添加额外的类库，�
 * 类库是否小乔，API使用是否方便；
 * 使用者需要手工开发的工作量和难度
 
+在同等情况下，编码后的字节数组越大，存储的时候就越占空间，存储的硬件成本就越高，并且在网络传输时更占带宽，导致系统的吞吐量降低。Java序列化后的码流偏大也一直被业界所诟病，导致它的应用范围受到了很大的限制。
+
 ### 6.1.3 序列化性能太低 ###
 
 无论是序列化后的码流大小，还是序列化的性能， JDK默认的序列化机制表现得都很差。因此，不会选择Java序列化作为远程跨节点调用的编解码框架。
@@ -514,14 +518,29 @@ Java序列化从JDK1.1版本就已经提供，不需要添加额外的类库，�
 
 ### 6.2.1 Google的Protobuf介绍 ###
 
-* 结构化数据存储格式（XML、JSON等）；
-* 高效的编解码性能；
-* 语言无关、平台无关、扩展性好；
-* 官方支持Java、C++和Python三种语言。
+ProtoBuf全称Google Protocol Buffers。
+
+1. Protobuf使用二进制编码，在空间和性能上具有更大的优势。
+
+	* 结构化数据存储格式（XML、JSON等）；
+	* 高效的编解码性能；
+	* 语言无关、平台无关、扩展性好；
+	* 官方支持Java、C++和Python三种语言。
+
+2. 数据描述文件和代码生成机制，利用数据描述文件对数据结构进行说明。
+
+	* 文本化的数据结构描述语言，可以实现语言和平台无关，特别适合异构系统间的系统； 
+	* 通过标识字段的顺序，可以实现协议前的前向兼容；
+	* 自动代码生成，不需要手工编码同样数据结构的C++和Java版本；
+	* 方便后续的管理和维护。相比于代码，结构化的文档更容易管理和维护。
 
 ### 6.2.2 Facebook的Thrift介绍 ###
 
-Thrift可以作为高性能的通信中间件使用，它支持数据（对象）序列化和多种类型的RPC服务。Thrift适用于静态的数据交换，需要先确定好它的数据结构，当诗句结构发生变化时，必须重新编辑IDL文件，生成代码和编译。
+Thrift可以作为高性能的通信中间件使用，它支持数据（对象）序列化和多种类型的RPC服务。Thrift适用于静态的数据交换，需要先确定好它的数据结构，当数据结构发生变化时，必须重新编辑IDL文件，生成代码和编译。
+
+Thrift适用于搭建大型数据交换及存储的通用工具，对于大型系统中的内部数据传输，相对于JSON和XML在性能和传输大小上都有明显的优势。
+
+Thrift主要由5部分组成：
 
 1. 语言系统以及IDL编译器：负责由用户给定的IDL文件生成相应语言的接口代码；
 2. TRrotocol：RPC的协议层，可以选择多种不同的对象序列化方式，如JSON和Binary；
@@ -529,45 +548,100 @@ Thrift可以作为高性能的通信中间件使用，它支持数据（对象�
 4. TProcessor：作为协议层和用户提供的服务实现之间的纽带，负责调用
 5. TServer：聚合TProtocol、TTransport和TProcessor等对象。
 
+Thrift支持三种比较典型的编解码方式。
+
+1. 通用的二进制编解码
+2. 压缩二进制编解码
+3. 优化的可选字段压缩编解码
+
 ### 6.2.3 JBoss Marshalling介绍 ###
 
 相比于传统的Java序列化机制，它的优点如下：
 
-* 可插拔的类解析器
-* 可插拔的对象替换技术
-* 可插拔的预定义类缓存表
+* 可插拔的类解析器，提供更加便捷的类加载定制策略，通过一个接口即可实现定制；
+* 可插拔的对象替换技术，不需要通过继承的方式；
+* 可插拔的预定义类缓存表，可以减少序列化的字节数组长度，提升常用类型的对象序列化性能；
 * 无须实现java.io.Serializable接口，即可实现Java序列化；
-* 通过缓存技术提升对象的序列化性能
+* 通过缓存技术提升对象的序列化性能；
 
 ## 6.3 总结 ##
 
-## 第7章 MessagePack编解码 ##
+# 第7章 MessagePack编解码 #
 
-### 7.1 MessagePack介绍 ###
+## 7.1 MessagePack介绍 ##
 
-#### 7.1.1 MessagePack多语言支持 ####
+MessagePack：
 
-#### 7.1.2 MessagePack Java API介绍 ####
+1. 编解码高效，性能高；
+2. 序列化之后的码流小；
+3. 支持跨语言。
 
-#### 7.1.3 MessagePack开发包下载 ####
+### 7.1.1 MessagePack多语言支持 ###
 
-### 7.2 MessagePack 编码器和解码器开发 ###
+### 7.1.2 MessagePack Java API介绍 ###
+
+	<dependency>
+		<groupId>org.msgpack</groupId>
+		<artifactId>msgpack</artifactId>
+		<version>${msgpack.version}</version>
+	</dependency>
+
+	List<String> src = new ArrayList<String>();
+	src.add("msgpack");
+	src.add("kumofs");
+	src.add("viver");
+	MessagePack msgpack = new MessagePack();
+	byte[] raw = msgpack.write(src);
+	List<String> dst1 = msgpack.read(raw, Templates.tList(Templates.TString));
+	System.out.println(dst1.get(0));
+	System.out.println(dst1.get(1));
+	System.out.println(dst1.get(2));
+
+### 7.1.3 MessagePack开发包下载 ###
+
+## 7.2 MessagePack 编码器和解码器开发 ##
 
 编解码框架可以方便地集成第三方序列化框架，Netty预集成了几种常用的编解码框架。
 
-#### 7.2.1 MessagePack 编码器开发 ####
+### 7.2.1 MessagePack 编码器开发 ###
 
 MsgpackEncoder继承MessageToByteEncoder，负责Object类型的POJO对象编码为byte数组，然后写入到ByteBuf中。
 
-#### 7.2.2 MessagePack 解码器开发 ####
+	protected void encode(ChannelHandlerContext ctx, Object param, ByteBuf buffer) {
+		MessagePack msgpack = new MessagePack();
+		byte[] raw = msgpack.write(param);
+		buffer.writeBytes(raw);
+	}
+
+MsgpackEncoder继承MessgeToByteEncoder，它负责将Object类型的POJO对象编码为byte数组，然后写入到ByteBuf中。
+
+### 7.2.2 MessagePack 解码器开发 ###
 
 编解码器开发之后，以Netty原生的Echo程序为例，进行测试。对Echo进行简单改造，传输的对象由字符串修改为POJO对象，利用MessagePack对POJO对象进行序列化。
 
+	protected void decode(ChannelHandlerContext ctx, ByteBuf buffer, List<Object> out) {
+		final int length = buffer.readableBytes();
+		array = new byte[length];
+		buffer.getBytes(arg1.readerIndex(), array, 0, length);
+		MessagePack msgpack = new MessagePack();
+		out.add(msgpack.read(array));
+	}
+
+1. 从数据报buffer中获取需要解码的byte数组
+2. 调用MessagePack的read方法将其反序列化为Object对象
+3. 解码后的对象加入到解码列表out中
+
 #### 7.2.3 功能测试 ####
+
+# TODO #
+
+## 7.3 粘包/半包支持 ##
 
 ## 第8章 Goole Protobuf 编解码 ##
 
 ### 8.1 Protobuf的入门 ###
+
+
 
 #### 8.1.1 Protobuf开发环境搭建 ####
 
