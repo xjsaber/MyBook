@@ -81,6 +81,36 @@ stereotype annotation
 **11.3.3 The “main” Method**
 
 
-### 11.4 Running the Example ###
+#### 11.4 Running the Example ####
 
-### 11.5 Creating an Executable Jar ###
+#### 11.5 Creating an Executable Jar ####
+
+### 12. What to Read Next ###
+
+## Part III. Using Spring Boot ##
+
+### 13. Build Systems ###
+
+#### 13.1 Dependency Management ####
+
+
+
+#### 13.2 Maven ####
+
+* Java 1.8 as the default compiler level.
+* UTF-8 source encoding.
+* A Dependency Management section, inherited from the spring-boot-dependencies pom, that manages the versions of common dependencies. This dependency management lets you omit <version> tags for those dependencies when used in your own pom.
+* An execution of the repackage goal with a repackage execution id.
+* Sensible resource filtering.
+* Sensible plugin configuration (exec plugin, Git commit ID, and shade).
+* Sensible resource filtering for application.properties and application.yml including profile-specific files (for example, application-dev.properties and application-dev.yml)
+
+**13.2.1 Inheriting the Starter Parent**
+
+	<!-- Inherit defaults from Spring Boot -->
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.1.4.RELEASE</version>
+	</parent>
+
