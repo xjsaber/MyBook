@@ -437,6 +437,10 @@ Methods in your controller are mapped to HTTP by using `@RequestMapping` annotat
 
 **29.1.1 Spring MVC Auto-configuration**
 
+* Inclusion of `ContentNegotiatingViewResolver` and `BeanNameViewResolver` beans.
+* Support for serving static resources, including support for WebJars (covered later in this document)).
+* Automatic registration of `Converter`, `GenericConverter`, and `Formatter` beans.
+
 **29.1.2 HttpMessageConverters**
 
 **29.1.3 Custom JSON Serializers and Deserializers**
