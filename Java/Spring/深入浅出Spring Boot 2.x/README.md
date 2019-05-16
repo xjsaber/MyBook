@@ -141,7 +141,13 @@ Web容器：
 
 5.2 使用JdbcTemplate操作数据源
 
-3.3 使用JPA（Hibernate）操作数据
+5.3 使用JPA（Hibernate）操作数据
+
+## 5.4 整合MyBatis框架 ##
+
+### 5.4.1 Mybatis简介 ###
+
+
 
 # 第6章 聊聊数据库事务处理 #
 
