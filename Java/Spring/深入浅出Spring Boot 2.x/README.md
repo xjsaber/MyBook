@@ -133,13 +133,36 @@ Web容器：
 
 # 第5章 访问数据库 #
 
-5.1 配置数据源
+## 5.1 配置数据源 ##
 
-5.1.1 启动默认数据源
+在依赖于Spring Boot的spring-boot-starter-data-jpa后，它就会默认为你配置数据源。
 
-5.1.2 配置自定义数据源
+### 5.1.1 启动默认数据源 ###
 
-5.2 使用JdbcTemplate操作数据源
+	<dependency>
+		<groupId>org.springframework.boot</groupId>
+		<aftifactId>spring-boot-starter-data-jpa</aftifactId>
+	</dependency>
+	<dependency>
+		<groupId>com.h2databaset</groupId>
+		<aftifactId>h2</aftifactId>
+		<scope>runtime</scope>
+	</dependency>
+
+引入JPA的依赖，对JPA来说，在SpringBoot中是依赖Hibernate去实现的。
+
+### 5.1.2 配置自定义数据源 ###
+
+	<dependency>
+		<groupId>mysql</groupId>
+		<aftifactId>mysql-connector-java</aftifactId>
+	</dependency>
+	<dependency>
+		<groupId>org.springframework.boot</groupId>
+		<aftifactId>mysql-connector-java</aftifactId>	
+	</dependency>
+
+## 5.2 使用JdbcTemplate操作数据源 ##
 
 5.3 使用JPA（Hibernate）操作数据
 
@@ -153,8 +176,69 @@ Web容器：
 
 # 第7章 使用性能利器——Redis #
 
+在默认的情况下，spring-boot-starter-data-redis（版本2.x）会依赖Lettuce的Redis客户端驱动，而在一般的项目中，会使用Jedis，所以在代码中使用了<exclusions>元素将其依赖排除了。
+
+## 7.1 spring-data-redis项目简介 ##
+
+### 7.1.1 spring-data-redis项目的设计 ###
+
+* Lettuce
+* Jedis
+
+Spring提供了一个RedisConnectionFactory接口，通过生成一个RedisConnection接口对象，而RedisConnection接口对象是对Redis底层接口的封装。
+
+### 7.1.2 RedisTemplate ###
+
+RedisTemplate
+
+1. 自动从RedisConnectionFactory工厂中获取连接
+2. 执行对应的Redis命令
+3. 关闭Redis的连接
+
+Redis是一种基于字符串存储的NoSQL，而Java是基于对象的语言，对象是无法存储到Redis中的，不过Java提供了序列化机制，只要类实现了java.io.Serializable接口，就代表类的对象能够进行序列化，通过将类对象进行序列化就能够得到二进制字符串。
+
+Spring提供了RedisSerializer接口
+
+1. serialize，能把那些序列化的对象转化为二进制字符串；
+2. deserialize，能够通过反序列化把二进制字符串转换为Java对象。
+
+|属性|描述|备注|
+|--|--|--|
+|defaultSerializer|默认序列化器|如果没有设置，则使用JdkSerializationRedisSerializer|
+|keySerializer|Redis键序列化器|如果没有设置，则使用默认序列化器|
+|valueSerializer|Redis值序列化器|如果没有设置，则使用JdkSerializationRedisSerializer|
+|hashKeySerializer|Redis散列结构field序列化器|如果没有设置，则使用默认序列化器|
+|hashValueSerializer|Redis散列结构value序列化器|如果没有设置，则使用默认序列化器|
+|stringSerializer|字符串序列化器|如果没有设置，则使用JdkSerializationRedisSerializer|
+
+### 7.1.3 Spring对Redis数据类型操作的封装 ###
+
+### 7.1.4 SessionCallback和RedisCallback接口 ###
+
+让RedisTemplate进行回调，通过他们在同一条连接下进行多个redis指令
+
+* SessionCallback 较高的封装
+* RedisCallback 较底层
+
+7.2 在SpringBoot中配置和使用Redis
+
 # 第8章 文档数据库——MongoDB #
 
 # 第9章 初识Spring MVC #
 
 # 第10章 深入Spring MVC开发 #
+
+# 第11章 构建REST风格网站 #
+
+# 第12章 安全——Spring Security #
+
+# 第13章 学点Spring其他的技术 #
+
+# 第14章 Spring5新框架——WebFlux #
+
+# 第15章 实践一下——抢购商品 #
+
+# 第16章 部署、测试和监控 #
+
+# 第17章 分布式开发——Spring Cloud #
+
