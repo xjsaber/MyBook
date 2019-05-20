@@ -13,4 +13,6 @@ public class Cat implements Animal {
     public void use() {
         System.out.println("猫【" + Cat.class.getSimpleName() + "】是卖萌的");
     }
+
+    public 
 }

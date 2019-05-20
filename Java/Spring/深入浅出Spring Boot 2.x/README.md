@@ -29,12 +29,13 @@ BeanFactory
 
 #### getBean ####
 
-根据类型（by type）
-根据名字（by name）
+* 根据类型（by type）
+* 根据名字（by name）
 
 ### 3.3.2 消除歧义性——@Primary和@Quelifier ###
 
-
+* @Primary  
+* @Quelifier
 
 ## 3.4 生命周期 ##
 
