@@ -34,12 +34,29 @@ BeanFactory
 
 ### 3.3.2 消除歧义性——@Primary和@Quelifier ###
 
-* @Primary  
-* @Quelifier
+* @Primary 多个同样类型的Bean时，优先使用
+* @Quelifier Quelifier的配置项value需要一个字符串去定义
+
+### 3.3.3 带有参数的构造方法类的装配 ###
+
+    public BusinessPerson(@Autowired @Qualifier("dog") Animal animal){
+        this.animal = animal;
+    }
 
 ## 3.4 生命周期 ##
 
+1. Bean定义
+2. Bean的初始化
+3. Bean的生存期
+4. Bean的销毁
 
+* Spring通过我们的配置，如@ComponentScan定义的扫描路径去找到带有@Component的累，这个过程就是一个资源定位的过程
+* 一旦找到了资源，那么它就开始解析，并且将定义的信息保存起来。注意，此时还没有初始化Bean，也就没有Bean的实例，它有的仅仅时Bean的定义。
+* 然后就会把Bean定义发布到Spring IoC容器中。此时，IoC容器也只有Bean的定义，还是没有Bean的实例生成。
+
+ComponentScan中还有一个配置项lazyInit，只可以配置Boolean值，且默认值为false，也就是默认不进行延迟初始化。
+
+# TODO lazyInit #
 
 ## 3.5 使用属性文件 ##
 
@@ -98,9 +115,9 @@ Web容器：
 
 # 第4章 开始约定编程——Spring AOP #
 
-4.1 约定编程
+## 4.1 约定编程 ##
 
-4.1.1 约定
+### 4.1.1 约定 ###
 
 4.1.2 ProxyBean的实现
 

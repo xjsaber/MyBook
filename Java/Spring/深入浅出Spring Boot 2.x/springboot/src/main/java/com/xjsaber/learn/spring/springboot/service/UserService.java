@@ -9,7 +9,6 @@ import java.util.List;
  *
  * @author xjsaber
  */
-@Service
 public interface UserService {
 
     /**

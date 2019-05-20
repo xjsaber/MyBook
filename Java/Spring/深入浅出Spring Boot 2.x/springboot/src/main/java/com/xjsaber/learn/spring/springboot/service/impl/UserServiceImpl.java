@@ -2,12 +2,14 @@ package com.xjsaber.learn.spring.springboot.service.impl;
 
 import com.xjsaber.learn.spring.springboot.pojo.User;
 import com.xjsaber.learn.spring.springboot.service.UserService;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 /**
  * @author xjsaber
  */
+@Service("userService")
 public class UserServiceImpl implements UserService {
     @Override
     public void printUser(User user) {
