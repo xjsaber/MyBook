@@ -112,9 +112,15 @@ Web容器：
 
 4.2.2 AOP术语和流程
 
-4.3 AOP开发详解
+## 4.3 AOP开发详解 ##
 
-4.3.1 确定连接点
+@AspectJ
+
+### 4.3.1 确定连接点 ###
+
+任何AOP编程
+
+1. 在什么地方需要AOP，需要确定连接点
 
 4.3.2 开发切面
 
@@ -165,7 +171,13 @@ Web容器：
 
 ## 5.2 使用JdbcTemplate操作数据源 ##
 
-3.3 使用JPA（Hibernate）操作数据
+5.3 使用JPA（Hibernate）操作数据
+
+## 5.4 整合MyBatis框架 ##
+
+### 5.4.1 Mybatis简介 ###
+
+
 
 # 第6章 聊聊数据库事务处理 #
 
@@ -221,7 +233,61 @@ Spring提供了RedisSerializer接口
 
 # 第9章 初识Spring MVC #
 
+展示给用户的视图(View)、控制器返回的数据模型（Model）、定位视图的视图解析器（ViewResolver）和处理器适配器（HandlerAdapter）
+
+## 9.1 Spring MVC框架的设计 ##
+
+## 9.2 Spring MVC流程 ##
+
+## 9.3 定制Spring MVC的初始化 ##
+
+
+
+## 9.4 Spring MVC实例 ##
+
+### 9.4.1 开发控制器 ###
+
+当方法被标注后，也可以定义部分URL，这样就能让请求的URL找到对应的路径。配置了扫描路径之后，Spring MVC扫描机制就可以将其扫描，并且装载为HandlerMapping，以备后面使用。
+ 
+### 9.4.2 视图和视图渲染 ###
+
+
+
 # 第10章 深入Spring MVC开发 #
+
+## 10.1 处理器映射 ##
+
+1. 启动阶段就会将注解`@RequestMapping`所配置的内容保存到处理器映射（HandlerMapping）机制中去
+2. 等待请求的到来
+3. 通过拦截请求信息和HandlerMapping进行匹配
+4. 找到对应的处理器（它包含控制器的逻辑）
+5. 将处理器及其拦截器保存到HandlerExecutionChain对象中
+6. 返回给DispatcherServlet
+7. DispathcerServlet就可以运行他们
+
+
+## 10.2 获取控制器参数 ##
+
+## 10.3 自定义参数转换规则 ##
+
+## 10.4 数据验证 ##
+
+1. 支持JSR-303注解验证，SpringBoot会引入关于Hibernate Validator机制来支持JSR-303验证规范。
+2. 业务复杂，所以需要自定义验证规则。
+
+
+
+## 10.5 数据模型 ##
+
+## 10.6 视图和视图解析器 ##
+
+## 10.7 文件上传 ##
+
+## 10.8 拦截器 ##
+
+## 10.9 国际化 ##
+
+## 10.10 Spring MVC拾遗 ##
 
 # 第11章 构建REST风格网站 #
 
