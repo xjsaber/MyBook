@@ -9,6 +9,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class DataBaseProperties {
 
-    @Value("${database.driverName}")
-    private String driverName = null;
+//    @Value("${database.driverName}")
+//    private String driverName = null;
 }

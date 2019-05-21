@@ -23,6 +23,26 @@ public class UserController {
         this.userService = userService;
     }
 
+    /**
+     * 定义请求 RequestMapping
+     * 转换为JSON RequestBody
+     * @param id 序号
+     * @param userName 用户名称
+     * @param note 编号
+     * @return
+     */
+    @RequestMapping("/print")
+    @ResponseBody
+    public User printUser(Long id, String userName, String note) {
+        User user = new User();
+        user.setId(id);
+        user.setUsername(userName);
+        user.setNote(note);
+        // 若user = null， 则执行afterthrowing方法
+        userService.printUser(user);
+        return user;
+    }
+
     @RequestMapping("/table")
     public ModelAndView table(){
         List<User> userList = userService.findUsers(null, null);

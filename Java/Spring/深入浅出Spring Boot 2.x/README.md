@@ -119,15 +119,53 @@ Web容器：
 
 ### 4.1.1 约定 ###
 
-4.1.2 ProxyBean的实现
+Spring AOP的本质，提供一个类——ProxyBean
 
-4.1.3 总结
+静态的（static）方法：
 
-4.2 AOP的概念
+	public static Object getProxyBean(Object target, Interceptor interceptor)
 
-4.2.1 为什么使用AOP
+* 要求参数target对象存在接口，而interceptor对象则是接口对象；
+* 那么它将返回一个对象，把返回的对象记为proxy，可以使用target对象实现的接口类型对它进行强制转换。
 
-4.2.2 AOP术语和流程
+	HelloService helloSerivce = new HelloServiceImpl();
+	HelloService proxy = (HelloService) ProxyBean.getProxyBean(helloService, new MyInterceptor());
+
+### 4.1.2 ProxyBean的实现 ###
+
+在JDK中，提供了类Proxy的静态方法——newProxyInstance
+
+	public static Object newProxyInstance(ClassLoader classloader, Class<?>[] interfaces, InvocationHandler invocationHandler) throws IllegalArgumentException
+
+生成一个代理对象（proxy），它有3个参数：
+
+* classLoader——类加载器；
+* interfaces——绑定的接口，也就是把代理对象绑定到哪些接口下，可以是多个；
+* invocationHandler——绑定代理对象逻辑实现。
+
+1. ProxyBean实现了接口InvocationHandler，定义invoke方法。在getBean方法中，生成了一个代理方法，然后创建了一个ProxyBean实例保存对象（target）和拦截器（interceptor）
+2. 生成了一个代理对象，而这个代理对象挂在target实现的接口之下，可以用target对象实现的接口对这个代理对象实现强制转换，把这个代理对象的逻辑挂在ProxyBean实例之下。
+3. 目标对象（target）和代理对象（proxy）
+
+### 4.1.3 总结 ###
+
+## 4.2 AOP的概念 ##
+
+注解`@AspectJ`
+
+### 4.2.1 为什么使用AOP ###
+
+AOP最为典型的应用实际就是数据库事务的管控。
+
+### 4.2.2 AOP术语和流程 ###
+
+* 连接点**（join point）**：对应的是具体被拦截的对象，因为Spring只能支持方法，所以被拦截的对象往往就是指特定的方法。
+* 切点**（point cut）**：切面不单单应用于单个方法，也可能是多个类的不同方法。
+* 通知**（advice）**：按照约定的流程下的方法，分为前置通知(before advice)、后置通知（after advice）、环绕通知（around advice）、事后返回通知（afterReturning advice）和异常通知（afterThrowing advice）
+* 目标对象**（target）**：即被代理对象，例如，约定编程中的HelloSerivceImpl实例就是一个目标对象，被代理。
+* 引入**（introduction）**：指引入新的类和其方法，增强现有Bean的功能。
+* 织入**（weaving）**：通过动态代理技术，为原有服务对象生成代理对象，然后将与切点定义匹配的连接点拦截，并按照约定将各类通知织入约定流程的过程。
+* 切面**（aspect）**：是一个可以定义切点、各类通知和引入和内容，Spring AOP将通过它的信息来增强Bean的功能或者将对应的方法织入流程。
 
 ## 4.3 AOP开发详解 ##
 
@@ -139,21 +177,39 @@ Web容器：
 
 1. 在什么地方需要AOP，需要确定连接点
 
-4.3.2 开发切面
+### 4.3.2 开发切面 ###
 
-4.3.3 切点定义
 
-4.3.4 测试AOP
 
-4.3.5 环绕通知
+### 4.3.3 切点定义 ###
 
-4.3.6 引入
+@Before、@After、@AfterReturning和@AfterThrowing等注解
 
-4.3.7 通知获取参数
+切点的作用就是向Spring描述哪些类的哪些方法需要启用AOP编程。
 
-4.3.8 织入
+### 4.3.4 测试AOP ###
 
-4.4 多个切面
+
+
+### 4.3.5 环绕通知 ###
+
+### 4.3.6 引入 ###
+
+### 4.3.7 通知获取参数 ###
+
+### 4.3.8 织入 ###
+
+织入是一个生成动态代理对象并且将切面和目标对象方法编织成为约定流程的过程。
+
+接口+实现类的模式（Spring推荐的方式）
+
+但对于是否拥有接口则不是Spring AOP的强制要求，对于动态代理也有多种实现方式。
+
+业界比较流行的有CGLIB、Javassist、ASM等。
+
+Spring采用了JDK和CGLIB，对于JDK而言，它是要求被代理的目标对象必须拥有接口，而对于CGLIB则不做要求。
+
+## 4.4 多个切面 ##
 
 # 第5章 访问数据库 #
 
