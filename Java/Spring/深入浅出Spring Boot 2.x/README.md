@@ -175,27 +175,74 @@ AOP最为典型的应用实际就是数据库事务的管控。
 
 任何AOP编程
 
-1. 在什么地方需要AOP，需要确定连接点
+在什么地方需要AOP，需要确定连接点
 
 ### 4.3.2 开发切面 ###
 
-
+1. Spring是以@Aspect作为切面生命的，当以@Aspect作为注解时，Spring就知道这是一个切面，通过各类注解来定义各类的通知。
+2. @Before、@After、@AfterReturning和@AfterThrowing等注解。
 
 ### 4.3.3 切点定义 ###
 
-@Before、@After、@AfterReturning和@AfterThrowing等注解
-
 切点的作用就是向Spring描述哪些类的哪些方法需要启用AOP编程。
+
+使用注解@Pointcut来定义切点，标注再方法pointCut上，则在后面的通知注解种就可以使用方法名称来定义。
+
+	@Pointcut("execution(* com.xjsaber.learn.spring.springboot.service.impl.UserServiceImpl.printUser(..))")
+
+
+* execution表示在执行的方法，拦截里面的正则匹配的方法；
+* 表示任意返回类型的方法；
+* com.springboot.chapter4.aspect.service.impl.UserServiceImpl指定目标对象的全限定名称；
+* printUser指定目标对象的方法；
+* （..）表示任意参数进行匹配。
+
+AspectJ关于Spring AOP切点的指示器
+
+|项目类型|描述|
+|--|--|
+|arg()|限定连接点方法参数|
+|@args()|通过连接点方法参数上的注解进行限定|
+|execution()|用于陪陪是连接点的执行方法|
+|this()|限制连接点匹配AOP代理Bean引用为指定的类型|
+|target|目标对象（即被代理对象）|
+|@target()|限制目标对象的配置了指定的注解|
+|with|限制连接点匹配指定的类型|
+|@within()|限制连接点带有匹配注解类型|
+|@annotation()|限定带有指定注解的连接点|
+
+	execution(* com.springboot.chapter4.*.*.*.*. printUser(..) && bean('userServiceImpl')) 表示中的&&代表“并且的”的意思，而bean种定义的字符串代表对Spring Bean名称的限定。
 
 ### 4.3.4 测试AOP ###
 
-
-
 ### 4.3.5 环绕通知 ###
+
+环绕通知是一个取代原有目标对象方法的通知，当然它也提供了回调原有目标对象方法的能力。
+
+ProceedingJoinPoint，有一个proceed方法，通过这个方法可以回调原有目标对象的方法。可以在
+
+	jp.proceed();
+
+这行代码加入断点进行调试。
+
+环绕通知的参数（jp），是一个被Spring封装过的对象，带有原有目标对象的信息，通过proceed方法回调原有目标对象的方法。
+
+在没有必要时，应尽量不要使用环绕通知，很强大，但很危险
 
 ### 4.3.6 引入 ###
 
+@DeclareParents，引入新的类来增强服务，必须配置的属性value和defaultImpl
+
+* value：指向你要增强功能的目标对象，增强UserServiceImpl对象，因此可以看到配置为com.springboot.chapter4.aspect.service.impl.UserServiceImpl+。
+* defaultImpl：引入增强功能的类，这里配置为UserValidatorImpl，用来提供校验用户是否为空的功能。
+
 ### 4.3.7 通知获取参数 ###
+
+	@Before("pointCut() && args(user)")
+	public void beforeParam(JoinPoint point, User user) {
+		Object[] args = point.getArgs();
+		System.out.println("before ......");
+	}
 
 ### 4.3.8 织入 ###
 

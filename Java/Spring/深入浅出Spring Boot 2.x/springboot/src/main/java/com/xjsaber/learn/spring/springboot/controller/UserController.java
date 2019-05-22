@@ -1,8 +1,10 @@
 package com.xjsaber.learn.spring.springboot.controller;
 
 import com.xjsaber.learn.spring.springboot.pojo.User;
+import com.xjsaber.learn.spring.springboot.pojo.UserValidator;
 import com.xjsaber.learn.spring.springboot.service.UserService;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -40,6 +42,28 @@ public class UserController {
         user.setNote(note);
         // 若user = null， 则执行afterthrowing方法
         userService.printUser(user);
+        return user;
+    }
+
+    /**
+     * 定义请求
+     * @param id
+     * @param userName
+     * @param note
+     * @return
+     */
+    @RequestMapping("/vp")
+    @ResponseBody
+    public User validateAndPrint(Long id, String userName, String note){
+        User user = new User();
+        user.setId(id);
+        user.setUsername(userName);
+        user.setNote(note);
+        // 强制转换
+        UserValidator userValidator = (UserValidator)userService;
+        if (userValidator.validator(user)){
+            userService.printUser(user);
+        }
         return user;
     }
 
