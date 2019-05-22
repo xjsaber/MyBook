@@ -16,11 +16,11 @@ public class MyAspect {
 
     }
 
-    @DeclareParents(
-            value = "com.xjsaber.learn.spring.springboot.service.impl.UserServiceImpl+",
-            defaultImpl = UserValidatorImpl.class
-    )
-    public UserValidator userValidator;
+//    @DeclareParents(
+//            value = "com.xjsaber.learn.spring.springboot.service.impl.UserServiceImpl+",
+//            defaultImpl = UserValidatorImpl.class
+//    )
+//    public UserValidator userValidator;
 
     @Before("pointCut()")
     public void before(){

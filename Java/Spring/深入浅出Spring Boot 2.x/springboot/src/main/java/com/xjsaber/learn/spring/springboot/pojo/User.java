@@ -1,5 +1,6 @@
 package com.xjsaber.learn.spring.springboot.pojo;
 
+import com.xjsaber.learn.spring.springboot.enumeration.SexEnum;
 import lombok.Data;
 
 /**
@@ -14,5 +15,10 @@ public class User {
 
     private String password;
 
-    private String note;
+    /**
+     * 枚举
+     */
+    private SexEnum sex = null;
+
+    private String note = null;
 }

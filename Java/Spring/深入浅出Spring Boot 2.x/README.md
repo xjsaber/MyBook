@@ -291,11 +291,35 @@ Spring采用了JDK和CGLIB，对于JDK而言，它是要求被代理的目标对
 
 ## 5.2 使用JdbcTemplate操作数据源 ##
 
-5.3 使用JPA（Hibernate）操作数据
+# TODO #
+
+对JdbcTemplate的映射关系是需要开发者自己实现RowMapper的接口的，可以完成数据库数据到POJO（Plain Ordinary Java Object）对象的映射了
+
+## 5.3 使用JPA（Hibernate）操作数据 ##
+
+JPA(Java Persistence API，Java持久化API)，是定义了对象关系映射（ORM）以及实体对象持久化的标准接口。
+
+### 5.3.1 概述 ###
+
+在Spring Boot中JPA是依靠Hibernate才得以实现的，Hibernate在3.2版本中已经对JPA实现了完全的支持。
+
+JPA所维护的核心是实体（Entity Bean），而它是通过一个持久化上下文（Persistence Context）来使用的。持久化上下文包含已下3个部分：
+
+* 对象关系映射（Object Relational Mapping，简称ORM，或O/RM，或O/R映射）描述，JPA支持注解或XML两种形式的描述，在Spring Boot中主要通过注解实现；
+* 实体操作APi：
+* 查询语言
+
+### 5.3.2 开发JPA ###
 
 ## 5.4 整合MyBatis框架 ##
 
 ### 5.4.1 Mybatis简介 ###
+
+### 5.4.2 MyBatis的配置 ###
+
+### 5.4.3 Spring Boot整合MyBatis ###
+
+### 5.4.4 MyBatis的其他配置 ###
 
 
 
