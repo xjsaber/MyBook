@@ -311,19 +311,88 @@ JPA所维护的核心是实体（Entity Bean），而它是通过一个持久化
 
 ### 5.3.2 开发JPA ###
 
+spring-boot-starter-data-jpa
+
 ## 5.4 整合MyBatis框架 ##
 
 ### 5.4.1 Mybatis简介 ###
 
+MyBatis是支持定制化SQL、存储过程以及高级映射的优秀的持久层框架。MyBatis可以对配置和原生Map使用简单的XML和注解，将接口和Java的POJO（Plain Old Java Object，普通的Java对象）映射成数据库中的记录。
+
+MyBatis的配置文件包含
+
+1. 基础配置文件
+2. 映射文件
+
 ### 5.4.2 MyBatis的配置 ###
+
+MyBatis是一个基于SqlSessionFactory构建的框架。对于SqlSessionFactory而言，它的作用是生成SqlSession接口对象，这个接口对象是MyBatis操作的核心，而在MyBatis-Spring的结合中甚至可以“擦除”这个对象，使其在代码中“消失”。
+
+因为SqlSession是一个功能性的代码。
+
+因为SqlSessionFactory的作用是单一的，只是为了创建核心接口SqlSession
+
+* properties(属性)：属性文件在实际应用中一般采用Spring进行配置，而不是MyBatis。
+* settings(设置)：它的配置将改变MyBatis的底层行为，可以配置映射规则，如自动映射和驼峰映射、执行器（Executor）类型、缓存等内容。
+* typeAliases(类型别名)：因为使用类全限定名会比较长，所以MyBatis会对常用的类提供默认的别名
+* typeHandlers(类型处理器)：这是MyBatis的重要配置之一，在Mybatis写入和读取数据库的过程中对于不同类型的数据（对于Java是JavaType，对于数据库则是JdbcType）进行自定义转换，在大部分的情况
+* objectFactory（对象工厂）：在Mybatis生成返回的POJO时调用的工厂类。一般使用MyBatis默认提供的对象工厂类（DefaultObjectFactory）就可泄了，而不需要任何配置。
+* plugins（插件）：通过动态代理和责任链模式来完成，修改MyBatis底层的实现功能。
+* environments（数据库环境）：可以配置数据库连接内容和事务
+* databaseIdProvider（数据库厂商标识）：允许MyBatis配置多类型数据库支持。
+* mapper（映射器）：是MyBatis最核心的组建，它提供SQL和POJO映射关系，是Mybatis开发的核心。
 
 ### 5.4.3 Spring Boot整合MyBatis ###
 
+Mapper是一个接口，是不可以使用new为其生成对象实例的。
+
+它们MapperFactoryBean和MapperScannerConfigure。MapperFactoryBean是针对一个接口配置，而MapperScannerConfigurer则是扫描装配，也就是提供扫描装配MyBatis的接口到Spring IoC容器中。
+
+#### MapperFactoryBean ####
+
+	@Autowired
+	SqlSessionFactory sqlSessionFactory = null;
+	// 定义一个MyBatis的Mapper的接口
+	@Bean
+	public MapperFactoryBean(MyBatisUserDao) initMyBatisUserDao() {
+		MapperFactoryBean<MyBatisUserDao> bean = new MapperFactoryBean<>();
+		bean.setMapperInterface(MyBatisUserDao.class);
+		bean.setSqlSessionFactory(sqlSessionFactory);
+		return bean;
+	}
+
+#### MapperScannerConfigure ####
+
+
+
 ### 5.4.4 MyBatis的其他配置 ###
 
+MyBatis常用的配置
 
+	# 定义Mapper的XML路径
+	mybatis.mapper-location=......
+	# 定义别名扫描的包，需要与@Alias联合使用
+	mybatis.type-aliases-package=......
+	# MyBatis配置文件，当你的配置比较复杂的时候，可以使用它
+	mybatis.config-location=......
+	# 配置MyBatis插件（拦截器）
+	mybatis.configuration.interceptors=......
+	# 具体类需要与@MappedJdbcTypes联合使用
+	mybatis.type-handlers-package=......
+	# 级联延迟加载属性配置
+	mybatis.configuration.aggressive-lazy-loading=......
+	# 执行器（Executor），可以配置SIMPLE，REUSE，BATCH，默认为SIMPLE
+	mybatis.executor-type=......
 
 # 第6章 聊聊数据库事务处理 #
+
+在Spring中，数据库事务是通过AOP技术来提供服务的。在JDBC中存在着大量的 try...catch...finally...语句，也同时存在着大量的冗余代码，如那些打开和关闭数据库连接的代码以及事务回滚的代码。
+
+在Spring数据库事务中可以使用编程式事务，也可以使用声明式事务。
+
+## 6.1 JDBC的数据库事务 ##
+
+
 
 # 第7章 使用性能利器——Redis #
 

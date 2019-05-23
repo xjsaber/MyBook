@@ -3,7 +3,6 @@ package com.xjsaber.learn.spring.springboot.service.impl;
 import com.xjsaber.learn.spring.springboot.enumeration.SexEnum;
 import com.xjsaber.learn.spring.springboot.pojo.User;
 import com.xjsaber.learn.spring.springboot.service.JdbcTmpUserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
@@ -43,12 +42,15 @@ public class JdbcTmpUserServiceImpl implements JdbcTmpUserService {
 
     /**
      * 获取对象
-     * @param id
-     * @return
+     * @param id 编号
+     * @return user
      */
     @Override
     public User getUser(Long id) {
-        return null;
+        String sql = " select id, user_name, note, sex, note from t_user where id = ? ";
+        Object[] params = new Object[] {id};
+        User user = jdbcTemplate.queryForObject(sql, params, getUserMapper());
+        return user;
     }
 
     /**
@@ -59,36 +61,46 @@ public class JdbcTmpUserServiceImpl implements JdbcTmpUserService {
      */
     @Override
     public List<User> findUsers(String userName, String note) {
-        return null;
+        String sql = " select id, user_name, sex, note from t_user "
+                + " where user_name like concat('%', ?, '%') "
+                + " and note like concat('%', ?, '%')";
+        Object[] params = new Object[] {userName, note};
+        List<User> userList = jdbcTemplate.query(sql, params, getUserMapper());
+        return userList;
     }
 
     /**
-     *
-     * @param user
-     * @return
+     * 插入数据库
+     * @param user 用户信息
+     * @return 新增结果
      */
     @Override
     public int insertUser(User user) {
-        return 0;
+        String sql = " insert into t_user (user_name, sex, note) values(?, ?, ?)";
+        return jdbcTemplate.update(sql, user.getUsername(), user.getSex().getId(), user.getNote());
     }
 
     /**
-     *
-     * @param user
-     * @return
+     * 更新数据库
+     * @param user 用户信息
+     * @return 修改结果
      */
     @Override
     public int updateUser(User user) {
-        return 0;
+        // 执行的SQL
+        String sql = " update t_user set user_name = ?, sex = ?, note = ? "
+                + " where id = ? ";
+        return jdbcTemplate.update(sql, user.getUsername(), user.getSex().getId(), user.getNote(), user.getId());
     }
 
     /**
-     *
-     * @param id
-     * @return
+     * 删除数据
+     * @param id 编号
+     * @return 删除结果
      */
     @Override
     public int deleteUser(long id) {
-        return 0;
+        String sql = " delete from t_user where id = ? ";
+        return jdbcTemplate.update(sql, id);
     }
 }
