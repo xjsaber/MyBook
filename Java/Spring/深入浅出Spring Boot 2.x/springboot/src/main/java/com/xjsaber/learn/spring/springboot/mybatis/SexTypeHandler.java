@@ -25,18 +25,47 @@ public class SexTypeHandler extends BaseTypeHandler<SexEnum> {
 
     }
 
+    private final int SEX_MALE = 1;
+    private final int SEX_FEMALE = 2;
+
+    /**
+     * 通过列名
+     * @param rs 结果集
+     * @param col 列名
+     * @return SexEnum
+     * @throws SQLException sql异常
+     */
     @Override
-    public SexEnum getNullableResult(ResultSet resultSet, String s) throws SQLException {
-        return null;
+    public SexEnum getNullableResult(ResultSet rs, String col) throws SQLException {
+        int sex = rs.getInt(col);
+        if (sex != SEX_MALE && sex != SEX_FEMALE){
+            return null;
+        }
+        return SexEnum.getEnumById(sex);
     }
 
     @Override
     public SexEnum getNullableResult(ResultSet resultSet, int i) throws SQLException {
-        return null;
+        int sex = resultSet.getInt(i);
+        if (sex != SEX_MALE && sex != SEX_FEMALE) {
+            return null;
+        }
+        return SexEnum.getEnumById(sex);
     }
 
+    /**
+     * 通过存储过程读取性别
+     * @param callableStatement 存储过程
+     * @param i
+     * @return
+     * @throws SQLException
+     */
     @Override
     public SexEnum getNullableResult(CallableStatement callableStatement, int i) throws SQLException {
-        return null;
+        int sex = callableStatement.getInt(i);
+        if (sex != SEX_MALE && sex != SEX_FEMALE){
+            return null;
+        }
+        return SexEnum.getEnumById(sex);
     }
 }

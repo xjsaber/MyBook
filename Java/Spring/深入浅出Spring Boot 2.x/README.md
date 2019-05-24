@@ -306,12 +306,19 @@ JPA(Java Persistence API，Java持久化API)，是定义了对象关系映射（
 JPA所维护的核心是实体（Entity Bean），而它是通过一个持久化上下文（Persistence Context）来使用的。持久化上下文包含已下3个部分：
 
 * 对象关系映射（Object Relational Mapping，简称ORM，或O/RM，或O/R映射）描述，JPA支持注解或XML两种形式的描述，在Spring Boot中主要通过注解实现；
-* 实体操作APi：
-* 查询语言
+* 实体操作APi，通过规范可以实现实体的CRUD操作，来完成对象的持久化和查询；
+* 查询语言，约定了面向对象的查询语言JPQL（Java Persistance Query Language）。
 
 ### 5.3.2 开发JPA ###
 
 spring-boot-starter-data-jpa
+
+* `@Entity`使用注解标明是一个实体类
+* `@Table`配置的属性name指出它映射数据库的表，
+* `@Id`标注属性为表的主键
+* `@GeneratedValue`则是可以配置采用何种策略生成主键
+	* GenerationType.IDENTITY，这是一种依赖于数据库递增的策略
+* `@Column`进行标注，因为属性名称（userName）和数据库列名（user_name）不一致，而其他属性的名称和数据库列名保持一致，这样就能与数据库的表的字段一一对应起来。
 
 ## 5.4 整合MyBatis框架 ##
 
@@ -392,7 +399,13 @@ MyBatis常用的配置
 
 ## 6.1 JDBC的数据库事务 ##
 
+## 6.2 Spring声明式事务的使用 ##
 
+### 6.2.1 Spring声明式数据库事务约定 ###
+
+### 6.2.3 Spring事务管理器 ###
+
+### 6.2.4 测试数据库事务 ###
 
 # 第7章 使用性能利器——Redis #
 
@@ -440,7 +453,7 @@ Spring提供了RedisSerializer接口
 * SessionCallback 较高的封装
 * RedisCallback 较底层
 
-7.2 在SpringBoot中配置和使用Redis
+## 7.2 在SpringBoot中配置和使用Redis ##
 
 # 第8章 文档数据库——MongoDB #
 

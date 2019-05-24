@@ -1,5 +1,6 @@
 package com.xjsaber.learn.spring.springboot.service.impl;
 
+import com.mysql.cj.protocol.Resultset;
 import com.xjsaber.learn.spring.springboot.enumeration.SexEnum;
 import com.xjsaber.learn.spring.springboot.pojo.User;
 import com.xjsaber.learn.spring.springboot.service.JdbcTmpUserService;
@@ -8,6 +9,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.List;
 
 /**
@@ -49,8 +51,34 @@ public class JdbcTmpUserServiceImpl implements JdbcTmpUserService {
     public User getUser(Long id) {
         String sql = " select id, user_name, note, sex, note from t_user where id = ? ";
         Object[] params = new Object[] {id};
-        User user = jdbcTemplate.queryForObject(sql, params, getUserMapper());
-        return user;
+        return jdbcTemplate.queryForObject(sql, params, getUserMapper());
+    }
+
+    /**
+     * 使用StatementCallback和ConnectionCallback执行多条SQL
+     * @param id 编号
+     * @return 用户信息
+     */
+    public User getUser2(Long id){
+        //通过Lambda表达式使用StatementCallback
+        User result = this.jdbcTemplate.execute((Statement stmt) -> {
+            String sql = " select count(*) total from t_user where id = " + id;
+            ResultSet rs1 = stmt.executeQuery(sql);
+            while (rs1.next()){
+                int total = rs1.getInt("total");
+                System.out.println(total);
+            }
+            String sql2 = " select id, user_name, sex, note from t_user "
+                    + " where id = " + id;
+            ResultSet rs2 = stmt.executeQuery(sql2);
+            User user = null;
+            while (rs2.next()){
+                int rowNum = rs2.getRow();
+                user = getUserMapper().mapRow(rs2, rowNum);
+            }
+            return user;
+        });
+        return result;
     }
 
     /**
@@ -65,8 +93,7 @@ public class JdbcTmpUserServiceImpl implements JdbcTmpUserService {
                 + " where user_name like concat('%', ?, '%') "
                 + " and note like concat('%', ?, '%')";
         Object[] params = new Object[] {userName, note};
-        List<User> userList = jdbcTemplate.query(sql, params, getUserMapper());
-        return userList;
+        return jdbcTemplate.query(sql, params, getUserMapper());
     }
 
     /**
