@@ -444,6 +444,34 @@ Spring提供了RedisSerializer接口
 
 # 第8章 文档数据库——MongoDB #
 
+## 8.1 配置MongoDB ##
+
+|Bean类型|描述|
+|--|--|
+|MongoClient|MongoDB客户端|
+|MongoProperties|Spring Boot关于MongoDB的自动配置属性|
+|MongoDataAutoConfiguration|Spring Boot关于MongoDB的自动配置类|
+|SimpleMongoDbFactory|简单地MongoDB的工厂，由它生成的MongoDB的会话，可通过属性spring.data.mongodb.grid-fs-database的配置转变为GridFsMongoDbFactory|
+|MongoTemplate|MongoDB关于Java实体的映射内容配置|
+|MappingMongoConverter||
+|CustomConversions|自定义类型转换器|
+|MongoRepositoriesAutoConfiguration|MongoDB关于仓库的自动配置|
+|GeoJsonConfiguration|MongoDB关于地理位置JSON配置|
+
+## 8.2 使用MongoTemplate实例 ##
+
+### 8.2.1 搭建开发环境 ###
+
+### 8.2.2 使用MongoTemplate操作文档 ###
+
+## 8.3 使用JPA ##
+
+### 8.3.1 基本用法 ###
+
+### 8.3.2 使用自定义查询 ###
+
+
+
 # 第9章 初识Spring MVC #
 
 展示给用户的视图(View)、控制器返回的数据模型（Model）、定位视图的视图解析器（ViewResolver）和处理器适配器（HandlerAdapter）
