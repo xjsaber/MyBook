@@ -455,6 +455,22 @@ Spring提供了RedisSerializer接口
 
 ## 7.2 在SpringBoot中配置和使用Redis ##
 
+### 7.2.1 在SpringBoot中配置Redis ###
+
+自动生成`RedisConnectionFactory`、`RedisTemplate`、`StringRedisTemplate`等常用的Redis对象。
+
+RedisTemplate会默认使用JdkSerializationRedisSerializer进行序列化键值，这样便能够存储到Redis服务器中。
+
+### 7.2.2 操作Redis数据类型 ###
+
+
+
+## 7.3 Redis的一些特殊用法 ##
+
+## 7.4 使用Spring缓存注解操作Redis ##
+
+
+
 # 第8章 文档数据库——MongoDB #
 
 ## 8.1 配置MongoDB ##
