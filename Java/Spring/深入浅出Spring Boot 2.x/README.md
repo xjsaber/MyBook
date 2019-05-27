@@ -467,15 +467,33 @@ RedisTemplate会默认使用JdkSerializationRedisSerializer进行序列化键值
 
 ## 7.3 Redis的一些特殊用法 ##
 
+### 7.3.1 使用Redis事务 ###
+
+![Redis事务执行的过程](img/2019-05-26_8-18-02.jpg)
+
 ## 7.4 使用Spring缓存注解操作Redis ##
 
+### 7.4.1 缓存管理器和缓存的启用 ###
 
+Spring在使用缓存注解前，需要配置缓存管理器，缓存管理器将提供一些重要的信息，如缓存类型、超过时间等。
+
+CacheManager
+
+缓存管理器配置
+
+	# SPRING CACHE(CacheProperties)
+	spring.cache.cache-name = # 如果由底层的缓存管理器支持创建，以逗号分隔的列表来缓存名称
+	spring.cache.caffeine.spec = # caffeine 缓存配置细节
+	spring.cache
+
+
+	
 
 # 第8章 文档数据库——MongoDB #
 
 ## 8.1 配置MongoDB ##
 
-|Bean类型|描述|
+|Bean类型|描述| 
 |--|--|
 |MongoClient|MongoDB客户端|
 |MongoProperties|Spring Boot关于MongoDB的自动配置属性|
