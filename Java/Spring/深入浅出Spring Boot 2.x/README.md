@@ -15,9 +15,102 @@ Spring Boot并不建议使用XML，而是通过注解的描述生成的对象。
 
 BeanFactory
 
+从IoC容器获取Bean
+
+多个getBean方法中
+
+1. 按照类型（by type）获取Bean的
+2. 按照名称（by name）获取Bean的
+
+---
+
+* isSingleton方法则判断Bean是否在Spring IoC中为单例
+* isPrototype，返回true，使用getBean方法获取Bean的时候， Spring IoC就会创建一个新的Bean返回给调用者。
+
+由于BeanFactory不够强大，Spring在BeanFactory的基础上，设计了更高级的接口ApplicationContext，它是BeanFactory的子接口之一。在Spring的体系中BeanFactory和ApplicationContext是最为重要的接口设计。
+
+![2019-05-27_10-40-33](img/2019-05-27_10-40-33.jpg)
+
+ApplicationContext接口通过继承上级接口，进而继承BeanFactory接口，但是在BeanFactory的基础上，扩展了消息国际化接口（MessageSource）、环境可配置接口（EnvironmentCapable）、应用事件发布接口（ApplicationEventPublisher）和资源模式解析接口（ResourcePatternResolver）。
+
+在Spring Boot当中主要是通过注解来装配Bean到Spring IoC容器中，基于注解的IoC容器，就是AnnotationConfigApplicationContext，基于注解的IoC容器，SpringBoot装配和获取Bean的方法如出一辙。
+
 ## 3.2 装配你的Bean ##
 
+通过XML或者Java配置文件装配Bean
+
 ### 3.2.1 通过扫描装配你的Bean ###
+
+* @Component，标明哪个类被扫描进入Spring IoC容器
+* @ComponentScan，标明采用何种策略去扫描装配Bean
+
+#### ComponentScan的源码 ####
+
+	// 定义扫描的包
+	@AliasFor("basePackages")
+	String[] value() default {};
+	
+	// 定义扫描的包
+	@AliasFor("value")
+	String[] basePackagets() default {};
+
+	// 定义扫描的类
+	Class<?>[] basePackageClasses() defaule {};
+
+	// 当满足过滤器的条件时扫描
+	Filter[] includeFilters() default {};
+	
+	// 当不满足过滤器的条件时扫描
+	Filter[] excludeFilters() default {};
+
+	// 是否延迟初始化
+	boolean lazyInit() default false;
+
+1. 通过配置项basePackages定义扫描的包名，在没有定义的情况下，只会扫描当前包和其子包下的路径
+2. 通过basePackageClasses定义的扫描的类
+3. includeFilters和excluedeFilters，includeFilters是定义满足过滤器（Filter）条件的Bean才去扫描，excludeFilters则是排除过滤器条件的Bean，都需要通过一个注解@Filter去定义。classes定义注解类，patter定义正则式类。
+
+	@ComponentScan("com.springboot.chapter3.*")
+	或
+	@ComponentScan(basePackages = {"com.springboot.chapter3.pojo"})
+	或
+	@ComponentScan(basePackageClasses = {User.class})
+	
+----
+
+	@Target(ElementType.TYPE)
+	@Retention(RetentionPolicy.RUNTIME)
+	@Documented
+	@Inherited
+	@SpringBootConfiguration
+	@EnableAutoConfiguration
+	// 自定义排除的扫描类
+	@ComponentScan(excludeFilter = {
+		@Filter(type = FilterType.CUSTOM, classes=TypeExecludeFilter.class),
+		@Filter(type = FilterType.CUSTOME,classes = AutoConfigurationExcludeFilter.class)})
+	public interface SpringBootApplication
+
+### 3.2.2 自定义第三方Bean ###
+
+	/**
+     * 通过Bean定义了配置项name为“dataSource”，那么Spring就会返回的对象用户名称为
+     * “dataSource”保存到IoC容器中
+     */
+    @Bean(name = "dataSource")
+    public DataSource getDataSource(){
+        Properties properties = new Properties();
+        properties.setProperty("driver", "com.mysql.jdbc.Driver");
+        properties.setProperty("url", "jdbc:mysql://120.55.56.16/groupon");
+        properties.setProperty("username", "root");
+        properties.setProperty("password", "12345678");
+        DataSource dataSource = null;
+        try {
+            dataSource = BasicDataSourceFactory.createDataSource(properties);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return dataSource;
+    }
 
 ## 3.3 依赖注入 ##
 
@@ -25,7 +118,7 @@ BeanFactory
 
 ### 3.3.1 注解@Autowired ###
 
-注入的机制是根据类型（by type）。
+@Autowired
 
 #### getBean ####
 
@@ -56,9 +149,21 @@ BeanFactory
 
 ComponentScan中还有一个配置项lazyInit，只可以配置Boolean值，且默认值为false，也就是默认不进行延迟初始化。
 
-# TODO lazyInit #
+![2019-05-20_16-57-15](img/2019-05-20_16-57-15.jpg)
+
+#### lazyInit ####
+
+	@ComponentScan(basePackages = "com.springboot.chapter3.*", lazyInit = true)
+
+![2019-05-20_17-09-58](img/2019-05-20_17-09-58.jpg)
+
+* 定义了ApplicationContextAware接口，但有时候并不会调用，根据你的IoC容器来决定，Spring IoC容器最低的要求是实现BeanFactory接口，而不是实现ApplicationContext接口，但对于那些没有实现ApplicationContext接口的容器，在生命周期对应的ApplicationContextAware定义的方法也是不会被调用的，只有实现了ApplicationContext接口的容器，才会在生命周期调用ApplicationContextAware所定义的setApplicationContext方法。
+
+这个Bean就实现了生命周期中单个Bean可以实现的所有接口，并且通过注解@PostConstruct定义了初始化方法，通过注解@PreDestroy定义了销毁方法。
 
 ## 3.5 使用属性文件 ##
+
+在Spring Boot中使用属性文件，可以采用其默认为application.properties，也可以使用自定义的配置文件。
 
 	<dependency>
 		<groupId>org.springframework.boot</groupId>
@@ -108,10 +213,57 @@ Web容器：
 
 	application-{profile}.properties
 
+---
+
+	@Profile("dev")
+
 ## 3.9 引入XML配置Bean ##
+
+	@ImportResource
+
+通过它可以引入对应的XML文件，用来加载Bean。有时候有些框架（如Dubbo）是基于Spring的XML方式进行开发的。
+
+	<bean id="squirrel" class="com.springboot.other.pojo.Squirrel" />
+
+---
+
+	@Configuration
+	@ComponentScan(backPackage = "com.springboot.chapter3.*")
+	@ImportResource(value = {"classpath:spring-other.xml"})
+	public class AppConfig
+引入对应的XML，从而将XML定义的Bean也装配到IoC容器中。
 
 ## 3.10 使用Spring EL ##
 
+表达式语言Spring EL。
+
+	@Value("${database.driverName}")
+	String driver
+	@Value("#{T(System).currentTimeMillis()}")
+	private Long initTime = null;
+
+* #{...}代表启用Spring表达式，具有运算的功能；
+* T(...)代表的是引入类；
+
+System是java.lang.*包的类，这是Java默认加载的包，因此可以不必写全限定的名，如果是其他的包，则需要写出全限定名才能引用类。
+
+	// 赋值字符串
+	@Value("#{'使用Spring EL赋值字符串'}")
+	private String str = null;
+	// 科学计数法赋值
+	@Value("#{9.3E3}")
+	private double d;
+	// 赋值浮点数
+	@Value("#{3.14}")
+	private float pi;
+	// 获取其他Spring Bean的属性来给当前的Bean属性赋值
+	@Value("#{beanName.str}")
+	private String otherBeanProp = null;
+	还可以大学，赋值
+
+	# 数字运算
+	
+	private int run;
 
 # 第4章 开始约定编程——Spring AOP #
 
