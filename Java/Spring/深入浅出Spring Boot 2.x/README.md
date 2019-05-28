@@ -441,11 +441,21 @@ Spring采用了JDK和CGLIB，对于JDK而言，它是要求被代理的目标对
 		<aftifactId>mysql-connector-java</aftifactId>	
 	</dependency>
 
+	this.applicationContext = applicationContext;
+    DataSource dataSource = this.applicationContext.getBean(DataSource.class);
+    System.out.println("----------------------------------------------------");
+    System.out.println(dataSource.getClass().getName());
+    System.out.println("----------------------------------------------------");
+
+实现了接口 ApplicationContextAware的方法 setApplicationContext()，依照 Spring Bean生命周期的规则，在其初始化的时候该方法就会被调用，从而获取 Spring IoC容器的上下文 (applicationContext),这时通过getBean方法就可以获取数据库连接池，然后打印出数据连接池的全限定名，从而得知用的是哪个数据库连接池。
+
 ## 5.2 使用JdbcTemplate操作数据源 ##
 
-# TODO #
+通过spring.datasource.type属性指定了数据库连接池的类型，然后再使用spring.datasource.dbcp2.*去配置数据库连接池的属性。
 
 对JdbcTemplate的映射关系是需要开发者自己实现RowMapper的接口的，可以完成数据库数据到POJO（Plain Ordinary Java Object）对象的映射了
+
+通过StatementCallback或者ConnectionCallback接口实现回调，从而在一条数据库连接中执行多条SQL。
 
 ## 5.3 使用JPA（Hibernate）操作数据 ##
 

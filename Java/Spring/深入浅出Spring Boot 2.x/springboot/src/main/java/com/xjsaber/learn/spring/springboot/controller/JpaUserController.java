@@ -1,8 +1,7 @@
 package com.xjsaber.learn.spring.springboot.controller;
 
 import com.xjsaber.learn.spring.springboot.dao.JpaUserRepository;
-import com.xjsaber.learn.spring.springboot.pojo.User;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.xjsaber.learn.spring.springboot.pojo.UserJpa;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -26,7 +25,7 @@ public class JpaUserController {
 
     @RequestMapping("/getUser")
     @ResponseBody
-    public User getUser(Long id){
+    public UserJpa getUser(Long id){
         return jpaUserRepository.findById(id).get();
     }
 }
