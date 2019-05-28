@@ -1,6 +1,8 @@
 package com.xjsaber.learn.spring.springboot.pojo;
 
 import com.xjsaber.learn.spring.springboot.enumeration.SexEnum;
+import com.xjsaber.learn.spring.springboot.service.SexConverter;
+import lombok.Data;
 
 import javax.persistence.*;
 
@@ -9,7 +11,8 @@ import javax.persistence.*;
  */
 @Entity(name = "user")
 @Table(name = "t_user")
-public class UserJpa {
+@Data
+public class JpaUser {
 
     /**
      * #@Id 标明主键
@@ -23,7 +26,7 @@ public class UserJpa {
      * #@Column 定义属性和表的映射关系
      */
     @Column(name = "user_name")
-    private String username;
+    private String userName;
 
     private String password;
 
@@ -31,7 +34,7 @@ public class UserJpa {
      * 枚举
      * #Convert 定义转换器
      */
-//    @Convert(converter = SexConverter.c)
+    @Convert(converter = SexConverter.class)
     private SexEnum sex = null;
 
     private String note = null;

@@ -472,6 +472,15 @@ spring-boot-starter-data-jpa
 	* GenerationType.IDENTITY，这是一种依赖于数据库递增的策略
 * `@Column`进行标注，因为属性名称（userName）和数据库列名（user_name）不一致，而其他属性的名称和数据库列名保持一致，这样就能与数据库的表的字段一一对应起来。
 
+JPA最顶级的接口是Repository，定义方法的是它的子接口 CrudRepository，其定义实体最基本的增删该的操作，PagingAndSortingRepository则继承了它并且提供了分页和排序的功能，最后JpaRepository扩展了PagingAndSortingRepository，而且扩展了QueryByExampleExecutor接口。
+
+使用控制器来测试JpaUserRepository接口，而对于这个接口还需要制定Spring Boot扫描路径，才能将接口扫描到Spring IoC容器中。
+
+还需要将实体（Entity Bean）注册给JPA才能测试这个控制器。为了方便注册JPA的信息，Spring提供了两个注解用来扫描对应的JPA接口和实体类，它们是@EnableJpaRepositories和@EntityScan。
+
+* @EnableJpaRepositories代表启用JPA编程，启用JPA和制定扫描的包，
+* @EntityScan则是对实体Bean的扫描，通过扫描装载JPA的实体类。
+
 ## 5.4 整合MyBatis框架 ##
 
 ### 5.4.1 Mybatis简介 ###

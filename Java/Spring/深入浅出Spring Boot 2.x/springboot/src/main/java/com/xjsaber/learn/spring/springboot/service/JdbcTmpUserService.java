@@ -1,5 +1,6 @@
 package com.xjsaber.learn.spring.springboot.service;
 
+import com.xjsaber.learn.spring.springboot.pojo.JpaUser;
 import com.xjsaber.learn.spring.springboot.pojo.User;
 
 import java.util.List;
