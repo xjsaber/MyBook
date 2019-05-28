@@ -492,13 +492,15 @@ MyBatis的配置文件包含
 1. 基础配置文件
 2. 映射文件
 
+在MyBatis中也可以使用注解来实现映射，只是由于功能和可读性的限制，在实际的企业中使用得比较少。
+
 ### 5.4.2 MyBatis的配置 ###
 
-MyBatis是一个基于SqlSessionFactory构建的框架。对于SqlSessionFactory而言，它的作用是生成SqlSession接口对象，这个接口对象是MyBatis操作的核心，而在MyBatis-Spring的结合中甚至可以“擦除”这个对象，使其在代码中“消失”。
+MyBatis是一个基于SqlSessionFactory构建的框架。对于SqlSessionFactory而言，*它的作用是生成SqlSession接口对象*，这个接口对象是MyBatis操作的核心，而在MyBatis-Spring的结合中甚至可以“擦除”这个对象，使其在代码中“消失”。
 
 因为SqlSession是一个功能性的代码。
 
-因为SqlSessionFactory的作用是单一的，只是为了创建核心接口SqlSession
+因为SqlSessionFactory的作用是单一的，只是为了创建核心接口SqlSession，所以在MyBatis应用的生命周期中理当只存在一个SqlSessionFactory对象，并且往往会使用单例模式。
 
 * properties(属性)：属性文件在实际应用中一般采用Spring进行配置，而不是MyBatis。
 * settings(设置)：它的配置将改变MyBatis的底层行为，可以配置映射规则，如自动映射和驼峰映射、执行器（Executor）类型、缓存等内容。
@@ -509,6 +511,20 @@ MyBatis是一个基于SqlSessionFactory构建的框架。对于SqlSessionFactory
 * environments（数据库环境）：可以配置数据库连接内容和事务
 * databaseIdProvider（数据库厂商标识）：允许MyBatis配置多类型数据库支持。
 * mapper（映射器）：是MyBatis最核心的组建，它提供SQL和POJO映射关系，是Mybatis开发的核心。
+
+在MyBatis中对于typeHandler的要求是实现TypeHandler<T>接口，而它自身为了更加方便也通过抽象类BaseTypeHandler<T>实现了TypeHandler<T>接口，所以这里直接继承抽象类BaseTypeHandler<T>。
+
+* 注解@MappedJdbcTypes声明JdbcType为数据库的整形
+* @MappedTypes声明JavaType为SexEnum
+
+	<mapper namespace="com.springboot.chapter5.dao.MyBatisUserDao">
+		<select id="getUser" parameterType="long" resultType="user">
+			select id, user_name as userName, sex, note from t_user where id = #{id}
+		</select>
+	</mapper>
+
+* <mapper>元素的namespace属性，指定一个接口
+* <select>元素，代表着一个查询语句，id属性指代这条SQL，parameterType属性配置未long，则表示是一个长整形（Long）参数，resultType指定返回值类型。
 
 ### 5.4.3 Spring Boot整合MyBatis ###
 

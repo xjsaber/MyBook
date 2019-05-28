@@ -12,11 +12,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
+ * #@MappedJdbcTypes 声明JdbcType为整形
+ * #@MappedTypes 声明JavaType为SexEnum
  * @author xjsaber
  */
-// 声明JdbcType为整形
 @MappedJdbcTypes(JdbcType.INTEGER)
-// 声明
 @MappedTypes(value = SexEnum.class)
 public class SexTypeHandler extends BaseTypeHandler<SexEnum> {
 
