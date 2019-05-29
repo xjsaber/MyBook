@@ -13,25 +13,25 @@ public interface JpaUserRepository
     extends JpaRepository<JpaUser, Long> {
 
     /**
-     * æŒ‰ç”¨æˆ·åç§°æ¨¡ç³ŠæŸ¥è¯¢
-     * @param userName ç”¨æˆ·å
-     * @return ç”¨æˆ·åˆ—è¡¨
+     * °´ÓÃ»§Ãû³ÆÄ£ºı²éÑ¯
+     * @param userName ÓÃ»§Ãû
+     * @return ÓÃ»§ÁĞ±í
      */
     @Query("from user where user_name like concat('%', ?1, '%') ")
     List<JpaUser> findByUserNameLike(String userName);
 
     /**
-     * æ ¹æ®ä¸»é”®æŸ¥è¯¢
-     * @param id â€”â€”ä¸»é”®
-     * @return ç”¨æˆ·
+     * ¸ù¾İÖ÷¼ü²éÑ¯
+     * @param id ¡ª¡ªÖ÷¼ü
+     * @return ÓÃ»§
      */
     JpaUser getUserById(Long id);
 
     /**
-     * æŒ‰ç…§ç”¨æˆ·åç§°æˆ–è€…å¤‡æ³¨è¿›è¡Œæ¨¡ç³ŠæŸ¥è¯¢
-     * @param userName ç”¨æˆ·å
-     * @param note å¤‡æ³¨
-     * @return ç”¨æˆ·åˆ—è¡¨
+     * °´ÕÕÓÃ»§Ãû³Æ»òÕß±¸×¢½øĞĞÄ£ºı²éÑ¯
+     * @param userName ÓÃ»§Ãû
+     * @param note ±¸×¢
+     * @return ÓÃ»§ÁĞ±í
      */
     @Query("from user where user_name like concat('%', ?1, '%') "
             + "and note like concat('', ?2, '%')")

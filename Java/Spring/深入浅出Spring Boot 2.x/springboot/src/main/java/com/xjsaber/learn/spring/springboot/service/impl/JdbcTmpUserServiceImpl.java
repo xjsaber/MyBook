@@ -1,13 +1,15 @@
 package com.xjsaber.learn.spring.springboot.service.impl;
 
-import com.mysql.cj.protocol.Resultset;
 import com.xjsaber.learn.spring.springboot.enumeration.SexEnum;
 import com.xjsaber.learn.spring.springboot.pojo.User;
 import com.xjsaber.learn.spring.springboot.service.JdbcTmpUserService;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.List;
@@ -51,7 +53,11 @@ public class JdbcTmpUserServiceImpl implements JdbcTmpUserService {
     public User getUser(Long id) {
         String sql = " select id, user_name, note, sex, note from t_user where id = ? ";
         Object[] params = new Object[] {id};
-        return jdbcTemplate.queryForObject(sql, params, getUserMapper());
+        try {
+            return jdbcTemplate.queryForObject(sql, params, getUserMapper());
+        }catch (EmptyResultDataAccessException ex){
+            return null;
+        }
     }
 
     /**
@@ -79,6 +85,30 @@ public class JdbcTmpUserServiceImpl implements JdbcTmpUserService {
             return user;
         });
         return result;
+    }
+
+    public User getUser3(Long id){
+        return jdbcTemplate.execute((Connection conn) -> {
+            String sql1 = " select count(*) as total from t_user "
+                    + " where id = ?";
+            PreparedStatement ps1 = conn.prepareStatement(sql1);
+            ps1.setLong(1, id);
+            ResultSet rs1 = ps1.executeQuery();
+            while (rs1.next()){
+                System.out.println(rs1.getInt("total"));
+            }
+            String sql2 = " select id, user_name, sex, note from t_user "
+                    + " where id = ? ";
+            PreparedStatement ps2 = conn.prepareStatement(sql2);
+            ps2.setLong(1, id);;
+            ResultSet rs2 = ps2.executeQuery();
+            User user = null;
+            while (rs2.next()){
+                int rowNum = rs2.getRow();
+                user = getUserMapper().mapRow(rs2, rowNum);
+            }
+            return user;
+        });
     }
 
     /**

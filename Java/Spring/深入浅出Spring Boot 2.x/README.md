@@ -441,11 +441,21 @@ Spring采用了JDK和CGLIB，对于JDK而言，它是要求被代理的目标对
 		<aftifactId>mysql-connector-java</aftifactId>	
 	</dependency>
 
+	this.applicationContext = applicationContext;
+    DataSource dataSource = this.applicationContext.getBean(DataSource.class);
+    System.out.println("----------------------------------------------------");
+    System.out.println(dataSource.getClass().getName());
+    System.out.println("----------------------------------------------------");
+
+实现了接口 ApplicationContextAware的方法 setApplicationContext()，依照 Spring Bean生命周期的规则，在其初始化的时候该方法就会被调用，从而获取 Spring IoC容器的上下文 (applicationContext),这时通过getBean方法就可以获取数据库连接池，然后打印出数据连接池的全限定名，从而得知用的是哪个数据库连接池。
+
 ## 5.2 使用JdbcTemplate操作数据源 ##
 
-# TODO #
+通过spring.datasource.type属性指定了数据库连接池的类型，然后再使用spring.datasource.dbcp2.*去配置数据库连接池的属性。
 
 对JdbcTemplate的映射关系是需要开发者自己实现RowMapper的接口的，可以完成数据库数据到POJO（Plain Ordinary Java Object）对象的映射了
+
+通过StatementCallback或者ConnectionCallback接口实现回调，从而在一条数据库连接中执行多条SQL。
 
 ## 5.3 使用JPA（Hibernate）操作数据 ##
 
@@ -644,15 +654,33 @@ RedisTemplate会默认使用JdkSerializationRedisSerializer进行序列化键值
 
 ## 7.3 Redis的一些特殊用法 ##
 
+### 7.3.1 使用Redis事务 ###
+
+![Redis事务执行的过程](img/2019-05-26_8-18-02.jpg)
+
 ## 7.4 使用Spring缓存注解操作Redis ##
 
+### 7.4.1 缓存管理器和缓存的启用 ###
 
+Spring在使用缓存注解前，需要配置缓存管理器，缓存管理器将提供一些重要的信息，如缓存类型、超过时间等。
+
+CacheManager
+
+缓存管理器配置
+
+	# SPRING CACHE(CacheProperties)
+	spring.cache.cache-name = # 如果由底层的缓存管理器支持创建，以逗号分隔的列表来缓存名称
+	spring.cache.caffeine.spec = # caffeine 缓存配置细节
+	spring.cache
+
+
+	
 
 # 第8章 文档数据库——MongoDB #
 
 ## 8.1 配置MongoDB ##
 
-|Bean类型|描述|
+|Bean类型|描述| 
 |--|--|
 |MongoClient|MongoDB客户端|
 |MongoProperties|Spring Boot关于MongoDB的自动配置属性|

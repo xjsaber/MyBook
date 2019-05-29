@@ -9,7 +9,7 @@ import javax.persistence.*;
 /**
  * @author xjsaber
  */
-@Entity(name = "user")
+@Entity(name = "userJpa")
 @Table(name = "t_user")
 @Data
 public class JpaUser {
