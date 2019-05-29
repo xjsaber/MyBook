@@ -536,11 +536,24 @@ MyBatis是一个基于SqlSessionFactory构建的框架。对于SqlSessionFactory
 * <mapper>元素的namespace属性，指定一个接口
 * <select>元素，代表着一个查询语句，id属性指代这条SQL，parameterType属性配置未long，则表示是一个长整形（Long）参数，resultType指定返回值类型。
 
+	# Mybatis映射文件通配
+	mybatis.mapper-locations=classpath://mappers/*.xml
+	# Mybatis扫描别名包，和注解@Alias联用
+	mybatis.type-aliases-package=com.xjsaber.learn.spring.springboot.pojo
+	# 配置typeHandler的扫描包
+	mybatis.type-handlers-package=com.xjsaber.learn.spring.springboot.mybatis
+
 ### 5.4.3 Spring Boot整合MyBatis ###
 
 Mapper是一个接口，是不可以使用new为其生成对象实例的。
 
-它们MapperFactoryBean和MapperScannerConfigure。MapperFactoryBean是针对一个接口配置，而MapperScannerConfigurer则是扫描装配，也就是提供扫描装配MyBatis的接口到Spring IoC容器中。
+MapperFactoryBean和MapperScannerConfigure。
+
+* MapperFactoryBean是针对一个接口配置
+* MapperScannerConfigurer则是扫描装配，也就是提供扫描装配MyBatis的接口到Spring IoC容器中。
+* @MapperScan，能够将Mybatis所需的对应接口扫描装配到Spring IoC容器中。
+
+@MapperScan，也能够将Mybatis所需的对应接口扫描装配到Spring IoC容器中。
 
 #### MapperFactoryBean ####
 
@@ -557,9 +570,44 @@ Mapper是一个接口，是不可以使用new为其生成对象实例的。
 
 #### MapperScannerConfigure ####
 
+	/**
+     * 配置Mybatis接口扫描
+     * @return 返回扫描器
+     */
+    @Bean
+    public MapperScannerConfigurer mapperScannerConfigurer(){
 
+        // 定义扫描器实例
+        MapperScannerConfigurer mapperScannerConfigurer = new MapperScannerConfigurer();
+        // 加载SqlSessionFactory，Spring Boot会自动生产，SqlSessionFactory实例
+        mapperScannerConfigurer.setSqlSessionFactoryBeanName("sqlSessionFactory");
+        // 定义扫描的包
+        mapperScannerConfigurer.setBasePackage("com.xjsaber.learn.spring.springboot.mybatis.*");
+        // 限定被标注@Repository的接口才被扫描
+        mapperScannerConfigurer.setAnnotationClass(Repository.class);
+        // 通过继承某个接口限制扫描，一般使用不多
+        // mapperScannerConfigurer.setMarkerInterface(......);
+        return mapperScannerConfigurer;
+    }
+
+#### @MapperScan ####
+
+	@MapperScan(
+			// 指定扫描包
+			basePackages = "com.xjsaber.learn.spring.springboot.*",
+			// 指定 sqlSessionFactory，如果sqlSessionTemplate则指定，废弃
+			sqlSessionFactoryRef = "sqlSessionFactory",
+			// 指定 sqlSessionTemplate，将忽略sqlSessionFactory的配置
+			sqlSessionTemplateRef = "sqlSessionTemplate",
+			// marketInterface = Class.class, //限定扫描接口，不常用
+			annotationClass = Repository.class
+	)
+
+@mapperScan允许通过扫描加载MyBatis的Mapper，如果你的SpringBoot项目中不存在多个SqlSessionFacotry(或者 SqlSessionTemplate)，那么可以不配置sqlSessionFactoryRef（或者sqlSessionTemplateRef）。sqlSessionTemplateRef的优先权是大于sqlSessionFactoryRef，制定了扫描的包和注解限定，选择接口限定，选择使用注解@Repository作为限定，对持久层的注解，而MyBatis也提供了一个对Mapper的注解@Mapper，通常更喜欢@Repository。
 
 ### 5.4.4 MyBatis的其他配置 ###
+
+# TODO MyBatis org.apache.ibatis.binding.BindingException: Invalid bound statement (not found): com.xjsaber.learn.spring.springboot.mybatis.MyBatisUserRepository.getUser #
 
 MyBatis常用的配置
 
@@ -577,6 +625,10 @@ MyBatis常用的配置
 	mybatis.configuration.aggressive-lazy-loading=......
 	# 执行器（Executor），可以配置SIMPLE，REUSE，BATCH，默认为SIMPLE
 	mybatis.executor-type=......
+
+如果遇到比较复杂的配置，可以直接通过mybatis.config-location去指定MyBatis本身的配置文件。
+
+SqlSessionFactory对象由Spring Boot自动配置得到的，接着采用注解@PostConstruct自定义了初始化后的initMyBatis方法。在该方法中，就可以配置插件了，在增加插件前，调用了插件的setProperties，然后把插件放入到MyBatis的机制中。
 
 # 第6章 聊聊数据库事务处理 #
 

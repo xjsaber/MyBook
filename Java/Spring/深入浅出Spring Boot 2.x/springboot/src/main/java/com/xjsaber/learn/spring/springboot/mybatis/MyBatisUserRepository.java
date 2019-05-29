@@ -1,6 +1,5 @@
-package com.xjsaber.learn.spring.springboot.dao;
+package com.xjsaber.learn.spring.springboot.mybatis;
 
-import com.xjsaber.learn.spring.springboot.pojo.MybatisUser;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -9,5 +8,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface MyBatisUserRepository {
 
+    /**
+     * 获得用户信息
+     * @param id 编号
+     * @return
+     */
     MybatisUser getUser(Long id);
 }

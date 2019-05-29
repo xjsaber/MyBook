@@ -17,7 +17,7 @@ public interface JpaUserRepository
      * @param userName 用户名
      * @return 用户列表
      */
-    @Query("from user where user_name like concat('%', ?1, '%') ")
+    @Query("from userJpa where user_name like concat('%', ?1, '%') ")
     List<JpaUser> findByUserNameLike(String userName);
 
     /**
@@ -33,7 +33,7 @@ public interface JpaUserRepository
      * @param note 备注
      * @return 用户列表
      */
-    @Query("from user where user_name like concat('%', ?1, '%') "
+    @Query("from userJpa where user_name like concat('%', ?1, '%') "
             + "and note like concat('', ?2, '%')")
     List<JpaUser> findByUserNameLikeOrNoteLike(String userName, String note);
 }

@@ -20,7 +20,7 @@ import java.util.List;
 @Service
 public class JdbcTmpUserServiceImpl implements JdbcTmpUserService {
 
-    private JdbcTemplate jdbcTemplate = null;
+    private JdbcTemplate jdbcTemplate;
 
     public JdbcTmpUserServiceImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;

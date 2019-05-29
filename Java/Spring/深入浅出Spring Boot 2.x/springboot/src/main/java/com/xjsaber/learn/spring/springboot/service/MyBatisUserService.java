@@ -1,6 +1,6 @@
 package com.xjsaber.learn.spring.springboot.service;
 
-import com.xjsaber.learn.spring.springboot.pojo.User;
+import com.xjsaber.learn.spring.springboot.mybatis.MybatisUser;
 
 /**
  * @author xjsaber
@@ -8,7 +8,7 @@ import com.xjsaber.learn.spring.springboot.pojo.User;
 public interface MyBatisUserService {
 
     /**
-     *
+     * 获得用户信息
      */
-    User getUser(Long id);
+    MybatisUser getUser(Long id);
 }

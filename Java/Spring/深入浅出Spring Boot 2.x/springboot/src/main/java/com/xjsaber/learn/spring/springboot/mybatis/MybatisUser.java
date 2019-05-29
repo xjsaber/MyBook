@@ -1,4 +1,4 @@
-package com.xjsaber.learn.spring.springboot.pojo;
+package com.xjsaber.learn.spring.springboot.mybatis;
 
 import com.xjsaber.learn.spring.springboot.enumeration.SexEnum;
 import org.apache.ibatis.type.Alias;
@@ -6,7 +6,7 @@ import org.apache.ibatis.type.Alias;
 /**
  * @author xjsaber
  */
-@Alias(value="user")
+@Alias(value="mybatisUser")
 public class MybatisUser {
 
     private Long id = null;

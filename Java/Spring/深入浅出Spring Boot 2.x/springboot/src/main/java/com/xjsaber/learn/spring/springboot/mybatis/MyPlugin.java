@@ -1,9 +1,10 @@
 package com.xjsaber.learn.spring.springboot.mybatis;
 
-import com.xjsaber.learn.spring.springboot.intercept.Interceptor;
 import com.xjsaber.learn.spring.springboot.invoke.Invocation;
 import org.apache.ibatis.executor.statement.StatementHandler;
+import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.plugin.Intercepts;
+import org.apache.ibatis.plugin.Plugin;
 import org.apache.ibatis.plugin.Signature;
 
 import java.sql.Connection;
@@ -19,35 +20,30 @@ import java.util.Properties;
 })
 public class MyPlugin implements Interceptor {
 
-    Properties properties = null;
+    private Properties properties = null;
 
+    /**
+     * 拦截逻辑
+     */
     @Override
-    public boolean before() {
-        return false;
+    public Object intercept(org.apache.ibatis.plugin.Invocation invocation) throws Throwable {
+        System.out.println("插件拦截方法......");
+        return invocation.proceed();
     }
 
+    /**
+     * 生成Mybatis拦截器拦截对象
+     */
     @Override
-    public void after() {
-
+    public Object plugin(Object target) {
+        return Plugin.wrap(target, this);
     }
 
+    /**
+     * 设置插件属性
+     */
     @Override
-    public Object around(Invocation invocation) throws Throwable {
-        return null;
-    }
-
-    @Override
-    public void afterReturning() {
-
-    }
-
-    @Override
-    public void afterThrowing() {
-
-    }
-
-    @Override
-    public boolean useAround() {
-        return false;
+    public void setProperties(Properties properties) {
+        this.properties = properties;
     }
 }
