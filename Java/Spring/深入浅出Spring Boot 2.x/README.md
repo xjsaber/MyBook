@@ -646,11 +646,17 @@ SqlSessionFactory对象由Spring Boot自动配置得到的，接着采用注解@
 
 ### 6.2.4 测试数据库事务 ###
 
+
+
 # 第7章 使用性能利器——Redis #
+
+在Redis中Lua语言的执行是原子性的，也就是在Redis执行Lua时，不会被其他命令所打断，这样能够保证在高并发场景下的一致性。
 
 在默认的情况下，spring-boot-starter-data-redis（版本2.x）会依赖Lettuce的Redis客户端驱动，而在一般的项目中，会使用Jedis，所以在代码中使用了<exclusions>元素将其依赖排除了。
 
 ## 7.1 spring-data-redis项目简介 ##
+
+Redis是一种键值数据库，而且是以字符串类型为中心的，当前它能够支持多种数据类型，包括字符串、散列、列表（链表）、集合、有序集合、基数和地理位置等。
 
 ### 7.1.1 spring-data-redis项目的设计 ###
 
@@ -658,6 +664,37 @@ SqlSessionFactory对象由Spring Boot自动配置得到的，接着采用注解@
 * Jedis
 
 Spring提供了一个RedisConnectionFactory接口，通过生成一个RedisConnection接口对象，而RedisConnection接口对象是对Redis底层接口的封装。
+
+Spring就会提供RedisConnection接口的实现类JedisConnection去封装原有的Jedis（redis.clients.jedis.Jedis）对象。
+
+在Spring中是通过RedisConnection接口操作Redis的，而RedisConnection则对原生的Jedis进行封装。要获取RedisConnection接口对象，是通过RedisConnectionFactory接口去生成的，所以第一步要配置的便是这个工厂了，而配置这个工厂主要是配置Redis的连接池，对于连接池可以限定其最大连接数、超过时间等属性。
+
+![2019-05-30_11-20-51.jpg](img/2019-05-30_11-20-51.jpg)
+
+	@Bean(name = "RedisConnectionFactory")
+    public RedisConnectionFactory initRedisConnectionFactory(){
+        if (this.connectionFactory != null){
+            return this.connectionFactory;
+        }
+        JedisPoolConfig poolConfig = new JedisPoolConfig();
+        // 最大空闲数
+        poolConfig.setMaxIdle(30);
+        // 最大连接数
+        poolConfig.setMaxTotal(50);
+        // 最大等待毫秒数
+        poolConfig.setMaxWaitMillis(2000);
+        // 创建Jedis连接工厂
+        JedisConnectionFactory connectionFactory = new JedisConnectionFactory(poolConfig);
+        // 单机
+        RedisStandaloneConfiguration rsCfg = connectionFactory.getStandaloneConfiguration();
+        connectionFactory.setHostName("localhost");
+        connectionFactory.setPort(6379);
+        connectionFactory.setPassword("123456");
+        this.connectionFactory = connectionFactory;
+        return connectionFactory;
+    }
+
+通过一个连接池的配置创建了RedisConnectionFactory，通过它能够创建RedisConnection接口对象。但是我们在使用一条连接时，要先从RedisConnectionFactory工厂获取，然后在使用完成后还要自己关闭它。
 
 ### 7.1.2 RedisTemplate ###
 
@@ -685,22 +722,90 @@ Spring提供了RedisSerializer接口
 
 ### 7.1.3 Spring对Redis数据类型操作的封装 ###
 
+Redis能够支持7种类型的数据结构，这7种类型是字符串、散列、列表（链表）、集合、有序集合、基数和地理位置。
+
+|操作接口|功能|备注|
+|--|--|--|
+|GeoOperations|地理位置操作接口||
+|HashOperations|散列操作接口||
+|HyperLogLogOperations|基数操作接口||
+|ListOperations|列表（链表）操作接口||
+|SetOperations|集合操作接口||
+|ValueOperations|字符串操作接口||
+|ZSetOperations|有序集合操作接口||
+
+	获取Redis数据类型操作接口
+
+	// 获取地理位置操作接口
+	redisTemplate.opsForGeo();
+	// 获取散列操作接口
+	redisTemplate.opsForHash();
+	// 获取基数操作接口
+	redisTemplate.opsForHyperLogLog(); 
+	// 获取列表操作接口
+	redisTemplate.opsForList();
+	// 获取集合操作接口
+	redisTemplate.opsForSet();
+	// 获取字符串操作接口
+	redisTemplate.opsForValue();
+	// 获取有序集合操作接口
+	redisTemplate.opsForZSet();
+
+|接口|说明|
+|--|--|
+|BoundGeoOperations|绑定一个地理位置数据类型的键操作|
+|BoundHashOperations|绑定一个散列数据类型的键操作|
+|BoundListOperations|绑定一个列表（链表）数据类型的键操作|
+|BoundSetOperations|绑定一个集合数据类型的键操作|
+|BoundValueOperations|绑定一个字符串集合数据类型的键操作|
+|BoundZSetOperations|绑定一个有序集合数据类型的键操作|
+
+	// 获取地理位置绑定键操作接口
+	redisTemplate.boundGeoOps("geo");
+	// 获取散列绑定键操作接口
+	redisTemplate.boundHashOps("hash");
+	// 获取列表（链表）绑定键操作接口
+	redisTemplate.boundListOps("list");
+	// 获取集合绑定键操作接口
+	redisTemplate.boundSetOps("set");
+	// 获取字符串绑定键操作接口
+	redisTemplate.boundValueOps("string");
+	// 获取有序集合绑定键操作接口
+	redisTemplate.boundZSetOps("zset");
+
 ### 7.1.4 SessionCallback和RedisCallback接口 ###
 
 让RedisTemplate进行回调，通过他们在同一条连接下进行多个redis指令
 
-* SessionCallback 较高的封装
-* RedisCallback 较底层
+* SessionCallback 较高的封装，对于开发者比较友好
+* RedisCallback 较底层，需要处理的内容比较多，可读性较差
 
 ## 7.2 在SpringBoot中配置和使用Redis ##
+
+spring-data-redis
 
 ### 7.2.1 在SpringBoot中配置Redis ###
 
 自动生成`RedisConnectionFactory`、`RedisTemplate`、`StringRedisTemplate`等常用的Redis对象。
 
-RedisTemplate会默认使用JdkSerializationRedisSerializer进行序列化键值，这样便能够存储到Redis服务器中。
+RedisTemplate会默认使用JdkSerializationRedisSerializer进行序列化键值，这样便能够存储到Redis服务器中。如果我们在Redis只是使用字符串，那么使用其自动生成的StringRedisTemplate即可，但是这样只能支持字符串了，并不能支持Java对象的存储。
+
+	// 定义自定义后初始化方法
+	@PostConstruct
+	public void init() {
+		initRedisTemplate();
+	}
+
+# TODO #
+
+1. 首先通过@Autowired注入由Spring Boot根据配置生成的RedisTemplate对象。
+2. 利用Spring Bean生命周期的特性使用注解@PostConstruct自定义后初始化方法。
 
 ### 7.2.2 操作Redis数据类型 ###
+
+Redis数据类型（如字符串、散列、列表、集合和有序集合）的操作，但是主要是从RedisTemplate的角度，而不是从SessionCallback和RedisCallback接口的角度
+
+1. 首先操作字符串和散列，这是Redis最为常用的数据类型。
 
 
 

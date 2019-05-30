@@ -1,6 +1,7 @@
 package com.xjsaber.learn.spring.springboot;
 
 import com.xjsaber.learn.spring.springboot.aspect.MyAspect;
+import com.xjsaber.learn.spring.springboot.config.RedisConfig;
 import com.xjsaber.learn.spring.springboot.mybatis.MyPlugin;
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.plugin.Intercepts;
@@ -10,8 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
@@ -71,6 +75,11 @@ public class DemoApplication {
 	}
 
 	public static void main(String[] args) {
+//		配置Redis
+		ApplicationContext ctx = new AnnotationConfigApplicationContext(RedisConfig.class);
+		RedisTemplate redisTemplate = ctx.getBean(RedisTemplate.class);
+		redisTemplate.opsForValue().set("key1", "value1");
+		redisTemplate.opsForHash().put("hash", "field", "hvalue");
 		SpringApplication.run(DemoApplication.class, args);
 	}
 
