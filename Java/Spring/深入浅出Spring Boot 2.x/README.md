@@ -644,6 +644,11 @@ SqlSessionFactory对象由Spring Boot自动配置得到的，接着采用注解@
 
 对于声明式事务，是使用@Transactional进行标注。标注在类或者方法上，当它标注在类上时，代表这个类所有公共（public）非静态的方法都将启用事务功能。
 
+当Spring的上下文呢开始调用被@Transactional标注的类或者方法时，Spring就会产生AOP的功能。
+
+1. 根据传播行为去确定的策略。
+2. 隔离级别、超过时间、只读等内容的设置。
+
 ### 6.2.2 @Transactional的配置项 ###
 
 
