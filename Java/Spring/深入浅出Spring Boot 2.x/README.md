@@ -869,6 +869,18 @@ CacheManager
 
 # 第8章 文档数据库——MongoDB #
 
+MongoDB，C++语言编写的一种NoSQL，是一个基于分布式文件存储的开源数据库系统。在负载高时可以添加更多的节点，以保证服务器性能，MongoDB的目的时为了Web应用提供可扩展的高性能数据存储解决方案。
+
+	<dependency>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-data-mongodb</artifactId>
+	</dependency>
+	<dependency>
+		<groupId>com.alibaba</groupId>
+		<artifactId>fastjson</artifactId>
+		<version>1.2.49</version>
+	</dependency>
+
 ## 8.1 配置MongoDB ##
 
 |Bean类型|描述| 
@@ -885,16 +897,58 @@ CacheManager
 
 ## 8.2 使用MongoTemplate实例 ##
 
+Spring Data MongoDB主要是通过MongoTemplate进行操作数据的。
+
 ### 8.2.1 搭建开发环境 ###
 
+* @Document 将它作为MongoDB的文档存在。
+* @id将对应的字段设置为主键（数据库的规范采用下划线分隔，而Java一般采用驼峰式命名）
+* @Field 进行设置，将属性userName就与MongoDB的user_name属性对应起来。
+* @DBRef标注，将一个角色列表（属性roles），保存其引用。
+
 ### 8.2.2 使用MongoTemplate操作文档 ###
+
+    Criteria criteria = Criteria.where("userName").regex(userName).and("note").regex(note);
+
+这里的where方法的参数设置为"userName"，这个字符串代表的是类User的属性userName；regex方法代表正则匹配，即执行模糊查询；and方法代表连接字，代表同时满足。然后通过
+
+    Query query = Query.query(criteria).limit(limit).skip(skip);
+
+构建查询条件
+
+* limit 返回至多条记录。
+* skip 代表跳过多少条记录。
+
+    return mongoTemplate.find(query, MongoUser.class);
+
+更新对象，通过主键确认对应的文档。然后再定义一个更新对象（Update），在创建它的时候，使用构造方法设置了对用户名的更新，然后使用set方法设置了备注的更新，对声明我们只是对这两个属性进行更新，其他属性并不更新。相当于MongoDB使用了“$set”设置。
+
+构造好了Query对象和Update对象后，就可以使用MongoTemplate执行更新，而updateMulti方法则是多个满足Query对象限定的文档。
+
+执行更新方法后，会返回一个UpdateResult对象，它有3个属性，分别是matchedCount、modifiedCount和upsertId。
+
+* matchedCount代表与Query对象匹配的文档数
+* modifiedCount代表被更新的文档数
+* upsertedId表示如果存在因为更新而插入文档的情况会返回插入文档的信息
 
 ## 8.3 使用JPA ##
 
 ### 8.3.1 基本用法 ###
 
+	public interface MongoUserRepository extends MongoRepository<MongoUser, Long> 
+
+接口扩展了MongoRepository接口，指定了两个类型，一个是实体类型，这个实体类型要求标注@Document，另一个是其主键的类型，这个类型要标注@Id。
+
+|项目类型|描述|
+|--|--|
+|long count()| 统计文档总数|
+
+
 ### 8.3.2 使用自定义查询 ###
 
+    MongoUser find(Long id, String userName);
+
+这里的find方法并不符合JPA的规范，但是我们采用注解@Query标注了方法，并且配置了一个字符串JSON参数，这个参数中带有?0和?1这样的占位符，其中?0代表方法的第一个参数id，?1代表方法的第二个参数userName。
 
 
 # 第9章 初识Spring MVC #

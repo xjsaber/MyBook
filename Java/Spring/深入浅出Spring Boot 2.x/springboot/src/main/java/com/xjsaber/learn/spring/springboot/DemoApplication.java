@@ -15,6 +15,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -29,8 +30,13 @@ import java.util.Properties;
  * @author xjsaber
  */
 @SpringBootApplication
-@EnableJpaRepositories(basePackages = "com.xjsaber.learn.spring.springboot.dao")
-@EntityScan(basePackages = "com.xjsaber.learn.spring.springboot.pojo")
+//@EnableJpaRepositories(basePackages = "com.xjsaber.learn.spring.springboot.dao")
+//@EntityScan(basePackages = "com.xjsaber.learn.spring.springboot.pojo")
+@EnableMongoRepositories(
+		basePackages = "com.xjsaber.learn.spring.springboot.dao",
+		// 使用自定义后缀，其默认值为Impl
+		repositoryImplementationPostfix = "impl"
+)
 @MapperScan(
 		// 指定扫描包
 		basePackages = "com.xjsaber.learn.spring.springboot.*",
