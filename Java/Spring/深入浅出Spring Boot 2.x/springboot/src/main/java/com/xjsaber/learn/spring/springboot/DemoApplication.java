@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
@@ -54,7 +55,7 @@ public class DemoApplication {
 
 	public DemoApplication(SqlSessionFactory sqlSessionFactory, RedisTemplate redisTemplate) {
 		this.sqlSessionFactory = sqlSessionFactory;
-//		this.redisTemplate = redisTemplate;
+		this.redisTemplate = redisTemplate;
 	}
 
 	/**
@@ -79,15 +80,24 @@ public class DemoApplication {
 		return new MyAspect();
 	}
 
-//	private RedisTemplate redisTemplate = null;
+	private RedisTemplate redisTemplate = null;
 
 	/**
 	 * 定义自定义后初始化方法
 	 */
-//	@PostConstruct
-//	public void init(){
-//		inti
-//	}
+	@PostConstruct
+	public void init(){
+		initRedisTemplate();
+	}
+
+	/**
+	 * 设置RedisTemplate
+	 */
+	private void initRedisTemplate(){
+		RedisSerializer stringSerializer = redisTemplate.getStringSerializer();
+		redisTemplate.setKeySerializer(stringSerializer);
+		redisTemplate.setHashKeySerializer(stringSerializer);
+	}
 
 	public static void main(String[] args) {
 //		配置Redis

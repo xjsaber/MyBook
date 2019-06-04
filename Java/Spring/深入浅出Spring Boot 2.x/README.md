@@ -852,17 +852,33 @@ RedisTemplate会默认使用JdkSerializationRedisSerializer进行序列化键值
 1. 首先通过@Autowired注入由Spring Boot根据配置生成的RedisTemplate对象。
 2. 利用Spring Bean生命周期的特性使用注解@PostConstruct自定义后初始化方法。
 
+在RedisTemplate中会默认地定义了一个StringRedisSerializer对象，所以我们并没有自己创建一个新的StringRedisSerializer对象，而是从RedisTemplate中获取。然后把RedisTemplate关于键和其散列数据类型的field都修改为了使用StringRedisSerializer进行序列化，这样在Redis服务器上得到的键和散列的field这都可以字符串存储了。
+
 ### 7.2.2 操作Redis数据类型 ###
 
 Redis数据类型（如字符串、散列、列表、集合和有序集合）的操作，但是主要是从RedisTemplate的角度，而不是从SessionCallback和RedisCallback接口的角度
 
-1. 首先操作字符串和散列，这是Redis最为常用的数据类型。
+首先操作字符串和散列，这是Redis最为常用的数据类型。
+
+	redisTemplate.opsForValue().set("key1", "value1");
+
+存入了一个“key1”的数据
+
+	redisTemplate.opsForValue().set("int_key1", "1"); 
+
+然后是“int_key”，但是“int_key”存入到Redis服务器中，因为采用了JDK序列化器，所以在Redis服务器中它不是整数，而是一个被JDK序列化器序列化后的二进制字符串，是没有办法使用Redis命令进行运算。
+
+	stringRedisTemplate.opsForValue().set("int", "1");
 
 
 
 ## 7.3 Redis的一些特殊用法 ##
 
+考虑使用Redis事务或者利用Redis执行Lua的原子性达到数据一致性的目的。
+
 ### 7.3.1 使用Redis事务 ###
+
+1. 
 
 ![Redis事务执行的过程](img/2019-05-26_8-18-02.jpg)
 
