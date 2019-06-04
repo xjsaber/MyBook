@@ -4,13 +4,11 @@ import com.xjsaber.learn.spring.springboot.aspect.MyAspect;
 import com.xjsaber.learn.spring.springboot.config.RedisConfig;
 import com.xjsaber.learn.spring.springboot.mybatis.MyPlugin;
 import org.apache.ibatis.plugin.Interceptor;
-import org.apache.ibatis.plugin.Intercepts;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -54,8 +52,9 @@ public class DemoApplication {
 	 */
 	private SqlSessionFactory sqlSessionFactory;
 
-	public DemoApplication(SqlSessionFactory sqlSessionFactory) {
+	public DemoApplication(SqlSessionFactory sqlSessionFactory, RedisTemplate redisTemplate) {
 		this.sqlSessionFactory = sqlSessionFactory;
+//		this.redisTemplate = redisTemplate;
 	}
 
 	/**
@@ -79,6 +78,16 @@ public class DemoApplication {
 	public MyAspect initMyAspect(){
 		return new MyAspect();
 	}
+
+//	private RedisTemplate redisTemplate = null;
+
+	/**
+	 * 定义自定义后初始化方法
+	 */
+//	@PostConstruct
+//	public void init(){
+//		inti
+//	}
 
 	public static void main(String[] args) {
 //		配置Redis

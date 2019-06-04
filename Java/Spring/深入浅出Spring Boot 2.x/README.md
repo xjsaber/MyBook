@@ -527,14 +527,14 @@ MyBatis是一个基于SqlSessionFactory构建的框架。对于SqlSessionFactory
 * 注解@MappedJdbcTypes声明JdbcType为数据库的整形
 * @MappedTypes声明JavaType为SexEnum
 
-	<mapper namespace="com.springboot.chapter5.dao.MyBatisUserDao">
-		<select id="getUser" parameterType="long" resultType="user">
+	\<mapper namespace="com.springboot.chapter5.dao.MyBatisUserDao"\>
+		\<select id="getUser" parameterType="long" resultType="user"\>
 			select id, user_name as userName, sex, note from t_user where id = #{id}
-		</select>
-	</mapper>
+		\</select\>
+	\</mapper\>
 
-* <mapper>元素的namespace属性，指定一个接口
-* <select>元素，代表着一个查询语句，id属性指代这条SQL，parameterType属性配置未long，则表示是一个长整形（Long）参数，resultType指定返回值类型。
+* \<mapper\>元素的namespace属性，指定一个接口
+* \<select\>元素，代表着一个查询语句，id属性指代这条SQL，parameterType属性配置未long，则表示是一个长整形（Long）参数，resultType指定返回值类型。
 
 	# Mybatis映射文件通配
 	mybatis.mapper-locations=classpath://mappers/*.xml
@@ -745,6 +745,8 @@ RedisTemplate
 
 Redis是一种基于字符串存储的NoSQL，而Java是基于对象的语言，对象是无法存储到Redis中的，不过Java提供了序列化机制，只要类实现了java.io.Serializable接口，就代表类的对象能够进行序列化，通过将类对象进行序列化就能够得到二进制字符串。
 
+![2019-06-04_14-48-05.jpg](img/2019-06-04_14-48-05.jpg)
+
 Spring提供了RedisSerializer接口
 
 1. serialize，能把那些序列化的对象转化为二进制字符串；
@@ -758,6 +760,16 @@ Spring提供了RedisSerializer接口
 |hashKeySerializer|Redis散列结构field序列化器|如果没有设置，则使用默认序列化器|
 |hashValueSerializer|Redis散列结构value序列化器|如果没有设置，则使用默认序列化器|
 |stringSerializer|字符串序列化器|如果没有设置，则使用JdkSerializationRedisSerializer|
+
+	redisTemplate.opsForValue().set("key1", "value1");
+	redisTemplate.opsForHash().put("hash", "field", "hvalue");
+
+1. 在操作key1时，redisTemplate会先从连接工厂（RedisConnectionFactory）中获取一个连接，然后执行对应的Redis命令，再关闭这条连接
+2. 在操作hash时，从连接工厂中获取另一条连接，然后执行命令，再关闭该连接。
+
+一条连接操作多个动作，使用RedisCallback和SessionCallback
+
+StringRedisTemplate类，继承RedisTemplate，提供了字符串的操作。
 
 ### 7.1.3 Spring对Redis数据类型操作的封装 ###
 
@@ -825,7 +837,7 @@ spring-data-redis
 
 ### 7.2.1 在SpringBoot中配置Redis ###
 
-自动生成`RedisConnectionFactory`、`RedisTemplate`、`StringRedisTemplate`等常用的Redis对象。
+配置了连接池和服务器的属性，用以连接Redis服务器，SpringBoot的自动装配机制就会读取这些配置来生成有关Redis的操作对象。自动生成`RedisConnectionFactory`、`RedisTemplate`、`StringRedisTemplate`等常用的Redis对象。
 
 RedisTemplate会默认使用JdkSerializationRedisSerializer进行序列化键值，这样便能够存储到Redis服务器中。如果我们在Redis只是使用字符串，那么使用其自动生成的StringRedisTemplate即可，但是这样只能支持字符串了，并不能支持Java对象的存储。
 

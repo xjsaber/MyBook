@@ -38,10 +38,9 @@ public class RedisConfig {
         // 创建Jedis连接工厂
         JedisConnectionFactory connectionFactory = new JedisConnectionFactory(poolConfig);
         // 单机
-        RedisStandaloneConfiguration rsCfg = connectionFactory.getStandaloneConfiguration();
-        connectionFactory.setHostName("localhost");
+//        RedisStandaloneConfiguration rsCfg = connectionFactory.getStandaloneConfiguration();
+        connectionFactory.setHostName("120.55.56.16");
         connectionFactory.setPort(6379);
-        connectionFactory.setPassword("123456");
         this.connectionFactory = connectionFactory;
         return connectionFactory;
     }
@@ -55,7 +54,7 @@ public class RedisConfig {
 
     /**
      * 需要处理底层的转换规则，如果不考虑改写底层，尽量不使用它
-     * @param redisTemplate
+     * @param redisTemplate redisTemplate
      */
     public void useRedisCallback(RedisTemplate redisTemplate){
         redisTemplate.execute((RedisCallback) redisConnection -> {
@@ -66,6 +65,18 @@ public class RedisConfig {
     }
 
     public void useSessionCallback(RedisTemplate redisTemplate){
+        redisTemplate.execute(new SessionCallback() {
+            @Override
+            public Object execute(RedisOperations redisOperations) throws DataAccessException {
+                redisOperations
+                        .opsForSet()
+                        .add("key1", "value1");
+                redisOperations
+                        .opsForHash()
+                        .put("hash", "field", "hvalue");
+                return null;
+            }
+        });
         redisTemplate.execute(new SessionCallback() {
             @Override
             public Object execute(RedisOperations redisOperations) throws DataAccessException {
