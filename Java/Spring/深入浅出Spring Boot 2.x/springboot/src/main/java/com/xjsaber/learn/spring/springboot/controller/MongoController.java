@@ -29,8 +29,4 @@ public class MongoController {
         userService.saveUser(user);
         return user;
     }
-
-    public DeleteResult deleteUser(Long id){
-        return userService.
-    }
 }
