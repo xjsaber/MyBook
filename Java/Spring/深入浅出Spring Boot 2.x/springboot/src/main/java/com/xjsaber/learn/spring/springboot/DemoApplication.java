@@ -6,13 +6,12 @@ import com.xjsaber.learn.spring.springboot.mybatis.MyPlugin;
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.annotation.MapperScan;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.RedisSerializer;
@@ -31,6 +30,7 @@ import java.util.Properties;
 @SpringBootApplication
 //@EnableJpaRepositories(basePackages = "com.xjsaber.learn.spring.springboot.dao")
 //@EntityScan(basePackages = "com.xjsaber.learn.spring.springboot.pojo")
+@EnableCaching
 @EnableMongoRepositories(
 		basePackages = "com.xjsaber.learn.spring.springboot.dao",
 		// 使用自定义后缀，其默认值为Impl

@@ -884,9 +884,13 @@ Redis数据类型（如字符串、散列、列表、集合和有序集合）的
 
 ## 7.4 使用Spring缓存注解操作Redis ##
 
+Spring提供了缓存注解
+
 ### 7.4.1 缓存管理器和缓存的启用 ###
 
 Spring在使用缓存注解前，需要配置缓存管理器，缓存管理器将提供一些重要的信息，如缓存类型、超过时间等。
+
+Spring可以支持多种缓存的使用，因此它存在多种缓存处理器，并提供了缓存处理器的接口CacheManager和与之相关的类。
 
 CacheManager
 
@@ -896,6 +900,21 @@ CacheManager
 	spring.cache.cache-name = # 如果由底层的缓存管理器支持创建，以逗号分隔的列表来缓存名称
 	spring.cache.caffeine.spec = # caffeine 缓存配置细节
 	spring.cache
+
+	spring.cache.type=REDIS
+
+配置的缓存类型，为Redis，SpringBoot会自动生成RedisCacheManager对象
+
+	spring.cache.cache-names=redisCache
+
+配置缓存名称，多个名称可以使用逗号分隔，以便于缓存注解的引用
+
+	@EnableCaching 
+
+驱动Spring缓存机制工作
+
+### 7.4.2 开发缓存注解 ###
+
 
 
 	
