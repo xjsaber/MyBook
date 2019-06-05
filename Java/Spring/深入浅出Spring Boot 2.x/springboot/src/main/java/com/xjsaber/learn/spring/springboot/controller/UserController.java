@@ -1,10 +1,10 @@
 package com.xjsaber.learn.spring.springboot.controller;
 
+import com.xjsaber.learn.spring.springboot.pojo.MongoUser;
 import com.xjsaber.learn.spring.springboot.pojo.User;
 import com.xjsaber.learn.spring.springboot.pojo.UserValidator;
 import com.xjsaber.learn.spring.springboot.service.UserService;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -83,5 +83,14 @@ public class UserController {
             @RequestParam(value = "userName", required = false) String userName,
             @RequestParam(value = "note", required = false) String note) {
         return userService.findUsers(userName, note);
+    }
+
+    @RequestMapping("details")
+    public ModelAndView details(Long id){
+        MongoUser user = userService.getUser(id);
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("user/details");
+        mv.addObject("user", user);
+        return mv;
     }
 }

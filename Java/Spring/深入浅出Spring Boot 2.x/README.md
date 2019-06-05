@@ -992,19 +992,59 @@ Spring Data MongoDB主要是通过MongoTemplate进行操作数据的。
 
 ## 9.2 Spring MVC流程 ##
 
+Spring MVC中DispatcherServlet就是其最重要的内容。
+
+1. 在Web服务器启动的过程中，如果在Spring Boot机制下启用Spring MVC，它就开始初始化一些重要的组件，如DispactherServlet、HandlerAdapter的实现类RequestMappingHandlerAdapter等组件对象。
+2. 关于这些组件的初始化，看到spring-webmvc-xxx.jar包的属性文件DispatcherServlet.properties，她定义的对象都是在Spring MVC开始时就初始化，并且存放在Spring IoC容器中。
+
+![2019-06-05_10-30-36.jpg](img/2019-06-05_10-30-36.jpg)
+
+* @Controller表明这是一个控制器
+* @RequestMapping代表请求路径和控制器（或其方法）的映射关系，会在Web服务器启动Spring MVC时，就被扫描到HandlerMapping的机制中存储，之后在用户发起请求被DispatcherServlet拦截后，通过URI和其他的条件，通过HandlerMapping机制就能找到对应的控制器（或其方法）进行响应。只是通过HandlerMapping返回的是一个HandlerExecutionChain对象。
+
+	HandlerExecutionChain {
+		// 日志
+		private stateic final Log logger = logFactory.getLog(HandlerExecutionChain.class);
+		// 处理器
+		private final Object handler;
+		// 拦截器数组
+		private HandlerInterceptor[] interceptors;
+		// 拦截器列表
+		private List<HandlerInterceptor> interceptorList;
+		// 拦截器当前下标
+		private int interceptorIndex = -1;
+	}
+
+HandlerExecutionChain对象包含一个处理器（handler）。这里的处理器时对控制器（controller）的包装，因为我们的控制器方法可能存在参数，那么处理器就可以读入HTTP和上下文的相关参数，然后再传递给传递器方法。而在控制器执行完成返回后，处理器又可以通过配置信息对控制器的返回结果进行处理。
+
+# TODO #
+
 ## 9.3 定制Spring MVC的初始化 ##
 
+在Servlet3.0规范中，web.xml再也不是一个必需的配置文件。为了适应这个规范，Spring MVC从3.1版本开始也进行了支持，也就是我们已经不再需要通过任何的XML去配置Spring MVC的运行环境。
 
+正如Spring Boot的宗旨，消除XML的繁杂配置。为了支持对于Spring VMC的配置，Spring提供了接口WebMvcConfigurer，这是一个基于Java 8的接口，大部分方法都是支持default类型的。但是它们都是空实现，开发者只需要实现这个接口，重写需要自定义的方法即可。
+
+在Spring Boot中，自定义是通过配置类WebMvcAutoConfiguration定义的，有一个静态的内部类WebMvcAutoConfigurationAdapter，通过它的Spring Boot就自动配置了Spring MVC的初始化。
+
+![2019-06-05_14-29-52](img/2019-06-05_14-29-52.jpg)
+
+在WebMvcAutoConfigurationAdapter类中，读入Spring配置Spring MVC的属性来初始化对应组件
 
 ## 9.4 Spring MVC实例 ##
+
+Spring MVC的开发核心时控制器的开发，
+
+1. 定义请求分发，让Spring MVC能够产生HandlerMapping
+2. 接收请求获取参数
+3. 处理业务逻辑获取数据模型
+4. 绑定视图和数据模型。
 
 ### 9.4.1 开发控制器 ###
 
 当方法被标注后，也可以定义部分URL，这样就能让请求的URL找到对应的路径。配置了扫描路径之后，Spring MVC扫描机制就可以将其扫描，并且装载为HandlerMapping，以备后面使用。
  
 ### 9.4.2 视图和视图渲染 ###
-
-
 
 # 第10章 深入Spring MVC开发 #
 
@@ -1018,8 +1058,83 @@ Spring Data MongoDB主要是通过MongoTemplate进行操作数据的。
 6. 返回给DispatcherServlet
 7. DispathcerServlet就可以运行他们
 
+	public @interface RequestMapping {
+		// 配置请求映射名称
+	    String name() default "";
+		
+		// 通过路径映射
+	    @AliasFor("path")
+	    String[] value() default {};
+	
+		// 通过路径映射回path配置项
+	    @AliasFor("value")
+	    String[] path() default {};
+		
+		// 限定只响应HTTP请求类型，如GET、POST、HEAD、OPTIONS、PUT、TRACE等
+	    RequestMethod[] method() default {};
+		
+		// 当存在对应的HTTP参数时才响应请求
+	    String[] params() default {};
+		
+		// 限定请求头存在对应的参数时才响应
+	    String[] headers() default {};
+	
+		// 限定HTTP请求体提交类型，如"application/json"、"text/html"
+	    String[] consumes() default {};
+		
+		// 限定返回内容类型，仅当HTTP请求头中的（Accept）类型中包含该指定类型时才返回
+	    String[] produces() default {};
+	}
 
 ## 10.2 获取控制器参数 ##
+
+处理器是对控制器的包装，在处理器运行的过程中会调度控制器的方法，只是它在进入控制器方法之前对HTTP的参数和上下文进行解析，将它们转化为控制器所需的参数。
+
+### 10.2.1 在无注解下获取参数 ###
+
+    @GetMapping("/no/annotation")
+    @ResponseBody
+    public Map<String, Object> noAnnotation(Integer intVal, Long longVal, String str){
+        Map<String, Object> paramsMap = new HashMap<>(8);
+        paramsMap.put("intVal", intVal);
+        paramsMap.put("longVal", longVal);
+        paramsMap.put("str", str);
+        return paramsMap;
+    }
+
+	http://localhost:8080/my/no/annotation?intVal=10&longVal=200
+
+### 10.2.2 使用@RequestParam获取参数 ###
+
+@RequestParam，其目的是指定HTTP参数和方法参数的映射关系，这样处理器就会按照其配置的映射关系来得到参数，然后调用控制器的方法。
+
+	@GetMapping("/annotation")
+    @ResponseBody
+    public Map<String, Object> requestParam(@RequestParam("int_val") Integer intVal,@RequestParam("long_val") Long longVal, @RequestParam("str") String str){
+        Map<String, Object> paramsMap = new HashMap<>(8);
+        paramsMap.put("intVal", intVal);
+        paramsMap.put("longVal", longVal);
+        paramsMap.put("str", str);
+        return paramsMap;
+    }
+
+	@RequestParam(value="str_val", required=false) String strVal
+
+### 10.2.3 传递数组 ###
+
+	@GetMapping("/requestArray")
+    @ResponseBody
+    public Map<String, Object> requestArray(int[] intArr,Long[] longArr, String[] strArr){
+        Map<String, Object> paramsMap = new HashMap<>(8);
+        paramsMap.put("intVal", intArr);
+        paramsMap.put("longVal", longArr);
+        paramsMap.put("str", strArr);
+        return paramsMap;
+    }
+
+	http://localhost:8080/my/requestArray?intArr=1,2,3&longArr=4,5,6&strArr=str1,str2,str3
+
+### 10.2.4 传递JSON ###
 
 ## 10.3 自定义参数转换规则 ##
 
