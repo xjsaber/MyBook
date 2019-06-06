@@ -1180,17 +1180,161 @@ Spring MVC的开发核心时控制器的开发，
 
 ## 10.10 Spring MVC拾遗 ##
 
+### 10.10.1 @ResponseBody转换为JSON的秘密 ###
+
+@ResponseBody注解，处理器就会记录这个方法的响应类型为JSON数据集。当执行完控制器返回后，处理器会启用结果解析器（ResultResolver）去解析这个结果，它会去轮询注册给SpringMVC的HttpMessageConverter接口的实现类。
+
+因为MappingJacson2HttpMessageConverter这个实现类已经被SpringMVC所注册，加上Spring MVC将控制器的结果类型标明为JSON，所以就匹配上了，于是通过它就在处理器内部把结果转换为了JSON。
+
+![2019-06-06_9-44-39.jpg](img/2019-06-06_9-44-39.jpg)
+
+### 10.10.2 重定向 ###
+
+### 10.10.3 操作会话对象 ###
+
+* @SessionAttribute 应用于参数，作用是将HttpSession中的属性读出，赋予控制器的参数
+* @SessionAttributes 只能用于类的注解，将相关数据模型的属性保存到Session中
+
+### 10.10.4 给控制器增加通知 ###
+
+Spring MVC给控制器添加通知，于是在控制器方法的前后和异常发生时去执行不同的处理，这里设计4个注解：@ControllerAdvice、@InitBinder、@ExceptionHandler和@ModelAttribute
+
+* @ControllerAdvice：定义一个控制器的通知类，允许定义一些关于增强控制器的各类通知和限定增强哪些控制器功能等。
+* @InitBinder：定义控制器发生异常后的操作。一般来说，发生异常后，可以跳转到指定的友好页面，以避免用户使用的不友好。
+* @ExceptionHandler：定义控制器发生异常后的操作。一般来说，发生异常后，可以跳转到指定的友好页面，以避免用户使用的不友好。
+* @ModelAttribute:可以在控制器方法执行之前，对数据模型进行操作
+
+### 10.10.5 获取请求头参数 ###
+
+通过注解`@requestHeader`进行获取。
+
+	...
+	headers: {id : '1'},
+	...
+
+	public User headerUser(@RequestHeader("id") Long id) {
+		...
+	}
+
 # 第11章 构建REST风格网站 #
 
 # 第12章 安全——Spring Security #
 
 # 第13章 学点Spring其他的技术 #
 
+## 13.1 异步线程池 ##
+
+### 13.1.1 定义线程池和开启异步可用 ###
+
+在Spring中存在一个AsyncConfigurer接口，它是一个可以配置异步线程池的接口。
+
+1. getAsyncExecutor方法返回的是一个自定义线程池，这样在开启异步时，线程池就会提供空闲线程来执行异步任务。
+
+### 13.1.2 异步实例 ###
+
+@EnableAsync代表开启Spring异步。这样就可以使用@Async驱动Spring使用异步，但是异步需要提供可用线程池。
+
+## 13.2 异步消息 ##
+
+JMS（Java Message Service，Java消息服务）。JMS按其规范分为点对点（Point-to-Point）和发布订阅（Publish/Subscribe）两种形式。点对点就是将一个系统的消息发布到指定的另外一个系统，这样另外一个系统就能获得消息，从而处理对应的业务逻辑；发布订阅模式是一个系统约定将消息发布到一个主题（Topic）中，然后各个系统就能够通过订阅这个主题，根据发送过来的信息处理对应的业务。
+
+### 13.2.1 JMS实例——ActiveMQ ###
+
+## 13.3 定时任务 ##
+
+## 13.4 WebSocket应用 ##
+
+WebSocket协议是基于TCP的一种新的网络协议。实现了浏览器与服务器全双工（full-duplex）通信——允许服务器主动发送信息给客户端，这样就可以实现从客户端发送消息到服务器，而服务器又可以转发消息到客户端，这样就能够实现客户端之间的交互。
+
+### 13.4.1 开发简易的WebSocket服务 ###
+
+对于WebSocket的使用，可以先通过Spring创建Java配置文件。这个文件中，先新建ServerEndpointExporter对象，通过它可以定义WebSocket服务器的端点，客户端就能请求服务器的端点。
+
+    @Bean
+    public ServerEndpointExporter serverEndpointExporter() {
+        return new ServerEndpointExporter();
+    }
+
+有了这个Bean，就可以使用@ServerEndpoint定义一个端点服务类。在这个站点服务类中，定义WebSocket的打开、关闭、错误和发送消息的方法。
+
+* @ServiceEndpoint("/ws"):表示让Spring创建WebSocket的服务端点，其中请求地址是“/ws”。
+* @OnOpen：标注客户端打开WebSocket服务端点调用方法。
+* @OnClose：标注客户端关闭WebSocket服务端点调用方法。
+* @OnMessage：标注客户端发送消息，WebSocket服务端点调用方法。
+* @OnError：标注客户端请求WebSocket服务端点发生异常调用方法。
+
+每一个客户端打开时，都会为其创建一个WebSocketServiceImpl对象，所以这里打开方法中都会去计数并且将这个对象保存到CopyOnWriteArraySet中，知道拥有多少连接。对于关闭方法则是清除这个对象，并且计数减一。对于消息发送方法，则是通过轮询对所有的客户端连接都给予发送消息，所以所有的连接都可以收到这个消息。
+
+### 13.4.2 使用STOMP ###
+
+并不是所有的浏览器都能够支持WebSocket协议，为了使得WebSocket的应用能够兼容那些不支持的浏览器，可以使用STOMP协议进行处理。
+
+1. 需要在配置文件中加入注解@EnableWebSocketMessageBroker，这个注解将会启动WebSocket下的子协议STOMP
+2. 为了配置这个协议，可以实现Spring提供给接口WebSocketMessageBrokerConfigurer。
+
+Spring提供了这个接口的空实现的抽象类AbstractWebSocketMessageBrokerConfigurer通过覆盖它所定义的方法即可。
+
 # 第14章 Spring5新框架——WebFlux #
+
+## 14.1 基础概念 ##
+
+### 14.1.1 响应式编程的宣言 ###
+
+### 14.1.2 Reactor模型 ###
+
+1. 客户端会先向服务器注册其感兴趣的事件（Event），这样客户端就订阅了对应的事件，只是订阅事件并不会给服务器发送请求。
+2. 当客户端发生一些已经注册的事件时，就会触发服务器的响应。
+3. 当触发服务器响应时，服务器存在一个Selector线程，这个线程只是负责轮询客户端发送过来的事件，并不处理请求，当它接收到有客户端事件时，就会找到对应的请求处理器（Request Handler），然后启用另外一条线程运行处理器。
+
+### 14.1.3 Spring WebFlux的概述 ###
+
+在Servlet3.1，Web容器都是基于阻塞机制开发的，而在Servlet3.1（包含）之后，就开始了非阻塞的规范。
+
+* Router Functions:是一个路由分发层，也就是会根据请求的事件，决定采用什么类的什么方法处理客户端发送过来的事件请求。类似在Reactor模式中，起到Selector的作用。
+* Spring-webflux:是一种控制器，类似Spring MVC框架的层级，主要处理业务逻辑前进行的封装和控制数据流返回格式等。
+* HTTP/Reactive Streams:是将结果转换为数据流的过程。对于数据流的处理还存在一些重要的细节。
+
+Spring WebFlux需要能够支持Servlet3.1+的容器。
+
+在Spring
+
+在Spring WebFlux，两种开发方式
+
+1. 类似于Spring MVC的模式
+2. 函数功能性的编程
+
+数据流的封装，Reactor提供的Flux和Mono，封装数据流的类。
+
+1. Flux是存放0~N个数据流序列，响应式框架会一个接一个地（非一次性）将它们发送到客户端
+2. Mono则是存放0~1个数据流序列
+
+相互的区别，又可以相互转换的。
+
+Flux还有背压（Backpressure）的概念，对于客户端，有时候响应能力距离服务端有很大的差距，如果在很短的时间内服务端将大量的数据流传输给客户端，那么客户端就可能被压垮。
+
+### 14.1.4 WebHandler接口和运行流程 ###
+
+## 14.2 通过Spring MVC方式开发WebFlux服务端 ##
+
+## 14.3 深入WebFlux服务端开发 ##
+
+## 14.4 深入客户端开发 ##
+
+## 14.5 使用路由函数方式开发WebFlux ##
+
+体现了高并发的特性，也符合函数式编程
+
+### 14.5.1 开发处理器 ###
+
+开发路由函数方式
+
+1. 开发一个处理器（Handler）用来处理各种场景。
 
 # 第15章 实践一下——抢购商品 #
 
 # 第16章 部署、测试和监控 #
 
 # 第17章 分布式开发——Spring Cloud #
+
+
 
