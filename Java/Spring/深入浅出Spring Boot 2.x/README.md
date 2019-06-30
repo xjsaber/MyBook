@@ -504,7 +504,78 @@ Spring提供了RedisSerializer接口
 
 # 第11章 构建REST风格网站 #
 
+## 11.1 REST简述 ##
+
+### 11.1.1 REST名词解释 ###
+
+1. 资源：系统权限用户、角色和菜单，也可以是一些媒体类型。
+2. 表现层：有了资源还需要确定如何表现这个资源。
+3. 状态转换：现实的资源并不是一成不变的，是一个变化的过程，一个资源可以经历创建（create）、访问（visit）、修改（update）和删除（delete）的过程。对于HTTP协议，是一个没有状态的协议，这也意味着资源的状态变化只能在服务端保存和变化。
+
+* 服务端存在一系列的资源，每一个资源通过单独唯一的URI进行标识
+* 客户端和服务器之间可以相互传递资源，而资源会以某种表现层得以展示
+* 客户端通过HTTP协议所定义的动作对资源进行操作，以实现资源的状态转换。
+
+### 11.1.2 HTTP的动作 ###
+
+创建（create）、修改（update）、访问（visit）和删除（delete）的状态转换
+
+* GET（VISIT）:访问服务器资源（一个或多个资源）。
+* POST（CREATE）：提交服务器资源信息，用来创建新的资源。
+* PUT（UPDATE）：修改服务器已经存在的资源，使用PUT时需要把资源的所有属性一并提交。
+* PATCH（UPDATE）：修改服务器已经存在的资源，使用PATCH时只需要将部分资源属性提交。目前这个动作并不常用也不普及，需要慎重使用。
+* DELETE（DELETE）：从服务器将资源删除
+* 不常用的动作——HEAD：获取资源的元数据（Content-type）。
+* 不常用的动作——OPTIONS：提供资源可供客户端修改的属性信息。
+
+REST风格的URI设计
+
+	#获取用户信息，1是用户编号
+	GET /user/1
+	#查询多个用户信息
+	GET /users/{userName}/{note}
+	#创建用户
+	POST /user/{userName}/{sex}/{note}
+	#修改用户全部属性 
+	PUT /user/{id}/{userName}/{sex}/{note}
+	#修改用户名称（部分属性）
+	PATCH /user/{id}/{userName}
+
+### 11.1.3 REST风格的一些误区 ###
+
+* 不应该出现动词
+* 不应该出现版本号
+* 不推荐使用类似于 PUT users?userName=user_name&note=note
+
+## 11.2 使用Spring MVC开发REST风格端点 ##
+
+### 11.2.1 Spring MVC整合REST ###
+
+* @RequestMapping：让URL映射到对应的服务器
+* @GetMapping：对应HTTP的GET请求，获取资源
+* @PostMapping：对应HTTP的POST请求，创建资源
+* @PutMapping：对应HTTP的PUT请求，提交所有资源属性以修改资源
+* @PatchMapping：对应HTTP的PATCH请求，提交资源部分修改的属性
+* @DeleteMapping：对应HTTP的DELTE请求，删除服务端的资源
+
+@PathVariable
+
+`MappingJackson2HttpMessageConverter`将数据转换为JSON数据集
+`@RestController`让整个控制器都默认转换为JSON数据集。
+
+Spring提供了一个协商资源的视图解析器——`ContentNegotiatingViewResolver`
+
+### 11.2.2 使用Spring开发REST风格的端点 ###
+
+## 11.3 客户端请求RestTemplate ##
+
+### 11.3.1 使用RestTemplate请求后端 ###
+
+
+
 # 第12章 安全——Spring Security #
+
+
 
 # 第13章 学点Spring其他的技术 #
 
