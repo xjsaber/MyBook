@@ -3,11 +3,15 @@ package com.xjsaber.learn.spring.springboot.service.impl;
 import com.xjsaber.learn.spring.springboot.enumeration.SexEnum;
 import com.xjsaber.learn.spring.springboot.pojo.User;
 import com.xjsaber.learn.spring.springboot.service.JdbcTmpUserService;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.List;
 
 /**
@@ -16,7 +20,7 @@ import java.util.List;
 @Service
 public class JdbcTmpUserServiceImpl implements JdbcTmpUserService {
 
-    private JdbcTemplate jdbcTemplate = null;
+    private JdbcTemplate jdbcTemplate;
 
     public JdbcTmpUserServiceImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -49,8 +53,62 @@ public class JdbcTmpUserServiceImpl implements JdbcTmpUserService {
     public User getUser(Long id) {
         String sql = " select id, user_name, note, sex, note from t_user where id = ? ";
         Object[] params = new Object[] {id};
-        User user = jdbcTemplate.queryForObject(sql, params, getUserMapper());
-        return user;
+        try {
+            return jdbcTemplate.queryForObject(sql, params, getUserMapper());
+        }catch (EmptyResultDataAccessException ex){
+            return null;
+        }
+    }
+
+    /**
+     * 使用StatementCallback和ConnectionCallback执行多条SQL
+     * @param id 编号
+     * @return 用户信息
+     */
+    public User getUser2(Long id){
+        //通过Lambda表达式使用StatementCallback
+        User result = this.jdbcTemplate.execute((Statement stmt) -> {
+            String sql = " select count(*) total from t_user where id = " + id;
+            ResultSet rs1 = stmt.executeQuery(sql);
+            while (rs1.next()){
+                int total = rs1.getInt("total");
+                System.out.println(total);
+            }
+            String sql2 = " select id, user_name, sex, note from t_user "
+                    + " where id = " + id;
+            ResultSet rs2 = stmt.executeQuery(sql2);
+            User user = null;
+            while (rs2.next()){
+                int rowNum = rs2.getRow();
+                user = getUserMapper().mapRow(rs2, rowNum);
+            }
+            return user;
+        });
+        return result;
+    }
+
+    public User getUser3(Long id){
+        return jdbcTemplate.execute((Connection conn) -> {
+            String sql1 = " select count(*) as total from t_user "
+                    + " where id = ?";
+            PreparedStatement ps1 = conn.prepareStatement(sql1);
+            ps1.setLong(1, id);
+            ResultSet rs1 = ps1.executeQuery();
+            while (rs1.next()){
+                System.out.println(rs1.getInt("total"));
+            }
+            String sql2 = " select id, user_name, sex, note from t_user "
+                    + " where id = ? ";
+            PreparedStatement ps2 = conn.prepareStatement(sql2);
+            ps2.setLong(1, id);;
+            ResultSet rs2 = ps2.executeQuery();
+            User user = null;
+            while (rs2.next()){
+                int rowNum = rs2.getRow();
+                user = getUserMapper().mapRow(rs2, rowNum);
+            }
+            return user;
+        });
     }
 
     /**
@@ -65,8 +123,7 @@ public class JdbcTmpUserServiceImpl implements JdbcTmpUserService {
                 + " where user_name like concat('%', ?, '%') "
                 + " and note like concat('%', ?, '%')";
         Object[] params = new Object[] {userName, note};
-        List<User> userList = jdbcTemplate.query(sql, params, getUserMapper());
-        return userList;
+        return jdbcTemplate.query(sql, params, getUserMapper());
     }
 
     /**
