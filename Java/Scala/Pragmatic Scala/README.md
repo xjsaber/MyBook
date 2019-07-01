@@ -177,11 +177,11 @@ Scala在protected修饰符上的限制比Java更多
 Scala提供了Java中不支持的特性：元祖、多重赋值、命名参数、默认值、隐式参数、多行字符串、字符串插值以及更加灵活的访问修饰符。
 
 
-## 第4章 处理对象 ##
+# 第4章 处理对象 #
 
-### Creating and Using Classes ###
+## 4.1 Creating and Using Classes 4.1 创建并使用 ##
 
-### 创建实例 ###
+### 4.1.1 创建实例 ###
 
 	new StringBuilder()
 
@@ -189,7 +189,7 @@ Scala把空括号看作多余的。
 
 	new StringBuilder
 
-#### Creating Classes ####
+### 4.1.2 Creating Classes 创建类  ###
 
 	class Car(val year: Int) {
 		private var milesDriven: Int = 0
@@ -212,6 +212,29 @@ Scala把空括号看作多余的。
 ### 扩展一个类 ###
 
 ### 参数化类型 ###
+
+
+## 4.7 创建枚举类 ##
+
+枚举是一个扩展了Enumberation类的对象。使用关键字val定义了枚举所选中的实力。
+
+	pageage finance.currencies
+
+	object Currency extends Enumberation {
+		type Currency = Value
+		val CNY, GBP, INR, JPY. NOK, PLN, SEK, USD = Value
+	}
+
+	object UseCurrency extends App {
+		Currency.values.foreach { currency => println(currency) }
+	}
+
+## 4.8 包对象 ##
+
+Java的包中只含有接口、类、枚举和注解类型。
+
+Scala更进一步，包中还可以有变量和函数。都放在一个称为包对象（package object）的特殊的单例对象中。
+
 
 
 ## 第5章 善用类型 ##
