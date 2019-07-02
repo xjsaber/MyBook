@@ -31,13 +31,13 @@ public class EventStorage {
     }
 
     public synchronized void get(){
-        if (storage.size() > 0) {
-            try {
-                wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+//        if (storage.size() > 0) {
+//            try {
+//                wait();
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//        }
         while (storage.size() == 0){
             try {
                 wait();

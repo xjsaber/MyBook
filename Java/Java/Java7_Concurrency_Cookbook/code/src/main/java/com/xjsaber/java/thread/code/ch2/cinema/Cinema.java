@@ -32,7 +32,7 @@ public class Cinema {
     public boolean sellTicket2(int number){
         synchronized (controlCinemal1) {
             if (number < vacanciesCinema1) {
-                vacanciesCinema1 -= number;
+                vacanciesCinema2 -= number;
                 return true;
             }
             else {
