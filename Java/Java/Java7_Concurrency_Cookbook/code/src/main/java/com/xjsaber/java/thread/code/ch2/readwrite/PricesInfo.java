@@ -11,6 +11,9 @@ public class PricesInfo {
     private double price1;
     private double price2;
 
+    /**
+     * 读写锁ReadWriteLock
+     */
     private ReadWriteLock lock;
 
     public PricesInfo(){

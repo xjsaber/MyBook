@@ -337,7 +337,6 @@ EventStorage类的set()和get()方法。
 
 PS:必须在while循环中调用wait()，并且不断查询while的条件，直到条件为真的时候才能继续。
 
-
 1. set()方法检查列表storage是否还有空间，如果满了，就调用wait()方法挂起线程并等待空余空间出现。
 2. 当其他线程调用notifyAll()方法时，挂起的线程将被唤醒并且再次检查这个条件。
 3. notifyAll()并不保证哪个线程会被唤醒。这个过程持续进行直到存储列表有空余空间出现，然后生产者将生成一个新的数据并且存入存储列表storage。
@@ -382,6 +381,8 @@ ReentrantLock类允许使用递归调用。如果一个线程获取了锁并且�
 **更多信息**
 
 ReetranReadWriteLock类有两个锁：一种是都操作锁，另一种是写操作锁。读操作锁是通过ReadWriteLock接口的readLock()方法获取的，这个锁实现了Lock接口，所以可以使用lock()，unlock()和tryLock()方法。写操作锁是通过ReadWriteLock接口的writeLock()方法获取的，这个锁同样也实现了Lock接口，所以可以使用lock()、unlock()和tryLock()方法。
+
+当获取Lock接口地读锁时，不可以进行修改操作，否则将引起数据不一致地错误。
 
 **参见**
 

@@ -13,7 +13,7 @@ public class Writer implements Runnable{
     @Override
     public void run() {
         for (int i = 0; i < 3; i++){
-            System.out.printf("Writer: Attempt to modify the prices.\n");
+            System.out.print("Writer: Attempt to modify the prices.\n");
             pricesInfo.setPrices(Math.random() * 10, Math.random() * 8);
             try {
                 Thread.sleep(2);
