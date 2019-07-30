@@ -110,13 +110,38 @@ SLA（Service-Level Agreement），也就是服务等级协议，指的是系统
 
 ## 07 | Workflow设计模式：让你在大规模数据世界中君临天下 ##
 
+## 08 | 发布/订阅模式：流处理架构中的瑞士军刀 ##
+
+## 09 | CAP定理：三选二，架构师必须学会的取舍 ##
+
+## 10 | Lambda架构：Twitter亿级实时数据分析架构背后的倚天剑 ##
+
+## 11 | Kappa架构：利用Kafka锻造的屠龙刀 ##
+
 # 模块三|抽丝剥茧剖析 #
 
 ## 12 | 我们为什么需要Spark？ ##
 
 ## 13 | 弹性分布式数据集：Spark大厦的地基（上） ##
 
+### 为什么需要新的数据抽象模型？ ###
+
+### RDD的定义 ###
+
+#### RDD表示已被分区、不可变的，并能够被并行操作的数据集合 ####
+
+#### 分区 ####
+
 ## 14 | 弹性分布式数据集：Spark大厦的地基（下） ##
+
+### RDD的结构 ###
+
+检查点（Checkpoint）、存储级别（Storage Level）和迭代函数（Iterator）
+
+* MEMORY_ONLY
+* MEMORY_AND_DISK
+* DISK_ONLY
+* MEMORY_ONLY_2
 
 ## 15 | Spark SQL:Spark数据查询的利器 ##
 
