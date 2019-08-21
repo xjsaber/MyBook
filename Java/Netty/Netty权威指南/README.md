@@ -657,6 +657,19 @@ MsgpackEncoder继承MessgeToByteEncoder，它负责将Object类型的POJO对象�
 
 ## 第9章 JBoss Marsshalling 编解码 ##
 
+# 高级篇 Netty多协议开发和应用 #
+
+## 第10章 HTTP协议开发应用 ##
+
+### 10.1 HTTP协议介绍 ###
+
+HTTP是一个属于应用层的面向对象的协议。
+
+* 支持Client/Server模式；
+* 简单——客户向服务器请求服务时，只需指定服务URL，携带必要的请求参数或者消息体；
+* 灵活——HTTP允许传输
+* 无状态——HTTP
+
 ## 第11章 WebSocket协议开发 ##
 
 ### 11.1 HTTP协议的弊端 ###
@@ -731,7 +744,17 @@ WebSocketServerHandler
 
 #### 24.1.3 Netty面临的安全风险 ####
 
-24.2 Netty SSL 安全特性
+### 24.2 Netty SSL 安全特性 ###
+
+### 24.3 Netty SSL源码 ###
+
+#### 24.3.1 客户端 ####
+
+
+
+### 24.4 Netty扩展的安全特性 ###
+
+
 
 ## 第25章 Netty未来展望 ##
 
