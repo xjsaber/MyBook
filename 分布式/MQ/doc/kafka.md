@@ -18,3 +18,13 @@ tar -zxvf kafka_2.12-2.3.0.tgz
 
 1. bin/zookeeper-server-start.sh config/zookeeper.properties
 2. bin/kafka-server-start.sh config/server.properties
+
+#### topic ####
+
+1. bin/kafka-topics.sh --list --bootstrap-server localhost:9092
+
+#### Send some messages ####
+
+#### Start a consumer ####
+
+Se
