@@ -6,6 +6,7 @@
 
 #### 常用 ####
 
+cd /usr/workplace
 tar -zxvf kafka_2.12-2.3.0.tgz
 
 #### Base ####
@@ -27,4 +28,3 @@ tar -zxvf kafka_2.12-2.3.0.tgz
 
 #### Start a consumer ####
 
-Se
