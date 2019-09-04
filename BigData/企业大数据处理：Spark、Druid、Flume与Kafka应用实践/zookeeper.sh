@@ -1,3 +1,6 @@
+初始化
+mkdir /data/zookeeper
+mkdir /data/zookeeper/data
 下载安装包并解压
 wget http://mirror.bit.edu.cn/apache/zookeeper/zookeeper-3.5.5/apache-zookeeper-3.5.5.tar.gz
 #解压到/data/soft目录下
