@@ -91,3 +91,15 @@ Kafka的消息通过主题进行分类。主题可以被分位若干个分区
 
 #### 2.6.2 broker配置 ####
 
+## 第3章 Kafka生产者——向Kafka写入数据 ##
+
+### 3.1 生成者概览 ###
+
+### 3.2 创建Kafka生产者 ###
+
+**bootstrap.servers**
+
+指定broker的地址清单，地址的格式为host:port
+key.serializer
+value.serializer
+

@@ -11,4 +11,4 @@ vim config/server.properties
 #
 #
 bin/kafka-server-start.sh config/server.properties
-bin/kafka-server-start.sh config/server.properties -daemon # 守护进程
+bin/kafka-server-start.sh -daemon config/server.properties  # 守护进程
