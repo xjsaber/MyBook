@@ -36,5 +36,28 @@
 
 ## 第4章 producer开发 ##
 
+### 4.1 producer概览 ###
+
+### 4.2 构造producer ###
+
+#### 4.2.1 producer程序实例 ####
+
+**1. 构造Properties对象**
+
+*bootstrap.servers*
+
+指定一组host:port,用于创建向Kafka broker服务器的连接，比如k1:9092，k2:9092, k3:9092
+
+producer使用时需要替换成实际的broker列表。
+
+如果broker端没有显式配置listeners使用IP地址，最好将该参数配置成主机名，而不是IP地址（FQDN）
+
+*key.serializer*
+
+被发送到broker端的任何消息的格式都必须是字节数组。生产者接口允许
 
 
+
+*value.serializer*
+
+与key.serializer一样，value.serializer指定的类会将值序列化。如果键和值都是字符串，可以使用
