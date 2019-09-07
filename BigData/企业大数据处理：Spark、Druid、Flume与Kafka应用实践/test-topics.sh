@@ -36,4 +36,9 @@ bin/kafka-topics.sh --zookeeper 192.168.33.142:2181,192.168.33.140:2181,192.168.
 #### Send Message ####
 
 bin/kafka-console-production.sh --broker-list 192.168.33.142:9092,192.168.33.140:9092,192.168.33.146:9092 --topic test-topic
+bin/kafka-console-consumer.sh --bootstrap-server 192.168.33.142:9092,192.168.33.140:9092,192.168.33.146:9092 --topic test-topic --from-beginning
 
+# 生产者吞吐量测试
+bin/kafka-producer-pref-test.sh --topic test-topic --num-records 500000 --record -size 200 --throughput -1 --producer-props bootstrap.servers=192.168.33.142:9092,192.168.33.140:9092,192.168.33.146:9092 acks
+# 消费者吞吐量测试
+bin/kafka-consumer-pref-test.sh --broker-list 192.168.33.142:9092,192.168.33.140:9092,192.168.33.146:9092 --message-size 200 --messages 500000 --topic test-topic
