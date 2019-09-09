@@ -84,10 +84,32 @@ producer使用时需要替换成实际的broker列表。
 
 *key.serializer*
 
-被发送到broker端的任何消息的格式都必须是字节数组。生产者接口允许
+被发送到broker端的任何消息的格式都必须是字节数组。各个组件首先做序列化，然后才能发送到broker。
 
-
+org.apache.kafka.common.serialization.StringSerializer，该类会一个字符串类型转换成字节数组。
 
 *value.serializer*
 
-与key.serializer一样，value.serializer指定的类会将值序列化。如果键和值都是字符串，可以使用
+与key.serializer类似，只是被用来对消息体（即消息value）部分序列化。
+
+**2. 构造KafkaProducer对象**
+
+KafkaProducer是producer的主入口
+
+	Producer<String, String> producer = new KafkaProducer<>(props);
+
+**3. 构造ProducerRecord对象**
+
+**4. 发送消息**
+
+异步发送
+
+
+
+
+同步发送
+
+
+**5. 关闭producer**
+
+#### 4.2.2 producer主要参数 ####
