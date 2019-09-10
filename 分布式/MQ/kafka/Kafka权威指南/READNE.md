@@ -107,7 +107,7 @@ Kafka的消息通过主题进行分类。主题可以被分位若干个分区
 
 **bootstrap.servers**
 
-指定broker的地址清单，地址的格式为host:port
+指定broker的地址清单，地址的格式为host:port（建议提供两个broker的信息，一个宏机还能切换到另一个）
 
 **key.serializer**
 
@@ -119,6 +119,10 @@ ByteArraySerializer（很少做）、StringSerializer和IntegerSerializer
 
 
 **value.serializer**
+
+1. 新建一个Properties对象
+2. 打算把键值定义成字符串，所以使用内置的StringSerializer。
+3. 创建一个新的生产者对象，并为键值设置恰当的类型，并且把Properties对象传给它
 
 
 *发送并忘记（fire-and-forget）*
@@ -133,15 +137,20 @@ send()方法发送消息，返回一个Future对象。调用get()方法进行等
 
 调用send()方法，并指定一个回调函数，服务器在返回响应时调用该函数。
 
+刚开始使用单个消费者和单个线程。如果需要更高的吞吐量，可以在生产者数量不变的前提下增加线程数量。这样做还不够，则增加生产者数量。
+
 ### 3.3 发送消息到Kafka ###
 
-1. 生产者的send()方法将ProducerRecord对象作为参数。
+1. 生产者的send()方法将ProducerRecord对象作为参数。先创建一个ProducerRecord对象
 2. 发送ProducerRecord对象。消息先是被放进缓冲区，然后使用单独的线程发送到服务器端。send()方法会返回一个包含RecordMetadata的Future对象。
 3. SerialazationException（说明序列化消息失败）、BufferExhaustedException或TimeoutException（说明缓冲区已满），又或者是InterupException（说明发送线程被中断）
 
 #### 3.3.1 同步发送消息 ####
 
-1. producer.send()方法先返回一个Future对象，
+1. producer.send()方法先返回一个Future对象，然后调用Future对象的get()方法等待Kafka响应。
+	* 如果服务器返回错误，get()方法会抛出异常
+	* 没有错误，则会得到一个RecordMetadata对象，获取信息的偏移量
+2. 
 
 
 ### 3.4 生产者的配置 ###
@@ -156,23 +165,35 @@ acks参数指定了必需要有多少个分区副本收到消息，生产者才�
 
 #### 2. buffer.memory ####
 
+设置生产者内存缓冲区的大小，生产者用它缓冲要发送到服务器的消息。如果应用服务器发送的消息的速度超过发送到服务器的速度，会导致生产者空间不足。
+
+send()方法调用要么被阻塞，要么抛出异常，取决于如何设置block.on.buffer.full参数
+
 #### 3. compression.type ####
+
+snappy、gzip或lz4
 
 #### 4. retries ####
 
+决定了生产者可以重发消息的次数。如果达到这个次数，生产者会放弃重试并返回错误。默认情况下，生产者会在每次重试之间等待100ms。
+
 #### 5. batch.size ####
+
+当有多个消息需要被发送到同一个分区时，生产者会把它们放在同一个批次里。该参数指定了一个批次可以使用的内存大小，按照字节数计算（而不是消息个数）。
 
 #### 6. linger.ms ####
 
-
+KafkaProducer会在批次填满或linger.ms达到上限时间把批次发送出去。
 
 #### 7. client.id ####
 
-可以时任意的字符串。
+可以时任意的字符串。服务器会识别来源。
 
 #### 8. max.in.flight.requests.per.connection ####
 
+指定了生产者在收到服务器响应之前可以发送多少个消息。
 
+把它设为1可以保证消息时按照发送的顺序写入服务器的。
 
 #### 9. timeout.ms、request.timeout.ms和metadata.fetch.timeout.ms ####
 
@@ -208,9 +229,25 @@ send()方法、partitionsFor()方法获取元数据时生产者的阻塞时间�
 
 #### 3.5.2 使用Avro序列化 ####
 
+#### 3.5.3 在Kafka里使用Avro ####
+
+
+
 ### 3.6 分区 ###
 
+ProducerRecord对象包含了目标主题、键和值。Kafka的消息是一个个键值对，ProducerRecord对象可以只包含目标主题和值，键可以设置为默认的null。
+
+键有两个用途：可以作为消息的附加信息，也可以决定消息被写到主题的哪个分区
+
 	ProducerRecord<Integer, String> record = new ProducerRecord<>("CustomerCountry", "Laboratory Equipment", "USA");
+
+如果创建为null的消息，不指定键就可以了
+
+	ProducerRecord<Integer, String> record = new ProducerRecord<>("Laboratory Equipment", "USA");
+
+如果键值为null，并且使用了默认的分区器，那么记录会被随机发送到主题内各个可用的的分区上。分区器使用轮询（Round Robin）算法将消息均衡地分布到各个分区上。
+
+
 
 #### 实现自定义分区策略 ####
 
