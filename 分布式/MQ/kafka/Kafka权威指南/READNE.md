@@ -227,11 +227,39 @@ send()方法、partitionsFor()方法获取元数据时生产者的阻塞时间�
 
 强烈建议使用通用的序列化框架
 
+代码过于脆弱，考虑兼容性问题
+
 #### 3.5.2 使用Avro序列化 ####
+
+Avro数据通过与语言无关的schema来定义。schema通过JSON来描述，数据被序列化成二进制文件或JSON文件，不过一般会使用二进制文件。Avro在读写文件时需要用到schema，schema一般会内嵌在数据文件里。
+
+当负责写消息的应用程序使用了新的schema，负责读消息的应用程序可以继续处理消息而无需做任何改动。（这个特性使得它特别适合用在像Kafka这样的消息系统上。）
+
+	{
+		"namespace": "customerManagement.avro",
+		"type":"record",
+		"name": "Customer",
+		"fiels": [
+			{"name": "id", "type": "int"},
+			{"name": "name", "type": "string"},
+			{"name": "faxNumber", "type": ["null", "string"], "default": "null"}
+		]
+	}
+
+id和name是必需的，faxNumber是可选的，默认为null。
+
+* 写入数据和读取数据的schema必须是相互兼容的
+* 反序列化器需要用到于写入数据的schema，即使它可能与用于读取数据的schema不一样。Acro数据文件里就包含了用于写入数据的schema。
 
 #### 3.5.3 在Kafka里使用Avro ####
 
+[avro](https://blog.csdn.net/QYHuiiQ/article/details/88723584)
 
+1. 使用KafkaAcroSerializer来序列化对象
+2. schema.registry.url指向schema的存储位置
+3. Customer是生成对象
+4. 实例化一个ProducerRecord对象，并指定Customer为值的类型，然后再传给它一个Customer
+5. 把Customer对象作为记录发送出去
 
 ### 3.6 分区 ###
 
@@ -247,11 +275,17 @@ ProducerRecord对象包含了目标主题、键和值。Kafka的消息是一个�
 
 如果键值为null，并且使用了默认的分区器，那么记录会被随机发送到主题内各个可用的的分区上。分区器使用轮询（Round Robin）算法将消息均衡地分布到各个分区上。
 
+如果键不为空，并且使用了默认的分区器，那么Kafka会对键进行散列，然后根据散列值把消息映射到特定的分区上。（同一个键总是被映射到同一个分区上，所以进行映射时，使用主题所有的分区，而不仅仅是可用的分区）
 
+只有不改变主题分区数量的情况下，键和分区之间的映射才能保持不变。（在分区数量保持的情况下，可以保证用户045189的记录总是被写到分区34。一旦主题增加了新的分区——旧数据仍然留在分区34，但新的记录可能被写到其他分区上。如果要使用键来映射分区，那么最好在创建主题的时候把分区规划好，而且永远不要增加新的分区）
 
 #### 实现自定义分区策略 ####
 
+单独给Banana分配单独的分区，然后使用散列分区算法处理其他帐号
 
+1. Partitioner接口包含了configure、partition和close这三个方法，通过config传入客户的名称
+
+2. 只接受字符串作为key
 
 ### 3.7 旧版的生产者API ###
 

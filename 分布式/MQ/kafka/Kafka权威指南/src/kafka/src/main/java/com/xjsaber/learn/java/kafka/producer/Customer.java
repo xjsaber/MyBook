@@ -1,25 +1,32 @@
 package com.xjsaber.learn.java.kafka.producer;
 
+/**
+ * @author xjsaber
+ */
 public class Customer {
 
-    private int customerID;
+    private String customerId;
     private String customerName;
 
-    public Customer(int ID, String name){
-        this.customerID = ID;
+    public Customer(){
+
+    }
+
+    public Customer(String id, String name){
+        this.customerId = id;
         this.customerName = name;
     }
 
-    public int getID(){
-        return this.customerID;
+    public String getId(){
+        return this.customerId;
     }
 
     public String getName(){
         return this.customerName;
     }
 
-    public void setID(int ID){
-        this.customerID = ID;
+    public void setId(String id){
+        this.customerId = id;
     }
 
     public void setName(String name){

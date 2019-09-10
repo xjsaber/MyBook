@@ -1,12 +1,8 @@
 package com.xjsaber.learn.java.kafka.comsumer;
 
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerRecord;
 
 import java.util.Properties;
-import java.util.concurrent.Future;
-import java.util.regex.Pattern;
 
 /**
  * @author xjsaber
@@ -24,6 +20,6 @@ public class Test {
 
         KafkaConsumer consumer = new KafkaConsumer(kafkaProps);
 
-        consumer.subscribe(new Pattern()"test.*");
+//        consumer.subscribe(new Pattern()"test.*");
     }
 }

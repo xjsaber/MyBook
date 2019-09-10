@@ -18,7 +18,10 @@ public class AvroTest {
         Producer<String, Customer> producer = new KafkaProducer<String, Customer>(props);
         // 不断生成事件
         while(true){
-            Customer customer = CustomerGen
+            Customer customer = new Customer();
+            System.out.println("Generated customer " + customer.toString());
+            ProducerRecord<String, Customer> record = new ProducerRecord<>(topic, customer.getId(), customer);
+            producer.send(record);
         }
     }
 }
