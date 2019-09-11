@@ -74,7 +74,7 @@ G1垃圾收集器
 
 构造一个producer
 
-1. 构造一个`java.util.Properties`
+1. 构造一个`java.util.Properties`对象，然后至少指定bootstrap.servers、key.serializer和value.serializer
 
 **1. 构造Properties对象**
 
