@@ -66,9 +66,15 @@ G1垃圾收集器
 
 ### 4.1 producer概览 ###
 
+
+
 ### 4.2 构造producer ###
 
 #### 4.2.1 producer程序实例 ####
+
+构造一个producer
+
+1. 构造一个`java.util.Properties`
 
 **1. 构造Properties对象**
 
