@@ -218,3 +218,55 @@ partitioner接口的主要方法是partition方法，该方法接收消息所属
 2. 创建自定义序列类
 3. 在用于KafkaProducer的Properties对象中设置key.serializer或value.serializer
 
+### 4.5 producer拦截器 ###
+
+org.apache.kafka.clients.producer.ProducerInterceptor
+
+* onSend（ProducerRecord）：producer确保在消息被序列化以计算分区前调用该方法。用户可以在该方法中对消息做任何操作，但最好保证不要修改消息所属的topic和分区，否则会影响分区的计算（该方法封装进KafkaProducer.send方法中，即它运行在用户主线程中）。
+* onAcknowledgement（RecordMetadata，Exception）：该方法在消息被应答之前或消息发送失败时调用，并且通常都是在producer回调逻辑触发之前。onAcknowledgement运行在producer的I/O线程中（不要在该方法中放入很“重”的逻辑，否则会拖慢producer的消息发送效率）
+* close：关闭interceptor，主要用于执行一些资源清理工作
+
+interceptor可能运行在多个线程中中，因此在具体实现时用户需要自行确保线程安全。（另外，若指定了多个interceptor，则producer将按照指定顺序调用它们，同时把每个interceptor中捕获的异常记录到错误日志中而不是向上传递）
+
+### 4.6 无消息丢失配置 ###
+
+KafkaProducer.send方法仅仅把消息放入缓冲区，由一个专属I/O线程负责从缓冲区提取消息并封装进消息batch中，然后发送出去。
+
+producer存在数据丢失的窗口：
+
+* 若I/O线程发送之前producer崩溃，则存储缓冲区中的消息全部丢失了。
+* 消息的乱序（由于某些原因导致record1未发送成功，同时Kafka又配置了重试机制以及max.in.flight.requests.per.connection大于1，那么record1在日志的位置反而位于record2之后，这样就造成了消息的乱序）
+
+解决问题：
+
+1. 既然异步发送可能丢失数据，改成同步
+
+
+* block.on.buffer.full=true
+* acks=all or-1
+* netries=Integer.MAX_VALUE
+* 使用带回调机制的send发送消息，即KafkaProducer.send(record, callback)
+* Callback逻辑中
+* replication.factor=3
+* min.insync.replcas=2
+* relication.factor>min.insync.replicas
+* enable.auto.commit=false
+
+
+
+### 4.7 消息压缩 ###
+
+### 4.8 多线程处理 ###
+
+**多线程单KafkaProducer实例**
+
+全局构造一个KafkaProducer实例，然后在多个线程中共享使用。由于KafkaProducer是线程安全，所以这种使用方式也是线程安全的。
+
+**多线程多KafkaProducer实例**
+
+每个producer主线程都构造一个KafkaProducer实例，并且保证此实例在该线程中封闭（thread confinement，线程封闭是实现线程安全的重要手段之一）。
+
+### 4.9 旧版本producer ###
+
+### 4.10 本章小结 ###
+
