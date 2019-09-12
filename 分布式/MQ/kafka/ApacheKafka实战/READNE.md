@@ -252,7 +252,27 @@ producer存在数据丢失的窗口：
 * relication.factor>min.insync.replicas
 * enable.auto.commit=false
 
+#### 4.6.1 producer端配置 ####
 
+**block.on.buffer.full=true**
+
+**acks=all**
+
+等到所有follower都响应了发送消息才能认为提交成功（producer端最强的程度的持久化保证）
+
+**retries=Integer.MAX.VALUE**
+
+**max.in.flight.requests.per.connection=1**
+
+**使用带有回调机制的send**
+
+实际环境中一定要使用带有回调机制的send版本，即KafkaProducer.send(record, callback)
+
+**Callback逻辑中显式立即关闭producer**
+
+
+
+#### 4.6.2 broker端配置 ####
 
 ### 4.7 消息压缩 ###
 
