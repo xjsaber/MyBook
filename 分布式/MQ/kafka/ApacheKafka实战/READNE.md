@@ -341,3 +341,29 @@ LZ4>>Snappy>GZIP
 
 ### 4.10 本章小结 ###
 
+## 第5章 consumer开发 ##
+
+### 5.1 consumer概览 ###
+
+#### 5.1.1 消费者（consumer） ####
+
+#### 5.1.2 消费者组（consumer group） ####
+
+消费者使用一个消费者组名（即group.id）来标记自己，topic的每条消息都只会被发送到每个订阅它的消费者组的一个消费者实例上。
+
+* consumer group
+* group.id
+* 对某个group而言，订阅topic的每个分区只能分配给该group下的一个consumer实例（当然该分区还可以被分配给其他订阅该topic的消费者组）
+
+#### 5.1.3 位移（offset） ####
+
+offset指代的是consumer端的offset。
+
+#### 5.1.4 位移提交 ####
+
+#### 5.1.5 _consumer_offsets ####
+
+#### 5.1.6 消费者组重平衡 ####
+
+### 5.2 构建consumer ###
+
