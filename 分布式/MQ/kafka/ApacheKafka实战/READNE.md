@@ -165,19 +165,50 @@ Future.get()无限等待结果返回。如果没有错误，get将返回对应�
 
 **acks**
 
+acks有3个取值：0、1和all。
+
+* acks=0：设置成0表示producer完全不理睬leader broker端的处理结果。
+* acks=all或者-1：表示当发送消息时，leader broker不仅会将消息写入本地日志，同时还会等待ISR中所有其他副本都成功写入它们各自的本地日志后，才发送响应结果给producer。显然当设置acks=all时，只要ISR中至少有一个副本是处于“存活”状态
+* acks=1:是0和all折中的方案，也是默认的参数值。
+
+	props.put("acks", "1");
+	// 或者
+	props.put(ProducerConfig.ACKS_CONFIG, "1");
+
 **buffer.memory**
+
+指定了producer端用于缓存消息的缓冲区大小，单位是字节，默认是33554432，即32MB。
+
+1. Java版本producer启动时会创建一块内存缓冲区用于保持待发送的消息
+2. 然后由另一个专属线程负责从缓冲区中读取消息执行真正的发送
 
 **compression.type**
 
+如果broke端的压缩参数设置得与producer不同，broker端的写入消息时也会额外使用CPU资源对消息进行对应的解压缩-重压缩操作。
+
+	props.put("compression.type", "lz4');
+	// 或者
+	props.put("ProducerConfig.COMPRESSION_TYPE_CONFIG", "lz4');
+
 **retries**
 
+Kafka broker在处理写入请求时可能因为瞬时的故障（比如瞬时的leader选举或者网络抖动）导致消息发送失败。
+
+	props.put("retries", 100)
+	// 或者
+	props.put(ProducerConfig.RETRIES_CONFIG, 100);
+
 **batch.size**
+
+
 
 **linger.ms**
 
 **max.request.size**
 
 **request.timeout.ms**
+
+当producer发送请求给broker后，broker需要在规定的时间范围内将处理结果返还给producer。
 
 ### 4.3 消息分区机制 ###
 
@@ -241,6 +272,7 @@ producer存在数据丢失的窗口：
 
 1. 既然异步发送可能丢失数据，改成同步
 
+#### 4.6.1 producer端配置 ####
 
 * block.on.buffer.full=true
 * acks=all or-1
@@ -252,29 +284,48 @@ producer存在数据丢失的窗口：
 * relication.factor>min.insync.replicas
 * enable.auto.commit=false
 
-#### 4.6.1 producer端配置 ####
-
-**block.on.buffer.full=true**
-
-**acks=all**
-
-等到所有follower都响应了发送消息才能认为提交成功（producer端最强的程度的持久化保证）
-
-**retries=Integer.MAX.VALUE**
-
-**max.in.flight.requests.per.connection=1**
-
-**使用带有回调机制的send**
-
-实际环境中一定要使用带有回调机制的send版本，即KafkaProducer.send(record, callback)
-
-**Callback逻辑中显式立即关闭producer**
-
-
-
 #### 4.6.2 broker端配置 ####
 
+unclean.leader.election.enable=false
+
+**replication.factor>=3**
+
+设置成3参考了Hadoop及业界通道通用的三备份原则，强调的是一定要使用多个副本来保存分区的消息。
+
+**min.insync.replicas>1**
+
+用于控制某条至少被写入到ISR中的多少个副本才算成功，设置成大于1是为了提升producer	端发送语义的持久性。记住只有在producer端acks被设置成all或-1时，这个参数才有意义。在实际使用时，不要使用默认值。
+
+**确保replication.factor>min.insync.replicas**
+
+若两者相等，那么只要一个副本挂掉，分区就无法正常工作，虽然有很高的持久性但可用性被极大地降低了。推荐配置成replication.factor=min.insyn.replcas+1。
+
 ### 4.7 消息压缩 ###
+
+压缩会消耗额外的CPU时钟周期，是I/O性能和CPU资源的平衡（trade-off）。
+
+Kafka自0.7.x版本便开始支持压缩特性——producer端能够将一批消息压缩成一条消息发送，而broker端将这条消息写入本地日志文件。当consumer获取到这条压缩消息时，它会自动地对消息进行解压缩，还原成初始的消息集合返还给用户。
+
+producer端压缩，broker端保持，consumer解压缩。
+
+所谓broker端保持是指broker端在通常情况不会进行解压缩操作。
+
+#### 4.7.1 Kafka支持的压缩算法 ####
+
+GZIP、Snappy和LZ4
+
+	props.put("compressiont.typ", "snappy")
+	props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "snappy")
+
+#### 4.7.2 算法性能比较与调优 ####
+
+KafkaProducer.send方法逻辑的主要耗时都在消息压缩操作上。
+
+LZ4>>Snappy>GZIP
+
+1. 判断是否启用压缩的依据是I/O资源消耗与CPU资源消耗的对比。
+2. 压缩的性能与producer端的batch大小息息相关。（通常情况下batch越大需要压缩的时间就越长）——batch大小越大，压缩时间就越长
+3. 
 
 ### 4.8 多线程处理 ###
 
