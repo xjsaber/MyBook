@@ -367,3 +367,48 @@ offset指代的是consumer端的offset。
 
 ### 5.2 构建consumer ###
 
+#### 5.2.1 consumer程序实例 ####
+
+构造一个consumer group从指定Kafka topic消费消息。
+
+1. 构造一个java.util.Properties对象至少自定bootstrap.servers、key.deserializer、value.deserializer和group.id的值
+2. 使用上一部创建的Properties实力构造KafkaConsumer对象。
+3. 调用KafkaConsumer.subscribe方法订阅consumer group感兴趣的topic列表。
+4. 循环调用KafkaConsumer.poll方法获取装在ConsumerRecord的topic消息。
+5. 处理获取的ConsumerRecord对象
+6. 关闭KafkaConsumer。
+
+**1. 构造Properties**
+
+bootstrap.servers
+
+key.deserializer
+
+value.deserializer
+
+**2. 构造KafkaConsumer对象**
+
+设置好上述4个参数后，构造KafkaConsumer对象。
+
+**3. 订阅topic列表**
+
+
+
+**4. 获取消息**
+
+
+
+**5. 处理ConsumerRecord对象**
+
+
+
+**6. 关闭consumer**
+
+显式关闭consumer以及释放KafkaConsumer运行过程中占用的各种系统资源（比如线程资源、内存、Socket连接等）。
+
+关闭方法有两种，如下：
+
+* KafkaConsumer.close()：关闭consumer并最多等30秒
+* KafkaConsumer.close(timeout)
+
+#### 5.2.2 consumer脚本命令 ####
