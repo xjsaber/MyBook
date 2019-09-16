@@ -375,3 +375,23 @@ value.deserializer
 * KafkaConsumer.close(timeout)
 
 #### 5.2.2 consumer脚本命令 ####
+
+
+## 第7章 管理Kafka集群 ##
+
+* 集群与topic管理
+* 消费者管理
+* 常用脚本工具
+* 集群管理API
+* MirrorMaker的使用
+* Kafka安全
+* 常见问题
+
+### 7.1 集群管理 ###
+
+#### 7.1.1 启动broker ####
+
+key点：
+
+1. -deamon参数启动服务器（生产环境强烈要求）
+

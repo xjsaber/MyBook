@@ -14,4 +14,5 @@ firewall-cmd --zone=public --add-port=2181/tcp --permanent #zookeeper 端口
 firewall-cmd --zone=public --add-port=2888/tcp --permanent #zookeeper 集群 传递信息的端口
 firewall-cmd --zone=public --add-port=3888/tcp --permanent #zookeeper 集群 传递信息的端口
 firewall-cmd --zone=public --add-port=9092/tcp --permanent #kafka
+firewall-cmd --zone=public --add-port=8001/tcp --permanent #kubernetes-dashboard webui
 firewall-cmd --reload # 重新载入防火墙
