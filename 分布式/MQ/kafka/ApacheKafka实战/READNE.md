@@ -412,3 +412,8 @@ value.deserializer
 * KafkaConsumer.close(timeout)
 
 #### 5.2.2 consumer脚本命令 ####
+
+## 第6章 Kafka设计原理 ##
+
+### 6.1 broker端设计架构 ###
+
