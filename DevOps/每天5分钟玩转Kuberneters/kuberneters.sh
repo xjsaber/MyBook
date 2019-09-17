@@ -42,6 +42,7 @@ wget http://download.virtualbox.org/virtualbox/rpm/rhel/virtualbox.repo
 yum update
 yum install binutils qt gcc make patch libgomp glibc-headers glibc-devel kernel-headers kernel-devel dkms
 # https://www.cnblogs.com/hongdada/p/9578849.html
+yum install -y VisualBox-5.2
 
 ##### minikube #####
 # 启动
