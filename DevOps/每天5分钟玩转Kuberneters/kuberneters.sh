@@ -44,6 +44,15 @@ yum install binutils qt gcc make patch libgomp glibc-headers glibc-devel kernel-
 # https://www.cnblogs.com/hongdada/p/9578849.html
 yum install -y VirtualBox-5.2
 
+### 内核版本需要统一
+# grub2-set-default 'CentOS Linux (3.10.0-957.27.2.el7.x86_64) 7 (Core)' 修改启动内核
+# grub2-editenv list
+### This computer doesn't have VT-X/AMD-v enabled. Enabling it in the BIOS is mandatory
+### Suggestion: In some environments, this message is incorrect. Try 'minikube start --no-vtx-check'
+### VT-x is not available (VERR_VMX_NO_VMX)
+
+
+
 ##### minikube #####
 # 启动
 minikube start

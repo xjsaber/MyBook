@@ -35,7 +35,7 @@ bin/kafka-topics.sh --zookeeper 192.168.33.142:2181,192.168.33.140:2181,192.168.
 
 #### Send Message ####
 
-bin/kafka-console-production.sh --broker-list 192.168.33.142:9092,192.168.33.140:9092,192.168.33.146:9092 --topic test-topic
+bin/kafka-console-producer.sh --broker-list 192.168.33.142:9092,192.168.33.140:9092,192.168.33.146:9092 --topic test-topic
 bin/kafka-console-consumer.sh --bootstrap-server 192.168.33.142:9092,192.168.33.140:9092,192.168.33.146:9092 --topic test-topic --from-beginning
 
 # 生产者吞吐量测试
