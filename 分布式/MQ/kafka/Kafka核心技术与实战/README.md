@@ -1,4 +1,4 @@
-# Kafka核心技术 #
+# Kafka核心技术与实战 #
 
 # 开篇词 #
 
@@ -41,48 +41,24 @@ Apache Kafka是一款开源的消息引擎系统。
 
 ## 05 | 聊聊Kafka的版本号 ##
 
-## 07、08 | 最最最重要的集群参数配置 ##
-
-### Broker端参数 ###
-
-log.dirs：在线上生产环境配置多个路径，
-
-* 提升读写性能
-* 能够实现故障转移
 
 
+## 加餐 | 搭建开发环境、阅读源码方法、经典学习资料大揭秘 ##
 
-### 小结 ###
+### Kafka开发环境搭建 ###
 
-### Topic级别参数 ###
+第1步：安装Java和Gradle
 
-### JVM参数 ###
+第2步：下载Kafka的源码
 
-### 操作系统参数 ###
+## 结束语 | 以梦为马，莫负韶华！ ##
 
-### 小结 ###
+1. 持续精进自己的Java功底
+2. 提升自己的Java多线程开发以及I/O开发能力
+3. 掌握JVM调优和GC
 
-#### Broker端参数 ####
+* 真正的实践一定要包含你自己的思考和验证，而且曜与真是
+* 在实际工作工程中，记录下遇到问题、解决问题的点点滴滴，并不断积累。
+* 不重复犯错
 
-* 与存储信息相关的参数
-* 与Zookeeper相关的参数
-* 与Broker连接相关的参数
-* 关于Topic管理的参数
-* 关于数据留存的参数：`log.retention.{hour|minutes|ms}`、`log.retention.bytes`和`message.max.bytes`
 
-#### Topic级别参数 ####
-
-* retention.ms
-* max.message.bytes：决定了Kafka Broker能够正常接收该Topic的最大消息大小。
-
-#### JVM ####
-
-* KAFKA_HEAP_OPTS：指定堆大小
-* KAFKA_JVM_PERFORMANCE_OPTS：指定GC参数
-
-#### 操作系统参数 ####
-
-* 文件描述符限制
-* 文件系统类型
-* Swapping
-* 提交时间
