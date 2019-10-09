@@ -15,7 +15,7 @@ import static org.apache.kafka.common.requests.DeleteAclsResponse.log;
  */
 public class KafkaConsumerAnalysis {
 
-    private static final String BROKER_LIST = "localhost:9092";
+    private static final String BROKER_LIST = "192.168.33.142:9092,192.168.33.196:9092,192.168.33.146:9092";
     private static final String TOPIC ="test-topic";
     private static final String GROUP_ID = "group.demo";
 
