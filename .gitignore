@@ -41,3 +41,4 @@ target
 .gradle
 lib
 cmake-build-debug
+venv

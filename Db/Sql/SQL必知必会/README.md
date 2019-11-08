@@ -250,10 +250,39 @@ WHERE是用于数据行，HAVING则作用于分组。
 SELECT ... FROM ... WHERE ... GROUP BY ... HAVING ... ORDER BY
 ```
 
-# 09 | 子查询：子查询的种类都有哪些，如何提高子查询的性能？ #
+## 09 | 子查询：子查询的种类都有哪些，如何提高子查询的性能？ ##
+
+### 什么是关联子查询，什么是非关联子查询 ###
 
 1. 子查询可以分为关联子查询和非关联子查询
 2. 子查询有一些关键字，可以方便对子查询的结果进行比较，比如存在性子查询，也就是EXIST子查询，以及集合比较子查询，其中集合比较子查询关键词有IN、SOME、ANY和ALL
+
+如果子查询的执行依赖于外部查询，通常情况下都是因为子查询中的表用到了外部的表，并进行了条件关联，因此每执行一次外部查询，子查询都要重新计算一次。
+
+### EXISTS子查询 ###
+
+关联子查询通常也会和 EXISTS 一起来使用，EXISTS 子查询用来判断条件是否满足，满足的话为 True，不满足为 False。
+
+### 集合比较子查询 ###
+
+* IN：判断是否在集合中
+* ANY：需要与比较操作符一起使用，与子查询返回的任何值做比较
+* ALL：需要与比较操作符一起使用，与子查询返回的任何值做比较
+* SOME：实际上是ANY的别名，作用相同，一般常使用ANY
+
+#### IN ####
+
+**IN与EXISTS比较**
+
+实际上在查询过程中，在我们对 cc 列建立索引的情况下，我们还需要判断表 A 和表 B 的大小。在这里例子当中，表 A 指的是 player 表，表 B 指的是 player_score 表。如果表 A 比表 B 大，那么 IN 子查询的效率要比 EXIST 子查询效率高，因为这时 B 表中如果对 cc 列进行了索引，那么 IN 子查询的效率就会比较高。
+
+同样，如果表 A 比表 B 小，那么使用 EXISTS 子查询效率会更高，因为我们可以使用到 A 表中对 cc 列的索引，而不用从 B 中进行 cc 列的查询。
+
+#### ANY、ALL ####
+
+当我们使用ANY或ALL的时候，一定要使用比较操作符
+
+### 将子查询作为计算字段 ###
 
 ### 总结 ###
 
@@ -261,3 +290,62 @@ SELECT ... FROM ... WHERE ... GROUP BY ... HAVING ... ORDER BY
 
 SQL中，子查询的使用大大增强了SELECT查询的能力，因为很多时候查询需要从结果集中获取数据，或者需要从同一个表中先计算得到一个数据结果，然后与这个数据结果（可能是某个标量，也可能是某个集合）进行比较。
 
+IN表是外边和内表进行hash连接，是先执行子查询。
+EXISTS是对外表进行循环，然后在内表进行查询。
+因此如果外表数据量大，则用IN，如果外表数据量小，也用EXISTS。
+IN有一个缺陷是不能判断NULL，因此如果字段存在NULL值，则会出现返回，因为最好使用NOT EXISTS。
+
+	SELECT player_id, team_id, player_name FROM player WHERE player_id IN (SELECT player_id FROM player_score 
+	WHERE score > 20)
+
+## 10 | 常用的SQL标准有哪些，在SQL92中是如何使用连接的？ ##
+
+关系型数据库的核心之一就是连接
+
+### 常用的SQL标准有哪些 ###
+
+### 在SQL92中是如何使用连接的 ###
+
+笛卡尔积、等值连接、非等值连接、外连接（左连接、右连接）和自连接
+
+#### 笛卡尔积 ####
+
+笛卡尔乘积是一个数学运算。假设我有两个集合 X 和 Y，那么 X 和 Y 的笛卡尔积就是 X 和 Y 的所有可能组合，也就是第一个对象来自于 X，第二个对象来自于 Y 的所有可能。
+
+
+	SELECT * FROM player
+	SELECT * FROM team
+	SQL: SELECT * FROM player, team
+
+#### 等值连接 ####
+
+	SELECT player_id, player.team_id, player_name, height, team_name FROM player, team WHERE player.team_id = team.team_id
+
+
+	SELECT player_id, a.team_id, player_name, height, team_name FROM player AS a, team AS b WHERE a.team_id = b.team_id
+
+如果我们使用了表的别名，在查询字段中就只能使用别名进行代替，不能使用原有的表名
+
+#### 非等值连接 ####
+
+	SQL：SELECT p.player_name, p.height, h.height_level
+	FROM player AS p, height_grades AS h
+	WHERE p.height BETWEEN h.height_lowest AND h.height_highest
+
+区分player的身高等级
+
+#### 外连接 ####
+
+左外连接，就是指左边的表是主表，需要显示左边表的全部行，而右侧的表是从表，（+）表示哪个是从表。
+
+右外连接，指的就是右边的表是主表，需要显示右边表的全部行，而左侧的表是从表。
+
+需要注意的是，LEFT JOIN 和 RIGHT JOIN 只存在于 SQL99 及以后的标准中，在 SQL92 中不存在，只能用（+）表示。
+
+	SQL：SELECT * FROM player, team where player.team_id = team.team_id(+)
+	=
+	SQL：SELECT * FROM player LEFT JOIN team on player.team_id = team.team_id
+
+#### 自连接 ####
+
+SQL：SELECT b.player_name, b.height FROM player as a , player as b WHERE a.player_name = '布雷克-格里芬' and a.height < b.height
