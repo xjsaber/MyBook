@@ -319,3 +319,33 @@ IN有一个缺陷是不能判断NULL，因此如果字段存在NULL值，则会�
 
 #### 等值连接 ####
 
+	SELECT player_id, player.team_id, player_name, height, team_name FROM player, team WHERE player.team_id = team.team_id
+
+
+	SELECT player_id, a.team_id, player_name, height, team_name FROM player AS a, team AS b WHERE a.team_id = b.team_id
+
+如果我们使用了表的别名，在查询字段中就只能使用别名进行代替，不能使用原有的表名
+
+#### 非等值连接 ####
+
+	SQL：SELECT p.player_name, p.height, h.height_level
+	FROM player AS p, height_grades AS h
+	WHERE p.height BETWEEN h.height_lowest AND h.height_highest
+
+区分player的身高等级
+
+#### 外连接 ####
+
+左外连接，就是指左边的表是主表，需要显示左边表的全部行，而右侧的表是从表，（+）表示哪个是从表。
+
+右外连接，指的就是右边的表是主表，需要显示右边表的全部行，而左侧的表是从表。
+
+需要注意的是，LEFT JOIN 和 RIGHT JOIN 只存在于 SQL99 及以后的标准中，在 SQL92 中不存在，只能用（+）表示。
+
+	SQL：SELECT * FROM player, team where player.team_id = team.team_id(+)
+	=
+	SQL：SELECT * FROM player LEFT JOIN team on player.team_id = team.team_id
+
+#### 自连接 ####
+
+SQL：SELECT b.player_name, b.height FROM player as a , player as b WHERE a.player_name = '布雷克-格里芬' and a.height < b.height
