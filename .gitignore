@@ -22,26 +22,22 @@ Web/JavaScript/JavaScript.DOM高级程序设计/.idea/
 Java/Style_Guide/.idea/
 Java/Google_Java_Style_Guide/.idea/
 Web/JavaScript/JavaScript宝典/JavaScript 宝典(第四版) 实例源代码/
-Web/JavaScript/javascript语言精粹/javascript语言精粹/javascript语言精粹/bin/
-Web/JavaScript/JavaScript 王者归来/JavaScript 王者归来/bin/
 Web/JavaScript/javascript语言精粹/javascript_test/javascript_test/obj/
 Web/JavaScript/javascript语言精粹/[大家网]JavaScript语言精粹[www.TopSage.com].pdf
 *.pdf
-**/bin/
-**/obj/
 Learn/DataStructure/C++Programming-Program Design Include Data Structures/Test/
-**/lib/
-**/out
-**/target
-**/.gradle
-**/.idea
 **/classes
 **/node_modules
 Db/Redis/Redis实战/code/pRedis/config_local.py
-**/cmake-build-debug
 Java/Java/Think_In_Java/code/test.dat
 .idea
 .vs
 out
 Debugvenv
 Debug
+bin
+obj
+target
+.gradle
+lib
+cmake-build-debug
