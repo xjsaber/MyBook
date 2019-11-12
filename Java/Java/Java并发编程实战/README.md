@@ -24,22 +24,159 @@
 
 ### 源头之一：缓存导致的可见性问题 ###
 
+一个线程对共享变量的修改，另外一个线程能够立刻看到，我们成为**可见性**
+
 ### 源头之二：线程切换带来的原子性问题 ###
+
+操作系统允许某个进程执行一小段时间，例如50毫秒，过了50毫秒操作系统就会重新选择一个进程执行（任务且换），这个50毫秒称为“时间片”
+
+count += 1，至少
+1. 首先，需要把变量count从内存加载到CPU的寄存器；
+2. 之后，再寄存器中执行+1操作；
+3. 最后，将结果写入到内存（缓存机制导致可能写入的是CPU缓存而不是内存）
 
 ### 源头之三：编译优化带来的有序性问题 ###
 
+	public class Singleton {
+	  static Singleton instance;
+	  static Singleton getInstance(){
+	    if (instance == null) {
+	      synchronized(Singleton.class) {
+	        if (instance == null)
+	          instance = new Singleton();
+	        }
+	    }
+	    return instance;
+	  }
+	}
+
 ### 总结 ###
 
+只要我们能够深刻理解可见性、原子性、有序性在并发场景下的原理，很多并发Bug都是可以理解、可以诊断的。
+
+* 缓存
+* 线程切换
+* 编译优化
 
 ## 02 | Java内存模型：看Java如何解决可见性和有序性问题 ##
 
 ### 什么是Java内存模型？ ###
 
-使用
+禁用缓存和编译优化
+
+合理的方案应该是按需禁用缓存以及编译优化
+
+volatile、synchronized和final
+
+### 使用volatile的困惑 ###
+
+### Happens-Before规则 ###
+
+前面一个操作的结果对后面操作是可见的。Happens-Before规则就是要保证线程之间的这种“心灵感应”。——Happens-Before
+
+#### 1. 程序的顺序性规则 ####
+
+#### 2. volatile变量规则 ####
+
+对一个volatile变量的写操作相对于后续对这个volatile变量的读操作可见。
+
+#### 3. 传递性 ####
+
+A Happens-Before B，且B Happens-Before C，那么A Happens-Before C
+
+* “x=42” Happens-Before写变量“v=true”，这是规则1的内容
+* 写变量“v=true”Happens-Before读变量“v=true”，这是规则2的内容
+
+#### 4. 官程中锁的规则 ####
+
+Happens-Before于后续读这个锁的加锁
+
+管程是一种通用的同步原语，在Java中指的是synchronized，synchronized是Java里对管程的实现。管程中的锁在Java里是隐式实现的。
+
+	synchronzied (this) { // 此处自动加锁
+		// x是共享变量，初始值=10
+		if (this.x < 12) {
+			this.x = 12;
+		}
+	} // 此处自动解锁
+
+
+
+#### 5. 线程start()规则 ####
+
+关于线程启动，指主线程A启动子线程B，子线程B能够看到主线程在启动子线程B前的操作。
+
+如果线程A调用线程B的start()方法（即在线程A中启动线程B），那么该start()操作Happens-Before于线程B中的任意操作。
+
+	Thread B = new Thread(() -> {
+		// 主线程调用B.start()之前
+		// 所有对共享变量的修改，此处皆可见
+		// 此例中，var == 77
+	})
+	// 此处
+#### 6. 线程join()规则 ####
+
+线程等待的，它是指主线程A等待子线程B完成（主线程A通过调用子线程B的join()方法实现），当子线程B完成后（主线程A中join()方法返回），主线程能够看到子线程的操作。当然所谓的“看到”，指的是对**共享变量**的操作。
+
+如果在线程A中，调用线程B的join()并成功返回
+
+### 被我们忽视的final ###
+
+final修饰变量时，初衷是告诉编译器：这个变量生而不变，可以可劲优化。
+
+### 总结 ###
+
+Time，Clocks，and the Ordering of Events is a Distributed System
+
+在Java语言里面，Happens-Before的语义本质上是一种可见性，A Happens-Before B意味着A事件对B事件来说是可见得，无论A事件和B事件是否发生在同一个线程里。
+
+### 课后思考 ###
+
+有一个共享变量abc，在一个线程里设置了abc的值abc=3，有哪些办法可以让其他线程能够看到abc==3？
+
+	final int abc = 3;
+	volatile int abc = 3;
+	synchronized int abc = 3;
 
 ## 03 | 互斥锁（上）：解决原子性 ##
 
+#### 那原子性问题到底如何解决呢？ ####
+
+### 简易锁模型 ###
+
+### 改进后的锁模型 ###
+
+### Java语言提供的锁技术：synchronized ###
+
+	class X {
+		synchronzied void foo() {
+			//临界区
+		}
+		// 修饰静态方法
+		synchronized static void bar() {
+			//临界区
+		}
+		// 修饰代码块
+		Object obj = new Object();
+		void baz() {
+			synchronzied(obj){
+				// 临界区
+			}
+		}
+	}
+
+#### 用synchronized解决count += 1问题 ####
+
+### 锁和受保护资源的关系 ###
+
+### 总结 ###
+
+synchronzied是Java在语言层面提供的互斥原语，其实Java里面还有很多其他类型的锁，但作为互斥锁，原理都是想通的：锁，一定要有一个要锁定的
+
+
 ## 04 | 互斥锁（下）：如何用一把锁保护多个资源 ##
+
+
 
 ## 05 | 一不小心就死锁了，怎么办？ ##
 
