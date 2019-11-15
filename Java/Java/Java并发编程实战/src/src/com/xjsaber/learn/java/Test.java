@@ -3,21 +3,22 @@ package com.xjsaber.learn.java;
 public class Test {
 
     // write your code here
-    private int x = 0;
-    private volatile boolean v = false;
+    private static int x = 0;
+    private static volatile boolean v = false;
 
     public static void main(String[] args) {
-
-
+        writer();
+        reader();
     }
 
-    public void writer() {
+    private static void writer() {
         x = 42;
         v = true;
     }
 
-    public void reader() {
+    private static void reader() {
         if (v){
+            System.out.println(x);
             // x = ?
         }
     }

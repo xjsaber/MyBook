@@ -130,25 +130,54 @@ long型变量表示64位，在32位机器上，需要对long型变量进行加�
 
 ## 02 | Java内存模型：看Java如何解决可见性和有序性问题 ##
 
+Java内存模型
+
 ### 什么是Java内存模型？ ###
 
-禁用缓存和编译优化
+解决可见性、有序性最直接的方法就是**禁用缓存和编译优化**，合理的方案应该是**按需禁用缓存以及编译优化**
 
-合理的方案应该是按需禁用缓存以及编译优化
-
-volatile、synchronized和final
+Java内存模型规范了JVM如何提供按需禁用缓存和编译优化的方法，具体包括**volatile**、**synchronized**和**final**三个关键字，以及六项**Happens-Before规则**。
 
 ### 使用volatile的困惑 ###
 
+volatile最原始的意义就是禁用CPU缓存。
+
+	volatitle int x = 0，告诉编译器，对这个变量的读写，不能使用 CPU缓存，必须从内存中读取或者写入。
+
+
+	// 以下代码来源于【参考1】
+	class VolatileExample {
+	  int x = 0;
+	  volatile boolean v = false;
+	  public void writer() {
+	    x = 42;
+	    v = true;
+	  }
+	  public void reader() {
+	    if (v == true) {
+	      // 这里x会是多少呢？
+	    }
+	  }
+	}
+
+Java1.5以前的版本会出现x=0的情况，变量x可能会被CPU缓存而导致可见性问题。
+
 ### Happens-Before规则 ###
 
-前面一个操作的结果对后面操作是可见的。Happens-Before规则就是要保证线程之间的这种“心灵感应”。——Happens-Before
+前面一个操作的结果对后面操作是可见的。Happens-Before规则就是要保证线程之间的这种“心灵感应”。——Happens-Before约束了编译器的优化行为，虽允许编译器优化，但是要求编译器优化后一定遵守Happens-Before规则。
 
 #### 1. 程序的顺序性规则 ####
+
+第6行代码“x = 42;”
+Happens-Before于第7行代码“v = true;”
+
+符合单线程里面的思维；程序前面对某个变量的修改一定是对后续操作可见的。
 
 #### 2. volatile变量规则 ####
 
 对一个volatile变量的写操作相对于后续对这个volatile变量的读操作可见。
+
+“v=true” Happens-Before 读变量“v=true”
 
 #### 3. 传递性 ####
 
@@ -156,8 +185,13 @@ A Happens-Before B，且B Happens-Before C，那么A Happens-Before C
 
 * “x=42” Happens-Before写变量“v=true”，这是规则1的内容
 * 写变量“v=true”Happens-Before读变量“v=true”，这是规则2的内容
+* => “x=42” Happens-Before读变量“v=true”
 
-#### 4. 官程中锁的规则 ####
+“x=42” Happens-Before读变量“v=true”，如果线程B读到了“v=true”，那么线程A设置的“x=42”对线程B是可见的=>如果线程B能看到“x==42”
+
+java.util.concurrent靠volatitle语义来搞定可见性的。
+
+#### 4. 管程中锁的规则 ####
 
 Happens-Before于后续读这个锁的加锁
 
@@ -170,6 +204,8 @@ Happens-Before于后续读这个锁的加锁
 		}
 	} // 此处自动解锁
 
+结合规则4——管程中锁的规则，可以理解：架设x的初始值是10，线程A完代码块后x的值会变成12（执行完自动释放锁），线程B进入代码块时，能看到线程A对x的写操作，也就是线程B能够看到x==12。
+
 #### 5. 线程start()规则 ####
 
 关于线程启动，指主线程A启动子线程B，子线程B能够看到主线程在启动子线程B前的操作。
@@ -181,23 +217,48 @@ Happens-Before于后续读这个锁的加锁
 		// 所有对共享变量的修改，此处皆可见
 		// 此例中，var == 77
 	})
-	// 此处
+	// 此处对共享变量var修改
+	var = 77；
+	// 主线程启动子线程
+	B.start();
 
 #### 6. 线程join()规则 ####
 
 线程等待的，它是指主线程A等待子线程B完成（主线程A通过调用子线程B的join()方法实现），当子线程B完成后（主线程A中join()方法返回），主线程能够看到子线程的操作。当然所谓的“看到”，指的是对**共享变量**的操作。
 
-如果在线程A中，调用线程B的join()并成功返回
+如果在线程A中，调用线程B的join()并成功返回，那么线程B中的任意操作Happens-Before于该join()操作返回。
+
+	Thread B = new Thread(()-> {
+		// 此处对共享变量var修改
+		var = 66;
+	});
+	// 例如此处对共享变量修改，
+	// 则这个修改结果对线程B可见
+	// 主线程启动子线程
+	B.start();
+	B.join();
+	// 子线程所有对共享变量的修改
+	// 主线程调用B.join()之后皆可见
+	// 此例中，var==66
 
 ### 被我们忽视的final ###
 
+final关键字
+
 final修饰变量时，初衷是告诉编译器：这个变量生而不变，可以可劲优化。
+
+在1.4以后Java内存模型对final类型变量的重排进行了约束
 
 ### 总结 ###
 
 Time，Clocks，and the Ordering of Events is a Distributed System
 
 在Java语言里面，Happens-Before的语义本质上是一种可见性，A Happens-Before B意味着A事件对B事件来说是可见得，无论A事件和B事件是否发生在同一个线程里。
+
+Java内存模型主要分位两部分：
+
+1. 面向你我这种编写并发程序的应用开发者
+2. 面向JVM的实现人员
 
 ### 课后思考 ###
 
@@ -216,6 +277,7 @@ Time，Clocks，and the Ordering of Events is a Distributed System
 操作系统做线程切换是依赖CPU中断的，所以禁止CPU发生中断就能够禁止线程切换。
 
 “同一时刻只有一个线程执行”，“互斥”。能够对共享变量的修改是互斥的，无论是单核CPU还是多核CPU，都能保证原子性。
+
 ### 简易锁模型 ###
 
 线程在进入临界区之前，首先尝试加锁lock()，如果成功，则进入临界区，此时我们称这个线程持有锁；否则就等待，直到持有锁的线程解锁；持有锁的线程执行完成临界区的代码后，执行解锁unlock()。
@@ -224,7 +286,13 @@ Time，Clocks，and the Ordering of Events is a Distributed System
 
 要保护资源R就得为它创建一把锁LR。针对这把锁LR，需要在进出临界区时添加锁操作和解锁操作。另外，在锁LR和受保护资源之间，特地用一条线做了关联，这个关联关联非常重要。很多并发
 
+1. 把临界区要保护的资源标注出来，如图中临界区里增加了一个元素：受保护资源R
+2. 其次，我们要保护资源R就得为它创建一把锁LR；
+3. 针对这把锁LR，我们还需在进出临界区时添加上加锁操作和解锁操作。
+
 ### Java语言提供的锁技术：synchronized ###
+
+锁是一种通用的技术方案，Java语言提供的synchronized关键字，就是锁的一种实现，synchronized关键字可以用来修饰方法，也可以用来
 
 	class X {
 		synchronzied void foo() {
@@ -243,14 +311,96 @@ Time，Clocks，and the Ordering of Events is a Distributed System
 		}
 	}
 
+当修饰静态方法的时候，锁定的是当前类的Class对象，在上面的例子中就是Class X；
+当修饰非静态方法的时候，锁定的是当前实例对象this。
+
+	class X {
+		// 修饰静态方法
+		synchronized(X.class) static void bar() {
+			// 临界区
+		}
+	}
+	
 #### 用synchronized解决count += 1问题 ####
+
+管程中锁的规则：对一个锁的Happens-Before于后续对这个锁的加锁。
+
+管程，就是我们这里的synchronized，synchronized修饰的临界区是互斥的，也就是说同一时刻只有一个线程执行临界区的代码；而所谓“对一个锁解锁Happens-Before后续对这个锁的加锁”，指的是前一个线程的解锁操作对后一个线程的加锁操作可见，综合Happens-Before的传递性原则，我们得出前一个线程在临界区修改的共享变量（该操作的解锁之前），对后续进入临界区（该操作在加锁之后）的线程是可见的。
+
+
+	class SafeCalc {
+	  long value = 0L;
+	  long get() {
+	    return value;
+	  }
+	  synchronized void addOne() {
+	    value += 1;
+	  }
+	}
+
+多个线程同时执行addOne()方法，可见形势可以保证的，如果有1000个线程执行addOne()方法，最终value值一定是加到1000。
+
+valued的值对get()可见性不可保证。需要对gett()方法也添加synchronized。
+
+	class SafeCalc {
+	  long value = 0L;
+	  synchronized long get() {
+	    return value;
+	  }
+	  synchronized void addOne() {
+	    value += 1;
+	  }
+	} 
+
+get()方法和addOne()方法都需要访问value这个受保护的资源，这个资源用this这把锁来保护。线程要进入临界区get()和addOne()，必须先获得this这把锁。
 
 ### 锁和受保护资源的关系 ###
 
+受保护资源和锁之间的关系关联是N:1的关系。
+
+	class SafeCalc {
+		static long value = 0L;
+		synchronized long get() {
+			return value;
+		}
+		synchronized static void addOne() {
+			value += 1;
+		}
+	}
+
+两个锁保护一个资源，这个受保护的资源就是静态变量value，两个锁分别是this和SafeCalc.class。由于临界区get()和addOne()是用两个锁保护的，因此两个临界区没有互斥关系，临界区addOne()对value的修改对临界区get()也没有可见性保证，导致并发问题。
+
+![60551e006fca96f581f3dc25424226be.png](img/60551e006fca96f581f3dc25424226be.png)
+
 ### 总结 ###
 
-synchronzied是Java在语言层面提供的互斥原语，其实Java里面还有很多其他类型的锁，但作为互斥锁，原理都是想通的：锁，一定要有一个要锁定的
+加锁能够保证执行临界区代码的互斥性。
 
+临界区的代码是操作受保护资源的路径。
+
+synchronzied是Java在语言层面提供的互斥原语，其实Java里面还有很多其他类型的锁，但作为互斥锁，原理都是想通的：锁，一定要有一个要锁定的对象。
+
+### 课后思考 ###
+
+下面的代码用 synchronized 修饰代码块来尝试解决并发问题，你觉得这个使用方式正确吗？有哪些问题呢？能解决可见性和原子性问题吗？
+
+	class SafeCalc {
+	  long value = 0L;
+	  long get() {
+	    synchronized (new Object()) {
+	      return value;
+	    }
+	  }
+	  void addOne() {
+	    synchronized (new Object()) {
+	      value += 1;
+	    }
+	  }
+	}
+
+依然会有并发问题，这里的话，创建保护资源的锁obj1和obj2，用同样的锁分别对obj1和obj2，进行锁定，可见性没办法保证。
+
+	加锁本质就是在锁对象的对象头中写入当前线程id，但是new object每次在内存中都是新对象，所以加锁无效。
 
 ## 04 | 互斥锁（下）：如何用一把锁保护多个资源 ##
 
