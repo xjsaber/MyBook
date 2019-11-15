@@ -414,13 +414,80 @@ synchronzied是Java在语言层面提供的互斥原语，其实Java里面还有
 
 ### 保护有关联关系的多个资源 ###
 
+如果多个资源是有关联关系的，为题会比较复杂
+
+	class Account {
+	  private int balance;
+	  // 转账
+	  synchronized void transfer(
+	      Account target, int amt){
+	    if (this.balance > amt) {
+	      this.balance -= amt;
+	      target.balance += amt;
+	    }
+	  } 
+	}
+
+临界区内有两个资源，分别是转出账户的余额this.balanceh和转入账户的余额target.balance。
+
+this可以保护自己的的余额this.balance，却保护不了别人的余额target.balance
+
+![1ba92a09d1a55a6a1636318f30c155d8.png](img/1ba92a09d1a55a6a1636318f30c155d8.png)
+
+假设有 A、B、C 三个账户，余额都是 200 元，我们用两个线程分别执行两个转账操作：账户 A 转给账户 B 100 元，账户 B 转给账户 C 100 元，最后我们期望的结果应该是账户 A 的余额是 100 元，账户 B 的余额是 200 元， 账户 C 的余额是 300 元。
+
+我们假设线程 1 执行账户 A 转账户 B 的操作，线程 2 执行账户 B 转账户 C 的操作。这两个线程分别在两颗 CPU 上同时执行，那它们是互斥的吗？我们期望是，但实际上并不是。因为线程 1 锁定的是账户 A 的实例（A.this），而线程 2 锁定的是账户 B 的实例（B.this），所以这两个线程可以同时进入临界区 transfer()。同时进入临界区的结果是什么呢？线程 1 和线程 2 都会读到账户 B 的余额为 200，导致最终账户 B 的余额可能是 300（线程 1 后于线程 2 写 B.balance，线程 2 写的 B.balance 值被线程 1 覆盖），可能是 100（线程 1 先于线程 2 写 B.balance，线程 1 写的 B.balance 值被线程 2 覆盖），就是不可能是 200。
+
+![a46b4a1e73671d6e6f1bdb26f6c87627.png](/img/a46b4a1e73671d6e6f1bdb26f6c87627.png)
+
 ### 使用锁的正确姿势 ###
 
 锁能覆盖所有受保护资源
 
+this是对象级别的锁，所以A对象和B对象都有自己的锁=>让A对象和B对象共享一把锁。我们把Account默认构造函数变为private，同时增加一个带Object lock参数的构造函数，创建Account对象时，传入相同的lock，这样所有的Account对象都会共享这个lock了。
+
+	class Account {
+	  private Object lock；
+	  private int balance;
+	  private Account();
+	  // 创建Account时传入同一个lock对象
+	  public Account(Object lock) {
+	    this.lock = lock;
+	  } 
+	  // 转账
+	  void transfer(Account target, int amt){
+	    // 此处检查所有对象共享的锁
+	    synchronized(lock) {
+	      if (this.balance > amt) {
+	        this.balance -= amt;
+	        target.balance += amt;
+	      }
+	    }
+	  }
+	}
+
 用Account.class作为共享的锁
 
+	class Account {
+	  private int balance;
+	  private Account();
+	  // 转账
+	  void transfer(Account target, int amt){
+	    // 此处检查所有对象共享的锁
+	    synchronized(Account.class) {
+	      if (this.balance > amt) {
+	        this.balance -= amt;
+	        target.balance += amt;
+	      }
+	    }
+	  }
+	}
+
+![527cd65f747abac3f23390663748da7c.png](img/527cd65f747abac3f23390663748da7c.png)
+
 ### 总结 ###
+
+关键是要分析多个资源之间的关系，如果资源之间没有关系，每个资源一把锁就可以了，如果资源之间有关联关系，就要选择一个粒度更大的锁，这个锁能够覆盖所有相关的资源。
 
 “原子性”的本质是什么？其实不是不可分割，不可分割只是外在表现，其本质是多个资源间
 
