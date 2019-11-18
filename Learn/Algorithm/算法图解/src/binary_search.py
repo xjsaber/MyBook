@@ -15,7 +15,6 @@ def binary_search(list, item):
             low = mid + 1
     return None
 
-my_list = []
-for num in range(0, 128):
-    my_list.append(num)
-print(binary_search(my_list, 64))
+
+my_list = [1, 3, 5, 7, 9]
+print(binary_search(my_list, 3))

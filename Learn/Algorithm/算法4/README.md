@@ -1,6 +1,36 @@
-# 算法4 读书笔记 #
+# 算法4 #
 
-## 第1章 基础 ##
+# 第1章 基础 #
+
+## 1.1 基础编程模型 ##
+
+### 1.1.1 Java程序的基础结构 ###
+
+### 1.1.2 原始数据类型与表达式 ###
+
+#### 1.1.6.8 外部库 ####
+
+	系统标准库
+		Math
+		Integer
+		Double
+		String
+		StringBuilder
+		System
+	导入的系统库
+		java.util.Arrays
+	我们的标准库
+		StdIn
+		StdOut
+		StdDraw
+		StdRandom
+		StdStats
+		In
+		Out	
+
+### 1.1.7 API ###
+
+1
 
 ## 第2章 排序 ##
 
