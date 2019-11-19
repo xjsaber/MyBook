@@ -1,7 +1,6 @@
-cmake_minimum_required(VERSION 3.5)
-project(Data_Structures_and_Algorithm_Analysis_in_C)
+cmake_minimum_required(VERSION 3.15)
+project(src C)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_C_STANDARD 99)
 
-set(SOURCE_FILES main.cpp)
-add_executable(Data_Structures_and_Algorithm_Analysis_in_C ${SOURCE_FILES})
+add_executable(src main.c)
