@@ -1,6 +1,9 @@
+//
+// Created by xjsaber on 2019/11/19.
+//
 #include <stdio.h>
 #include <stdlib.h>
-#include "D_List_H.h"
+#include "../include/D_List_H.h"
 
 struct Node
 {
@@ -88,9 +91,4 @@ Insert(ElementType x, List l, Position p)
     tmpCell->Element = x;
     tmpCell->Next = p->Next;
     p->Next = tmpCell;
-}
-
-int main() {
-    printf("Hello, World!\n");
-    return 0;
 }

@@ -1,4 +1,6 @@
+#指定CMake编译最低要求版本
 cmake_minimum_required(VERSION 3.15)
+#给项目命名
 project(src C)
 
 set(CMAKE_C_STANDARD 99)
