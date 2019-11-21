@@ -177,6 +177,7 @@ C、Java、Go
 
 C程序设计语言
 C语言程序设计现代方法
+C陷阱与缺陷
 C++ Primer 中文版
 Effective C++
 More Effective C++

@@ -1,9 +1,11 @@
 //
 // Created by xjsaber on 2019/11/19.
 //
-#include "D_List_H.h"
+#include "D_Stack_H.h"
 #include <stdio.h>
 #include <stdlib.h>
+
+#define NULL 0
 
 struct Node
 {
@@ -12,6 +14,32 @@ struct Node
 };
 
 /* Return true if l is empty */
+
+void
+MakeEmpty(Stack s)
+{
+    if (s == NULL)
+        Error("");
+    else
+        while (!IsEmpty(s)){
+            Pop(s);
+        }
+}
+
+Stack
+MakeStack(void)
+{
+    Stack s;
+
+    s = malloc(sizeof(struct Node));
+    if (s == NULL) {
+        // Out of space!!
+        exit(0);
+    }
+    s->Next == NULL;
+    MakeEmpty(s);
+    return s;
+}
 
 int
 IsEmpty(List l)
