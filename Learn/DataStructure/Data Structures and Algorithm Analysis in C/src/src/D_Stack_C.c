@@ -5,12 +5,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define NULL 0
-
 struct Node
 {
     ElementType Element;
-    Position Next;
+    PtrToNode Next;
 };
 
 /* Return true if l is empty */
