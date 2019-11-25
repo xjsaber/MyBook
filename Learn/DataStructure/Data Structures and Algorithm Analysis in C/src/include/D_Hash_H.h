@@ -2,23 +2,33 @@
 // Created by xjsaber on 2019/11/19.
 //
 
-#ifndef DATA_STRUCTURES_AND_ALGORITHM_ANALYSIS_IN_C_D_STACK_H_H
-#define DATA_STRUCTURES_AND_ALGORITHM_ANALYSIS_IN_C_D_STACK_H_H
+#ifndef DATA_STRUCTURES_AND_ALGORITHM_ANALYSIS_IN_C_D_HASH_H
+#define DATA_STRUCTURES_AND_ALGORITHM_ANALYSIS_IN_C_D_HASH_H
 
-struct Node;
-typedef struct Node *PtrToNode;
-typedef unsigned int Index;
-typedef PtrToNode Stack;
-typedef int ElementType;
+#include "D_Hash_H.h"
 
-Index Hash(const char* key, int tableSize);
+struct ListNode;
+struct HashTbl;
+typedef struct HashTbl *HashTable;
 
-int IsEmpty(Stack s);
-Stack CreateStack(void);
-void DisposeStack(Stack s);
-void MakeEmpty(Stack s);
-void Push(ElementType x, Stack s);
-ElementType Top(Stack s);
-void Pop(Stack s);
+HashTable InitializeTable(int tableSize);
+void DestroyTable(HashTable t);
+Position Find(ElementType key, HashTable t);
+void Insert(ElementType key, HashTable t);
+ElementType Retrieve(Position p);
 
-#endif //DATA_STRUCTURES_AND_ALGORITHM_ANALYSIS_IN_C_D_LIST_H_H
+struct ListNode
+{
+    ElementType element;
+    Position next;
+};
+
+typedef Position list;
+
+struct HashTbl
+{
+    int tableSize;
+    List *theLists;
+};
+
+#endif //DATA_STRUCTURES_AND_ALGORITHM_ANALYSIS_IN_C_D_HASH_H

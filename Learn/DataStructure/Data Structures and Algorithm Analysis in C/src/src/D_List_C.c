@@ -5,13 +5,15 @@
 #include <stdlib.h>
 #include "../include/D_List_H.h"
 
-struct Node
-{
-    ElementType Element;
-    Position Next;
-};
-
 /* Return true if l is empty */
+
+List
+MakeEmpty(List l)
+{
+    l->Element = 0;
+    l->Next = NULL;
+    return l;
+}
 
 int
 IsEmpty(List l)
@@ -22,7 +24,10 @@ IsEmpty(List l)
 int
 IsLast(Position p, List l)
 {
-    return p->Next == NULL;
+    while(l->Next != NULL){
+        l = l->Next;
+    }
+    return p == l;
 }
 
 Position

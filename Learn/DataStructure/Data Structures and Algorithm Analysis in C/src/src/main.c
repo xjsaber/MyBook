@@ -1,12 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "../include/D_Base_H.h"
 #include "../include/D_List_H.h"
-
-struct Node
-{
-    ElementType Element;
-    Position Next;
-};
 
 /* Return true if l is empty */
 
