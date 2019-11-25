@@ -151,7 +151,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\src\src\D_List_C.c" />
+    <ClCompile Include="..\..\..\src\src\D_Queue_C.c" />
+    <ClCompile Include="..\..\..\src\src\D_Stack_C.c" />
     <ClCompile Include="ConsoleApplication1.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\src\include\D_List_H.h" />
+    <ClInclude Include="..\..\..\src\include\D_Queue_H.h" />
+    <ClInclude Include="..\..\..\src\include\D_Stack_H.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

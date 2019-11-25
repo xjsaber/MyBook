@@ -1,9 +1,9 @@
 //
 // Created by xjsaber on 2019/11/19.
 //
-#include "D_Stack_H.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "../include/D_Stack_H.h"
 
 struct Node
 {
@@ -17,7 +17,7 @@ void
 MakeEmpty(Stack s)
 {
     if (s == NULL)
-        Error("");
+        ERROR("");
     else
         while (!IsEmpty(s)){
             Pop(s);
@@ -40,19 +40,19 @@ MakeStack(void)
 }
 
 int
-IsEmpty(List l)
+IsEmpty(Stack s)
 {
-    return l->Next == NULL;
+    return s->Next == NULL;
 }
 
 int
-IsLast(Position p, List l)
+IsLast(Position p, Stack l)
 {
     return p->Next == NULL;
 }
 
 Position
-Find(ElementType x, List l)
+Find(ElementType x, Stack l)
 {
     Position  p;
 
@@ -65,23 +65,23 @@ Find(ElementType x, List l)
 }
 
 Position
-FindPrevious(ElementType x, List l)
+FindPrevious(ElementType x, Stack s)
 {
     Position p;
 
-    p = l;
+    p = s;
     while (p != NULL && p->Next->Element != x)
         p = p->Next;
     return p;
 }
 
 void
-Delete(ElementType x, List l)
+Delete(ElementType x, Stack s)
 {
     Position p, tmpCell;
-    p = FindPrevious(x, l);
+    p = FindPrevious(x, s);
 
-    if (!IsLast(p, l))
+    if (!IsLast(p, s))
     {
         tmpCell = p->Next;
         p->Next = tmpCell->Next;
@@ -89,23 +89,8 @@ Delete(ElementType x, List l)
     }
 }
 
-/* ERROR */
-//void
-//Insert(ElementType x, List l)
-//{
-//    Position tmpCell;
-//    tmpCell = FindPrevious(x, l);
-//
-//    if (!IsLast(tmpCell, l)){
-//        PtrToNode item = NULL;
-//        item->Element = x;
-//
-//        tmpCell->
-//    }
-//}
-
 void
-Insert(ElementType x, List l, Position p)
+Insert(ElementType x, Stack s, Position p)
 {
     Position tmpCell;
     tmpCell = malloc(sizeof(struct Node));
