@@ -8,11 +8,12 @@
 /* Return true if l is empty */
 
 List
-MakeEmpty(List l)
+MakeEmpty()
 {
-    l->Element = 0;
-    l->Next = NULL;
-    return l;
+	List list = (List)malloc(sizeof(List));
+	list->Element = 0;
+	list->Next = NULL;
+    return list;
 }
 
 int
@@ -84,7 +85,7 @@ Delete(ElementType x, List l)
 //}
 
 void
-Insert(ElementType x, List l, Position p)
+Insert(ElementType x, List list, Position p)
 {
     Position tmpCell;
     tmpCell = malloc(sizeof(struct Node));
@@ -96,4 +97,34 @@ Insert(ElementType x, List l, Position p)
     tmpCell->Element = x;
     tmpCell->Next = p->Next;
     p->Next = tmpCell;
+}
+
+void
+DeleteList(List list)
+{
+	Position p, tmp;
+	p = list->Next;
+	list->Next = NULL;
+
+	while (p != NULL) {
+		tmp = p->Next;
+		free(p);
+		p = tmp;
+	}
+}
+
+Position Header(List list)
+{
+	Position p = list->Next;
+	return p;
+}
+
+Position Last(List list)
+{
+	Position p = list->Next;
+	while (p->Next != NULL)
+	{
+		p = p->Next;
+	}
+	return p;
 }

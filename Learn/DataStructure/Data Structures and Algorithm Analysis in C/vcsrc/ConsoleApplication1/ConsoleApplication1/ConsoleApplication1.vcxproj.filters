@@ -21,27 +21,12 @@
     <ClCompile Include="..\..\..\src\src\D_List_C.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\src\D_Queue_C.c">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\src\D_Stack_C.c">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\src\D_Hash_C.c">
-      <Filter>源文件</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\src\include\D_Queue_H.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\include\D_Stack_H.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\src\include\D_List_H.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\include\D_Hash_H.h">
+    <ClInclude Include="..\..\..\src\include\D_Base_H.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

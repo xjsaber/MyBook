@@ -8,16 +8,18 @@
 
 typedef PtrToNode List;
 
-List MakeEmpty(List l);
+/* O(1) */
+List MakeEmpty();
 int IsEmpty(List l);
 int IsLast(Position p, List l);
-Position Find(ElementType x, List l);
 void Delete(ElementType x, List l);
+void Insert(ElementType x, List list, Position p);
+
+Position Find(ElementType x, List l);
 Position FindPrevious(ElementType x, List l);
-void Insert(ElementType x, List l, Position p);
-void DeleteList(List l);
-Position Header(List l);
-Position First(List l);
+void DeleteList(List list);
+Position Header(List list);
+Position First(List list);
 Position Advance(Position p);
 ElementType Retrieve(Position p);
 
