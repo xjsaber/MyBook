@@ -258,13 +258,45 @@ Wireshark数据报分析实战
 
 ## 76 | 程序员练级攻略：软件设计 ##
 
+### 编程范式 ###
+
+* Wikipedia：Programming pardigm
+
+### 一些软件设计的相关原则 ###
+
+
+
+### 小结 ###
+
 ## 77 | 程序员练级攻略：Linux系统、内存和网络 ##
+
+* 系统底层相关：Linux系统为主
+* 数据库相关
+* 分布式架构
+* 微服务
+* 容器化和自动化运维
+* 机器学习和人工智能
+
+### Linux系统相关 ###
+
+* Red Hat Enterprise Linux文档
+* Linux Insides
+* LWN's kernel page
+* Learn Linux Kernel from Android Perspective
+* Linux Kernel Doc
+* Kernel Planet
+* Linux Performance and Tuning Guidelines
+* TLK：The Linux Kernel
 
 ### Linux系统相关 ###
 
 ### 内存相关 ###
 
 ### 计算机网络 ###
+
+## 79 | 程序员练级攻略：Java底层知识##
+
+### Java字节码相关 ###
 
 
 
@@ -287,6 +319,40 @@ https://www.mysql.com/cn/why-mysql/presentations/mysql-performance-tuning101/
 * 服务调度
 * 资源调度
 * 流量调度
+
+## 86 | 程序员练级攻略：机器学习和人工智能 ##
+
+
+
+## 87 | 程序员练级攻略：前端基础和底层原理 ##
+
+* JavaScript的核心原理
+* 浏览器的工作原理
+* 网络协议HTTP HTTP/2，还有HTTP的几种请求方式：短连接、长连接、Stream连接、WebSocket连接
+* 前端性能调优
+* 框架学习：React和Vue两个框架
+	* Vue：VirtualDOM技术是其底层技术，组件化是其思想，管理组件的状态是其重点
+	* React：函数式编程又是其编程思想
+* UI设计
+
+### HTML5 ###
+
+* HTML5权威指南
+* HTML5Canvas核心技术
+
+SVG、Canvas和WebGL
+
+### CSS ###
+
+Less和Sass
+
+## 88 | 程序员练级攻略：前端性能优化和框架 ##
+
+
+
+## 89 | UI/UX设计 ##
+
+
 
 ## 95 | 高效学习：端正学习态度 ##
 
