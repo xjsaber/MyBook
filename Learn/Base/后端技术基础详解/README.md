@@ -92,3 +92,26 @@ HTTP响应头
 
 
 ## 05 | 文件系统原理：如何用1分钟遍历100TB的文件？ ##
+
+## 06 | 数据库原理：为什么PrepareStatement性能更好更安全 ##
+
+使用索引进行查询为什么快？
+
+Java程序访问数据库的时候，有两种提交SQL语句的方式
+
+1. 通过Statement直接提交SQL
+2. 通过PrepareStatement预编译SQL，然后设置可变参数再提交执行
+
+Statement
+
+	statement.executeUpdate("UPDATE Users SET stateus = 2 WHERE userId=233 ")
+
+PrepareStatement预编译
+
+	PreparedStatement updateUser = con.prepareStatement("UPDATE Users SET stateus = ? WHERE userId = ?")
+	updateUser.setInt(1, 2);
+	updateUser.setInt(2, 233);
+	updateUser.executeUpdate();
+
+### 数据库架构与SQL执行过程 ###
+

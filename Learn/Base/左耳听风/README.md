@@ -310,9 +310,12 @@ Oracle Database 9i/10g/11g编程艺术
 
 #### MySQL ####
 
-https://dev.mysql.com/doc/
+[MySQL官方文档](https://dev.mysql.com/doc/)
 https://www.mysql.com/cn/why-mysql/presentations/mysql-performance-tuning101/
+How to Analyze and Tune MySQL Queries for Better PerformanceMySQL Performance Tuning 101MySQL Performance Schema & Sys SchemaMySQL Performance: Demystified Tuning & Best PracticesMySQL Security Best PracticesMySQL Cluster Deployment Best PracticesMySQL High Availability with InnoDB Cluster
 高性能MySQL
+MySQL技术内幕：InnoDB存储引擎
+据库的索引设计与优化
 
 ## 81 | 程序员练级攻略：分布式架构入门 ##
 
