@@ -18,6 +18,47 @@
 
 # 第3章 表、栈和队列 #
 
+## 3.1 抽象数据类型 ##
+
+集合ADT，添加（add）、删除（remove）以及包含（contain）
+
+并（union）和查找（find）
+
+## 3.2 表ADT ##
+
+* printList和makeEmpty
+* find
+* insert和remove
+* findKth
+* insert
+* remove
+
+### 3.2.1 表的简单数组实现 ###
+
+对表的所有操作都可以通过使用数组来实现。
+
+	int [] arr = new int[10]
+
+### 3.2.2 简单链表 ###
+
+## 3.3 Java Collections API中的表 ##
+
+### 3.3.1 Collection接口 ###
+
+Collection接口扩展了Iterable接口。
+
+### 3.3.2 Iterator接口 ###
+
+### 3.3.3 List接口、ArrayList类和LinkedList类 ###
+
+ArrayList：get和set调用花费常数，插入和删除代价昂贵。
+
+LinkedList：新项插入和现有项删除均开销很小。
+
+### 3.3.4 例子：remove方法对LinkedList类的使用 ###
+
+
+
 # 第4章 树 #
 
 二叉查找树
