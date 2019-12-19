@@ -136,9 +136,9 @@ TODO 依赖倒置
 
 ### 编程工具 ###
 
-* 编程的IDE
-* 版本管理工具
-* 调试前端程序
+* 编程的IDE。Intellij IDEA（[教程](https://legacy.gitbook.com/book/dancon/intellij-idea/details)）
+* 版本管理工具：[Pro Git 第二版]()、[猴子都能懂的GIT入门〜掌握版本管理〜](https://backlog.com/git-tutorial/cn/)
+* 调试前端程序：[超完整的 Chrome 浏览器客户端调试大全](http://www.igeekbar.com/igeekbar/post/156.htm)
 * 数据库设计工具
 
 ### 实践项目 ###
@@ -152,7 +152,16 @@ TODO 依赖倒置
 
 ### 英文能力 ###
 
+1. 坚持Google英文关键词，而不是Google里搜中文。
+2. 在GitHub上只有英文。用英文写代码注释，写 Code Commit 信息，用英文写 Issue 和 Pull Request，以及用英文写 Wiki。
+3. 坚持到 YouTube 上每天看 5 分钟的视频。YouTube 上有相关的机器字幕，实在不行就打开字幕。
+4. 坚持用英文词典而不是中文的。比如：剑桥英语词典 或是 Dictionary.com 。你可以安装一个 Chrome 插件 Google Dictionary。
+5. 坚持用英文的教材而不是中文的。比如：BBC 的 Learning English ，或是到一些 ESL 网站上看看，如 ESL: English as a Second Language 上有一些课程。
+6. 花钱参加一些线上的英文课程，用视频和老外练习。
+
 ### 问问题的能力 ###
+
+提问的智慧（[How To Ask Questions The Smart Way](http://www.catb.org/~esr/faqs/smart-questions.html)）一文最早是由 Eric Steven Raymond 所撰写的，详细描述了发问者事前应该做好什么，而什么又是不该做的。
 
 ### 写代码的修养 ###
 
@@ -171,6 +180,11 @@ TODO 依赖倒置
 ### 小结 ###
 
 ### 附录：编程规范 ###
+
+* 可以让你的代码很规整，有利于代码易读性，从而可以更容易地维护。
+* 提升开发效率，效率来自于结构化，而不是杂乱。
+* 可以让你的软件避免一些容易掉坑的陷阱，也让Bug更少，质量更高。
+* 可以让团队成员更高效率地写作。
 
 ### 编程语言相关 ###
 
