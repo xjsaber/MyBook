@@ -41,6 +41,10 @@
 
 入门：Python、JavaScript
 
+系统：Linux
+
+工具：Vsc
+
 正式：Java
 
 有修养的程序员才能成长为真正的工程师和架构师，而没有修养的程序员职能沦为码农，这是码农和工程师的关键区分点
@@ -51,21 +55,55 @@
 * 技术能力的瓶颈
 * 技术太多学不过来
 
+* [Teach Yourself Programming in Ten Years](http://norvig.com/21-days.html)
+* [十年学会编程](https://liuyandong.com/2017/10/25/122/)
+* [程序员的谎谬之言还是至理名言？](https://coolshell.cn/articles/4235.html)
+
 ### 学习建议 ###
 
 * 一定要坚持，要保持长时间学习，甚至终生学习的态度。
 * 一定要动手，不管例子多么简单，建议至少自己动手敲一遍看看是否理解了里头的细枝末节
-* 一定要学汇思考，思考为什么要这样，而不是那样。还要举一反三地思考。
+* 一定要学会思考，思考为什么要这样，而不是那样。还要举一反三地思考。
 * 不要乱买书，不要乱追新技术新名词，基础的东西经过很长时间的积累，会再未来至少 10 年通用。
 * 回顾一下历史，看看历史时间线上技术的发展，你才能明白明天会是什么样的。
 
 ## 70 | 程序员练级攻略：零基础启蒙 ##
+
+### 入门教程 ###
+
+* 与孩子一起学编程
+* Codecademy: Learn Python 和 People Can Program
+* Web入门
+
+### 编程入门 ###
+
+#### 入门语言Python ####
+
+入门语言 JavaScript
+
+操作系统入门 Linux
+
+编程工具 Visual Studio Code
+
+#### Web 编程入门 ####
+
+### 实践项目 ###
+
+### 小结 ###
+
+1. 推荐Python和Javascript作为入门语言
+2. 介绍了Linux操作系统
+3. Visual Studio Code编程工具
+4. Web编程入门
+
 ## 71 | 程序员练级攻略：正式入门 ##
 
 ### 编程技能 ###
 
-* 编程技巧方面：代码大全
-* 编程语言方面：Java核心技术（卷1）
+[The Key To Accelerating Your Coding Skills](http://blog.thefirehoseproject.com/posts/learn-to-code-and-be-self-reliant/)
+
+* 编程技巧方面：代码大全（各个阶段都可以拿出来读）
+* 编程语言方面：Java核心技术（卷1）、《Spring in Action》、SpringBoot实站
 * 操作系统：鸟哥的Linux私房菜
 * 网络协议：HTTP的文档
 	1. HTTP头
@@ -75,7 +113,7 @@
 	5. 缓存
 	6. 会话
 	7. 链路管理 
-* 数据库设计：MySQL必知必会
+* 数据库设计：官方文档，MySQL必知必会
 * 前端方面：
 	* jQuery
 	* Bootstrap
@@ -83,6 +121,10 @@
 * 字符编码方面：ASCII和Unicode
 
 ### 为什么转换Java语言 ###
+
+1. Java是所有语言里面综合能力最强
+2. Python
+3. 
 
 ### 编程工具 ###
 
