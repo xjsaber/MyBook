@@ -67,6 +67,12 @@ TODO 依赖倒置
 * [十年学会编程](https://liuyandong.com/2017/10/25/122/)
 * [程序员的谎谬之言还是至理名言？](https://coolshell.cn/articles/4235.html)
 
+### 主要答疑 ###
+
+1. 理论和现实的差距。（并不是理论和现实的差距大，而是你还没有找到相关的场景，来感受到那些学院派知识的强大威力）
+2. 技术能力的瓶颈。（技术能力的瓶颈，以及技术太多学不过来，只不过是你为自己的能力不足或是懒惰找的借口罢了；以绝大多数人努力的程度，和为自己不努力找借口的程度为参考，只要你坚持正常的学习就可以超过大多数人了。）
+3. 技术太多学不过来。（这里没有学习技术的速成的方法，真正的牛人不是能够培训出来的，一切都是要靠你自己去努力和持续地付出。这篇文章中的成长路径是需要思考、精力和相关的经验的，这都需要时间，而且是不短的时间。你先问问自己有没有花十年磨一剑的决心，如果没有，那这篇文章对你没有任何作用）
+
 ### 学习建议 ###
 
 * 一定要坚持，要保持长时间学习，甚至终生学习的态度。
@@ -106,12 +112,14 @@ TODO 依赖倒置
 
 ## 71 | 程序员练级攻略：正式入门 ##
 
+作者鼓励的话：无论你做什么事情，你都会面对各式各样的困难，这对每个人来说都是一样的，而只有兴趣、热情和成就感才能让你不畏惧这些困难。
+
 ### 编程技能 ###
 
 [The Key To Accelerating Your Coding Skills](http://blog.thefirehoseproject.com/posts/learn-to-code-and-be-self-reliant/)
 
 * 编程技巧方面：代码大全（各个阶段都可以拿出来读）
-* 编程语言方面：Java核心技术（卷1）、《Spring in Action》、SpringBoot实站
+* 编程语言方面：Java核心技术（卷1）、《Spring in Action》、SpringBoot实战
 * 操作系统：鸟哥的Linux私房菜
 * 网络协议：HTTP的文档
 	1. HTTP头
@@ -121,29 +129,55 @@ TODO 依赖倒置
 	5. 缓存
 	6. 会话
 	7. 链路管理 
-* 数据库设计：官方文档，MySQL必知必会
-* 前端方面：
-	* jQuery
-	* Bootstrap
-	* Promise
-* 字符编码方面：ASCII和Unicode
+* 数据库设计：数据库设计的那些事、MySQL官方文档，MySQL必知必会
+* 前端方面：[jQuery](https://jquery.com/)、[Bootstrap](https://getbootstrap.com/)、JavaScript Ajax请求后端的API接口和[Promise对象](http://es6.ruanyifeng.com/#docs/promise)
+* 字符编码方面:ASCII 和 Unicode。在你处理中文时有时会发现有乱码出现，此时需要了解 ASCII 和 Unicode 这样的字符编码。可以阅读以下几篇文章[关于字符编码，你所需要知道的](http://www.imkevinyang.com/2010/06/%E5%85%B3%E4%BA%8E%E5%AD%97%E7%AC%A6%E7%BC%96%E7%A0%81%EF%BC%8C%E4%BD%A0%E6%89%80%E9%9C%80%E8%A6%81%E7%9F%A5%E9%81%93%E7%9A%84.html)。The history of Character Encoding” 以及 Wikipedia - Character encoding，和查看GitHub仓储[Awesome Unicode](https://github.com/Codepoints/awesome-codepoints)和[Awesome Code Points](https://github.com/Wisdom/Awesome-Unicode) 
 
-### 为什么转换Java语言 ###
+#### 为什么转换Java语言 ####
 
-1. Java是所有语言里面综合能力最强
-2. Python
-3. 
+说明Java的优点
+
+1. Java是所有语言里面综合能力最强，一个工业级的编程语言。
+2. Python比较好入门，但是Java则可能比较困难。
+3. 当使用动态语言进行入门之后，需要使用静态语言进阶。
+4. 一个合格的程序员，掌握几门语言是非常正常的事情。
+	* 会让你对不同的语言进行比较
+	* 可以拓宽你的视野
 
 ### 编程工具 ###
 
-* 编程的IDE。Intellij IDEA（[教程](https://legacy.gitbook.com/book/dancon/intellij-idea/details)）
-* 版本管理工具：[Pro Git 第二版]()、[猴子都能懂的GIT入门〜掌握版本管理〜](https://backlog.com/git-tutorial/cn/)
+* 编程的IDE。Intellij IDEA（[教程](https://legacy.gitbook.com/book/dancon/intellij-idea/details)）和[Visual Studio Code](https://www.gitbook.com/book/jeasonstudio/vscode-cn-doc/details)。
+* 版本管理工具：[Pro Git 第二版](https://git-scm.com/book/zh/v2/)、[猴子都能懂的GIT入门〜掌握版本管理〜](https://backlog.com/git-tutorial/cn/)
 * 调试前端程序：[超完整的 Chrome 浏览器客户端调试大全](http://www.igeekbar.com/igeekbar/post/156.htm)
-* 数据库设计工具
+* 数据库设计工具：[MySQL WorkBench](https://dev.mysql.com/doc/refman/5.7/en/)
 
 ### 实践项目 ###
 
+我们可以尝试做一个投票系统，按需求划分业务上的需求和技术上的需求。
+
+#### 业务上的需求 ####
+
+* 用户只有在登录后，才可以生成投票表单。
+* 投票项可以单选，可以多选。
+* 其它用户投票后显示当前投票结果（但是不能刷票）。
+* 投票有相应的时间，页面上需要出现倒计时。
+* 投票结果需要用不同颜色不同长度的横条，并显示百分比和人数。
+
+#### 技术上的需求 ####
+
+* 用 Java Spring Boot 来实现了，然后，后端不返回任何的 HTML，只返回 JSON 数据给前端。
+* 由前端的 JQuery 来处理并操作相关的 HTML 动态生成在前端展示的页面。
+* 前端的页面还要是响应式的，也就是可以在手机端和电脑端有不同的呈现。 这个可以用 Bootstrap 来完成。
+
+#### 额外挑战 ####
+
+* 在微信中，通过微信授权后记录用户信息，以防止刷票。
+* 可以不用刷页面，就可以动态地看到投票结果的变化。
+* Google 一些画图表的 JavaScript 库，然后把图表画得漂亮一些。
+
 ### 小结 ###
+
+作者鼓励的话：因为你不知道你未来会有多大的可能性，也不知道你会成为什么样的人，所以为什么不再努力一把呢？
 
 ## 72 | 程序员练级攻略：程序员修养 ##
 
@@ -210,9 +244,18 @@ TODO 依赖倒置
 
 ## 73 | 程序员练级攻略：编程语言 ##
 
+#### 编程语言 ####
+
+* C：
+* C++
+* Java
+* Go
+
+#### 理论学科 ####
+
 ### 编程语言 ###
 
-C、Java、Go
+
 
 #### Java语言 ####
 
