@@ -170,7 +170,21 @@ TODO 依赖倒置
 * 代码整洁之道
 * 程序员的职业素养
 
+CodeReview的重要性
+
+* Code Review Best Practices
+* [How Google Does Code Review](https://dzone.com/articles/how-google-does-code-review)
+* [LinkedIn’s Tips for Highly Effective Code Review](https://thenewstack.io/linkedin-code-review/)
+
+UnitTest
+
+* [You Still Don’t Know How to Do Unit Testing](https://stackify.com/unit-testing-basics-best-practices/)
+* [Unit Testing Best Practices: JUnit Reference Guide](https://dzone.com/articles/unit-testing-best-practices)
+* [JUnit Best Practices](http://www.kyleblaney.com/junit-best-practices/)
+
 ### 安全防范 ###
+
+[OWASP - Open Web Application Security Project](https://www.owasp.org/index.php/Main_Page)
 
 ### 软件工程和上线 ###
 
