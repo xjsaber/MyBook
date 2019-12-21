@@ -225,9 +225,17 @@ UnitTest
 * 完美软件：对软件测试的各种幻想
 * Google软件测试之道
 
+#### 运维方面 ####
+
+[Monitoring 101](https://www.datadoghq.com/blog/monitoring-101-collecting-data/)
+
 ### 小结 ###
 
+作者鼓励：有修养的程序员才可能成长为真正的工程师和架构师，而没有修养的程序员只能沦为码农。
+
 ### 附录：编程规范 ###
+
+编程规范的重要性
 
 * 可以让你的代码很规整，有利于代码易读性，从而可以更容易地维护。
 * 提升开发效率，效率来自于结构化，而不是杂乱。
@@ -269,8 +277,6 @@ UnitTest
 
 ### 编程语言 ###
 
-
-
 #### Java语言 ####
 
 * Java 核心技术：卷 1 基础知识
@@ -296,27 +302,50 @@ UnitTest
 
 #### C/C++语言 ####
 
-C程序设计语言
-C语言程序设计现代方法
-C陷阱与缺陷
-C++ Primer 中文版
-Effective C++
-More Effective C++
-深度探索C++对象模型
+C语言是程序员必学的一个语言
+
+* [C程序设计语言](https://book.douban.com/subject/1139336/),C语言的标准不是ANSI标准，而是K&RC
+* [C语言程序设计现代方法](https://book.douban.com/subject/2280547/)完美覆盖了C99标准，习题的质量和水准比较高。探讨的是现代编译器的实现，以及和C++的兼容
+* [C陷阱与缺陷]()
+* C++是如何解决C语言中的各种问题，[C++的坑真的多吗？](https://coolshell.cn/articles/7992.html)
+* [C++ Primer 中文版](https://book.douban.com/subject/25708312/)主要看
+	* 面向对象的多态
+	* 模板和重载操作符
+	* STL	 
+* [Effective C++](https://book.douban.com/subject/5387403/)和[More Effective C++](https://book.douban.com/subject/5908727/)
+* [深度探索C++对象模型](https://book.douban.com/subject/10427315/)了解编译器到底在干什么，以及作者的两篇[C++ 虚函数表解析](https://coolshell.cn/articles/12165.html)和[C++ 对象的内存布局](https://coolshell.cn/articles/12176.html)
+* [C++ FAQ](http://www.stroustrup.com/bs_faq.html)和[中文版](http://www.stroustrup.com/bsfaqcn.html)
 
 #### 学习Go语言 ####
 
-gobyexample
-https://go101.org/article/101.html
-The Go Programming Language
-effective_go
-https://github.com/golang/go/wiki/Articles
-https://github.com/golang/go/wiki/Blogs
-https://github.com/golang/go/wiki/GoTalks
+* 入门教程：[Go by Example](https://gobyexample.com/)
+* 电子书：[Go 101](https://go101.org/article/101.html)
+* 经典的书：[The Go Programming Language](https://book.douban.com/subject/26337545/)
+* 官方的：[effective_go](https://golang.org/doc/effective_go.html)
+* 作者的两篇入门文章：[GO 语言简介（上）— 语法](https://coolshell.cn/articles/8460.html)[GO 语言简介（下）— 特性](https://coolshell.cn/articles/8489.html)
+
+并发编程，Unix 老牌黑客罗勃·派克（Rob Pike）在 Google I/O 上的两个分享。
+
+* Go Concurrency Patterns（[幻灯片](https://talks.golang.org/2012/concurrency.slide)和[演讲视频](https://www.youtube.com/watch?v=f6kdp27TYZs)）。
+* Advanced Go Concurrency Patterns（[幻灯片](https://talks.golang.org/2013/advconc.slide)、[演讲视频](https://youtu.be/QDDwwePbDtw)）。
+
+更多的学习资料
+
+[Go 精华文章列表](https://github.com/golang/go/wiki/Articles)
+[Go 相关博客列表](https://github.com/golang/go/wiki/Blogs)
+[Go Talks](https://github.com/golang/go/wiki/GoTalks)
+[内容丰富的Go资源列表，Awesome Go](https://github.com/avelino/awesome-go)
 
 ### 小结 ###
 
 C、C++、Java和Go
+
+* C：C-like语言，在不同的方面解决C语言的各种问题。
+* C++：复杂难学，但范式最多，可以看看C++怎么解决C语言的问题。
+* Java：综合能力最强
+* Go
+
+一个合格的程序员应该掌握几门语言。可以对不同的语言进行比较，另外可以对新语言掌握的更快
 
 ## 74 | 程序员练级攻略：理论学科 ##
 
