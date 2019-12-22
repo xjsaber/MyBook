@@ -277,8 +277,6 @@ UnitTest
 
 算法、数据结构、网络模型、计算机原理等计算机科学专业
 
-1. 
-
 #### 系统知识 ####
 
 Unix/Linux、TCP/IP、C10K。
@@ -364,70 +362,179 @@ C、C++、Java和Go
 
 ### 数据结构和算法 ###
 
-* 基础知识：算法、算法图解
-* 理论加持：算法导论
-* 思维改善：编程珠玑
+入门：数组、链表、哈希表、二叉树、排序算法
+
+高等：路径规则、背包问题、字符串匹配、动态规划、递归遍历
+
+业务：业务上我需要用算法比较两个数组中差异的布隆过滤器，或是在做监控系统时实时计算过去一分钟的 P99 统计时的蓄水池算法，或是数据库的 B+ 树索引，还有 Linux 内核中的 epoll 的红黑树，还有在做服务调度里的“背包问题”等都会用算法。
+
+* 基础知识：[算法](https://book.douban.com/subject/10432347/)必知的50个算法、[算法图解](https://book.douban.com/subject/26979890/)
+* 理论加持：[算法导论](https://book.douban.com/subject/20432061/)更偏理论方面的
+* 思维改善：[编程珠玑](https://book.douban.com/subject/3227098/)，改善思维方式
 * 练习：LeetCode
 
+做更多的练习题
+
 * 基础算法题：
-	* 递归
-	* 动态规划
-	* 回溯
-	* 分治法
-	* 折半查找 
-* 编程题：
+	* 递归（深度优先DFS、广度优先BFS）
+	* 动态规划（Dynamic Programming）
+	* 折半查找（Binary Search）
+	* 回溯（Back tracing）
+	* 分治法（Divide and Conquer）
+	* 树、数组、链表、字符串和hash表
+* 编程题：训练对各种情况的考虑，对程序代码组织的掌握（其实就是其中的状态变量）
+	* atoi
+	* strstr
+	* add two nums
+	* 括号匹配
+	* 字符串乘法
+	* 通配符匹配
+	* 文件路径简化
+	* Text Justification
+	* 反转单词
+
+作者的[GitHub](https://github.com/haoel/leetcode)中的Leetcode代码
+
+作者给出的数据结构和算法
+
+* [List of Algorithms]()：算法字典，开阔眼界
+* [Data Structure Visualizations]()：数据结构动画图
 
 ### 其他理论基础知识 ###
 
-* 数据结构与算法分析
-* 数据库系统概念
-* 现代操作系统
-* 计算机网络：应用层开始沿协议栈向下讲解计算机网络的基本原理，敲掉应用层范例和应用编译接口。
-* 计算机程序的构造和解释
-* 编译原理
+* [数据结构与算法分析](https://book.douban.com/subject/1139426/)
+* [数据库系统概念](https://book.douban.com/subject/1929984/):全面介绍了数据库系统的各种知识，透彻阐释数据库管理的基本概念，不仅讨论了数据库查询语言、模式设计、数据仓库、数据库应用开发、基于对象的数据库和XML、数据存储和查询、事务管理、数据挖掘与信息检索以及数据库系统体系结构等方面的内容，而且对性能评测标准、性能调整、标准化以及空间与地理数据、事务处理监控等高级应用主题进行了广泛讨论。
+* [现代操作系统](https://book.douban.com/subject/3852290/)：操作系统的基本原理，包括进程、线程、存储管理、文件系统、输入/输出、死锁等，同时还包含了有关计算机安全、多媒体操作系统、掌上计算机操作系统、微内核、多核处理机上的虚拟机以及操作系统设计等方面的内容
+* [计算机网络](https://book.douban.com/subject/1391207/)：应用层开始沿协议栈向下讲解计算机网络的基本原理，敲掉应用层范例和应用编译接口。
+* [计算机程序的构造和解释](https://book.douban.com/subject/1148282/)主要是使用 Scheme/Lisp 语言，从数据抽象、过程抽象、迭代、高阶函数等编程和控制系统复杂性的思想，到数据结构和算法，到编译器 / 解释器、编程语言设计
+* [编译原理]()：龙书，全面、深入地探讨了编译器设计方面的重要主题，包括词法分析、语法分析、语法制导定义和语法制导翻译、运行时刻环境、目标代码生成、代码优化技术、并行性检测以及过程间分析技术。
 
 ### 小结 ###
+
+理论学科：算法、数据结构、网络模型、计算机原理
+
+作者评语：这些理论知识可以说是计算机科学这门学科最精华的知识了，认真学习，理解其背后的逻辑和思维方式，会让你受益匪浅。
+
+### 评论 ###
+
+* 阅读源码：删掉出错处理逻辑，画流程图，Debug跟踪。
+* 量化自己：
+	* 学以致用，在工作场景，开源，个人项目中用起来，
+	* 开始帮助其它人（工作中或网络上）
+	* 面试，通过更好的公司。 
+
 
 ## 75 | 程序员练级攻略：系统知识 ##
 
-深入理解计算机系统（程序员必读的一本书）
+[深入理解计算机系统](https://book.douban.com/subject/5333562/)（程序员所需要了解的计算机知识）
+
+本书的最大优点是为程序员描述计算机系统的实现细节，帮助其在大脑中构造一个层次型的计算机系统。从最底层的数据在内存中的表示到流水线指令的构成，到虚拟存储器，到编译系统，到动态加载库，到最后的用户态应用。通过掌握程序是如何映射到系统上，以及程序是如何执行的，你能够更好地理解程序的行为为什么是这样的，以及效率低下是如何造成的。
 
 #### 必读 ####
 
-* Unix高级环境编程
-* Unix网络编程 第1卷 套接口API、第2卷 进程间通信
-* TCP/IP详解 卷1协议
+* [Unix高级环境编程](https://book.douban.com/subject/1788421/)
+* Unix网络编程 [第1卷 套接口API](https://book.douban.com/subject/1500149/)、[第2卷 进程间通信](https://book.douban.com/subject/4118577/)
+* [TCP/IP详解 卷1协议](https://book.douban.com/subject/1088054/)
 
 #### 容易点的内容 ####
 
-Linux C编程一站式学习
-TCP/IP 网络编程
-图解 TCP/IP
-The TCP/IP Guide
+* [Linux C编程一站式学习](https://book.douban.com/subject/4141733/)
+* [TCP/IP 网络编程](https://book.douban.com/subject/25911735/)
+* [图解 TCP/IP](https://book.douban.com/subject/24737674/)：计算机网络的快速入门
+* [The TCP/IP Guide](http://www.tcpipguide.com/free/index.htm)
+* [Wireshark数据报分析实战](https://book.douban.com/subject/21691692/)：图文并茂地演示使用Wireshark进行数据包分析的技术方法，可以更好的了解和学习网络协议。
 
-Wireshark数据报分析实战
+#### LINUX ####
+
+看完Unix高级环境编程，之后更近一步看Linux
+* [Linux/Unix 系统编程手册](https://book.douban.com/subject/25809330/)
+* Linux System Programming 英文电子版
+* [Linux 系统编程](https://book.douban.com/subject/25828773/)
+
+#### TCP相关 ####
+
+* Let’s code a TCP/IP stack, 1: Ethernet & ARP
+* Let’s code a TCP/IP stack, 2: IPv4 & ICMPv4
+* Let’s code a TCP/IP stack, 3: TCP Basics & Handshake
+* Let’s code a TCP/IP stack, 4: TCP Data Flow & Socket API
+* Let’s code a TCP/IP stack, 5: TCP Retransmission
+
+#### 系统知识 ####
+
+1. 使用系统知识操作文件系统，实现一个可拷贝目录树的小程序
+2. 用fork/wait/waitpid写一个多进程的程序，用pthread写一个多线程带同步或互斥的程序。（多进程购票的程序）
+3. 用signal/kill/raise/alarm/pause/sigprocmask实现一个多进程间的信号量通信的程序。
+4. 学会用gcc和gdb来线程和调试程序（《用gdb调试程序》）
+5. 学会用makefile来编译程序（《根我一起写makefile》）
+6. Socket的进程间通信。用C语言写一个1对1的聊天小程序，或是一个简单的HTTP服务器。
 
 ### C10K问题 ###
 
-操作系统处理大并发请求的问题
+当读完《Unix网络编程》，可以去读“[C10K Problem](http://www.kegel.com/c10k.html)” （[中文翻译版](https://www.oschina.net/translate/c10k)）
+
+C10K问题的本质上是操作系统处理大并发请求的问题
+
+操作系统处理大并发请求的问题。对于Web时代的操作系统而言，对于客户端过来的大量的并发请求，需要创建相应的服务进程或线程。这些进程或线程多了，导致数据拷贝频繁（缓存I/O、内核将数据拷贝到用户进程空间、阻塞），进程/线程上下文切换消耗大，从而导致资源被耗尽而崩溃。
 
 ### 实践项目 ###
 
-编程语言：C、Java和go
+实现一个 telnet 版本的聊天服务器，主要有以下需求。
 
-算法和数据结构、计算机的相关系统
+* 每个客户端可以用使用telnet ip:port的方式连接到服务器上。
+* 新连接需要用用户名和密码登录，如果没有，则需要注册一个。
+* 然后可以选择一个聊天室加入聊天。
+* 管理员有权创建或删除聊天室，普通人员只有加入、退出、查询聊天室的权力。
+* 聊天室需要有人数限制，每个人发出来的话，其它所有的人都要能看得到。
+
+实现一个简单的HTTP协议，只需要处理URI path。
+
+实现一个生产者/消费者消息队列服。
+
+编程语言：C、Java和go
 
 ### 小结 ###
 
+编程语言、理论学科和系统知识。
+
+* 编程语言：C、C++、Java，真正算得上工业级的编程语言。Go语言已成为云计算领域事实上的标准语言。
+* 算法和数据结构：太重要，最重要的算法和数据结构
+* 计算机的相关系统：操作系统，网络系统，数据库系统对应计算、存储和网络
+
+### 留言 ###
+
+Wireshark网络分析就这么简单、Wireshark网络分析的艺术
+
 ## 76 | 程序员练级攻略：软件设计 ##
+
+学习软件设计的方法、理念、范式和模式，是让你从一个程序员通向工程师的必备技能。**如果你想成为一命优秀的程序员，软件设计定是你的必修课。**
+
+要学号这些软件开发和设计的方法，需要磨炼和苦行，反复咀嚼，反复推敲，在实践和理论中螺旋式地学习，才能真正掌握。
 
 ### 编程范式 ###
 
-* Wikipedia：Programming pardigm
+学习编程范式可以明白编程的本质和各种语言的编程方式。
+
+* 编程范式游记
+	* 编程范式游记（1）- 起源 
+	* ...
+	* 编程范式游记（11）- 程序世界里的编程范式 
+* [Wikipedia：Programming pardigm：wiki编程范式的页面](https://en.wikipedia.org/wiki/Programming_paradigm)
+* Six programming paradigms that will change how you think about coding（中文版：六个编程范型将改变你对编程的看法）：默认支持并发（Concurrent by default）、依赖类型（Dependent types）、连接性语言（Concatenative languages）、声明式编程（Decparative pragramming）、符号式编程（Symbolic programming）、基于知识的编程（Knowledge-based programming）等六种不太常见的编程范式。
+* Programming Paradigms for Dummies: What Every Programmer Should Know：在分布式编程领域，他提到了 Erlang、E、Distributed Oz 和 Didactic Oz 这四种编程语言
+* 斯坦福大学公开课：编程范式：基础且很详细的课程
 
 ### 一些软件设计的相关原则 ###
 
+* Don’t Repeat Yourself (DRY)：当在两个或多个地方发现一些相似代码的时候，我们需要把它们的共性抽象出来形成一个唯一的新方法，并且改变现有地方的代码让它们以一些合适的参数调用这个新的方法。 
+* Keep It Simple, Stupid(KISS) 
+* Program to an interface, not an implementation：依赖接口而不是实现。在面向对象的 S.O.L.I.D 原则中会提到我们的依赖倒置原则，就是这个原则的另一种样子。还有一条原则叫 Composition over inheritance（喜欢组合而不是继承），这两条是那 23 个经典设计模式中的设计原则。
+* You Ain’t Gonna Need It (YAGNI)：避免过度设计
+* Law of Demeter
 
+面向对象的S.O.L.I.D原则
+
+* SRP（Single Responsibility Principle）——职责单一原则。
+* OCP（Open/Closed Principle）——开闭原则，
 
 ### 小结 ###
 
