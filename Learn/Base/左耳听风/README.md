@@ -263,46 +263,57 @@ UnitTest
 * C：
 * C++
 * Java
-* Go
+* Go：[《Go语言、Docker和新技术》](https://coolshell.cn/articles/18190.html)
 
 #### 理论学科 ####
 
+算法、数据结构、网络模型、计算机原理等计算机科学专业
+
+1. 
+
+#### 系统知识 ####
+
+Unix/Linux、TCP/IP、C10K。
+
+当编程的时候，如何和系统进行交互或是获取操作系统的资源，如何进行通讯，当系统出了性能问题，当系统出了故障等，有大量需要落地的事需要处理和解决。
+
+可以人为是计算机世界的物理世界。
+
 ### 编程语言 ###
-
-
-
 #### Java语言 ####
 
 * Java 核心技术：卷 1 基础知识
-* Spring 实战
-* Spring Boot 实战
-* Effective Java
-* Google Guava 库 
-* Java并发编程实战
-* Java性能权威指南
-* 深入理解Java虚拟机
-* Java编程思想
-* 精通Spring 4.x
-* 设计模式：
-	* Program to an 'interface',not an 'implementation'
-		* 使用者不需要之道数据类型、结构、算法的细节。
-		* 使用者不需要之道实现细节，只需要之道提供的接口。
-		* 利于抽象、封装，动态绑定，多态。符合面向对象的特质和思念。  
-	* Favor 'object composition' over 'class inheriatance'
-		* 继承需要给子类暴露一些父类的设计和实现细节。
-		* 父类实现的改变会造成子类也需要改变。
-		* 我们以继承主要是为了代码重用，但实际上在子类需要重新实现很多父类的方法。
-		* 继承更多的应该是为了多态。
+* Spring 实战和Spring Boot 实战
+* Effective Java和Google Guava 库（不但是JDK的升级库，集合（collection）、缓存（caching）、原生类型支持（primitives support）、字符串处理（string processing）、I/O等库）
+* Java并发编程实战：并发性和线程安全性，类库提供的基本并发构建块，用于避免并发危险、构造线程安全的类及验证线程安全的规则。如何将小的线程安全类组合成更大的线程安全类，如何利用线程来提高并发应用程序的吞吐量，如何识别可并行执行的任务，如何提高单线程子系统的响应性，如何确保并发程序执行预期任务，如何提高并发代码的性能和可伸缩性等内容。
+* Java性能权威指南：使用 JDK 中自带的工具收集 Java 应用的性能数据，理解 JIT 编译器的优缺点，调优 JVM 垃圾收集器以减少对程序的影响，学习管理堆内存和 JVM 原生内存的方法，了解如何最大程度地优化 Java 线程及同步的性能。
+* 深入理解Java虚拟机：了解更多的底层细节
+* Java编程思想：宏观角度了解Java
+* 精通Spring 4.x：分析原理，应用与原理，IOC和AOP。、
+
+---
+
+设计模式：《设计模式》，《Head First设计模式》，大话设计模式
+
+* Program to an 'interface',not an 'implementation'
+	* 使用者不需要之道数据类型、结构、算法的细节。
+	* 使用者不需要之道实现细节，只需要之道提供的接口。
+	* 利于抽象、封装，动态绑定，多态。符合面向对象的特质和思念。  
+* Favor 'object composition' over 'class inheriatance'
+	* 继承需要给子类暴露一些父类的设计和实现细节。
+	* 父类实现的改变会造成子类也需要改变。
+	* 我们以继承主要是为了代码重用，但实际上在子类需要重新实现很多父类的方法。
+	* 继承更多的应该是为了多态。
 
 #### C/C++语言 ####
 
-C程序设计语言
-C语言程序设计现代方法
-C陷阱与缺陷
-C++ Primer 中文版
-Effective C++
-More Effective C++
-深度探索C++对象模型
+* C程序设计语言
+* C语言程序设计现代方法
+* C陷阱与缺陷
+* C++ Primer 中文版
+* Effective C++
+* More Effective C++
+* 深度探索C++对象模型
 
 #### 学习Go语言 ####
 
