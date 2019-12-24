@@ -534,10 +534,57 @@ Wireshark网络分析就这么简单、Wireshark网络分析的艺术
 面向对象的S.O.L.I.D原则
 
 * SRP（Single Responsibility Principle）——职责单一原则。
-* OCP（Open/Closed Principle）——开闭原则，
+* OCP（Open/Closed Principle）——开闭原则，模块是可扩展的，但不可修改。新的需求或变化时，可以对现有代码进行扩展，。
+* LSP（Liskov substitution principle）-里氏替换原则。子类必须能够替换成它的基类。里氏替换原则 LSP 是使代码符合开闭原则的一个重要保证。正是由于子类型的可替换性才使得父类型的模块在无需修改的情况下就可以扩展。
+* ISP（Interface Segragation Princple）——接口隔离原则。接口隔离原则的意思是把功能实现在接口中，而不是类中，使用多个专门的接口比使用单一的总接口要好。
+* DIP（Dependency Inversion Principle）——依赖倒置原则。高层模块不应该依赖于低层模块的实现，而是依赖于高层抽象。
+* [CCP（Common Closure Principle）——共同封闭原则](http://c2.com/cgi/wiki?CommonClosurePrinciple):包中所有的类应该对同一种类型的变化关闭。一个变化影响一个包，便影响了包中所有的类。一个更简短的说法是：一起修改的类，应该组合在一起（同一个包里）。如果必须修改应用程序里的代码，那么我们希望所有的修改都发生在一个包里（修改关闭），而不是遍布在很多包里。
+* [CRP（Common Reuse Principle）——共同重用原则](http://c2.com/cgi/wiki?CommonReusePrinciple)。包的所有类被一起重用。如果你重用了其中的一个类，就重用全部。换个说法是，没有被一起重用的类不应该组合在一起。CRP 原则帮助我们决定哪些类应该被放到同一个包里。依赖一个包就是依赖这个包所包含的一切。
+* 好莱坞原则——Hollywood Principle：所有的组件都是被动的，所有的组件初始化和调用都由容器负责。
+* [IoC（Inversion Of Control）](https://en.wikipedia.org/wiki/Inversion_of_Control)或[DI（Dependence INjection）](https://martinfowler.com/articles/injection.html)的基础原则。
+* [高内聚，低耦合&——High Cohesion&Low/Loose coupling](https://en.wikipedia.org/wiki/Coupling_(computer_science))，把模块间的耦合降到最低，而努力让一个模块做到精益求精。内聚，指一个模块内各个元素彼此结合的紧密程度；耦合指一个软件结构内不同模块之间互连程度的度量。内聚意味着重用和独立，耦合意味着多米诺效应牵一发动全身。
+* [CoC（Convention over Configuration）——惯例优于配置](https://en.wikipedia.org/wiki/Convention_over_Configuration)将一些公认的配置方式和信息作为内部缺省的规则来使用。
+* [Soc（Separation of Concerns）——关注点分离](http://sulong.me/archives/99)：SoC是计算机科学中最重要的努力目标之一。在软件开发中，通过各种手段，将问题的各个关注点分开。实现关注点分离的方法主要有：标准化，抽象与包装。标准化需要指定一套标准，让使用者都遵守它，将人们的行为统一起来。
+* [DbC（Design by Contract）](https://en.wikipedia.org/wiki/Design_by_contract)——契约式设计，DbC的核心思想是对软件系统中的元素之间相互互作以及“责任”与“义务”的比喻。如果在程序设计中一个模块提供了某种功能，那么它要：
+	* 期望所有调用它的客户模块都保证一定的进入条件:这就是模块的先验条件（客户的义务和供应商的权利）
+	* 保证退出时给出特定的二属性：这就是模块的后验条件
+	* 在进入时假定，并在退出时保持一些特定的属性：不变式。	 
+* ADP(Acyclic Dependencies Principle)——无环依赖原则，包（或服务）之间的依赖结构必须是一个直接的无环图形，也就是说，在依赖结构中不允许吹嘘那环（循环依赖）。如何打破循环依赖关系结构：
+	* 创建新的包，如果A、B、C形成环路依赖，那么把这些共同类抽出来放在新的包D里。这样就把C依赖A变成了C依赖D以及A依赖D，从而打破了循环依赖关系。
+	* 使用DIP（依赖倒置原则）和ISP（接口分隔原则）设计原则。无环依赖原则（ADP）为我们解决包之间的关系耦合问题。在设计模块时，不能有循环依赖。
+
+
+### 一些软件设计的读物 ###
+
+* 《[领域驱动设计](https://book.douban.com/subject/26819666/)》
+* 《[UNIX编程艺术](https://book.douban.com/subject/1467587/)》
+* 《[Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)》
+* [The Twelve-Factor App](https://12factor.net/)，软件即服务（SaaS）。12-Factor为构建Saas应用提供了方法论。[中译本](https://12factor.net/zh_cn/)
+* [Avoid Over Engineering](https://medium.com/@rdsubhas/10-modern-software-engineering-mistakes-bc67fbef4fc8)：讲述什么是过度设计
+* [Instagram Engineering's 3 rules to a scalable cloud application architecture](https://medium.com/@DataStax/instagram-engineerings-3-rules-to-a-scalable-cloud-application-architecture-c44afed31406), Instagram工程的三个黄金法则： 
+	1. 使用稳定可靠的技术（迎接新的技术）
+	2. 不要重新发明轮子
+	3. Keep it very simple。   
+* [How To Design A Good API and Why it Matters - Joshua Bloch](https://www.infoq.com/presentations/effective-api-design/)，如何设计好一个API。
+* 关于Restful API的设计：
+	* [Best Practices for Designing a Pragmatic RESTful API](https://www.vinaysahni.com/best-practices-for-a-pragmatic-restful-api)
+	* [Ideal REST API design](https://betimdrenica.wordpress.com/2015/03/09/ideal-rest-api-design/)
+	* [HTTP API Design Guide](https://github.com/interagent/http-api-design)
+	* [Microsoft REST API Guidelines](https://github.com/Microsoft/api-guidelines/blob/vNext/Guidelines.md)
+	* [IBM Watson REST API Guidelines](https://github.com/watson-developer-cloud/api-guidelines)
+	* [Zalando RESTful API and Event Scheme Guidelines](https://opensource.zalando.com/restful-api-guidelines/)	 
+* [The Problem With Logging](https://blog.codinghorror.com/the-problem-with-logging/)，知道以往一些可能不知道打日志需要注意的问题。
+* [Concurrent Programming for Scalable Web Architectures](http://berb.github.io/diploma-thesis/community/index.html)：可扩展的高性能的网站
 
 ### 小结 ###
 
+“品味”不同，是各层次程序员之间最大的区别， 决定了他们所做出来的软件的质量和价值。
+
+很多程序员忽略了对编程范式的学习，但作者认为学习编程范式其实是非常非常重要的事，能够明白编程的本质和各种语言的编程方式。作者做了以下的事情
+
+1. 推荐了几分学习资料，帮助我系统化地学习和理解
+2. 介绍DRY-避免重复原则、KISS-简单原则、迪米特法则（又称“最少知识原则”）、面向对象地S.O.L.I.D原则等多个经典地软件设计地原则。
+3. 精选并推荐了软件设计方面地学习资料，如《领域驱动设计》、《UNIX编程艺术》和《Clean Architecture》等必读好书，以及如何构建Saas，如何避免过度设计，如何设计API，如何用程序打日志等方面的资料。
 ## 77 | 程序员练级攻略：Linux系统、内存和网络 ##
 
 * 系统底层相关：Linux系统为主
