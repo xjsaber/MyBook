@@ -597,20 +597,141 @@ Wireshark网络分析就这么简单、Wireshark网络分析的艺术
 
 ### Linux系统相关 ###
 
-* Red Hat Enterprise Linux文档
-* Linux Insides
-* LWN's kernel page
-* Learn Linux Kernel from Android Perspective
-* Linux Kernel Doc
-* Kernel Planet
-* Linux Performance and Tuning Guidelines
-* TLK：The Linux Kernel
+不应该一下子扎到源代码里去，要在上层读一些不错的文档来学习。
 
-### Linux系统相关 ###
+* Red Hat Enterprise Linux文档
+* Linux Insides：讲诉Linux内核是怎样启动、初始化以及进行管理的。
+* LWN's kernel page：解释Linux内核的一些东西。
+* Learn Linux Kernel from Android Perspective：从Android的角度来学习Linux内核，
+* [Linux Kernel Doc](https://www.kernel.org/doc/)：Linux的内核文档
+* [Kernel Planet](http://planet.kernel.org/)：Linux内核开发者的Blog。
+* [Linux Performance and Tuning Guidelines](https://lenovopress.com/redp4285.pdf)：IBM出的红皮书
+* [TLK：The Linux Kernel](http://tldp.org/LDP/tlk/tlk.html)：相对比较老的书
+* [Linux Performance](http://www.brendangregg.com/linuxperf.html)：提供了和Linux系统性能相关的各种工具和文章
+* [Optimizing web servers for high throughput and low latency](https://blogs.dropbox.com/tech/2017/09/optimizing-web-servers-for-high-throughput-and-low-latency/)：非常底层的系统调优的文章，来自DropBox。
 
 ### 内存相关 ###
 
+What every programmer should know about memory。
+
+性能优化方面。
+
+* [Memory Barriers: a Hardware View for Software Hackers](http://irl.cs.ucla.edu/~yingdi/web/paperreading/whymb.2010.06.07c.pdf)：内存的读写屏障是线程并发放问共享的内存数据时，从程序本身、编译器到CPU都必须遵循的一个规范。有了这个规范，才能保证放问共享的内存数据时，一个线程对该数据的更新能被另一个线程以正确的顺序感知到。再SMP（对称多处理）这种类型的多处理器系统（包括多核系统）上，这种读写屏障还包含了复杂的缓存一致性策略。
+* [A Tutorial Introduction to the ARM and POWER Relaxed Memory Models](http://www.cl.cam.ac.uk/~pes20/ppc-supplemental/test7.pdf)：对ARM和POWER的宽松内存模型的一个教程式简介。
+* x86-TSO: A Rigorous and Usable Programmer’s Model for x86 Multiprocessors，介绍x86的多处理器内存并发放问的一致性模型TSO。
+
 ### 计算机网络 ###
+
+#### 网络学习 ####
+
+[计算机网络（第五版）](https://book.douban.com/subject/10510747/) 全书按照网络协议模型自下而上（物理层、数据链路层、介质放问控制层、网络层、传输层和应用层）有系统地介绍了计算机网络的基本原理，并结合Internet给出了大量额度协议实例。
+
+还有两个网上的教程和讲义也可以让人入门
+
+* [Computer Network Design ](http://www.site.uottawa.ca/~shervin/courses/ceg4185/lectures/)
+* [Computer Network Tutorials](https://www.geeksforgeeks.org/computer-network-tutorials/)
+
+#### 网络调优 ####
+
+* 《Linux的高级路由和流量控制HowTo》（[Linux Advanced Routing & Traffic Control HOWTO](http://lartc.org/)）
+* 关于网络调优
+* Awesome列表[Awesome Pcap Tools](https://github.com/caesar0301/awesome-pcaptools)，其中罗列了各种网络工具，能够让你更从容地调试网络相关的程序。
+* [Making Linux TCP Fast](https://netdevconf.org/1.2/papers/bbr-netdev-1.2.new.new.pdf)，TCP调优的论文。
+* PackageCloud上的两篇关于Linux网络栈相关的底层文章
+	* [Monitoring and Tuning the Linux Networking Stack: Receiving Data](https://blog.packagecloud.io/eng/2016/06/22/monitoring-tuning-linux-networking-stack-receiving-data/)
+	* [Monitoring and Tuning the Linux Networking Stack: Sending Data](https://blog.packagecloud.io/eng/2017/02/06/monitoring-tuning-linux-networking-stack-sending-data/)
+
+#### 网络协议 ####
+
+想要学习网络协议最好的方式就是学习通讯相关的 RFC。
+
+读RFC有几个好处
+
+1. 一方面学习技术
+2. 通过RFC学习到一个好的技术文档怎么写的，还能看到各种解决问题的方案和思路
+
+对于第2层链路层，了解ARP：
+
+* [RFC 826 - An Ethernet Address Resolution Protocol](https://tools.ietf.org/html/rfc826)
+
+以及Tunnel相关的协议：
+
+* [RFC 1853 - IP in IP Tunneling](https://tools.ietf.org/html/rfc1853)
+* [RFC 2784 - Generic Routing Encapsulation (GRE)](https://tools.ietf.org/html/rfc2784)
+* [RFC 2661 - Layer Two Tunneling Protocol “L2TP”](https://tools.ietf.org/html/rfc2661)
+* [RFC 2637 - Point-to-Point Tunneling Protocol (PPTP)](https://tools.ietf.org/html/rfc2637)
+
+[TCP 的那些事儿（上）](https://coolshell.cn/articles/11564.html)和[TCP 的那些事儿（下）](https://coolshell.cn/articles/11609.html)
+
+* [RFC 793 - Transmission Control Protocol](https://tools.ietf.org/html/rfc793)：最初的TCP标准定义
+* [RFC 813 - Window and Acknowledgement Strategy in TCP](https://tools.ietf.org/html/rfc813)：TCP窗口与确认策略，并讨论了再使用该机制时可能遇到的问题及解决方案
+* [RFC 879 - The TCP Maximum Segment Size and Related Topics](https://tools.ietf.org/html/rfc879)：讨论MSS参数对控制TCP分组大小的重要性，以及该参数与IP分段大小的关系等
+* [RFC 896 - Congestion Control in IP/TCP Internetworks ](https://tools.ietf.org/html/rfc896)：讨论拥塞问题和 TCP 如何控制拥塞。
+* [RFC 2581 - TCP Congestion Control]()
+* [RFC 2018 - TCP Selective Acknowledgment Options]()
+* [RFC 2883 - An Extension to the Selective Acknowledgement (SACK) Option for TCP]()
+* [RFC 2988 - Computing TCP’s Retransmission Timer]()
+* [RFC 6298 - Computing TCP’s Retransmission Timer]()
+
+TCP拥塞控制，经典论文《[Congestion Avoidance and Control](http://ee.lbl.gov/papers/congavoid.pdf)》
+
+第7层协议，HTTP协议是重点需要学习的
+
+[HTTP权威指南](https://book.douban.com/subject/10746113/)
+
+* [RFC2616](https://tools.ietf.org/html/rfc2616) 原始RFC
+
+2014年被以下RFC给取代
+
+* RFC 7230 - Hypertext Transfer Protocol (HTTP/1.1): Message Syntax and Routing
+* RFC 7231 - Hypertext Transfer Protocol (HTTP/1.1): Semantics and Content
+* RFC 7232 - Hypertext Transfer Protocol (HTTP/1.1): Conditional Requests
+* RFC 7233 - Hypertext Transfer Protocol (HTTP/1.1): Range Requests
+* RFC 7234 - Hypertext Transfer Protocol (HTTP/1.1): Caching
+* RFC 7235 - Hypertext Transfer Protocol (HTTP/1.1): Authentication
+
+关于HTTP/2，一个HTTP的比较新的协议
+
+* Gitbook - HTTP/2详解
+* http2 explained(中译版)
+* HTTP/2 for a Faster Web
+* Nignx HTTP/2 白皮书
+* HTTP/2的两个RFC：
+	* RFC 7540 - Hypertext Transfer Protocol Version 2 (HTTP/2) HTTP/2的协议本身
+	* RFC 7541 - HPACK: Header Compression for HTTP/2  
+
+Wikipedia的[Internet Protocol Suite](https://en.wikipedia.org/wiki/Internet_protocol_suite)，网络协议的词条汇集地。
+
+### 小结 ###
+
+Linux系统、内存和计算机网络
+
+学习到一定程度后，从书本中走出来，到社区里和大家一起学习。
+
+## 78 | 程序员练级攻略：异步I/O模型和Lock-Free编程 ##
+
+### 异步I/O模型 ###
+
+[UNIX 网络编程](https://book.douban.com/subject/4859464/)6.2 I/O Models中介绍了5种I/O模型。
+
+* 阻塞I/O
+* 非阻塞I/O
+* I/O的多路复用（select和poll）
+* 信号驱动（SIGIO）
+* 异步I/O（POSIX的aio_function）
+
+阅读C10 Problem。对I/O模型也有了一定的了解。
+
+1. [Thousands of Threads and Blocking I/O: The Old Way to Write Java Servers Is New Again (and Way Better)](https://www.slideshare.net/e456/tyma-paulmultithreaded1) ，这个PPT中不仅回顾和比较了解各种I/O模型，而且还有各种比较细节的方案和说明，是一篇非常的文章
+2. [Scalable IO in Java](http://gee.cs.oswego.edu/dl/cpjslides/nio.pdf)
+
+了解各种异步I/O的实现和设计方式。
+
+* [IBM - Boost application performance using asynchronous I/O](https://www.ibm.com/developerworks/library/l-async/)，关于AIO的文章。
+* [Lazy Asynchronous I/O For Event-Driven Servers](https://www.usenix.org/legacy/event/usenix04/tech/general/full_papers/elmeleegy/elmeleegy_html/html.html)
+* 异步I/O模型中的 Windows I/O Completion Ports。[Inside I/O Completion Ports]()，关于Windows，Windows Internals，I/O Processing。
+* Libevent，[Libevent2.0 book](http://www.wangafu.net/~nickm/libevent-book/)和[Libevent深入浅出](https://aceld.gitbooks.io/libevent/content/)
+
 
 ## 79 | 程序员练级攻略：Java底层知识##
 
