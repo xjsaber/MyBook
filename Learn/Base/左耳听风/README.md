@@ -732,11 +732,60 @@ Linux系统、内存和计算机网络
 * 异步I/O模型中的 Windows I/O Completion Ports。[Inside I/O Completion Ports]()，关于Windows，Windows Internals，I/O Processing。
 * Libevent，[Libevent2.0 book](http://www.wangafu.net/~nickm/libevent-book/)和[Libevent深入浅出](https://aceld.gitbooks.io/libevent/content/)
 
+### Lock-Free编程相关 ###
+
+Lock-Free - 无锁技术越来越被开发人员重视，因为锁对于性能的影响实在是太大了，所以如果想开发出一个高性能的程序，你就非常有必要学习 Lock-Free 的编程方式。
+
+* Dr.Dobb’s: Lock-Free Data Structures
+* Andrei Alexandrescu: Lock-Free Data Structures
+* Is Parallel Programming Hard, And, If So, What Can You Do About It?
+
+WIKI的介绍
+
+并发编程中的内容：
+
+Non-blocking algorithm
+Read-copy-update
+Seqlock
+
+* [Implementing Lock-Free Queues]()\[[无锁队列的实现](https://coolshell.cn/articles/8239.html)\]
+* Simple, Fast, and Practical Non-Blocking and Blocking Concurrent Queue Algorithms 
+
+论文
+
+
+
+### 其他 ###
+
+*  All about 64-bit programming in one place
+*  What Scalable Programs Need from Transactional Memory
+*  Improving OpenSSL Performance
+*  压缩的内容
+	* How eBay’s Shopping Cart used compression techniques to solve network I/O bottlenecks
+	* Linkedin: Boosting Site Speed Using Brotli Compression
+* SSD硬盘性能测试的文章
+	* Performance Testing with SSDs, Part 1
+	* Performance Testing with SSDs Part 2 
+* Secure Programming HOWTO - Creating Secure Software：讲了 Linux/Unix 下的一些安全编程方面的知识
+
+### 相关论文 ###
+
+* Hints for Computer System Design
+* The 5 minute rule for trading memory for disc accesses and the 5 byte rule for trading memory for CPU time：5 分钟法则是用来衡量内存与磁盘的，而 5 字节法则则是在内存和 CPU 之间的权衡
+
+### 小结 ###
+
+异步I/O模型是个人觉得所有程序员都必需要学习的一门技术或是编程方法，这其中的设计模式或是解决方法可以借鉴到分布式架构上来。
+
+Lock-Free方面的内容，锁由于性能的影响实在太大了。
+
+系统底层方面的其他一些重要知识，如64位编程、提高OpenSSL的执行性能、压缩、SSD硬盘性能测试。
 
 ## 79 | 程序员练级攻略：Java底层知识##
 
 ### Java字节码相关 ###
 
+字节码编程，也是动态修改或动态生成Java字节码。Java 的字节码相当于汇编，其中的一些细节你可以从下面的这几个教程中学习。
 
 
 ## 80 | 程序员练级攻略：数据库 ##
