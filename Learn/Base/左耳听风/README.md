@@ -787,8 +787,67 @@ Lock-Free方面的内容，锁由于性能的影响实在太大了。
 
 字节码编程，也是动态修改或动态生成Java字节码。Java 的字节码相当于汇编，其中的一些细节你可以从下面的这几个教程中学习。
 
+* [Java Zone: Introduction to Java Bytecode](https://dzone.com/articles/introduction-to-java-bytecode)
+* [IBM DeveloperWorks: Java bytecode](https://www.ibm.com/developerworks/library/it-haggar_bytecode/index.html)
+* [Java Bytecode and JVMTI Examples](https://github.com/jon-bell/bytecode-examples)：包括方法调用统计、静态字节码修改、Heap Taggin和Heap Walking
+
+不使用 JVMTI 操作字节码，而是用一些更好用的库。
+
+* [asmtools]()——用于生产环境的Java .class文件开发工具
+* [Byte Buddy]()——代码库生成库
+* [Jitescript](https://github.com/qmx/jitescript)和[BiteScript](https://github.com/headius/bitescript)类似的字节码生成库。
+
+使用字节码编程可以玩出很多高级玩法，最高级的还是在 Java 程序运行时进行字节码修改和代码注入。
+
+Java Agent 使用的是 “[Java Instrumentation API](https://stackoverflow.com/questions/11898566/tutorials-about-javaagents)”，其主要方法是实现一个叫 premain() 的方法（一个比 main() 函数还要超前执行的 main 函数），然后把你的代码编译成一个 jar 文件。
+
+在JVM启动时，使用这样的命令行来引入你的jar文件：java-javaagent:yourAwesomeAgent.jar -jar App.jar。更为详细的文章可以参看“Java Code Geeks: Java Agents”.
+
+### JVM相关 ###
+
+Java 8 的[The Java Virtual Machine Specification Java SE 8 Edition](https://docs.oracle.com/javase/specs/jvms/se8/jvms8.pdf)。[中文翻译](https://github.com/waylau/java-virtual-machine-specification)
+
+[JVM Anatomy Park](https://shipilev.net/jvm/anatomy-quarks/)JVM解剖公园，带你一点点把JVM中的一些技术解开。
+
+学习Java底层原理还有Java的内存模型，官方文章是[JSR 133](https://www.jcp.org/en/jsr/detail?id=133)和Java内存模型相关的文献——[The Java Memory Model](http://www.cs.umd.edu/~pugh/java/memoryModel/)
+
+对于内存方面：
+
+* [The JSR-133 Cookbook for Compiler Writers](http://gee.cs.oswego.edu/dl/jmm/cookbook.html)，解释了怎么样实现Java内存模型，特别是在考虑到多处理器（或多核）系统的情况下，多线程和读写屏障的实现。
+* [Using JDK9 Memory Order Modes](http://gee.cs.oswego.edu/dl/html/j9mm.html)，讲了怎样通过VarHandler来使用plain、opaque、release/acquire和volatile四种共享内存的访问模式，并剖析了底层的原理。
+
+垃圾回收机制《[The Garbage Collection Handbook](https://book.douban.com/subject/6809987/)》，全面介绍了垃圾收集的原理、设计和算法。中文翻译《[垃圾回收算法手册](https://book.douban.com/subject/26740958/)》
+
+怎么调优垃圾回收，[Garbage Collection Tuning Guide](https://docs.oracle.com/javase/8/docs/technotes/guides/vm/gctuning/)，它是Hotspot Java虚拟机的垃圾回收调优指南。
+
+### 小结 ###
+
+**字节码编程**
+
+1. 字节码编程，也就是动态修改或是动态生成Java字节码。Java的字节码相当于汇编。
+2. 一般不使用JVMTI操作字节码，而是用一些更好用的库，如asmtools、Byte Buddy和BitScript等。
+3. 使用字节码编程可以玩出很高级的玩法，其中最高级的玩法就是在Java程序运行时进行字节码修改和代码注入。Java Agent，帮助你更好地实现这种高级玩法。
+
+JVM也是学习Java过程中非常重要的一部分内容。推荐阅读一下JVM的规范说明书，系统了解JVM规范的最佳文档，可以搞清楚诧异的问题悟。同时推荐了[JVM Anatomy Park](https://shipilev.net/jvm/anatomy-quarks/)系列文章
+
+Java的内存和垃圾回收机制，尤其是给出了如何调优垃圾回收方面的资料。
 
 ## 80 | 程序员练级攻略：数据库 ##
+
+两种数据库
+
+1. 以SQL为代表的关系型数据库，主要有三个：Oracle、MySQL和Postgres
+2. 非SQL为代表的NoSQL数据库
+
+对于主流MySQL数据库
+
+1. 了解数据库的一些实现原理和内存的细节
+2. 数据的高可用和数据复制
+3. 了解关系型数据库的一些实践和难点
+
+NoSQL主要是解决了关系型数据库中的各种问题
+
+1. 数据的Schema非常多，用关系型数据库来表示不同的Data Schema是非常笨拙，所以要有不同的数据库（如时序型、键值对型、搜索型）
 
 ### 关系型数据库 ###
 
