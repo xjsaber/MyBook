@@ -905,15 +905,84 @@ SQL VS NoSQL
 
 针对HBase
 
-* HBase 实战
-* 
+* HBase实战：偏实践
+* HBase权威指南：偏大而全的手册型
 
+#### 文档型 Document Database——MongoDB ####
+
+#### 数据结构数据库——Data structure Dadabase——Redis ####
+
+#### 时序数据库 Time-Series
+
+#### 图数据库——Graph Platform ####
+
+#### 搜索数据库——ElasticSearch ####
+
+* Elasticsearch: The Definitive Guide：学习资料
+* 性能调优的工程实践
+	* Elasticsearch Performance Tuning Practice at eBay
+	* Elasticsearch at Kickstarter
+	* 9 tips on ElasticSearch configuration for high performance
+	* Elasticsearch In Production - Deployment Best Practices 
+
+### 小结 ###
+
+数据库才真正是程序员的事儿。因为程序是需要和数据打交道的，所以程序员或架构师不仅需要设计数据模型，还要保证整体系统的稳定性和可用性，数据是整个系统中关键中的关键。
+
+对于数据库方向，重点就是两种数据库，一种是以 SQL 为代表的关系型数据库，另一种是以非 SQL 为代表的 NoSQL 数据库。
 
 ## 81 | 程序员练级攻略：分布式架构入门 ##
 
-* 服务调度
-* 资源调度
-* 流量调度
+* 服务调度：涉及服务发现、配置管理、弹性伸缩、故障恢复等。
+* 资源调度：涉及对底层资源的调度，如计算资源、网络资源和存储资源等。
+* 流量调度：涉及路由、负载均衡、流控、熔断等。
+* 数据调度：涉及数据复本、数据一致性、分布式事务、分库、分表等。
+* 容错处理：涉及隔离、幂等、业务补偿、异步、降级等。
+* 自动化运维：涉及持续集成、持续部署、全栈监控、调用链跟踪等。
+
+PS.
+
+1. 分布式系统之所以复杂，就是因为它太容易出错。把处理错误的代码当成正常功能的代码来处理。
+2. 开发一个健壮的分布式系统的成本是单体系统的几百倍甚至几万倍。自己开发一个，需要能力很强的人员。
+3. 非常健壮的开源的分布式系统并不多，或者说基本没有。
+4. 管理或是协调多个服务或机器是非常难得，
+5. 在分布式环境下，出了问题是很难debug的。
+6. 在分布式环境下，需要更科学地分析和统计。
+7. 在分布式环境下，需要应用服务化。
+8. 在分布式环境下，故障不可怕，可怕的是影响面过大，时间过长。
+
+### 分布式架构入门 ###
+
+基本概念：
+
+* [Scalable Web Architecture and Distributed Systems](http://www.aosabook.org/en/distsys.html)：一个大概的分布式架构是怎么来解决系统扩展性问题的粗略方法。
+* Scalability, Availability & Stability Patterns 
+
+System Design Primer，主要组织收集分布式系统的一些与扩展性相关的资源，集到了好些系统架构和设计的基本方法。
+
+CAP 理论、一致性模型、可用性模式、DNS、CDN、负载均衡、反向代理、应用层的微服务和服务发现、关系型数据库和 NoSQL、缓存、异步通讯、安全等
+
+### 分布式理论 ###
+
+1. An introduction to distributed systems：教学课程的提纲，涵盖了分布式系统方面的所有知识点，一个分布式系统的知识图谱。
+2. 拜占庭将军问题，拜占庭容错系统研究中有三个重要理论：CAP、FLP 和 DLS。
+	* CAP 定理
+	* FLP impossibility
+	* 容错的上限
+		* 在部分同步（partially synchronous）的网络环境中
+		* 在异步（asynchronous）的网络环境中
+		* 在同步（synchronous）网络环境中
+3. 分享几篇一致性方面的论文
+
+### 小结 ###
+
+1. 学习分布式需要注意的关键点
+2. 入门学习的资源，基本涵盖了所有与系统架构相关的技术
+3. 讲述了拜占庭容错系统研究中有三个重要理论：CAP、FLP 和 DLS
+4. 8条荒谬的分布式架设，从理论和认知等角度让你更为清楚地理解分布式系统
+5. 几篇一致性相关的论文
+
+## 82 | 程序员练级攻略：分布式架构经典图书和论文 ##
 
 ## 86 | 程序员练级攻略：机器学习和人工智能 ##
 
