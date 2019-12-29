@@ -853,16 +853,61 @@ NoSQL主要是解决了关系型数据库中的各种问题
 
 #### Oracle ####
 
-Oracle Database 9i/10g/11g编程艺术
+[Oracle Database 9i/10g/11g编程艺术](https://book.douban.com/subject/5402711/)
+
+这本书深入分析了Oracle数据库体系结构，包括文件、内存结构以及构成Oracle数据库和实例的底层进程，利用具体示例讨论了一些重要的数据库主题，如锁定、并发控制、事务等。同时分析了数据库中的物理结构，如表、索引和数据类型，并介绍采用了哪些哪些技术能最优化地使用这些物理结构。
 
 #### MySQL ####
 
-[MySQL官方文档](https://dev.mysql.com/doc/)
-https://www.mysql.com/cn/why-mysql/presentations/mysql-performance-tuning101/
-How to Analyze and Tune MySQL Queries for Better PerformanceMySQL Performance Tuning 101MySQL Performance Schema & Sys SchemaMySQL Performance: Demystified Tuning & Best PracticesMySQL Security Best PracticesMySQL Cluster Deployment Best PracticesMySQL High Availability with InnoDB Cluster
-高性能MySQL
-MySQL技术内幕：InnoDB存储引擎
-据库的索引设计与优化
+1. [MySQL官方文档](https://dev.mysql.com/doc/)
+2. 官网的PPT
+	* [How to Analyze and Tune MySQL Queries for Better Performance](https://www.mysql.com/cn/why-mysql/presentations/tune-mysql-queries-performance/)
+	* [MySQL Performance Tuning 101](https://www.mysql.com/cn/why-mysql/presentations/mysql-performance-tuning101/)
+	* [MySQL Performance Schema & Sys Schema](https://www.mysql.com/cn/why-mysql/presentations/mysql-performance-sys-schema/)
+	* MySQL Performance: Demystified Tuning & Best Practices
+	* MySQL Security Best Practices
+	* MySQL Cluster Deployment Best Practices
+	* MySQL High Availability with InnoDB Cluster
+3. [高性能MySQL]()
+4. [MySQL技术内幕：InnoDB存储引擎]()
+5. [数据库的索引设计与优化](https://book.douban.com/subject/26419771/)：也推荐高性能MySQL中的索引部分，在系统架构上，在分布式架构中，索引技术也是非常重要的。
+
+* [MySQL 索引背后的数据结构及算法原理](http://blog.codinglabs.org/articles/theory-of-mysql-index.html)
+* Some study on database storage internals
+* Sharding Pinterest: How we scaled our MySQL fleet
+* Guide to MySQL High Availability
+* Choosing MySQL High Availability Solutions
+* High availability with MariaDB TX: The definitive guide
+
+[Awesome MySQL](https://shlomi-noach.github.io/awesome-mysql/)
+
+### NoSQL数据库 ###
+
+* [Introduction To NoSQL](https://www.youtube.com/watch?v=qI_g07C_Q5I&feature=youtu.be)和[NoSQL Distilled - NoSQL 精粹](https://book.douban.com/subject/25662138/)
+* NoSQL Databases: a Survey and Decision Guidance，自上而下地从CAP原理到开始了解NoSQL的种种技术
+* Distribution, Data, Deployment: Software Architecture Convergence in Big Data Systems
+* No Relation: The Mixed Blessings of Non-Relational Databases
+* NoSQL Data Modeling Techniques，NoSQL 数据建模技术
+	* MongoDB -  Data Modeling Introduction 
+	* Firebase - Structure Your Database  
+
+SQL VS NoSQL
+
+* SQL vs. NoSQL Databases: What’s the Difference?
+* Salesforce: SQL or NoSQL
+
+### 各种NoSQL数据库 ###
+
+#### 列数据库 Column Database ####
+
+* Cassandra 相关
+* HBase 相关
+
+针对HBase
+
+* HBase 实战
+* 
+
 
 ## 81 | 程序员练级攻略：分布式架构入门 ##
 
