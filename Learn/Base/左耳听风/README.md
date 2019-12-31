@@ -984,9 +984,306 @@ CAP 理论、一致性模型、可用性模式、DNS、CDN、负载均衡、反�
 
 ## 82 | 程序员练级攻略：分布式架构经典图书和论文 ##
 
+### 经典图书 ###
+
+* [Distributed Systems for fun and profit](http://book.mixu.net/distsys/single-page.html)：讲述以亚马逊的 Dynamo、谷歌的 Bigtable 和 MapReduce 等为代表的分布式系统背后的核心思想
+* [Designing Data Intensive Applications](https://book.douban.com/subject/27154352/)：
+* [Distributed Systems: Principles and Paradigms](http://barbie.uta.edu/~jli/Resources/MapReduce&Hadoop/Distributed%20Systems%20Principles%20and%20Paradigms.pdf)：语言简洁，内容通俗易懂，介绍了分布式系统的七大核心原理，并给出了大量的例子；系统讲述了分布式系统的概念和技术，包括通信、进程、命名、同步化、一致性和复制、容错以及安全等；讨论了分布式应用的开发方法（即范型）。但本书不是一本指导“如何做”的手册，仅适合系统性地学习基础知识，了解编写分布式系统的基本原则和逻辑。[世界著名计算机教材精选：分布式系统原理与范型](https://item.jd.com/10079452.html)
+* [Scalable Web Architecture and Distributed Systems](http://www.aosabook.org/en/distsys.html)：
+* [Principles of Distributed Systems](https://disco.ethz.ch/courses/podc_allstars/lecture/podc.pdf)：
+
+### 经典论文 ###
+
+#### 分布式事务 ####
+
+[Transaction Across DataCenter](http://snarfed.org/transactions_across_datacenters_io.html)
+
+讲述了各种经典的解决方案如何在一致性、事务、性能和错误上平衡。而最后得到为什么分布式系统的事务只有 Paxos 算法是最好的。
+
+[分布式系统的事务处理](https://coolshell.cn/articles/10910.html)
+
+#### Paxos一致性算法 ####
+
+一种基于消息传递且具有高度容错特性的一致性算法。其真正进入工程圈，主要是来源于Google的Chubby lock——一个分布式的锁服务，用在了Bigtabel。
+
+* [Bigtable: A Distributed Storage System for Structured Data](https://static.googleusercontent.com/media/research.google.com/en//archive/bigtable-osdi06.pdf)
+* [The Chubby lock service for loosely-coupled distributed systems](https://static.googleusercontent.com/media/research.google.com/en//archive/chubby-osdi06.pdf)
+
+Google与Bigtable相其名的还有另外两篇论文。
+
+* [The Google File System](https://static.googleusercontent.com/media/research.google.com/en//archive/gfs-sosp2003.pdf)
+* [MapReduce: Simplified Data Processing on Large Clusters](https://static.googleusercontent.com/media/research.google.com/en//archive/mapreduce-osdi04.pdf)
+
+Paxos Made Live - An Engineering Perspective，提到了很多工程实现的细节。详细解释了Google实现了Paxos时遇到的各种问题和解决方案，讲述了从理论到实际应用二者之间巨大的鸿沟。
+
+[Neat Algorithms - Paxo](http://harry.me/blog/2014/12/27/neat-algorithms-paxos/)，还有一些小动画，还有一篇版主理解的文章[Paxos by Examples](https://angus.nyc/2012/paxos-by-example/)
+
+#### Raft一致性算法 ####
+
+Paxos算法太过于晦涩，实际应用中也有很多的坑。其原始论文是[In search of an Understandable Consensus Algorithm (Extended Version)](https://raft.github.io/raft.pdf)，寻找一种易于理解的Raft算法。中文版《[Raft 一致性算法论文译文]()》
+
+Raft算法的动画演示。
+
+* [Raft - The Secret Lives of Data](http://thesecretlivesofdata.com/raft/)
+* [Raft Consensus Algorithm](https://raft.github.io/)
+* [Raft Distributed Consensus Algorithm Visualization](http://kanaka.github.io/raft.js/)
+
+#### Gossip 一致性算法 ####
+
+Amazon 的 DynamoDB，其论文[Dynamo: Amazon’s Highly Available Key Value Store](http://bnrg.eecs.berkeley.edu/~randy/Courses/CS294.F07/Dynamo.pdf)，讲述了Amazon的DynamoDB是如何满足系统的高可用、高扩展和高可靠的。其中展示了系统架构是如何做到数据分布以及数据一致性的。GFC采用的是查表式的数据分布，而DynamoDB采用的是计算式的，也是一个改进版 的通过虚拟结点减少增加结点带来数据迁移的一致性哈希。
+
+* [Time, Clocks and the Ordering of Events in a Distributed System](https://www.microsoft.com/en-us/research/publication/time-clocks-ordering-events-distributed-system/)：解决分布式系统中的时钟同步的问题。
+* [马萨诸塞大学课程 Distributed Operating System](http://lass.cs.umass.edu/~shenoy/courses/spring05/lectures.html)中第10节[Clock Synchronization](http://lass.cs.umass.edu/~shenoy/courses/spring05/lectures/Lec10.pdf)，讲述了时钟同步的问题。
+* [Why Vector Clocks are Easy](https://riak.com/posts/technical/why-vector-clocks-are-easy/)和[Why Vector Clocks are Hard](https://riak.com/posts/technical/why-vector-clocks-are-hard/) 
+
+用来做数据同步的Gossip协议的原始论文是[Efficient Reconciliation and Flow Control for Anti-Entropy Protocols](https://www.cs.cornell.edu/home/rvr/papers/flowgossip.pdf)，Gossip算法也是Cassandra使用的数据复制协议。
+
+Gossip的一些图示化的东西，动画[Gossip Visualization](https://rrmoelker.github.io/gossip-visualization/)
+
+#### 分布式存储和数据库 ####
+
+* AWS Auror的[Amazon Aurora: Design Considerations for High Throughput Cloud -Native Relation Databases]()
+* Google的[Spanner: Google’s Globally-Distributed Database](http://static.googleusercontent.com/media/research.google.com/zh-CN//archive/spanner-osdi2012.pdf)，其2017年新版[Spanner, TrueTime & The CAP Theorem](https://static.googleusercontent.com/media/research.google.com/zh-CN//pubs/archive/45855.pdf)
+* [F1 - The Fault-Tolerant Distributed RDBMS Supporting Google’s Ad Business](http://research.google.com/pubs/archive/38125.pdf)
+* Cassandra: A Decentralized Structured Storage System
+* CRUSH: Controlled, Scalable, Decentralized Placement of Replicated Data
+
+#### 分布式消息系统 ####
+
+* 分布式消息系统，[Kafka: a Distributed Messaging System for Log Processing](http://research.microsoft.com/en-us/UM/people/srikanth/netdb11/netdb11papers/netdb11-final12.pdf)
+* [Wormhole: Reliable Pub-Sub to Support Geo-replicated Internet Services](https://www.usenix.org/system/files/conference/nsdi15/nsdi15-paper-sharma.pdf)，Wormhole是Facebook内部使用的一个Pub-Sub系统。
+* [All Aboard the Databus! LinkedIn’s Scalable Consistent Change Data Capture Platform ](https://engineering.linkedin.com/research/2012/all-aboard-the-databus-linkedlns-scalable-consistent-change-data-capture-platform)：指出支持对不同数据源的抽取，允许不同数据源抽取器的开发和介入，只需该抽取器遵循设计规范即可。该规范的一个重要方面就是每个数据变化都必须被一个单调递增的数字标注（SCN），用于同步。其中的一些方法完全可以用做异地双活的系统架构中。
+
+#### 日志和数据 ####
+
+* [The Log: What every software engineer should know about real-time data’s unifying abstraction](https://engineering.linkedin.com/distributed-systems/log-what-every-software-engineer-should-know-about-real-time-datas-unifying)，[日志：每个软件工程师都应该知道的有关实时数据的统一概念](https://github.com/oldratlee/translations/blob/master/log-what-every-software-engineer-should-know-about-real-time-datas-unifying/README.md)
+* [The Log-Structured Merge-Tree (LSM-Tree)](https://www.cs.umb.edu/~poneil/lsmtree.pdf)，[文章1](https://www.cnblogs.com/siegfang/archive/2013/01/12/lsm-tree.html)，[文章2](https://kernelmaker.github.io/lsm-tree)
+* [Immutability Changes Everything](http://cidrdb.org/cidr2015/Papers/CIDR15_Paper16.pdf) 
+* [Tango: Distributed Data Structures over a Shared Log](https://www.microsoft.com/en-us/research/wp-content/uploads/2013/11/Tango.pdf)：说明不可变性（immutability）架构设计的优点。随着为海量数据集存储和计算而设计的以数据为中心的新型抽象技术的出现，分布式系统比以往任何时候都更容易构建。但是，对于元数据的存储和访问不存在类似的抽象。Tango为开发人员提供了一个由共享日志支持的内存复制数据结构（例如地图或树）的抽象。Tango 对象易于构建和使用，通过共享日志上简单的追加和读取操作来复制状态，而不是复杂的分布式协议。在这个过程中，它们从共享日志中获得诸如线性化、持久性和高可用性等属性。Tango 还利用共享日志支持跨不同对象的快速事务处理，允许应用程序跨机器进行状态划分，并在不牺牲一致性的情况下扩展到底层日志的上限。
+
+
+#### 分布式监控和跟踪 ####
+
+Google的分布式监控论文——[Dapper, a Large-Scale Distributed Systems Tracing Infrastructure]()
+
+具体的开源实现有三个：*[zipkin](http://zipkin.io/)*、[Pinpoint](https://github.com/naver/pinpoint)、[HTrace](http://incubator.apache.org/projects/htrace.html)
+
+#### 数据分析 ####
+
+* [The Unified Logging Infrastructure for Data Analytics at Twitter](http://vldb.org/pvldb/vol5/p1771_georgelee_vldb2012.pdf):Twitter 公司的一篇关于日志架构和数据分析的论文
+* [Scaling Big Data Mining Infrastructure: The Twitter Experience](http://www.datascienceassn.org/sites/default/files/Scaling%20Big%20Data%20Mining%20Infrastructure%20-%20The%20Twitter%20Experience.pdf)：越来越复杂的需求下，数据分析如何从头开始做。
+* [Dremel: Interactive Analysis of Web-Scale Datasets](http://static.googleusercontent.com/external_content/untrusted_dlcp/research.google.com/en/us/pubs/archive/36632.pdf)：
+* [Resident Distributed Datasets: a Fault-Tolerant Abstraction for In-Memory Cluster Computing](https://www.usenix.org/system/files/conference/nsdi12/nsdi12-final138.pdf)：提出了弹性分布式数据集（Resilient Distributed Dataset，RDD）的概念，一个分布式存储抽象。
+
+#### 与编程相关的论文 ####
+
+* [Distributed Programming Model](https://web.cs.ucdavis.edu/~pandey/Research/Papers/icdcs01.pdf)
+* [PSync: a partially synchronous language for fault-tolerant distributed algorithms](https://www.di.ens.fr/~cezarad/popl16.pdf)
+* [Programming Models for Distributed Computing](https://heather.miller.am/teaching/cs7680/)
+* [Logic and Lattices for Distributed Programming](https://dsf.berkeley.edu/papers/UCB-lattice-tr.pdf)
+
+#### 其他的分布式论文阅读列表 ####
+
+其他不错的分布式系统论文的阅读列表
+
+* [Services Engineering Reading List](https://github.com/mmcgrana/services-engineering)
+* [Readings in Distributed Systems](http://christophermeiklejohn.com/distributed/systems/2013/07/12/readings-in-distributed-systems.html)
+* [Google Research - Distributed Systems and Parallel Computing](https://ai.google/research/pubs/?area=DistributedSystemsandParallelComputing)
+
+### 小结 ###
+
+涵盖了分布式系统架构方面的所有关键的理论知识。
+
+## 83 | 程序员练级攻略：分布式架构工程设计 ##
+
+* [Designs, Lessons and Advice from Building Large Distributed Systems](https://www.cs.cornell.edu/projects/ladis2009/talks/dean-keynote-ladis2009.pdf)
+* The Twelve-Factor App 
+* Notes on Distributed Systems for Young Bloods 
+* On Designing and Deploying Internet-Scale Services（中译版）
+* 4 Things to Keep in Mind When Building a Platform for the Enterprise 
+* Principles of Chaos Engineering 
+* Building Fast & Resilient Web Applications 
+* Design for Resiliency 
+* Design Principle：微软的Azure网站
+	* Design Principle
+	* Design for Scaling Out 
+	* Design for Evolution
+* Eventually Consistent 
+* Writing Code that Scales 
+* [Automate and Abstract: Lessons from Facebook on Engineering for Scale](https://architecht.io/lessons-from-facebook-on-engineering-for-scale-f5716f0afc7a)：软件自动化和软件抽象  
+
+### 设计模式 ###
+
+最好的方式就是学习被前人总结出来的设计模式。推荐微软云平台，[Cloud Design Patterns](https://docs.microsoft.com/en-us/azure/architecture/patterns/)，对于每一个模式都有详细的说明，并有对其优缺点的讨论，以及适用场景和不适用场景的说明。有如下分类：
+
+* [设计模式：可用性](https://docs.microsoft.com/en-us/azure/architecture/patterns/category/availability)；
+* 设计模式：数据管理；
+* 设计模式：设计和实现；
+* 设计模式：消息；
+* 设计模式：管理和监控；
+* 设计模式：性能和扩展；
+* 设计模式：系统弹力；
+* 设计模式：安全。
+
+一些关于分布式系统设计模式的网站和相关资料
+
+* AWS Cloud Pattern：AWS云平台的一些设计模式
+* Design patterns for container-based distributed systems：描述了容器化下的分布式架构的设计模式 
+* Patterns for distributed systems：一些分布式系统的架构模式
+
+服务架构模式
+
+* A Pattern Language for Micro-Services；
+* SOA Patterns。
+
+分布式设计的模式总结
+
+* 弹力设计篇：
+	* 认识故障和弹力设计
+	* 隔离设计
+	* 异步通讯设计
+	* 幂等性设计
+	* 服务的状态
+	* 补偿事务
+	* 重试设计
+	* 熔断设计
+	* 限流设计
+	* 降级设计
+	* 弹力设计总结。
+* 管理设计篇：
+	* 分布式锁
+	* 配置中心
+	* 边车模式
+	* 服务网格
+	* 网关模式
+	* 部署升级策略
+* 性能设计篇
+	* 缓存
+	* 异步处理
+	* 数据库扩展
+	* 秒杀
+	* 边缘计算 
+
+### 设计与工程实践 ###
+
+#### 分布式系统的故障测试 ####
+
+* FIT: Failure Injection Testing：故障注入测试的文章
+* Automated Failure Testing：自动化故障测试的一篇博文
+* Automating Failure Testing Research at Internet Scale 
+
+#### 弹性伸缩 ####
+
+* 4 Architecture Issues When Scaling Web Applications: Bottlenecks, Database, CPU, IO 
+* Scaling Stateful Objects
+* Scale Up vs Scale Out: Hidden Costs 
+* Best Practices for Scaling Out 
+* Scalability Worst Practices 
+* Reddit: Lessons Learned From Mistakes Made Scaling To 1 Billion Pageviews A Month 
+
+自动化弹性伸缩的文章
+
+* Autoscaling Pinterest；
+* Square: Autoscaling Based on Request Queuing；
+* PayPal: Autoscaling Applications；
+* Trivago: Your Definite Guide For Autoscaling Jenkins；
+* Scryer: Netflix’s Predictive Auto Scaling Engine。
+
+#### 一致性哈希 ####
+
+* Consistent Hashing 
+* Consistent Hashing: Algorithmic Tradeoffs
+* Distributing Content to Open Connect
+* Consistent Hashing in Cassandra
+
+#### 数据库分布式 ####
+
+* Life Beyond Distributed Transactions 
+* How Sharding Works 
+* Why you don’t want to shard
+* How to Scale Big Data Applications 
+* MySQL Sharding with ProxySQL 
+
+#### 缓存 ####
+
+* 缓存更新的套路，缓存更新的几个设计模式，包括 Cache Aside、Read/Write Through、Write Behind Caching
+* Design Of A Modern Cache
+* Netflix: Caching for a Global Netflix
+* Facebook: An analysis of Facebook photo caching 
+* How trivago Reduced Memcached Memory Usage by 50%
+* Caching Internal Service Calls at Yelp 
+
+### 消息队列 ###
+
+* Understanding When to use RabbitMQ or Apache Kafka
+* Trello: Why We Chose Kafka For The Trello Socket Architecture 
+* LinkedIn: Running Kafka At Scale 
+* Should You Put Several Event Types in the Same Kafka Topic? 
+* Billions of Messages a Day - Yelp’s Real-time Data Pipeline 
+* Uber: Building Reliable Reprocessing and Dead Letter Queues with Kafka 
+* Uber: Introducing Chaperone: How Uber Engineering Audits Kafka End-to-End 
+* Publishing with Apache Kafka at The New York Times 
+* Kafka Streams on Heroku 
+* Salesforce: How Apache Kafka Inspired Our Platform Events Architecture 
+* Exactly-once Semantics are Possible: Here’s How Kafka Does it 
+* Delivering billions of messages exactly once
+* Benchmarking Streaming Computation Engines at Yahoo!
+
+### 关于日志方面 ###
+
+* [Using Logs to Build a Solid Data Infrastructure - Martin Kleppmann](https://www.confluent.io/blog/using-logs-to-build-a-solid-data-infrastructure-or-why-dual-writes-are-a-bad-idea/)
+* [Building DistributedLog: High-performance replicated log service](https://blog.twitter.com/engineering/en_us/topics/infrastructure/2015/building-distributedlog-twitter-s-high-performance-replicated-log-servic.html)，主页在 distributedlog.io。这篇文章讲述了这个高性能日志系统的一些技术细节。Twitter 高性能分布式日志系统架构解析
+* [LogDevice: a distributed data store for logs](https://code.facebook.com/posts/357056558062811/logdevice-a-distributed-data-store-for-logs/)，Facebook 
+
+### 关于性能方面 ###
+
+* [Understand Latency](http://highscalability.com/latency-everywhere-and-it-costs-you-sales-how-crush-it)，全面了解和 Latency 有关的系统架构和设计经验方面的知识
+* [Common Bottlenecks](http://highscalability.com/blog/2012/5/16/big-list-of-20-common-bottlenecks.html)，20个常见的系统瓶颈
+* [Performance is a Feature](https://blog.codinghorror.com/performance-is-a-feature/)，关注性能的文章
+* [Make Performance Part of Your Workflow](https://codeascraft.com/2014/12/11/make-performance-part-of-your-workflow/)，[Designing for Performance](http://shop.oreilly.com/product/0636920033578.do)，给出了一些和性能有关的设计上的平衡和美学
+* [CloudFlare: How we built rate limiting capable of scaling to millions of domains](https://blog.cloudflare.com/counting-things-a-lot-of-different-things/)，讲述了 CloudFlare 公司是怎样实现他们的限流功能的，从最简单的每客户 IP 限流开始分析，进一步讲到 anycast。 
+
+### 关于搜索方面 ###
+
+* Instagram: Search Architecture
+* eBay: The Architecture of 
+* eBay SearcheBay: Improving Search Engine Efficiency by over 25%
+* LinkedIn: Introducing LinkedIn’s new search architecture
+* LinkedIn: Search Federation Architecture at LinkedInSlack: Search at SlackDoorDash: Search and Recommendations at DoorDashTwitter: Search Service at Twitter (2014)Pinterest: Manas: High Performing Customized Search SystemSherlock: Near Real Time Search Indexing at Flipkart
+* Airbnb: Nebula: Storage Platform to Build Search Backends
+
+### 各公司的架构实践 ###
+
+[High Scalability](http://highscalability.com/)，定期分享一些大规模系统架构是怎样构建的。
+
+* YouTube Architecture
+* Scaling Pinterest
+* Google Architecture
+* Scaling Twitter
+* The WhatsApp Architecture
+* Flickr Architecture
+* Amazon Architecture
+* Stack Overflow Architecture
+* Pinterest Architecture
+* Tumblr Architecture
+* Instagram Architecture
+* TripAdvisor Architecture
+* Scaling Mailbox
+* Salesforce Architecture 
+* ESPN Architecture
+* Uber Architecture
+* DropBox Design
+* Splunk Architecture
+
+### 小结 ###
+
+高手成长篇分布式架构部分的最后一篇——分布式架构工程设计，讲述了设计原则、设计模式等方面，尤其整理和推荐了国内外知名企业的设计思路和工程实践。
+
+## 84 | 程序员练级攻略：微服务 ##
+
+## 85 | 程序员练级攻略：容器化和自动化运维 ##
+
 ## 86 | 程序员练级攻略：机器学习和人工智能 ##
-
-
 
 ## 87 | 程序员练级攻略：前端基础和底层原理 ##
 
