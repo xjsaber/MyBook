@@ -1281,6 +1281,99 @@ Google的分布式监控论文——[Dapper, a Large-Scale Distributed Systems T
 
 ## 84 | 程序员练级攻略：微服务 ##
 
+微服务架构主要解决的是如何快速地开发和部署我们的服务，这对于一个能够适应快速开发和成长的公司是非常必要的。
+
+1. 了解微服务架构的文档：[Microservice Architecture](https://martinfowler.com/articles/microservices.html) （[中译版](https://blog.csdn.net/wurenhai/article/details/37659335)），这篇文章说明了微服务的架构与传统架构的不同之处在于，微服务的每个服务与其数据库都是独立的，可以无依赖地进行部署。
+2. 了解各家对微服务的理解
+	* AWS 的理解 - What are Microservices?。
+	* Microsoft 的理解 - Microservices architecture style。
+	* Pivotal 的理解 - Microservices。
+
+### 微服务架构 ###
+
+[IBM 红皮书：Microservices Best Practices for Java](https://www.redbooks.ibm.com/redbooks/pdfs/sg248357.pdf)，通过把SpringBoot和Dropwizard来架建Java的微服务，而且还谈到了一些标准的架构模型，如服务注册、服务发现、API网关、服务通讯、数据处理、应用安全、测试、部署、运维等。
+
+[微服务设计](https://book.douban.com/subject/26772677/)。全面介绍了微服务的建模、集成、测试、部署和监控，通过一个虚构的公司讲解了如何建立微服务架构。
+
+* 认识微服务在保证系统设计与组织目标统一上的重要性
+* 学会把服务集成到已有系统中
+* 采用递增手段拆分单块大型应用
+* 通过持续集成部署微服务
+
+Nginx上的一组微服务架构的系列文章：
+
+* Introduction to Microservices
+* Building Microservices: Using an API Gateway
+* Building Microservices: Inter-Process Communication in a Microservices Architecture
+* Service Discovery in a Microservices Architecture
+* Event-Driven Data Management for Microservices
+* Choosing a Microservices Deployment Strategy
+* Refactoring a Monolith into Microservices
+
+Auto0 Blog 上一系列的微服务的介绍
+
+* An Introduction to Microservices, Part 1
+* API Gateway. An Introduction to Microservices, Part 2
+* An Introduction to Microservices, Part 3: The Service Registry
+* Intro to Microservices, Part 4: Dependencies and Data Sharing
+* API Gateway: the Microservices Superglue
+
+Dzone 的这个 Spring Boot 的教程
+
+* Microservices With Spring Boot - Part 1 - Getting Started
+* Microservices With Spring Boot - Part 2 - Creating a Forex Microservice
+* Microservices With Spring Boot - Part 3 - Creating Currency Conversion Microservice
+* Microservices With Spring Boot - Part 4 - Using Ribbon for Load Balancing
+* Microservices With Spring Boot - Part 5 - Using Eureka Naming Server
+
+作者推荐：
+
+* 前端：React.js 或 Vue.js
+* 后端：Go 语言 + 微服务工具集 Go kit 
+* 通讯：gRPC
+* API：Swagger
+* 网关：Envoy
+* 日志监控：fluentd + ELK
+* 指标监控：Prometheus 
+* 调用跟踪：Jaeger 或是 Zipkin，当然，后者比较传统一些，前者比较时髦，最重要的是，其可以和 Prometheus 和 Envory 集成。
+* 自动化运维：Docker + Kubernetes 
+
+### 微服务和SOA ###
+
+在对微服务有了一定的认识以后，一定有很多同学分不清楚微服务和 SOA 架构，[Microservices vs. Service-Oriented Architecture](https://www.nginx.com/resources/library/microservices-vs-soa/)。
+
+对比 SOA 和微服务
+
+* DZone: Microservices vs. SOA
+* DZone: Microservices vs. SOA - Is There Any Difference at All?
+* Microservices, SOA, and APIs: Friends or enemies?
+
+知道微服务和其它架构的一些不同和比较
+
+* [PaaS vs. IaaS for Microservices Architectures: Top 6 Differences](https://www.altoros.com/blog/paas-vs-iaas-for-microservices-architectures-top-6-differences/)
+* Microservices vs. Monolithic Architectures: Pros, Cons, and How Cloud Foundry (PaaS) Can Help
+* Microservices - Not A Free Lunch!
+* The Hidden Costs Of Microservices
+
+### 计模式和最佳实践 ###
+
+微服务的设计模式
+
+* Microservice Patterns：微服务架构的设计模式和最佳实践
+* Microservice Antipatterns and Pitfalls：微服务架构的一些已知的反模式和陷阱
+* Microservice Architecture: All The Best Practices You Need To Know：什么是微服务、微服务架构的优缺点、微服务最大的挑战和解决方案是什么、如何避免出错，以及构建微服务架构的最佳实践
+* Best Practices for Building a Microservice Architecture：分享了构建微服务架构的最佳实践 
+* Simplicity by Distributing Complexity：如何使用事件驱动构建微服务架构的文章
+
+### 相关资源 ###
+
+* Microservices Resource Guide
+* Awesome Microservices
+
+### 小结 ###
+
+作者认为，微服务中有很多很不错的想法和理念，所以学习微服务是每一个技术人员迈向卓越的架构师的必经之路。作者先给出了AWS、Microsoft 和 Pivotal 对微服务的理解，然后给出了好几个系列的教程，帮你全面学习和理解微服务架构，然后通过一系列文章帮你来区分何为微服务，何为 SOA；最后给出了微服务架构的设计模式和最佳实践，以及相关资源。相信通过这一系列内容的学习，你一定会对微服务有全面、透彻的理解。
+
 ## 85 | 程序员练级攻略：容器化和自动化运维 ##
 
 ## 86 | 程序员练级攻略：机器学习和人工智能 ##
