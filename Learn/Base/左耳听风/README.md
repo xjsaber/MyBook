@@ -288,7 +288,7 @@ Unix/Linux、TCP/IP、C10K。
 ### 编程语言 ###
 #### Java语言 ####
 
-* Java 核心技术：卷 1 基础知识
+* Java 核心技术：卷 1 基础知识（[笔记](../Java/Java/Core_Java/README.md)）
 * Spring 实战和Spring Boot 实战
 * Effective Java和Google Guava 库（不但是JDK的升级库，集合（collection）、缓存（caching）、原生类型支持（primitives support）、字符串处理（string processing）、I/O等库）
 * Java并发编程实战：并发性和线程安全性，类库提供的基本并发构建块，用于避免并发危险、构造线程安全的类及验证线程安全的规则。如何将小的线程安全类组合成更大的线程安全类，如何利用线程来提高并发应用程序的吞吐量，如何识别可并行执行的任务，如何提高单线程子系统的响应性，如何确保并发程序执行预期任务，如何提高并发代码的性能和可伸缩性等内容。
@@ -1374,7 +1374,31 @@ Dzone 的这个 Spring Boot 的教程
 
 作者认为，微服务中有很多很不错的想法和理念，所以学习微服务是每一个技术人员迈向卓越的架构师的必经之路。作者先给出了AWS、Microsoft 和 Pivotal 对微服务的理解，然后给出了好几个系列的教程，帮你全面学习和理解微服务架构，然后通过一系列文章帮你来区分何为微服务，何为 SOA；最后给出了微服务架构的设计模式和最佳实践，以及相关资源。相信通过这一系列内容的学习，你一定会对微服务有全面、透彻的理解。
 
-## 85 | 程序员练级攻略：容器化和自动化运维 ##
+# 85 | 程序员练级攻略：容器化和自动化运维 #
+
+Docker和Kubernetes，已经是分布式架构和自动化运维的必备工具。
+
+## Docker ##
+
+#### 了解Docker ####
+
+* Docker的官方介绍[Docker Overview](https://docs.docker.com/engine/docker-overview/) 
+* [Katacoda Docker Playground](https://www.katacoda.com/courses/docker/playground) 或者是 [Play With Docker](https://training.play-with-docker.com)
+* [Learn Docker](https://github.com/dwyl/learn-docker)自己安装一个Docker的环境
+* [Docker Curriculum](https://docker-curriculum.com) 这个超详细的教程玩一下 Docker 
+* 详细阅读Docker官方文档[Docker Documentation](https://docs.docker.com)，最好的学习Docker的方式
+
+#### 了解Docker的底层技术细节 ####
+
+* Docker 基础技术：Linux Namespace（上）
+* Docker 基础技术：Linux Namespace（下）
+* Docker 基础技术：Cgroup
+* Docker 基础技术：AUFS
+* Docker 基础技术：DeviceMapper
+
+#### 与 Docker 网络有关 ####
+
+
 
 ## 86 | 程序员练级攻略：机器学习和人工智能 ##
 
