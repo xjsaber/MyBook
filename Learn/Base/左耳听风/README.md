@@ -1374,11 +1374,11 @@ Dzone 的这个 Spring Boot 的教程
 
 作者认为，微服务中有很多很不错的想法和理念，所以学习微服务是每一个技术人员迈向卓越的架构师的必经之路。作者先给出了AWS、Microsoft 和 Pivotal 对微服务的理解，然后给出了好几个系列的教程，帮你全面学习和理解微服务架构，然后通过一系列文章帮你来区分何为微服务，何为 SOA；最后给出了微服务架构的设计模式和最佳实践，以及相关资源。相信通过这一系列内容的学习，你一定会对微服务有全面、透彻的理解。
 
-# 85 | 程序员练级攻略：容器化和自动化运维 #
+## 85 | 程序员练级攻略：容器化和自动化运维 ##
 
 Docker和Kubernetes，已经是分布式架构和自动化运维的必备工具。
 
-## Docker ##
+### Docker ###
 
 #### 了解Docker ####
 
@@ -1396,9 +1396,113 @@ Docker和Kubernetes，已经是分布式架构和自动化运维的必备工具�
 * Docker 基础技术：AUFS
 * Docker 基础技术：DeviceMapper
 
-#### 与 Docker 网络有关 ####
+#### 与 Docker 网络相关 ####
 
+* A container networking overview
+* Docker networking 101 - User defined networks
+* Understanding CNI (Container Networking Interface)
+* Using CNI with Docker
 
+Docker有下面几种网络解决方案：Calico 、Flannel 和 Weave 
+
+netshoot诊断Docker网络问题的工具集。
+
+**Docker的网络解决方案的性能对比**
+
+* Battlefield: Calico, Flannel, Weave and Docker Overlay Network
+* Comparison of Networking Solutions for Kubernetes
+* Docker Overlay Networks: Performance analysis in high-latency enviroments
+
+#### 与Docker 性能相关 ####
+
+* IBM Research Report: An Updated Performance Comparison of Virtual Machines and Linux Containers
+* An Introduction to Docker and Analysis of its Performance
+
+#### 与Docker 存储相关 ####
+
+* Storage Concepts in Docker: Network and Cloud 
+* StorageStorage Concepts in Docker: Persistent 
+* StorageStorage Concepts in Docker: Shared Storage and the VOLUME directive
+
+#### 与Docker 运维相关 ####
+
+* Docker Monitoring with the ELK Stack: A Step-by-Step Guide
+* Valuable Docker Links，收集并罗列了一系列非常不错的 Docker 文章
+
+#### 最佳实践 ####
+
+* Best Practices for Dockerfile，Docker 官方文档里的 Dockerfile 的最佳实践
+* Docker Best Practices，使用 Docker 的建议和实践
+* Container Best Practices，是一个介绍容器化应用程序的架构、创建和管理的协作型文档项目
+* Eight Docker Development Patterns
+
+### Kubernetes ###
+
+Kubernetes 是 Google 开源的容器集群管理系统，是 Google 多年大规模容器管理技术 Borg 的开源版本，也是 CNCF 最重要的项目之一，主要功能包括：
+
+* 基于容器的应用部署、维护和滚动升级；
+* 负载均衡和服务发现；
+* 跨机器和跨地区的集群调度；
+* 自动伸缩；
+* 无状态服务和有状态服务；
+* 广泛的 Volume 支持；
+* 插件机制保证扩展性。
+
+1. Kubernetes 前世今生的一篇论文,	[Borg, Omega, and Kubernetes](https://static.googleusercontent.com/media/research.google.com/zh-CN//pubs/archive/44843.pdf)
+2. 学习 Kubernetes，有两个免费的开源电子书
+	* Kubernetes Handbook：着重于经验分享和总结，同时也会有相关的概念解析
+	* Kubernetes 指南：一个系统化的参考指南以方便查阅
+3. Kubernetes in Action
+4. Kubernetes.io
+
+**一些交互式教程**
+
+* Katacoda
+* Kubernetes Bootcamp
+
+**一些文章**
+
+* Kubernetes tips & tricks
+* Achieving CI/CD with Kubernetes
+* How to Set Up Scalable Jenkins on Top of a Kubernetes Cluster
+* 10 Most Common Reasons Kubernetes Deployments Fail Part I 和 Part II
+* How to Monitor Kubernetes ，一共有 4 个篇章
+* Logging in Kubernetes with Fluentd and Elasticsearch
+Kubernetes Monitoring: Best Practices, Methods, and Existing Solutions
+
+**网络相关的文章**
+
+Kubernetes 101 系列
+
+* Kubernetes 101 - Networking
+* ...
+* Getting started with Calico on Kubernetes
+
+**CI/CD 相关的文章**
+
+* Automated Image Builds with Jenkins, Packer, and Kubernetes
+* Jenkins setups for Kubernetes and Docker Workflow
+* Lab: Build a Continuous Deployment Pipeline with Jenkins and Kubernetes
+
+**最佳实践**
+
+* Kubernetes Best Practices AWS 工程师总结的最佳实践。
+* Kubernetes Best Practices ，Google 云平台工程师总结的最佳实践。
+
+### Docker 和 Kubernetes 资源汇总 ###
+
+* Awesome Docker
+* Awesome Kubernetes
+
+The New Stack 为 Kubernetes 出的一系列的电子书或报告
+
+* Book 01: The Docker Container Ecosystem
+* ...
+* Book 11: Guid to Cloud-Native Microservices
+
+### 小结 ###
+
+Docker 和 Kubernetes 已经成为分布式架构和自动化运维方面的不可或缺的两大基本构成。在这篇文章中，我推荐了 Docker 和 Kubernetes 基础技术方面的学习资料，并给出了存储、运维、网络、CI/CD 等多方面的资料，同时列出了与之相关的最佳实践。
 
 ## 86 | 程序员练级攻略：机器学习和人工智能 ##
 
