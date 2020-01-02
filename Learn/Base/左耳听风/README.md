@@ -1643,11 +1643,81 @@ SciKit-Learn
 * HTML5权威指南
 * HTML5Canvas核心技术
 
-SVG、Canvas和WebGL
+**MDN**
+
+* SVG: Scalable Vector Graphics
+* Canvas API
+* The WebGL API: 2D and 3D graphics for the web
+
+---
+
+* Awesome HTML5
+* Awesome SVG
+* Awesome Canvas
+* Awesome WebGL
 
 ### CSS ###
 
-Less和Sass
+MDN Web Doc - CSS，Less和Sass
+
+* Principles of writing consistent, idiomatic CSS
+* Opinionated CSS styleguide for scalable applications
+* Google HTML/CSS Style Guide
+
+Bootstrap，Semantic UI、Foundation和Bulma
+
+### JavaScript ###
+
+* JavaScript: The Good Parts：JavaScript 语言精粹
+* Secrets of the JavaScript Ninja：JavaScript 忍者秘籍
+* Effective JavaScript：
+* ES6
+	* ES6 in Depth
+	* ECMAScript 6 Tools
+	* Modern JS Cheatsheet 
+
+### 浏览器原理 ###
+
+* How browsers work
+* How Browsers Work: Behind the scenes of modern web browsers
+* 浏览器的渲染原理简介
+* Virtual DOM 是 React 的一个非常核心的技术细节
+	* How to write your own Virtual DOM
+	* Write your Virtual DOM 2: Props & Events
+	* How Virtual-DOM and diffing works in React
+	* The Inner Workings Of Virtual DOM
+	* 深度剖析：如何实现一个 Virtual DOM 算法
+	* 两个 Vitual-DOM 实现供你参考：
+		* Matt-Esch/Virtual-DOM
+		* Maquette 
+
+
+### 网络协议 ###
+
+* High Performance Browser Networking
+* HTTP/2
+	* Gitbook - HTTP/2 详解
+	* http2 explained（中译版）
+	* HTTP/2 for a Faster Web
+	* Nginx HTTP/2 白皮书
+	* HTTP/2 的两个 RFC：
+		* RFC 7540 - Hypertext Transfer Protocol Version 2 (HTTP/2) ，HTTP/2 的协议本身。
+		* RFC 7541 - HPACK: Header Compression for HTTP/2 ，HTTP/2 的压缩算法。
+* WebSocket
+	* HTML5 WebSocket: A Quantum Leap in Scalability for the Web：Polling、Long Polling 和 Streaming => WebSocket
+	* StackOverflow: My Understanding of HTTP Polling, Long Polling, HTTP Streaming and WebSockets 
+	* An introduction to Websockets 
+	* Awesome Websockets 
+		* Introducing WebSockets: Bringing Sockets to the Web
+		* Websockets 101
+		* Real-Time Web by Paul Banks
+		* Are WebSockets the future?
+
+### 小结 ###
+
+* HTML 5、CSS 3 和 JavaScript（ES6）这三大基础核心
+* 学习浏览器的工作原理和网络协议相关的内容
+  
 
 ## 88 | 程序员练级攻略：前端性能优化和框架 ##
 
