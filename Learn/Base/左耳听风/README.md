@@ -1506,6 +1506,127 @@ Docker 和 Kubernetes 已经成为分布式架构和自动化运维方面的不�
 
 ## 86 | 程序员练级攻略：机器学习和人工智能 ##
 
+### 基本原理简介 ###
+
+机器学习主要有两种方式：
+
+1. 监督式学习（Supervised Learning）
+2. 非监督式学习（Unsupervised Learning）
+
+* 监督式学习（Supervised Learning）
+	* 需要提供一组学习样本，包括相关的特征数据和相应的标签
+	* 通过这组样本来学习相关的规律或是模式
+	* 通过得到的规律或模式来判断没有被打过标签的数据是什么样的数据
+* 非监督式学习（Unsupervised Learning）：数据是没有被标注过的，所以相关的机器学习算法需要找到这些数据中的共性
+	* 
+
+**入门**
+
+Machine Learning is Fun!，（中文翻译版）
+
+Data Science Simplified Part 1: Principles and Process
+Data Science Simplified Part 2: Key Concepts of Statistical Learning
+Data Science Simplified Part 3: Hypothesis Testing
+Data Science Simplified Part 4: Simple Linear Regression Models
+Data Science Simplified Part 5: Multivariate Regression Models
+Data Science Simplified Part 6: Model Selection Methods
+Data Science Simplified Part 7: Log-Log Regression Models
+Data Science Simplified Part 8: Qualitative Variables in Regression Models
+Data Science Simplified Part 9: Interactions and Limitations of Regression Models
+Data Science Simplified Part 10: An Introduction to Classification Models
+Data Science Simplified Part 11: Logistic Regression
+
+### 相关课程 ###
+
+在学习机器学习之前，我们需要学习数据分析，所以，我们得先学一些大数据相关的东西，也就是 Data Science 相关的内容。
+
+* UC Berkeley’s Data 8: The Foundations of Data Science 和电子书 
+* Computational and Inferential Thinking 会讲述数据科学方面非常关键的概念，会教你在数据中找到数据的关联、预测和相关的推断。
+* Learn Data Science ，这是 GitHub 上的一本电子书，主要是一些数据挖掘的算法，比如线性回归、逻辑回归、随机森林、K-Means 聚类的数据分析。然后，donnemartin/data-science-ipython-notebooks 这个代码仓库中用 TensorFlow、scikit-learn、Pandas、NumPy、Spark 等把这些经典的例子实现了个遍。
+* Data Science Resources List ，这个网站上有一个非常长的和数据科学相关的资源列表，你可以从中得到很多你想要的东西。
+
+**入门的在线机器学习的课程**
+
+* Coursera 上的免费机器学习课程和Deep Learning Specialization
+* Deep Learning by Google 
+* 英文原版视频与课件 PDF
+* 课程视频及课件 PDF
+* Neural networks class - Université de Sherbrooke 
+
+Awesome Machine Learning Courses
+
+### 相关图书 ###
+
+* Pattern Recognition and Machine Learning
+* 这两本电子书也是比较经典的，其中讲了很多机器学习的知识，可以当做手册或字典。
+	* Understanding Machine Learning: From Theory to Algorithms
+	* The Elements of Statistical Learning - Second Edition
+* Deep Learning: Adaptive Computation and Machine Learning series
+* Neural Networks and Deep Learning
+* Introduction to Machine Learning with Python
+* Hands-On Machine Learning with Scikit-Learn and TensorFlow 
+
+### 相关文章 ### 
+
+* Machine Learning Recipes with Josh Gordon 
+* Practical Machine Learning Tutorial with Python Introduction
+* Machine Learning - 101 
+* Marchine Learning for Humans
+* Dr. Jason Brownlee 的博客
+* Rules of Machine Learning: Best Practices for ML Engineering 
+* i am trask 
+
+**一些和神经网络相关的不错的文章**
+
+* The Unreasonable Effectiveness of Recurrent Neural Networks 
+* Neural Networks, Manifolds, and Topology 
+* Understanding LSTM Networks 
+* Attention and Augmented Recurrent Neural Networks 
+* Recommending music on Spotify with deep learning 
+
+### 相关算法 ###
+
+10个非常经典的机器学习的算法。
+
+* 对于监督式学习，有如下经典算法：
+	* 决策树（Decision Tree），比如自动化放贷、风控。
+	* 朴素贝叶斯分类器（Naive Bayesian classifier)
+	* 最小二乘法（Ordinary Least Squares Regression）
+	* 逻辑回归（Logisitic Regression）
+	* 支持向量机（Support Vector Machine，SVM）
+	* 集成方法（Ensemble methods） 
+* 对于无监督式的学习：
+	* 聚类算法（Clustering Algorithms）
+	* 主成分分析（Principal Component Analysis，PCA）
+	* 奇异值分解（Singular Value Decomposition，SVD）
+	* 独立成分分析（Independent Component Analysis，ICA）
+
+了解更全的机器学习的算法列表，你可以看一下 Wikipedia 上的 List of Machine Learning Algorithms。
+
+SciKit-Learn
+
+* 1. Supervised learning
+* 2.3 Clustering
+* 2.5. Decomposing signals in components (matrix factorization problems)
+* 3. Model selection and evaluation
+* 4.3. Preprocessing data
+
+### 相关资源 ###
+
+* 8 Fun Machine Learning Projects for Beginners
+* Awesome Public Datasets：足够多的公共数据 
+* GitHub 上的一些 Awesome 资源列表
+	* Awesome Deep Learning
+	* Awesome - Most Cited Deep Learning Papers
+	* Awesome Deep learning papers and other resources	
+
+### 小结 ###
+
+1. 入门资料 Machine Learning is Fun!
+2. 与机器学习密切相关的数据分析方面的内容和资料
+3. 推荐了深入学习机器学习知识的在线课程、图书和文章等，尤其列举了神经网络方面的学习资料
+4. 描述了机器学习的十大经典算法及相关的学习资料
+
 ## 87 | 程序员练级攻略：前端基础和底层原理 ##
 
 * JavaScript的核心原理
