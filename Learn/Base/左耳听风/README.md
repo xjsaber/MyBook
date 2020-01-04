@@ -1691,7 +1691,6 @@ Bootstrap，Semantic UI、Foundation和Bulma
 		* Matt-Esch/Virtual-DOM
 		* Maquette 
 
-
 ### 网络协议 ###
 
 * High Performance Browser Networking
@@ -1717,15 +1716,147 @@ Bootstrap，Semantic UI、Foundation和Bulma
 
 * HTML 5、CSS 3 和 JavaScript（ES6）这三大基础核心
 * 学习浏览器的工作原理和网络协议相关的内容
-  
 
 ## 88 | 程序员练级攻略：前端性能优化和框架 ##
 
+### 前端性能优化 ###
 
+* Web Performance in Action
+* Designing for Performance 
+* High Performance JavaScript：提升各方面的性能，包括代码的加载、运行、DOM 交互、页面生存周期等 
+* High Performance Web Sites: Essential Knowledge for Front-End Engineers，《高性能网站建设指南：前端工程师技能精髓》
+
+**最佳实践性的文档**
+
+* Browser Diet，前端权威性能指南（中文版）
+* PageSpeed Insights Rules
+* Best Practices for Speeding Up Your Web Site 
+* WPO Stats 性能优化的案例学习网站
+
+**其他文章和案例**
+
+* A Simple Performance Comparison of HTTPS, SPDY and HTTP/2 
+* 7 Tips for Faster HTTP/2 Performance
+* Reducing Slack’s memory footprint 
+* Pinterest: Driving user growth with performance improvements 
+* 10 JavaScript Performance Boosting Tips 
+* 17 Statistics to Sell Web Performance Optimization
+* Getting started with the Picture Element 
+* Improve Page Load Times With DNS Prefetching 
+* Jank Busting for Better Rendering Performance 
+* JavaScript Memory Profiling
+
+**性能工具**  
+
+* PageSpeed
+* YSlow
+* GTmetrix
+* Awesome WPO
+
+Forget Google and Use These Hosted JavaScript Libraries in China
+
+### 前端框架 ###
+
+Vue和React
+
+* Angular vs. React vs. Vue: A 2017 comparison
+* React or Vue: Which JavaScript UI Library Should You Be Using?
+* ReactJS vs Angular5 vs Vue.js - What to choose in 2018?
+
+这些比较会让你进入“二选一”或是“三选一”的境地。我只是想通过这些文章让你知道这些框架的设计思路和实现原理，这些才是让你受益一辈子的事。
+
+#### React.js框架 ####
+
+**入门**
+
+React 官方教程（React 的中文教程）
+
+* All the fundamental React.js concepts：讲了所有的 React.js 的基本原理。
+* Learn React Fundamentals and Advanced Patterns
+* Thinking in React：引导你完成使用 React 构建可搜索产品数据表的思考过程。
+
+**提高**
+
+* 状态：
+	* Common React.js mistakes: Unneeded state：React.js 编程的常见错误——不必要的状态
+	* State is an Anti-Pattern：如何做一个不错的组件的思考
+	* Why Local Component State is a Trap：Single state tree”
+	* Thinking Statefully：让你对声明式有状态的技术有更好的理解。
+	* 传统上，解决React的状态一般用Redux。Tips to learn React + Redux in 2018，Redux 是一个状态粘合组件，一般来说，我们会用 Redux 来做一些数据状态和其上层 Component 上的同步。
+	* State Architecture Patterns in React
+		* Part 1: A Review
+		* Part 2: The Top-Heavy Architecture, Flux and Performance
+		* Part 3: Articulation Points, zine and An Overall Strategy
+		* Part 4: Purity, Flux-duality and Dataflow
+* 函数式编程：React 就是后端人员开发的，或者说是做函数式编程的人开发的
+	* Professor Frisby’s Mostly Adequate Guide to Functional Programming（JS 函数式编程指南中文版） 
+	* Master the JavaScript Interview: What is Functional Programming?
+	* The Rise and Fall and Rise of Functional Programming (Composing Software)
+	* Functional UI and Components as Higher Order Functions
+	* Functional JavaScript: Reverse-Engineering the Hype
+	* Some Thoughts on Function Components in React
+* 设计模式：学习一些 React 的设计模式，React Pattern
+	* React Higher Order Components in depth
+	* Presentational and Container Components
+	* Controlled and uncontrolled form inputs in React don’t have to be complicated
+	* Function as Child Components
+	* Writing Scalable React Apps with the Component Folder Pattern
+	* Reusable Web Application Strategies
+	* Characteristics of an Ideal React Architecture
+* 实践和经验	
+	* 9 things every React.js beginner should know
+	* Best practices for building large React applications
+	* Clean Code vs. Dirty Code: React Best Practices
+	* How to become a more productive React Developer
+	* 8 Key React Component Decisions
+
+**资源列表**  
+
+* Awesome React
+* React/Redux Links 
+* React Rocks 
+	
+### Vue.js框架 ###
+
+Vue 可能是一个更符合前端工程师习惯的框架。不像 React.js 那样使用函数式编程方式，是后端程序员的思路。
+
+* Why 43% of Front-End Developers want to learn Vue.js：看出其编程方式和 React 是大相径庭的
+* Replacing jQuery With Vue.js: No Build Step Necessary：从 jQuery 是可以平滑过渡到 Vue 的
+* 10 things I love about Vue：了解 Vue 的一些比较优秀的特性
+
+Vue on 2018 - Interview with Evan You
+
+* Vue 官方文档（中文版）
+* Vue.js screencasts 
+* 新手向：Vue 2.0 的建议学习顺序
+
+不错的内容
+
+* How not to Vue：了解 Vue 的短板
+* Vue.js Component Communication Patterns
+* 4 AJAX Patterns For Vue.js Apps
+* How To (Safely) Use A jQuery Plugin With Vue.js
+* 7 Ways To Define A Component Template in Vue.js
+* Use Any Javascript Library With Vue.js
+* Dynamic and async components made easy with Vue.js
+
+资源列表
+
+Awesome Vue
+
+### 小结 ###
+
+1. 前端性能优化方面的内容
+2. 推荐了图书、最佳实践性的文档、案例，以及一些在线性能测试分析工具
+3. 重点讲述了 React 和 Vue 两大前端框架，给出了大量的文章、教程和相关资源列表
+	* React.js 使用函数式编程方式，更加符合后端程序员的思路
+	* Vue 是更符合前端工程师习惯的框架
 
 ## 89 | UI/UX设计 ##
 
+如果你要成为一个前端程序员，那么学习这些设计上的东西可以让你有更好的成长空间。
 
+## 90 | 技术资源集散地 ##
 
 ## 95 | 高效学习：端正学习态度 ##
 
