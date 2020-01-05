@@ -286,16 +286,17 @@ Unix/Linux、TCP/IP、C10K。
 可以人为是计算机世界的物理世界。
 
 ### 编程语言 ###
+
 #### Java语言 ####
 
 * Java 核心技术：卷 1 基础知识（[笔记](../Java/Java/Core_Java/README.md)）
 * Spring 实战和Spring Boot 实战
-* Effective Java和Google Guava 库（不但是JDK的升级库，集合（collection）、缓存（caching）、原生类型支持（primitives support）、字符串处理（string processing）、I/O等库）
+* Effective Java[笔记](../Java/Java/Effective_Java/README.md)和Google Guava 库（不但是JDK的升级库，集合（collection）、缓存（caching）、原生类型支持（primitives support）、字符串处理（string processing）、I/O等库）
 * Java并发编程实战：并发性和线程安全性，类库提供的基本并发构建块，用于避免并发危险、构造线程安全的类及验证线程安全的规则。如何将小的线程安全类组合成更大的线程安全类，如何利用线程来提高并发应用程序的吞吐量，如何识别可并行执行的任务，如何提高单线程子系统的响应性，如何确保并发程序执行预期任务，如何提高并发代码的性能和可伸缩性等内容。
 * Java性能权威指南([笔记]())：使用 JDK 中自带的工具收集 Java 应用的性能数据，理解 JIT 编译器的优缺点，调优 JVM 垃圾收集器以减少对程序的影响，学习管理堆内存和 JVM 原生内存的方法，了解如何最大程度地优化 Java 线程及同步的性能。
 * 深入理解Java虚拟机：了解更多的底层细节
 * Java编程思想：宏观角度了解Java
-* 精通Spring 4.x：分析原理，应用与原理，IOC和AOP。、
+* 精通Spring 4.x：分析原理，应用与原理，IOC和AOP。[笔记]()
 
 ---
 
@@ -1857,6 +1858,127 @@ Awesome Vue
 如果你要成为一个前端程序员，那么学习这些设计上的东西可以让你有更好的成长空间。
 
 ## 90 | 技术资源集散地 ##
+
+### 个人技术博客 ###
+
+* Coding Horror，《高效能程序员的修练》
+* Joel on Software ，《软件随想录》
+* Clean Coder Blog，《程序员的职业素养》
+* Martin Fowler，《重构》、《分析模式》、《企业应用架构模式》、《领域特定语言》和《NoSQL 精粹》
+* Paul Graham Essays，《黑客与画家》、《How to Get Startup Ideas》、《Do Things that Don’t Scale》、《Startup = Growth》
+* Steve Yegge，对 Amazon 和 Google 平台的吐槽
+* Bruce Eckel’s Programming Blog ，《Thinking in Java》，之前的博客artima - Computing Thoughts 
+* Herb Sutter，《Exceptional C++ 》、《More Exceptional C++》、《Exceptional C++ Style》
+* Eli Bendersky’s website，主要是 C、C++ 和 Python 相关的
+* Peter Krumins’ blog
+* Brendan D. Gregg，基本上都是和 Linux 性能分析相关的
+* Evan Klitzke
+* Julia Evans
+* null program 
+* Fluent {C++} 
+* Preshing on Programming 
+* Programming is Terrible 
+* Accidentally Quadratic 
+* Hacker Noon 
+
+Medium
+
+### YouTube 技术频道 ###
+
+* [Devoxx](https://www.youtube.com/channel/UCCBVCTuk6uJrN3iFV_3vurg/playlists)
+* [Coding Tech](https://www.youtube.com/channel/UCtxCXg-UvSnTKPOzLH4wJaQ)
+* [Amazon Web Services](https://www.youtube.com/channel/UCd6MoB9NC6uYN2grvUNT-Zg)
+* [Facebook Developers](https://www.youtube.com/user/FacebookDevelopers/)
+* [Google Developer](https://www.youtube.com/user/GoogleDevelopers) 
+* [Spring Developer](https://www.youtube.com/user/SpringSourceDev)
+* [Microsoft Research](https://www.youtube.com/user/MicrosoftResearch)
+* [MIT 公开课](https://www.youtube.com/user/MIT) 
+* [Stanford Online](https://www.youtube.com/user/stanfordonline)
+* [Prof. Dr. Jens Dittrich](https://www.youtube.com/user/jensdit) 一个关于数据库相关的频道，里面有很不错的数据库内在原理的内容
+* [Red Hat Summit](https://www.youtube.com/user/redhatsummit)
+* [Open Networking Summit](https://www.youtube.com/user/OpenNetSummit)，https://www.youtube.com/user/OpenNetSummit
+* [Dan Van Boxel](https://www.youtube.com/user/dvbuntu/)，机器学习工程师折腾各种事的视频
+* [The New Boston](https://www.youtube.com/user/thenewboston/)，好的关于前端技术的 YouTube 频道
+* [Derek Banas](https://www.youtube.com/user/derekbanas)，教程型的频道 
+* [Java](https://www.youtube.com/user/java/)
+* [CppCon](C++ 大会的一些视频)
+* [Computerphile](https://www.youtube.com/user/Computerphile) 
+* 关于安全
+	* [DEFCONConference](https://www.youtube.com/user/DEFCONConference) 
+	* [CCCen](https://www.youtube.com/user/mediacccde/)
+	* [RSA Conference](https://www.youtube.com/user/RSAConference)
+	* [Black Hat](https://www.youtube.com/user/BlackHatOfficialYT)
+ 
+### 各大公司技术博客 ###
+
+* Airbnb Engineering
+* AWS相关
+	* All Things Distributed
+	* AWS Architecture Blog
+	* On Efficiency, Reliability, Scaling - James Hamilton, VP at AWS
+* Bandcamp Tech
+* BankSimple Simple Blog
+* Bitly Engineering Blog
+* Cloudera Developer Blog
+* Dropbox Tech Blog
+* Etsy Code as Craft
+* Facebook Engineering
+* Flickr Code
+* Foursquare Engineering Blog
+* Google Research Blog
+* Groupn Engineering Blog
+* High Scalability
+* Instagram Engineering
+* LinkedIn Engineering
+* Oyster Tech Blog
+* Pinterest Engineering Blog
+* Quora Engineering
+* Songkick Technology Blog
+* SoundCloud Backstage Blog
+* Square The CornerThe Reddit Blog
+* The GitHub Blog
+* The Netflix Tech Blog
+* Twilio Engineering Blog
+* Twitter Engineering
+* WebEngage Engineering Blog
+* Yammer Engineering
+* Yelp Engineering Blog
+* Smarkets Blog
+
+### 论文 ###
+
+#### 如何读论文 ####
+
+* How to read an academic article
+* Advice on reading academic papers
+* How to read and understand a scientific paper
+* Should I Read Papers?
+* The Refreshingly Rewarding Realm of Research Papers
+
+#### 论文集散地 ####
+
+* [2 Minute Papers](https://www.youtube.com/user/keeroyz)
+* Best Paper Awards in Computer Science
+* Google Scholar 
+* Facebook
+* Research at Google
+* Microsoft Research
+* MIT’s Artificial Intelligence Lab Publications 
+* MIT’s Distributed System’s Reading Group 
+* arXiv Paper Repository 
+* SciRate
+* cat-v.org
+* Usenix: Best Papers 
+* The Morning Paper  
+* Lobste.rs tagged as PDF
+* [Papers We Love](https://github.com/papers-we-love/papers-we-love)
+
+### 小结 ###
+
+1. 推荐了多个知名的个人技术博客
+2. 分享了一些我认为还不错的和编程相关的 YouTube 频道
+3. 各个公司的技术博客
+4. 给出了一个非常不错的计算机方面的论文集散地，并推荐了一些学习资源来教你如何读这些论
 
 ## 95 | 高效学习：端正学习态度 ##
 
