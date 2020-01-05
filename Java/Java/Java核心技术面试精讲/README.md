@@ -4,7 +4,76 @@
 
 ## 开篇词|以面试题为切入点，有效提升你的Java内容 ##
 
+更要求对底层源代码层面的掌握，并对分布式、安全、性能等领域能力有进一步的要求。
+
 # 模块一 Java基础 #
+
+## 第1讲 | 谈谈你对Java平台的理解？ ##
+
+### 典型回答 ###
+
+1. 书写一次，到处运行
+2. 垃圾收集
+
+我们开发的Java的源代码
+
+1. 通过Javac编译成为字节码（bytecode）
+2. 在运行时，通过Java虚拟机（JVM）内嵌的解释器将字节码转换成为最终的机器码
+
+但是常见的JVM（Oracle JDK提供的Hotspot JVM，都提供了JIT(Just-In-Time)编译器，也就是通常所说的动态编译器）
+
+### 考点分析 ###
+
+### 知识扩展 ###
+
+1. Java 语言特性，包括泛型、Lambda 等语言特性；基础类库，包括集合、IO/NIO、网络、并发、安全等基础类库。
+2. JVM 的一些基础概念和机制，比如 Java 的类加载机制，常用版本 JDK（如 JDK 8）内嵌的 Class-Loader，例如Bootstrap、Application和Extension Class-loader；
+3. 类加载大致过程：加载、验证、链接、初始化；自定义Class-Loader等。还有垃圾收集的基本原理，最常见的垃圾收集器，如 SerialGC、Parallel GC、 CMS、 G1 等，对于适用于什么样的工作负载最好也心里有数。
+4. 当然还有 JDK 包含哪些工具或者 Java 领域内其他工具等，如编译器、运行时环境、安全工具、诊断和监控工具等。
+
+Java分为编译器和运行时：
+
+1. Javac的编译，编译Java源码生成“.class”文件里面实际是字节码，而不是可以直接执行的机器码。Java通过字节码和Java虚拟机（JVM）这种跨平台的抽象，屏蔽了操作系统和硬件的细节（一次编译，到处执行的基础）
+2. 在运行时，JVM会通过类加载器（Class-Loader）加载字节码，解释或者编译执行。主流Java版本中，如JDK8实际是解释和编译混合的一种模式，即所谓的混合模式（-Xmixed）。
+
+Java虚拟机启动时，可以指定不同的参数对运行模式进行选择
+
+1. 指定“-Xint”，告诉JVM只进行解释执行，不对代码进行编译
+2. 指定“-Xcomp”，告诉JVM关闭解释器，不要进行解释执行
+3. AOT（Ahead-of-Time Compilation），直接将字节码编译成机器代码，避免了JIT预热等各方面的开销
+
+#### 小结 ####
+
+提纲挈领地构建一个整体的印象
+
+1. Java语言特性
+2. 核心类库与常用第三方类库
+3. Java虚拟机基本原理和相关工具
+
+### 一课一练 ###
+
+谈谈你对Java平台的理解？
+
+## 第2讲 | Exception和Errpr有什么区别？ ##
+
+### 典型回答 ###
+
+Exception和Error都是继承了Throwable类，在Java中只有Throwable类型的实例才可以被抛出（throw）或者捕获（catch），它是异常处理机制的基本组成类型。
+
+* Error 是指在正常情况下，不大可能出现的情况，绝大部分的 Error 都会导致程序（比如 JVM 自身）处于非正常的、不可恢复状态。既然是非正常情况，所以不便于也不需要捕获，常见的比如 OutOfMemoryError 之类，都是 Error 的子类。
+* Exception 又分为可检查（checked）异常和不检查（unchecked）异常
+	* 可检查异常在源代码里必须显式地进行捕获处理，这是编译期检查的一部分。前面我介绍的不可查的 Error，是 Throwable 不是 Exception。
+	* 不检查异常就是所谓的运行时异常，类似 NullPointerException、ArrayIndexOutOfBoundsException 之类，通常是可以编码避免的逻辑错误，具体根据需要来判断是否需要捕获，并不会在编译期强制要求。
+
+### 考点分析 ### 
+
+1. 理解Throwable、Exception、Error的设计和分类
+	* NoClassDefFoundError和ClassNotFoundException有什么区别。
+		* NoClassDefFoundError，class未定义
+		* ClassNotFoundException，ClassLoader中没找到这个class或者method
+2. 理解Java语言中操作Throwable的元素和实践
+
+### 知识扩展 ###
 
 ## 第11讲 | Java提供了哪些IO方式？NIO如何实现多路复用 ##
 
