@@ -1857,6 +1857,105 @@ Awesome Vue
 
 如果你要成为一个前端程序员，那么学习这些设计上的东西可以让你有更好的成长空间。
 
+7 steps to become a UI/UX designer 
+
+### 图书和文章推荐 ###
+
+* Don’t Make Me Think 
+* Simple and Usable Web,Mobile,and Interaction Design
+* Designing with the Mind in Mind: Simple Guide to Understanding User Interface Design Rules
+* Designing Interfaces: Patterns for Effective Interaction Design
+
+除了上面的这几本书，还有下面的这几篇文章也是很不错的，推荐一读。
+
+* The Psychology Principles Every UI/UX Designer Needs to Know
+* 18 designers predict UI/UX trends for 2018
+* The Evolution of UI/UX Designers Into Product Designers 
+
+### 原子设计（Atomic Design） ###
+
+原子（Atoms）结合在一起，形成分子（Molecules），进一步结合形成生物体（Organisms）。
+
+关于这个设计方法论
+
+* Atomic Design 原子设计┃构建科学规范的设计系统
+* 网页设计：Atomic Design 简介及工作实例
+
+真正权威的地方还是布拉德·弗罗斯特的电子书、博客和实验室，可以从中获取更多的信息。
+
+* 电子书：Atomic Design by Brad Frost 
+* 博　客：Atomic Design 
+* 实验室：Pattern lab 
+
+关于这个设计方法和 React.js 框架的几篇文章
+
+* Atomic Design with React
+* Atomic Components: Managing Dynamic React Components using Atomic Design
+
+### 设计语言和设计系统 ###
+
+#### Fluent Design System ####
+
+Fluent Design System，该体系基于五个关键元素：光感、深度、动效、材质和缩放。新的设计语言包括更多对动效、深度及半透明效果的使用。
+
+#### Material Design ####
+
+Material Design 基于网格的布局、响应动画与过渡、填充、深度效果（如光线和阴影）。
+
+#### 其他公司 ####
+
+* 苹果公司的设计指南
+* IBM 公司的设计语言 
+* Salesforce 公司的 Lightning Design System
+* Facebook Design - What’s on our mind?
+
+### 动画效果设计 ###
+
+1. [CodePen]()
+2. [动画的 12 项基本法则]()
+3. 有几个动画设计指南和相关文章供你参考和学习
+	* 6 Animation Guidelines for UX Design
+	* Transitional Interfaces
+	* UI Animation and UX: A Not-So-Secret Friendship
+	* Invisible animation
+	* Creating Usability with Motion: The UX in Motion Manifesto 
+4. Designing Interface Animation
+5. Animation principles in motion design
+6. Creating Usability with Motion: The UX in Motion Manifesto
+7. Integrating Animation into a Design System
+8. Great UI/UX Animations 
+	* Great UI/UX Animations 第一组
+	* Great UI/UX Animations 第二组
+	
+### 相关资源 ###
+
+#### 文章资源 ####
+
+* Web Designer News 
+* Marvel Blog
+* The Next Web
+* Medium - Design 
+* Smashing Magazine
+* Sitepoint
+
+#### 设计收集 ####
+
+* Awwwards
+* One Page Love
+* Inspired UI 
+* Behance
+* Dribbble
+* UI Movement  
+
+### 小结 ###
+
+UI/UX 设计这些内容只是设计师要学习的，如果你要成为一个前端程序员，那么学习这些设计上的东西可以让你有更好的成长空间。
+
+1. 让你更好地了解经典的设计原则和指导思想
+2. 然后介绍了原子设计，以及深入学习和理解这一设计方法论的图书、文章和其他相关资源
+3. 分享了当下主流和知名公司中在用的设计语言和设计系统，并给出了大量的学习资源，推荐了一些优秀设计的聚集地。
+4. 通过学习这些内容，你在 UI/UX 设计方面不仅能收获方法，还能获得非常多的灵感
+
 ## 90 | 技术资源集散地 ##
 
 ### 个人技术博客 ###
