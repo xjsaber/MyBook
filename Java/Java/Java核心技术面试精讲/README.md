@@ -186,13 +186,19 @@ SpringBean生命周期比较复杂，可以分位创建和销毁两个过程。
 
 ### 考点分析 ###
 
+兼顾全局，但需要个别重点进行深入，最好是进行源码层面的深入阅读和实验。可参考 Norman 在 [Devoxx](https://speakerdeck.com/normanmaurer/writing-highly-performant-network-frameworks-on-the-jvm-a-love-hate-relationship) 上的分享（其中的很多技巧对于实现极致性能的 API 有一定借鉴意义，但在一般的业务开发中要谨慎采用）
+
 ### 知识扩展 ###
+
+Netty，是一个异步，基于事件Client/Server的网络框架，目标是提供一种简单、快速构建网络应用的方式，同时保证高吞吐量、低延时、高可靠性。
 
 Netty > java.nio + java.net!
 
 * 从网络协议的角度，Netty除了支持传输层的UDP、TCP、SCTP协议，也支持HTTP(s)、WebSocket等多种应用层协议，它并不是单一协议的API
 * 在应用中，需要将数据从Java对象转换成为各种应用协议的数据格式，或者进行反向的转换，Netty为此提供了一系列扩展和的编解码框架，与应用开发场景无缝衔接，并且性能良好
 * 扩展了Java NIO Buffer，提供了自己的ByteBuf实现，并且深度支持Direct Buffer等技术，甚至hack了Java内部对Direct Buffer的分配和销毁等。同时，Netty也提供了更加完善的Scatter/Gather机制实现。
+
+Netty 的能力范围大大超过了 Java 核心类库中的 NIO 等 API，可以说它是一个从应用视角出发的产物。
 
 ![97f1f65e7277681a9e6da818832c8342.png](img/97f1f65e7277681a9e6da818832c8342.png)
 
