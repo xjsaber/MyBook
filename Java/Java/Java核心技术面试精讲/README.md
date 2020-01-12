@@ -294,13 +294,47 @@ Hashtable 或者同步包装版本，都只是适合在非高度并发的场景�
 
 #### 2.ConcurrentHashMap 分析 ####
 
-ConcurrentHashMap 的设计实现其实一直在演化，比如在 Java 8 中就发生了非常大的变化（Java 7 其实也有不少更新），所以，我这里将比较分析结构、实现机制等方面，对比不同版本的主要区别。
+**ConcurrentHashMap 的设计实现其实一直在演化**，比如在 Java 8 中就发生了非常大的变化（Java 7 其实也有不少更新），所以，我这里将比较分析结构、实现机制等方面，对比不同版本的主要区别。
 
-早期ConcurrentHashMap，其实现是基于：
+**早期ConcurrentHashMap，其实现是基于：**
 
-TODO
+* 分离锁，将内部进行分段（Segment），里面则是HashEntry的数组，和HashMap类似，哈希相同的条目也是以链条形式存放。
+* HashEntry，内部使用volatile的value字段来保证可见性，也利用了不可变对象的机制以改进利用Unsafe提供的底层能力，比如volatile access，去直接完成部分操作，以最优化性能，毕竟Unsafe中很多操作都是JVM intrinsic优化过的。
 
-* 
+早期ConcurrentHashMap，其核心是利用分段设计，在进行并发操作的时候，只需要锁定相应段，避免了类似Hashtable整体同步的问题，大大提高了性能。
+
+![d45bcf9a34da2ef1ef335532b0198bd9.png](img/d45bcf9a34da2ef1ef335532b0198bd9.png)
+
+在构造的时候，Segment的数量由所谓的concurrentcyLevel决定，默认是16，也可以在相应构造函数直接指定（需要它是2的幂数值，如果输入是类似15这种非幂值，会被自动调整到16之类2的幂数值）
+
+get
+
+put
+
+* ConcurrentHashMap 会获取再入锁，以保证数据一致性，Segment 本身就是基于 ReentrantLock 的扩展实现，所以，在并发修改期间，相应 Segment 是被锁定的。
+* 在最初阶段，进行重复性的扫描，以确定相应 key 值是否已经在数组里面，进而决定是更新还是放置操作，你可以在代码里看到相应的注释。重复扫描、检测冲突是 ConcurrentHashMap 的常见技巧。
+* 关于可能发生的扩容问题，在 ConcurrentHashMap 中同样存在。不过有一个明显区别，就是它进行的不是整体的扩容，而是单独对 Segment 进行扩容。
+
+另外一个Map的size方法同样需要关注，它的实现涉及分离锁的一个副作用，如果不进行同步，简单的计算所有Segment的总值，可能会因为并发put，导致结果不准确，但是直接锁定所有Segment进行计算，就会变得非常昂贵。其实，分离锁也限制了Map的初始化等操作。
+
+ConcurrentHashMap 的实现是通过重试机制（RETRIES_BEFORE_LOCK，指定重试次数 2），来试图获得可靠值。如果没有监控到发生变化（通过对比 Segment.modCount），就直接返回，否则获取锁进行操作。
+
+**Java8和之后的版本，ConcurrencerentHashMap发生了哪些变化呢？**
+
+* 总结结构上，内部存储变得和HashMap结构非常相似，同样是大的桶（bucket）数组，然后内部也是一个个所谓的链表结构（bin），同步的粒度要更细致一些。
+* 其内部仍然由Segment定义，但仅仅是为了保证序列化时的兼容性而已，不再有任何结构上的用处。
+* 因为不再使用Segment，初始化操作大大简化，修改位lazy-load形式，可以有效避免初始开销（老版本很多人抱怨的点）
+* 数据存储利用volatile来保证可见性。
+* 使用CAS等操作，在特定场景进行无锁并发操作。
+
+同步逻辑上使用的是synchronized，而不是通常建议的ReentrantLock之类，现代JDK中，synchronized已经被不断优化。相比于 ReentrantLock，它可以减少内存消耗，这是个非常大的优势。更多细节实现通过使用 Unsafe 进行了优化，例如 tabAt 就是直接利用 getObjectAcquire，避免间接调用的开销。
+
+
+**总结**
+
+1. 从线程安全问题开始，概念性的总结了基本容器工具
+2. 分析了早期同步容器的问题
+3. 进而分析了Java7和Java8中ConcurrentHashMap是如何设计实现的
 
 ### 一课一练 ###
 
@@ -427,7 +461,6 @@ S.O.L.I.D原则
 	   }
 	 } 
 
-
 ### 一课一练 ###
 
 思考一下自己的产品代码，有没有什么地方违反了基本设计原则？那些一改就崩的代码，是否遵循了开关原则？
@@ -461,6 +494,7 @@ SpringBean生命周期比较复杂，可以分位创建和销毁两个过程。
 	* Request
 	* Session
 	* GlobalSession
+	
 ### 考点分析 ###
 
 Bean 的生命周期是完全被容器所管理的，从属性设置到各种依赖关系，都是容器负责注入，并进行各个阶段其他事宜的处理，Spring 容器为应用开发者定义了清晰的生命周期沟通界面。
