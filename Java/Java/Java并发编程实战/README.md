@@ -81,6 +81,12 @@ JDK并发包是按照这三个维度组织的，Fork/Join框架是一种分工�
 
 ![11e0c64618c04edba52619f41aaa3565.png](/img/11e0c64618c04edba52619f41aaa3565.png)
 
+试图上来就看Java SDK的并发包，但眼花缭乱，借助网络上的技术文章，感觉看的懂了，但是很快忘记，这是因为并发知识还没有成体系。
+
+1. 要让自己的知识成体系，一定要挖掘 Java SDK 并发包背后的设计理念
+2. 分工、同步和互斥的全景图。
+3. 对于某个具体的技术，我建议你探索它背后的理论本质，理论的应用面更宽，一项优秀的理论往往在多个语言中都有体现，在多个不同领域都有应用。
+
 # 第一部分：并发理论基础 #
 
 ## 01 | 可见性、原子性和有序性问题：并发编程Bug的源头 ##
@@ -180,7 +186,7 @@ Java内存模型规范了JVM如何提供按需禁用缓存和编译优化的方�
 
 ### 使用volatile的困惑 ###
 
-volatile最原始的意义就是禁用CPU缓存。
+volatile最原始的意义就是禁用CPU缓存(C语言，并不是Java特有的)。
 
 	volatitle int x = 0，告诉编译器，对这个变量的读写，不能使用 CPU缓存，必须从内存中读取或者写入。
 
@@ -215,7 +221,7 @@ Happens-Before于第7行代码“v = true;”
 
 #### 2. volatile变量规则 ####
 
-对一个volatile变量的写操作相对于后续对这个volatile变量的读操作可见。
+对一个volatile变量的写操作，Happens-Before 于后续对这个 volatile 变量的读操作。。
 
 “v=true” Happens-Before 读变量“v=true”
 
@@ -233,9 +239,9 @@ java.util.concurrent靠volatitle语义来搞定可见性的。
 
 #### 4. 管程中锁的规则 ####
 
-Happens-Before于后续读这个锁的加锁
+指对一个锁的解锁Happens-Before于后续对这个锁的加锁。
 
-管程是一种通用的同步原语，在Java中指的是synchronized，synchronized是Java里对管程的实现。管程中的锁在Java里是隐式实现的。
+管程的定义：管程是一种通用的同步原语，在Java中指的是synchronized，synchronized是Java里对管程的实现。管程中的锁在Java里是隐式实现的。
 
 	synchronzied (this) { // 此处自动加锁
 		// x是共享变量，初始值=10
@@ -244,11 +250,11 @@ Happens-Before于后续读这个锁的加锁
 		}
 	} // 此处自动解锁
 
-结合规则4——管程中锁的规则，可以理解：架设x的初始值是10，线程A完代码块后x的值会变成12（执行完自动释放锁），线程B进入代码块时，能看到线程A对x的写操作，也就是线程B能够看到x==12。
+结合规则4——管程中锁的规则，可以理解：假设x的初始值是10，线程A完代码块后x的值会变成12（执行完自动释放锁），线程B进入代码块时，能看到线程A对x的写操作，也就是线程B能够看到x==12。
 
 #### 5. 线程start()规则 ####
 
-关于线程启动，指主线程A启动子线程B，子线程B能够看到主线程在启动子线程B前的操作。
+关于线程启动，指主线程A启动子线程B后，子线程B能够看到主线程在启动子线程B前的操作。
 
 如果线程A调用线程B的start()方法（即在线程A中启动线程B），那么该start()操作Happens-Before于线程B中的任意操作。
 
@@ -287,13 +293,13 @@ final关键字
 
 final修饰变量时，初衷是告诉编译器：这个变量生而不变，可以可劲优化。
 
-在1.4以后Java内存模型对final类型变量的重排进行了约束
+在1.5以后Java内存模型对final类型变量的重排进行了约束，目前直摇提供正确构造函数没有“逸出”，就不会出问题。（在构造函数里讲this赋值给了全局变量global.obj，这就是“逸出”）。
 
 ### 总结 ###
 
 Time，Clocks，and the Ordering of Events is a Distributed System
 
-在Java语言里面，Happens-Before的语义本质上是一种可见性，A Happens-Before B意味着A事件对B事件来说是可见得，无论A事件和B事件是否发生在同一个线程里。
+在现实世界里，如果 A 事件是导致 B 事件的起因，那么 A 事件一定是先于（Happens-Before）B 事件发生的，这个就是 Happens-Before 语义的现实理解。在Java语言里面，Happens-Before的语义本质上是一种可见性，A Happens-Before B意味着A事件对B事件来说是可见得，无论A事件和B事件是否发生在同一个线程里。
 
 Java内存模型主要分位两部分：
 
