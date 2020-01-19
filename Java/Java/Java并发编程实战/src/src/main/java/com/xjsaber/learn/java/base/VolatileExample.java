@@ -29,7 +29,28 @@ public class VolatileExample {
 
     public static void main(String[] args) {
         VolatileExample example = new VolatileExample();
-        example.getEx06();
+//        ex6
+//        example.getEx06();
+//        ex1
+//        for (int i = 0; i < 10; i++) {
+//            System.out.println(i);
+//            new Thread(() -> {
+//                example.writer();
+//                example.reader();
+//            }).start();
+//        }
+    }
+
+    private int x = 0;
+    private volatile boolean v = false;
+    private void writer(){
+        x = 42;
+        v = true;
+    }
+    private void reader(){
+        if (v){
+            System.out.println("x:" + x);
+        }
     }
 
     private int temp = 1;
