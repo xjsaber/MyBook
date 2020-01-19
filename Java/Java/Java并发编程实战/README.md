@@ -346,7 +346,7 @@ PS：我们锁的是什么？我们保护的又是什么？
 
 ### Java语言提供的锁技术：synchronized ###
 
-锁是一种通用的技术方案，Java语言提供的synchronized关键字，就是锁的一种实现，synchronized关键字可以用来修饰方法，也可以用来
+锁是一种通用的技术方案，Java语言提供的synchronized关键字，就是锁的一种实现，synchronized关键字可以用来修饰方法，也可以用来修饰代码块。
 
 	class X {
 		synchronzied void foo() {
@@ -365,8 +365,9 @@ PS：我们锁的是什么？我们保护的又是什么？
 		}
 	}
 
-当修饰静态方法的时候，锁定的是当前类的Class对象，在上面的例子中就是Class X；
-当修饰非静态方法的时候，锁定的是当前实例对象this。
+加锁lock和解锁unlock这两个操作，会被Java编译器在synchronized修饰符的方法或代码块前后自动加上。=>加锁lock和解锁unlock一定成对出现。
+
+当修饰静态方法的时候，锁定的是当前类的Class对象，在上面的例子中就是Class X；当修饰非静态方法的时候，锁定的是当前实例对象this。
 
 	class X {
 		// 修饰静态方法
@@ -375,12 +376,18 @@ PS：我们锁的是什么？我们保护的又是什么？
 		}
 	}
 	
+	class X {
+		// 修饰非静态方法
+		synchronized(this) void foo() {
+			// 临界区
+		}
+	}
+
 #### 用synchronized解决count += 1问题 ####
 
 管程中锁的规则：对一个锁的Happens-Before于后续对这个锁的加锁。
 
 管程，就是我们这里的synchronized，synchronized修饰的临界区是互斥的，也就是说同一时刻只有一个线程执行临界区的代码；而所谓“对一个锁解锁Happens-Before后续对这个锁的加锁”，指的是前一个线程的解锁操作对后一个线程的加锁操作可见，综合Happens-Before的传递性原则，我们得出前一个线程在临界区修改的共享变量（该操作的解锁之前），对后续进入临界区（该操作在加锁之后）的线程是可见的。
-
 
 	class SafeCalc {
 	  long value = 0L;
@@ -394,7 +401,7 @@ PS：我们锁的是什么？我们保护的又是什么？
 
 多个线程同时执行addOne()方法，可见形势可以保证的，如果有1000个线程执行addOne()方法，最终value值一定是加到1000。
 
-valued的值对get()可见性不可保证。需要对gett()方法也添加synchronized。
+valued的值对get()可见性不可保证。需要对get()方法也添加synchronized。
 
 	class SafeCalc {
 	  long value = 0L;
