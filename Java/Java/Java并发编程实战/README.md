@@ -597,7 +597,7 @@ private final Object xxxLock = new Object();，如果账户余额用 this.balanc
 
 破坏不可抢占条件看上去很简单，核心是要能够主动释放它占有的资源，这一点 synchronized 是做不到的。原因是 synchronized 申请资源的时候，如果申请不到，线程直接进入阻塞状态了，而线程进入阻塞状态，啥都干不了，也释放不了线程已经占有的资源。
 
-java.util.concurrent这个包下面提供的Lock
+Java在语言层面没有解决这个问题，但在SDK层面还是解决了这个问题，可以使用java.util.concurrent这个包下面提供的Lock解决。
 
 #### 3. 破坏循环等待条件 ####
 
@@ -612,6 +612,8 @@ java.util.concurrent这个包下面提供的Lock
 评估一下操作成本，从中选择一个成本最低的方案。
 
 ### 课后思考 ###
+
+破坏占用且等待条件，我们也是锁了所有的账户，而且还是用了死循环 while(!actr.apply(this, target));这个方法，那它比 synchronized(Account.class) 有没有性能优势呢？
 
 ## 06 | 用“等待-通知”机制优化循环等待 ##
 

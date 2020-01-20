@@ -1,4 +1,4 @@
-package com.xjsaber.learn.java.ch6;
+package main.java.com.xjsaber.learn.java.ch6.als;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,5 +32,4 @@ public class Allocator {
         als.remove(from);
         als.remove(to);
     }
-
 }
