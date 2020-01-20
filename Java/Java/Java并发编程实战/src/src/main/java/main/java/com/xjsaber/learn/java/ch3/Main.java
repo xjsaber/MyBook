@@ -1,4 +1,4 @@
-package com.xjsaber.learn.java.ch3;
+package main.java.com.xjsaber.learn.java.ch3;
 
 /**
  * @author xjsaber

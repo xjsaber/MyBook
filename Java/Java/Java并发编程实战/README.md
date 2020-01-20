@@ -615,7 +615,7 @@ Java在语言层面没有解决这个问题，但在SDK层面还是解决了这�
 
 破坏占用且等待条件，我们也是锁了所有的账户，而且还是用了死循环 while(!actr.apply(this, target));这个方法，那它比 synchronized(Account.class) 有没有性能优势呢？
 
-TODO 先贱一个死锁的demo
+DeadLock
 
 ## 06 | 用“等待-通知”机制优化循环等待 ##
 
@@ -648,17 +648,34 @@ TODO 先贱一个死锁的demo
 
 notify()只能保证在通知时间点，条件是满足的，执行时间点和通知的时间点基本上不会重合，所以当线程执行的时候，很可能条件已经不满足了（保不齐有其他线程插队）。
 
+强调wait()、notify()、notifyAll()方法操作的等待队列是互斥锁的等待队列，所以如果synchronzied锁定的是this，那么对应的一定是this.wait()、this.notifyAll()；如果 synchronized 锁定的是 target，那么对应的一定是 target.wait()、target.notify()、target.notifyAll() 。而且 wait()、notify()、notifyAll() 这三个方法能够被调用的前提是已经获取了相应的互斥锁，所以我们会发现 wait()、notify()、notifyAll() 都是在 synchronized{}内部被调用的。如果在 synchronized{}外部调用，或者锁定的 this，而用 target.wait() 调用的话，JVM 会抛出一个运行时异常：java.lang.IllegalMonitorStateException。
+
 #### 小试牛刀：一个更好地资源分配器 ####
+
+在这个等待-通知机制中，需要考虑以下四个要素：
+
+1. 互斥锁：Allocator需要是单例，所以可以用this作为互斥锁。
+2. 线程要求的条件：转出账户和转入账户都没有被分配过。
+3. 何时等待：线程要求的条件不满足就等待。
+4. 何时通知：当又线程释放账户时就通知。
 
 ### 尽量使用 notifyAll() ###
 
+notify()是会随机地通知等待队列中的一个线程，而notifyAll()会通知等待队列中的所有线程。
+
+除非经过深思熟虑，否则尽量使用notifyAll()。
+
 ### 总结 ###
+
+等待-通知机制是一种非常普遍的线程间协作的方式。（轮询->等待-通知机制来优化），Java语言内置的synchronized配合wait()、notify()、notifyAll()这三个方法可以快速实现这种机制，看上去有点负咋，需要认真理解等待队列和wait()、notify()、notifyAll()的关系。（可以用现实世界做个类比）
+
+Java语言的这种实现，背后的理论模型其实是管程。
 
 synchronized 配合 wait()、notify...
 
 ### 课后思考 ###
 
-wait()方法和sleep()方法
+wait() 方法和 sleep() 方法都能让当前线程挂起一段时间，那它们的区别是什么。
 
 # 07 | 安全性、活跃性以及性能问题 #
 

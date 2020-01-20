@@ -1,8 +1,10 @@
-package com.xjsaber.learn.java;
+package main.java.com.xjsaber.learn.java;
 
 public class Test {
 
-    // write your code here
+    /**
+     * write your code here
+     */
     private static int x = 0;
     private static volatile boolean v = false;
 

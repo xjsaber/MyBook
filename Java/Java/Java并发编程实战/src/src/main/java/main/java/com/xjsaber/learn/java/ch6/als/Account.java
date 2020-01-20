@@ -1,13 +1,19 @@
 package main.java.com.xjsaber.learn.java.ch6.als;
 
+/**
+ * @author xjsaber
+ */
 public class Account {
-    // actr应该为单例
+    /**
+     * actr应该为单例
+     */
     private Allocator actr;
     private int balance;
 
     void transfer(Account target, int amt){
-        while (!actr.apply(this, target))
+        while (!actr.apply(this, target)) {
             ;
+        }
         try {
             //锁定转出账户
             synchronized (this){

@@ -1,4 +1,4 @@
-package com.xjsaber.learn.java.base;
+package main.java.com.xjsaber.learn.java.base;
 
 /**
  * @author xjsaber
