@@ -34,7 +34,7 @@
         </pluginRepository>
     </pluginRepositories>
     <properties>
-        <spring.version>5.0.7.RELEASE</spring.version>
+        <spring.version>5.2.3.RELEASE</spring.version>
         <kotlin.version>1.2.0</kotlin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
