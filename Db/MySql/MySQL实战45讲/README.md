@@ -665,7 +665,53 @@ change buffer：可以持久化的数据，在内存中有拷贝，也会被写�
 
 ## 10 | MySQL为什么有时候会选错索引？ ##
 
+表定义：
+
+	CREATE TABLE `t10` (
+	  `id` int(11) NOT NULL,
+	  `a` int(11) DEFAULT NULL,
+	  `b` int(11) DEFAULT NULL,
+	  PRIMARY KEY (`id`),
+	  KEY `a` (`a`),
+	  KEY `b` (`b`)
+	) ENGINE=InnoDB;
+
+存储过程定义：
+
+	delimiter ;;
+	create procedure idata()
+	begin
+	  declare i int;
+	  set i=1;
+	  while(i<=100000)do
+	    insert into t values(i, i, i);
+	    set i=i+1;
+	  end while;
+	end;;
+	delimiter ;
+	call idata();
+
+SQL语句：
+
+	mysql> select * from t10 where a between 10000 and 20000;
+
+explain命令看到的这条语句的执行情况：
+
+	mysql> explain select * from t10 where a between 10000 and 20000;
+
+key这个字段值是'a'，表示优化器选择了索引a。
+
+如果准备好的包含了10万行
+
 ### 优化器的逻辑 ###
+
+选择索引是优化器的工作。而优化器选择索引的目的，是找到一个最优的执行方案，并用最小的代价去执行语句。在数据库里面，扫描行数是影响执行代价的因素之一。扫描的行数越少，意味着访问磁盘数据的次数越少，消耗的 CPU 资源越少。扫描行数也不是唯一的判断标准，优化器还会结合是否使用临时表、是否排序等因素进行综合判断。
+
+MySQL选错索引在判断扫描行数的时候出了问题，*扫描行数是怎么判断的？*
+
+基数：一个索引上不同的值，这个索引的区分度就越好。而一个索引上不同的值的个数。基数越大，索引的区分度越好。
+
+使用`show index`方法，看到索引的基数。
 
 ### 索引选择异常和处理 ###
 
@@ -950,6 +996,44 @@ MySQL高可用方案的基础，演化出了诸如多节点、半同步、MySQL 
 ## 32 | 为什么还有kill不掉的语句？ ##
 
 ## 33 | 我查这么多数据，会不会数据库内存打爆？ ##
+
+### 全表扫描对server层的影响 ###
+
+	mysql -h$host -P$port -u$user -p$pwd -e "select * from db1.t" > $target_file
+
+InnoDB的数据是保存在主键索引上的，所以全表扫描实际上是直接扫描表t的主键索引。
+
+服务端不需要保存一个完整的结果集。取数据和发数据的流程是：
+
+1. 获取一行，写到net_buffer中，这个内存的大小是由参数net_buffer_length定义的，默认是16k。
+2. 重复获取行，直到net_buffer写满，调用网络接口发出去。
+3. 如果发送成功，就清空net_buffer，然后继续取下一行，并写入net_buffer
+4. 如果发送函数返回 EAGAIN 或 WSAEWOULDBLOCK，就表示本地网络栈（socket send buffer）写满了，进入等待。直到网络栈重新可写，再继续发送。
+
+可以看出
+
+1. 一个查询在发送过程中，占用的MySQL内部的内存最大就是net_buffer_length这么大，并不会达到200G；
+2. socket send buffer也不可能达到200G（默认定义 /proc/sys/net/core/wmem_default），如果socket send buffer被写满，就会暂停读数据的流程。
+
+MySQL是“边读变发的”。如果客户端接收的慢，会导致MySQL服务端由于结果发布出去，这个事务的执行时间变长。
+
+	show processlist;
+
+对于正常的线上业务来说，如果一个查询的返回结果不会很多的话，使用mysql_store_result这个接口，直接把查询结果保存到本地内存。
+
+### 全表扫描对InnoDB的影响 ###
+
+分析了 InnoDB 内存的一个作用，是保存更新的结果，再配合 redo log，就避免了随机写盘。
+
+内存的数据页是在Buffer Pool(BP)中管理的，在WAL里Buffer Pool 
+
+### 小结 ###
+
+由于 MySQL 采用的是边算边发的逻辑，因此对于数据量很大的查询结果来说，不会在 server 端保存完整的结果集。所以，如果客户端读结果不及时，会堵住 MySQL 的查询过程，但是不会把内存打爆。
+
+对于 InnoDB 引擎内部，由于有淘汰策略，大查询也不会导致内存暴涨。并且，由于 InnoDB 对 LRU 算法做了改进，冷数据的全表扫描，对 Buffer Pool 的影响也能做到可控。
+
+全表扫描还是比较耗费 IO 资源的，所以业务高峰期还是不能直接在线上主库执行全表扫描的。
 
 ## 34 | 到底可不可以使用join？ ##
 
