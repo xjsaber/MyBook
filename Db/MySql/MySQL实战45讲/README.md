@@ -434,7 +434,12 @@ information_schema 库的 innodb_trx 这个表中查询长事务，比如下面�
 
 B+ 树为了维护索引有序性，在插入新值的时候需要做必要的维护。
 
-自增主键是指自增列上定义的主键，在建表语句中一般是这么定义的： NOT NULL PRIMARY KEY AUTO_INCREMENT。
+![dcda101051f28502bd5c4402b292e38d.png](img/dcda101051f28502bd5c4402b292e38d.png)
+
+自增主键是指自增列上定义的主键，在建表语句中一般是这么定义的： NOT NULL PRIMARY KEY AUTO_INCREMENT。插入新纪录的时候可以不指定ID的值，系统会获取当前ID最大值加1作为下一条记录的ID值。
+
+* 自增主键：符合了递增插入的场景，每次插入一条新纪录，都是追加操作，都不涉及到挪动其他记录，也不会触发叶子节点的分裂
+* 业务逻辑的字段做主键：不容易保证有序插入，写数据成本相对较高
 
 显然，主键长度越小，普通索引的叶子节点就越小，普通索引占用的空间也就越小。
 
@@ -451,6 +456,8 @@ InnoDB采用的B+树结构，以及InnoDB要选择B+树的原因。B+ 树能够�
 
 ### 精选留言 ###
 
+* 每一个表是好几棵B+树，树结点的key值就是某一行的主键，value是该行的其他数据。新建索引就是新增一个B+树，查询不走索引就是遍历主B+树。
+
 #### Q ####
 
 重建索引k
@@ -465,6 +472,9 @@ InnoDB采用的B+树结构，以及InnoDB要选择B+树的原因。B+ 树能够�
 
 #### A ####
 
+* 如果删除，新建主键索引，会同时去修改普通索引对应的主键索引，性能消耗比较大。
+* 删除重建普通索引貌似影响不大，不过要注意在业务低谷期操作，避免影响业务。
+
 #### Q ####
 
 没有主键的表，有一个普通索引。怎么回表？
@@ -473,6 +483,30 @@ InnoDB采用的B+树结构，以及InnoDB要选择B+树的原因。B+ 树能够�
 
 没有主键的表，innodb会给默认创建一个Rowid做主键
 
+#### Q ####
+
+“N叉树”的N值在MySQL中是可以被人工调整的么？
+
+#### A ####
+
+可以按照调整key的大小的思路来说；
+
+如果你能指出来5.6以后可以通过page大小来间接控制应该能加分吧
+
+面试回答不能太精减，计算方法、前缀索引什么的一起上😄
+
+1， 通过改变key值来调整
+N叉树中非叶子节点存放的是索引信息，索引包含Key和Point指针。Point指针固定为6个字节，假如Key为10个字节，那么单个索引就是16个字节。如果B+树中页大小为16K，那么一个页就可以存储1024个索引，此时N就等于1024。我们通过改变Key的大小，就可以改变N的值
+2， 改变页的大小
+页越大，一页存放的索引就越多，N就越大。
+
+#### Q ####
+
+定位到page，page内部怎么去定位行数据
+
+#### A ####
+
+内部有个有序数组，二分法
 
 ## 05 | 深入浅出牵引（下） ##
 
@@ -1075,7 +1109,159 @@ Extra 字段显示 Using temporary，表示的是需要使用临时表；Using f
 
 ## 19 | 为什么我只查一行的语句，也执行这么慢？ ##
 
+	mysql> CREATE TABLE `t19` (
+	  `id` int(11) NOT NULL,
+	  `c` int(11) DEFAULT NULL,
+	  PRIMARY KEY (`id`)
+	) ENGINE=InnoDB;
+	
+	delimiter ;;
+	create procedure t19idata()
+	begin
+	  declare i int;
+	  set i=1;
+	  while(i<=100000) do
+	    insert into t values(i,i);
+	    set i=i+1;
+	  end while;
+	end;;
+	delimiter ;
+	
+	call t19idata();
+
+### 第一类：查询长时间不返回 ###
+
+	mysql> select * from t19 where id=1;
+
+碰到这种情况
+
+1. 表t被锁住了
+2. 首先执行一下show processlist命令查看原因
+3. 针对每种状态，分析他们产生的原因、如何复现，以及如何处理
+
+### 等MDL锁 ###
+使用`show processlist`命令查看`Waiting for table metadata lock`
+
+如果出现`Sleep`*这个状态表示的是，现在有一个线程正在表 t 上请求或者持有 MDL 写锁，把 select 语句堵住了。*
+
+|session A|session B|
+|--|--|
+|lock table t19 write;||
+||select * from t where id=1;|
+
+session A通过lock table命令持有表t的MDL写锁，而session B的查询需要获取MDL读锁。所以，session B进入等待状态。通过找到谁持有MDL写锁，然后kill掉解决问题。
+
+**解决方法**
+
+* 通过show processlist的结果里面，session A的Command列是“Sleep”，导致查询不方便
+* 通过查询`sys.schema_table_lock_waits`这张表，直接找出造成阻塞的process id，kill掉断开连接即可
+
+	select blocking_pid from sys.schema_table_lock_waits;
+
+可以直接在查询界面进行删除内容
+
+### 等flush ###
+
+	mysql> select * from information_schema.processlist where id=1;
+查出来这个线程的状态是 Waiting for table flush
+
+	-- 只关闭表t
+	flush tables t with read lock;
+	-- 关闭MySQL里所有打开的表
+	flush tables with read lock;
+正常这两个语句执行起来比较快，但可能也被其他的线程堵住了；出现`Waiting for table flush`状态可能是：有一个flush tables命令被别的语句堵住了，然后它又堵住了select语句。
+
+### 等行锁 ###
+	mysql> select * from t where id=1 lock in share mode;
+由于访问id=1这个记录时要加读锁，如果这时候已经有一个事务在这行记录上持有一个写锁。select语句就会被堵住。 
+
+|session A|session B|
+|--|--|
+|begin;||
+|update t19 set c=c+1 where id=1;||
+||select * from t where id=1;|
+
+查询谁占着写锁，通过`sys.innodb_lock_waits`表查到
+	mysql> select * from t sys.innodb_lock_waits where locked_table=`'test'.'t'`\G
+
+    KILL4和KILL QUERY 4
+TODO kill query4 
+
+### 查询慢 ###
+
+	mysql> select * from t where c=50000 limit 1;
+
+由于字段c上没有索引，只能走id主键顺序查询，因此需要扫描5万行。 
+
+*坏查询不一定是慢查询*
+
+### 小结 ###
+
+select * from t where id=1 lock in share mode。由于 id 上有索引，所以可以直接定位到 id=1 这一行，因此读锁也是只加在了这一行上。
+
+	begin;
+	select * from t where c=5 for update;
+	commit;
+
+### 精选留言 ###
+
 ## 20 | 幻读是什么，幻读有什么问题？ ##
+
+	CREATE TABLE `t20` (
+	  `id` int(11) NOT NULL,
+	  `c` int(11) DEFAULT NULL,
+	  `d` int(11) DEFAULT NULL,
+	  PRIMARY KEY (`id`),
+	  KEY `c` (`c`)
+	) ENGINE=InnoDB;
+	
+	insert into t20 values(0,0,0),(5,5,5),
+	(10,10,10),(15,15,15),(20,20,20),(25,25,25);
+这个表除了主键 id 外，还有一个索引 c，初始化语句在表中插入了 6 行数据。
+
+### 幻读是什么？ ###
+
+||session A|session B|session C|
+|--|--|--|--|
+|T1|begin;|||
+||select * from t20 where d=5 for update; /*Q1*/|||
+||result:(5,5,5)|||
+|T2||update t20 set d=5 ||
+|||where id=0;||
+|T3|select * from t20 where d=5 fro update; /*Q2*/|||
+||result:(0,0,5),(5,5,5)|||
+|T4|||insert into t20 values(1, 1, 5)|
+|T5|select * from t20 where d=5 for update; /*Q3*/|||
+||result:(0,0,5),(1,1,5),(5,5,5)|||
+|T6|commit;|||
+
+幻读指的是一个事务在前后两次查询同一个范围的时候，后一次查询看到了前一次查询没有看到的行。
+
+幻读：
+
+1. 在可重复读隔离级别下，普通的查询是快照读，是不会看到别的事务插入的数据的。因此，幻读在“当前读”下才会出现。
+2. 上面 session B 的修改结果，被 session A 之后的 select 语句用“当前读”看到，不能称为幻读。幻读仅专指“新插入的行”。
+
+
+
+### 幻读有什么问题？ ###
+
+1. 语义上
+2. 数据一致性的问题：锁的设计是为了保证数据的一致性。而这个一致性，不止是数据库内部数据状态在此刻的一致性，还包含了数据和日志在逻辑上的一致性。
+
+即使把所有的记录都加上锁，还是阻止不了新插入的记录。
+
+### 如何解决幻读 ###
+
+
+
+||读锁|写锁|
+|读锁|兼容|冲突|
+|写锁|冲突|冲突|
+
+### 小结 ###
+
+间隙锁：给所有的行都加上行锁，仍然无法解决幻读。就是生产库上会经常出现由于间隙锁导致的死锁现象。行锁确实比较直观，判断规则也相对简单，间隙锁的引入会影响系统的并发度，也增加了锁分析的复杂度，但也有章可循。
 
 ## 21 | 为什么我只改一行的语句锁这么多 ##
 
