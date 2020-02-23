@@ -376,6 +376,13 @@ information_schema 库的 innodb_trx 这个表中查询长事务，比如下面�
 
 ### 精选留言 ###
 
+#### Q ####
+
+现在知道了系统里面应该避免长事务，如果你是业务开发负责人同时也是数据库负责人，你会有什么方案来避免出现或者处理这种情况呢？
+
+#### A ####
+
+少用长事务，尽量将高并发的表放在事务的后面。
 
 
 ## 04 | 深入浅出牵引（上） ##
@@ -1146,9 +1153,26 @@ MySQL是支持前缀索引的，定义字符串的一部分为索引。默认地
 
 *你的SQL语句为什么变“慢”了*
 
-当内存数据页跟磁盘数据页内容不一致的时候，我们称这个内存页为“脏页”。内存数据写入到磁盘后，内存和磁盘上的数据页的内容就一致了，称为“干净页”。
+WAL机制：InnoDB 在处理更新语句的时候，只做了写日志这一个磁盘操作。这个日志叫作 redo log（重做日志）
+
+**当内存数据页跟磁盘数据页内容不一致的时候，我们称这个内存页为“脏页”。内存数据写入到磁盘后，内存和磁盘上的数据页的内容就一致了，称为“干净页”。**
 
 ### InnoDB 刷脏页的控制策略 ###
+
+用到 innodb_io_capacity 这个参数了，告诉 InnoDB 你的磁盘能力。这个值我建议你设置成磁盘的 IOPS。磁盘的 IOPS 可以通过 fio 这个工具来测试，下面的语句是我用来测试磁盘随机读写的命令：
+
+	fio -filename=$filename -direct=1 -iodepth 1 -thread -rw=randrw -ioengine=psync -bs=16k -size=500M -numjobs=10 -runtime=10 -group_reporting -name=mytest 
+
+**如果你来设计策略控制刷脏页的速度，会参考哪些因素呢？**
+
+1. 首先是内存脏页太多，其次是 redo log 写满。
+2. InnoDB 的刷盘速度就是要参考这两个因素：一个是脏页比例，一个是 redo log 写盘速度。
+
+InnoDB 会根据这两个因素先单独算出两个数字：
+
+参数 innodb_max_dirty_pages_pct 是脏页比例上限，默认值是 75%。
+
+在 MySQL 8.0 中，innodb_flush_neighbors 参数的默认值已经是 0 了。
 
 ### 小结 ###
 
@@ -1156,7 +1180,34 @@ MySQL是支持前缀索引的，定义字符串的一部分为索引。默认地
 
 由此也带来了内存脏页的问题。脏页会被后台线程自动 flush，也会由于数据页淘汰而触发 flush，而刷脏页的过程由于会占用资源，可能会让你的更新和查询语句的响应时间长一些。
 
+### 精选留言 ###
 
+
+#### 1 ####
+
+**Q**
+当内存不够用了，要将脏页写到磁盘，会有一个数据页淘汰机制（最久不使用），假设淘汰的是脏页，则此时脏页所对应的redo log的位置是随机的，当有多个不同的脏页需要刷，则对应的redo log可能在不同的位置，这样就需要把redo log的多个不同位置刷掉，这样对于redo log的处理不是就会很麻烦吗？（合并间隙，移动位置？）
+另外，redo log的优势在于将磁盘随机写转换成了顺序写，如果需要将redo log的不同部分刷掉（刷脏页），不是就在redo log里随机读写了么？
+
+**A**
+* 其实由于淘汰的时候，刷脏页过程不用动redo log文件的。
+* 这个有个额外的保证，是redo log在“重放”的时候，如果一个数据页已经是刷过的，会识别出来并跳过。
+
+#### 2 ####
+
+redo log是关系型数据库的核心啊,保证了ACID里的D。所以redo log是牵一发而动全身的操作
+按照老师说的当内存数据页跟磁盘数据页不一致的时候,把内存页称为'脏页'。如果redo log
+设置得太小,redo log写满.那么会涉及到哪些操作呢,我认为是以下几点:
+1. 把相对应的数据页中的脏页持久化到磁盘,checkpoint往前推
+2. 由于redo log还记录了undo的变化,undo log buffer也要持久化进undo log
+3. 当innodb_flush_log_at_trx_commit设置为非1,还要把内存里的redo log持久化到磁盘上
+4. redo log还记录了change buffer的改变,那么还要把change buffer purge到idb
+以及merge change buffer.merge生成的数据页也是脏页,也要持久化到磁盘
+上述4种操作,都是占用系统I/O,影响DML,如果操作频繁,会导致'抖'得向现在我们过冬一样。
+但是对于select操作来说,查询时间相对会更快。因为系统脏页变少了,不用去淘汰脏页,直接复用
+干净页即可。还有就是对于宕机恢复,速度也更快,因为checkpoint很接近LSN,恢复的数据页相对较少
+所以要控制刷脏的频率,频率快了,影响DML I/O,频率慢了,会导致读操作耗时长。
+我是这样想的这个问题,有可能不太对,特别是对于第4点是否会merge以及purge,还需要老师的解答
 
 ## 13 | 为什么表数据删掉一半，表文件大小没变 ##
 
@@ -1181,6 +1232,12 @@ MySQL是支持前缀索引的，定义字符串的一部分为索引。默认地
 
 InnoDB 里的数据都是用 B+ 树的结构组织的。
 
+如果删掉R4这个记录，InnoDB引擎只会把R4这个记录标记为删除。InnoDB的数据是按页存储的，那么删掉了一个数据页上的所有记录，则整个数据页就可以被复用了。
+
+数据页的复用跟记录的复用是不同的。
+
+不止是删除数据会造成空洞，插入数据也会。
+
 ### 重建表 ###
 
 如果现在有一个表A，需要做空间收缩，为了把表中存在的空洞去掉。
@@ -1191,6 +1248,8 @@ InnoDB 里的数据都是用 B+ 树的结构组织的。
 使用 alter table A engine=InnoDB 命令来重建表。
 
 ### Online 和 inplace ###
+
+
 
 ### 小结 ###
 
@@ -1295,11 +1354,60 @@ InnoDB引擎支持事务，利用好事务的原子性和隔离性，简化在�
 
 ## 15 | 答疑文章（一）：日志和索引相关问题 ##
 
+### 日志相关问题 ###
+
+#### 追问 1：MySQL 怎么知道 binlog 是完整的? ####
+
+一个事务的binlog是有完整格式的：
+
+* statement格式的binlog，最后会有COMMIT；
+* row歌是的binlog，最后会有一个XID event。
+
+在MySQL5.6.2版本以后，还引入了binlog-checksum参数，用来验证binlog内容的正确性。
+
+#### 追问 2：redo log 和 binlog 是怎么关联起来的? ####
+
+有一个共同的数据字段，叫XID。崩溃恢复的时候，会按顺序扫描 redo log：
+
+* 如果碰到既有 prepare、又有 commit 的 redo log，就直接提交；
+* 如果碰到只有 parepare、而没有 commit 的 redo log，就拿着 XID 去 binlog 找对应的事务。
+
+追问 3：处于 prepare 阶段的 redo log 加上完整 binlog，重启就能恢复，MySQL 为什么要这么设计?
+
+追问 4：如果这样的话，为什么还要两阶段提交呢？干脆先 redo log 写完，再写 binlog。崩溃恢复的时候，必须得两个日志都完整才可以。是不是一样的逻辑？
+
+**追问 5：不引入两个日志，也就没有两阶段提交的必要了。只用 binlog 来支持崩溃恢复，又能支持归档，不就可以了？**
+
+只保存binlog，然后把提交流程改成：...->“数据更新到内存”->“写binlog”->“提交事务”
+
+**追问 6：那能不能反过来，只用 redo log，不要 binlog？**
+
+**追问 7：redo log 一般设置多大？**
+
+### 小结 ###
+
+### 精选留言 ###
+
+#### Q ####
+
+	mysql> CREATE TABLE `t16` (
+	`id` int(11) NOT NULL primary key auto_increment,
+	`a` int(11) DEFAULT NULL
+	) ENGINE=InnoDB;
+	insert into t16 values(1,2);
+	
+	mysql> update t16 set a=2 where id=1;
+
+#### A ####
+
+
+
+
 ## 16 | "order by"是怎么工作的？ ##
 
 表定义
 
-	CREATE TABLE `t` (
+	CREATE TABLE `t16` (
 	  `id` int(11) NOT NULL,
 	  `city` varchar(16) NOT NULL,
 	  `name` varchar(16) NOT NULL,
@@ -1310,7 +1418,7 @@ InnoDB引擎支持事务，利用好事务的原子性和隔离性，简化在�
 	) ENGINE=InnoDB;
 
 
-	select city,name,age from t where city='杭州' order by name limit 1000 ;
+	select city,name,age from t16 where city='杭州' order by name limit 1000 ;
 
 ### 全字段排序 ###
 
@@ -1368,17 +1476,62 @@ max_length_for_sort_data，是MySQL中专门控制用于排序的行数据的长
 
 ## 17 | 如何正确地显示随机消息 ##
 
+	mysql> CREATE TABLE `t17` (
+	  `id` int(11) NOT NULL AUTO_INCREMENT,
+	  `word` varchar(64) DEFAULT NULL,
+	  PRIMARY KEY (`id`)
+	) ENGINE=InnoDB;
+	
+	delimiter ;;
+	create procedure idata_t17()
+	begin
+	  declare i int;
+	  set i=0;
+	  while i<10000 do
+	    insert into t17(word) values(concat(char(97+(i div 1000)), char(97+(i % 1000 div 100)), char(97+(i % 100 div 10)), char(97+(i % 10))));
+	    set i=i+1;
+	  end while;
+	end;;
+	delimiter ;
+
+	call idata_t17();
+
 ### 内存临时表 ###
 
-	mysql> select word from words order by rand() limit 3;
+	mysql> explain select word from words order by rand() limit 3;
 
 Extra 字段显示 Using temporary，表示的是需要使用临时表；Using filesort，表示的是需要执行排序操作。(需要临时表，并且需要在临时表上排序)
 
 对于 InnoDB 表来说，执行全字段排序会减少磁盘访问，因此会被优先选择；对于内存表，回表过程只是简单地根据数据行的位置，直接访问内存得到数据，根本不会导致多访问磁盘。
 
-1. 创建一个临时表。这个临时表使用的是memory引擎，表里有两个字段
+1. 创建一个临时表。这个临时表使用的是memory引擎，表里有两个字段，第一个字段是 double 类型，第二个字段是 varchar(64) 类型。并且，这个表没有建索引。
+2. 从words，按主键顺序取出所有的 word 值。对于每一个 word 值，调用 rand() 函数生成一个大于 0 小于 1 的随机小数，并把这个随机小数和 word 分别存入临时表的 R 和 W 字段中，到此，扫描行数是 10000。
+3. 现在临时表有 10000 行数据了，接下来你要在这个没有索引的内存临时表上，按照字段 R 排序。
+4. 初始化 sort_buffer。sort_buffer 中有两个字段，一个是 double 类型，另一个是整型。
+5. 从内存临时表中一行一行地取出 R 值和位置信息，分别存入 sort_buffer 中的两个字段里。这个过程要对内存临时表做全表扫描，此时扫描行数增加 10000，变成了 20000。
+6. 在 sort_buffer 中根据 R 的值进行排序。注意，这个过程没有涉及到表操作，所以不会增加扫描行数。
+7. 排序完成后，取出前三个结果的位置信息，依次到内存临时表中取出 word 值，返回给客户端。这个过程中，访问了表的三行数据，总扫描行数变成了 20003。
+
+	# Query_time: 0.900376  Lock_time: 0.000347 Rows_sent: 3 Rows_examined: 20003
+	SET timestamp=1541402277;
+	select word from words order by rand() limit 3;
+
 
 ### 磁盘临时表 ###
+
+tmp_table_size这个配置限制了内存临时表的大小，默认值是16M。
+
+### 随机排序方法 ###
+
+
+
+### 小结 ###
+
+如果你直接使用 order by rand()，这个语句需要 Using temporary 和 Using filesort，查询的执行代价往往是比较大的。所以，在设计的时候你要尽量避开这种写法。
+
+在实际应用的过程中，比较规范的用法就是：尽量将业务逻辑写在业务代码中，让数据库只做“读写数据”的事情。
+
+
 
 ## 18 | 为什么这些SQL语句逻辑相同，性能却差异巨大？ ##
 
@@ -1644,6 +1797,50 @@ TODO
 
 ## 23 | MySQL是怎么保证数据不丢的？ ##
 
+只要redo log和binlog保证持久化到磁盘，就能确保MySQL异常重启，数据可以回复。
+
+### binlog的写入机制 ###
+
+事务执行过程中，先把日志写到binglog cache，事务提交的时候，再把binlog cache写道binlog文件中。
+
+一个事务的binlog不能被拆开的，因此无论这个事务多大，也要确保一次性写入。——binlog cache的保存问题
+
+系统给 binlog cache 分配了一片内存，每个线程一个，参数 binlog_cache_size 用于控制单个线程内 binlog cache 所占内存的大小。如果超过了这个参数规定的大小，就要暂存到磁盘。
+
+事务提交的时候，执行器把 binlog cache 里的完整事务写入到 binlog 中，并清空 binlog cache。
+
+每个线程有自己的binlog cache，但是共用同一份binlog文件。
+
+### redo log的写入机制 ###
+
+redo log buffer：事务在执行过程中，生成的redo log是要先写到redo log buffer的。
+
+redo log buffer里面的内容不会每次生成后直接持久化到磁盘。
+
+![9d057f61d3962407f413deebc80526d4.png](img/9d057f61d3962407f413deebc80526d4.png)
+
+redo log存在的三种状态：
+
+* 存在redo log buffer中，物理上是在MySQL进程内存中，图中红色部分（快）
+* 写到磁盘（write），但是没有持久化（sync），物理上是在文件系统的page cache里面，图中黄色部分（快）
+* 持久化到磁盘，对应的是hard disk，图中绿色部分（慢）
+
+为了控制redo log的写入策略，InnoDB提供了innodb_flush_log_at_trx_commit参数，有三种可能取值：
+
+1. 设置为0的时候，表示每次事务提交时都只是把redo log留在redo log buffer中；
+2. 设置为1的时候，表示每次事务提交都将redo log直接持久化到磁盘；
+3. 设置为2的时候，表示每次事务提交时都只是把redo log写到page cache。
+
+WAL机制主要得益于l两个方面：
+
+1. redo log和binlog都是顺序写，磁盘的顺序写比随机写速度要快
+2. 组提交机制，可以大幅度降低磁盘的IOPS消耗
+
+
+### 小结 ###
+
+
+
 ## 24 | MySQL是怎么保证主备一致的？ ##
 
 binlog可以用来归档，也可以用来主备同步。
@@ -1786,6 +1983,51 @@ MySQL是“边读变发的”。如果客户端接收的慢，会导致MySQL服�
 
 ## 34 | 到底可不可以使用join？ ##
 
+1. 我们 DBA 不让使用 join，使用 join 有什么问题呢？
+2. 如果有两个大小不同的表做 join，应该用哪个表做驱动表呢？
+
+### Index Nested-Loop Join ###
+
+	select * from t34_1 straight_join t34_2 on (t34_1.a=t34_2.a);
+
+t1是驱动表，t2是被驱动表，被驱动表t2的字段a上有索引，join过程用上了这个索引。
+
+1. 从表t1中读入一行数据R；
+2. 从数据行R中，取出a字段到表t2里去查找；
+3. 取出表t2中满足条件的行，跟R组成一行，作为结果集的一部分；
+4. 重复执行步骤1到3，直到表t1的末尾循环结束。
+
+先遍历表t1，然后根据从表t1中取出的每行数据的a值，去表t2中查找满足条件的记录。在形式上，这个过程跟我们的嵌套查询类似，并且可以用上被驱动表的索引。——Index Nested-Loop Join，简称NLJ
+
+1. 对驱动表t1做了全表扫描，这个过程需要扫描100行；
+2. 而对于每一行R，根据a字段去表t2查找，走的是树搜索过程。由于我们构造的数据都是一一对应，因此每次的搜索过程都只搜索一行，也是总共扫描100行；
+3. 所以，整个执行流程，总扫描行数是200。
+
+#### 能不能使用join ####
+
+用单表查询
+
+1. 执行select * from t1，查出表 t1 的所有数据，这里有 100 行；
+2. 循环遍历这 100 行数据：
+	* 从每一行 R 取出字段 a 的值 $R.a；
+	* 执行select * from t2 where a=$R.a；
+	* 把返回的结果和 R 构成结果集的一行。
+
+扫描了200行，但总共执行了101条语句，比直接join多了100次交互。
+
+#### 怎么选择驱动表 ####
+
+在这个 join 语句执行过程中，驱动表是走全表扫描，而被驱动表是走树搜索。
+
+N+N*2*log2^M
+
+1. 使用join语句，性能比强行拆成多个单表执行SQL语句的性能要好；
+2. 如果使用join语句的话，需要让小表做驱动表。
+
+### Simple Nested-Loop Join ###
+
+
+
 ## 35 | join语句怎么优化？ ##
 
 ## 36 | 为什么临时表可以重名？ ##
@@ -1820,8 +2062,6 @@ MySQL是“边读变发的”。如果客户端接收的慢，会导致MySQL服�
 
 在MySQL里面，如果字段id被定义为AUTO_INCREMENT，在插入一行数据的时候，自增值的行为如下：
 
-
-
 ### 自增值的修改时机 ###
 
 ### 自增锁的优化 ###
@@ -1837,6 +2077,93 @@ MySQL是“边读变发的”。如果客户端接收的慢，会导致MySQL服�
 ## 40 | insert语句的锁为什么这么多？ ##
 
 ## 41 | 怎么最快地复制一张表 ##
+
+	create database db1;
+	use db1;
+	
+	create table t(id int primary key, a int, b int, index(a))engine=innodb;
+	delimiter ;;
+	  create procedure idata()
+	  begin
+	    declare i int;
+	    set i=1;
+	    while(i<=1000)do
+	      insert into t values(i,i,i);
+	      set i=i+1;
+	    end while;
+	  end;;
+	delimiter ;
+	call idata();
+	
+	create database db2;
+	create table db2.t like db1.t
+
+### mysqldump 方法 ###
+
+使用 mysqldump 命令将数据导出成一组 INSERT 语句
+
+	mysqldump -h$host -P$port -u$user --add-locks=0 --no-create-info --single-transaction  --set-gtid-purged=OFF db1 t --where="a>900" --result-file=/client_tmp/t.sql
+
+1. `–single-transaction` 的作用是，在导出数据的时候不需要对表 db1.t 加表锁，而是使用 START TRANSACTION WITH CONSISTENT SNAPSHOT 的方法；
+2. `–add-locks` 设置为 0，表示在输出的文件结果里，不增加" LOCK TABLES t WRITE;" ；
+3. `–no-create-info` 的意思是，不需要导出表结构；
+4. `–set-gtid-purged=off` 表示的是，不输出跟 GTID 相关的信息；
+5. `–result-file` 指定了输出文件的路径，其中 client 表示生成的文件是在客户端机器上的。
+
+一条 INSERT 语句里面会包含多个 value 对，这是为了后续用这个文件来写入数据的时候，执行速度可以更快。
+
+	mysql -h127.0.0.1 -P13000  -uroot db2 -e "source /client_tmp/t.sql"
+
+source并不是
+
+### 导出CSV文件 ###
+
+将结果直接导出成.csv文件。
+
+	select * from db1.t where a>900 into outfile '/server_tmp/t.csv';
+
+1. 这条语句会将结果保存在服务端。如果你执行命令的客户端和 MySQL 服务端不在同一个机器上，客户端机器的临时目录下是不会生成 t.csv 文件的。
+2. into outfile 指定了文件的生成位置（/server_tmp/），这个位置必须受参数 secure_file_priv 的限制。参数 secure_file_priv 的可选值和作用分别是：
+	* 如果设置为 empty，表示不限制文件生成的位置，这是不安全的设置；
+	* 如果设置为一个表示路径的字符串，就要求生成的文件只能放在这个指定的目录，或者它的子目录；
+	* 如果设置为 NULL，就表示禁止在这个 MySQL 实例上执行 select … into outfile 操作。
+3. 这条命令不会帮你覆盖文件，因此你需要确保 /server_tmp/t.csv 这个文件不存在，否则执行语句时就会因为有同名文件的存在而报错。
+4. 这条命令生成的文本文件中，原则上一个数据行对应文本文件的一行。但是，如果字段中换行符，在生成的文本中也有换行符。不过类似换行符、制表符这类符号，前面都会跟上“\”这个转义符，这样就可以跟字段之间、数据行之间的分隔符区分开。
+
+### 物理拷贝方法 ###
+
+逻辑导逻辑的方法，从db1.t中读出来，生成文本，再写入目标表db2.t中。
+
+一个InnoDB表，除了包含这两个物理文件外，还需要在数据字典中注册。直接拷贝这两个文件的话，因为数据字典中没有 db2.t 这个表，系统是不会识别和接受它们的。
+
+在 MySQL 5.6 版本引入了可传输表空间(transportable tablespace) 的方法，可以通过导出 + 导入表空间的方式，实现物理拷贝表的功能。
+
+假设我们现在的目标是在 db1 库下，复制一个跟表 t 相同的表 r，具体的执行步骤如下：
+
+1. 执行 create table r like t，创建一个相同表结构的空表；
+2. 执行 alter table r discard tablespace，这时候 r.ibd 文件会被删除；
+3. 执行 flush table t for export，这时候 db1 目录下会生成一个 t.cfg 文件；
+4. 在 db1 目录下执行 cp t.cfg r.cfg; cp t.ibd r.ibd；这两个命令（这里需要注意的是，拷贝得到的两个文件，MySQL 进程要有读写权限）；
+5. 执行 unlock tables，这时候 t.cfg 文件会被删除；
+6. 执行 alter table r import tablespace，将这个 r.ibd 文件作为表 r 的新的表空间，由于这个文件的数据内容和 t.ibd 是相同的，所以表 r 中就有了和表 t 相同的数据。
+
+关于拷贝表的这个流程
+
+1. 在第 3 步执行完 flsuh table 命令之后，db1.t 整个表处于只读状态，直到执行 unlock tables 命令后才释放读锁；
+2. 在执行 import tablespace 的时候，为了让文件里的表空间 id 和数据字典中的一致，会修改 r.ibd 的表空间 id。而这个表空间 id 存在于每一个数据页中。因此，如果是一个很大的文件（比如 TB 级别），每个数据页都需要修改，所以你会看到这个 import 语句的执行是需要一些时间的。当然，如果是相比于逻辑导入的方法，import 语句的耗时是非常短的。
+
+### 小结 ###
+
+三种方法将一个表的数据导入到另外一个表中，各自的优缺点：
+
+1. 物理拷贝的方式速度最快，尤其对于大表拷贝来说是最快的方法。如果出现误删表的情况，用备份恢复出误删之前的临时表，然后再把临时库中的表拷贝到生产库上，是恢复数据最快的方法。但有一定的局限性：
+* 必须是全表拷贝，不能只拷贝部分数据；
+* 需要到服务器上拷贝数据，在用户无法登录数据库主机的场景下无法使用；
+* 由于是通过拷贝物理文件实现的，源表和目标表都是使用 InnoDB 引擎时才能使用。
+2. 用 mysqldump 生成包含 INSERT 语句文件的方法，可以在 where 参数增加过滤条件，来实现只导出部分数据。这个方式的不足之一是，不能使用 join 这种比较复杂的 where 条件写法。
+3. 用 select … into outfile 的方法是最灵活的，支持所有的 SQL 写法。但，这个方法的缺点之一就是，每次只能导出一张表的数据，而且表结构也需要另外的语句单独备份。
+
+逻辑备份方式，是可以跨引擎使用的
 
 ## 42 | grant之后要跟着flush privileges吗 ##
 
