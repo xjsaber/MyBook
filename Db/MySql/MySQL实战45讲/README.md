@@ -1880,7 +1880,11 @@ binlog可以用来归档，也可以用来主备同步。
 
 ### 为什么会右mixed格式的binlog？ ###
 
+为什么会有 mixed 这种 binlog 格式的存在场景？
 
+* 因为有些 statement 格式的 binlog 可能会导致主备不一致，所以要使用 row 格式。
+* 但 row 格式的缺点是，很占空间。比如你用一个 delete 语句删掉 10 万行数据，用 statement 的话就是一个 SQL 语句被记录到 binlog 中，占用几十个字节的空间。但如果用 row 格式的 binlog，就要把这 10 万条记录都写到 binlog 中。（不仅会占用更大的空间，同时写 binlog 也要耗费 IO 资源，影响执行速度。）
+* MySQL 就取了个折中方案，也就是有了 mixed 格式的 binlog。mixed 格式的意思是，MySQL 自己会判断这条 SQL 语句是否可能引起主备不一致，如果有可能，就用 row 格式，否则就用 statement 格式。
 
 ### 循环复制问题 ###
 
