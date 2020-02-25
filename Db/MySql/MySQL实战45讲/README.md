@@ -1859,7 +1859,28 @@ binlog可以用来归档，也可以用来主备同步。
 
 ### binlog的三种格式对比 ###
 
+1. statement
+2. row
+3. mixed，其实就是前两种格式的混合。
+
+	mysql> CREATE TABLE `t24` (
+	  `id` int(11) NOT NULL,
+	  `a` int(11) DEFAULT NULL,
+	  `t_modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	  PRIMARY KEY (`id`),
+	  KEY `a` (`a`),
+	  KEY `t_modified`(`t_modified`)
+	) ENGINE=InnoDB;
+
+	insert into t24 values(1,1,'2018-11-13');
+	insert into t24 values(2,2,'2018-11-12');
+	insert into t24 values(3,3,'2018-11-11');
+	insert into t24 values(4,4,'2018-11-10');
+	insert into t24 values(5,5,'2018-11-09');
+
 ### 为什么会右mixed格式的binlog？ ###
+
+
 
 ### 循环复制问题 ###
 
