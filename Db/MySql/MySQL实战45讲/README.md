@@ -1536,6 +1536,116 @@ tmp_table_size这个配置限制了内存临时表的大小，默认值是16M。
 
 ## 18 | 为什么这些SQL语句逻辑相同，性能却差异巨大？ ##
 
+### 案例一：条件字段函数操作 ###
+
+	mysql> CREATE TABLE `tradelog` (
+	  `id` int(11) NOT NULL,
+	  `tradeid` varchar(32) DEFAULT NULL,
+	  `operator` int(11) DEFAULT NULL,
+	  `t_modified` datetime DEFAULT NULL,
+	  PRIMARY KEY (`id`),
+	  KEY `tradeid` (`tradeid`),
+	  KEY `t_modified` (`t_modified`)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+	mysql> select count(*) from tradelog where month(t_modified)=7;
+
+其中对索引字段做函数操作，可能会破坏索引值的有序性，因此优化器就决定放弃走树搜索功能。
+
+但并没有放弃使用这个索引，优化器选择遍历主键索引，也可以选择索引t_modified，优化器对比索引大小后发现，索引 t_modified 更小，遍历这个索引比遍历主键索引来得更快。
+
+使用explain命令查看，key="t_modified"表示的是，使用了 t_modified 这个索引；我在测试表数据中插入了 10 万行数据，rows=100335，说明这条语句扫描了整个索引的所有值；Extra 字段的 Using index，表示的是使用了覆盖索引。
+
+	mysql> select count(*) from tradelog where
+	    -> (t_modified >= '2016-7-1' and t_modified<'2016-8-1') or
+	    -> (t_modified >= '2017-7-1' and t_modified<'2017-8-1') or 
+	    -> (t_modified >= '2018-7-1' and t_modified<'2018-8-1');
+
+把 SQL 语句改成基于字段本身的范围查询。按照下面这个写法，优化器就能按照我们预期的，用上 t_modified 索引的快速定位能力了。
+
+### 案例二：隐式类型转换 ###
+
+	mysql> select * from tradelog where tradeid=110717;
+
+1. 类型转换的规则是什么？
+2. 为什么有数据类型转换，就需要走全索引扫描？
+
+在MySQL中，select "10" > 9返回的是1，字符串和数字做比较的话，是将字符串转换成数字。
+
+	mysql> select * from tradelog where tradeid=110717;
+
+对于优化器来说，这个语句相当于：
+
+	mysql> select * from tradelog where  CAST(tradid AS signed int) = 110717;
+
+对索引字段做函数操作，优化器会放弃走树搜索功能。
+
+id 的类型是 int，如果执行下面这个语句，是否会导致全表扫描呢？
+
+	select * from tradelog where id="83126";
+
+### 案例三：隐式字符编码转换 ###
+
+假设系统里还有另外一个表 trade_detail，用于记录交易的操作细节。
+
+	mysql> CREATE TABLE `trade_detail` (
+	  `id` int(11) NOT NULL,
+	  `tradeid` varchar(32) DEFAULT NULL,
+	  `trade_step` int(11) DEFAULT NULL, /*操作步骤*/
+	  `step_info` varchar(32) DEFAULT NULL, /*步骤信息*/
+	  PRIMARY KEY (`id`),
+	  KEY `tradeid` (`tradeid`)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+	
+	insert into tradelog values(1, 'aaaaaaaa', 1000, now());
+	insert into tradelog values(2, 'aaaaaaab', 1000, now());
+	insert into tradelog values(3, 'aaaaaaac', 1000, now());
+	
+	insert into trade_detail values(1, 'aaaaaaaa', 1, 'add');
+	insert into trade_detail values(2, 'aaaaaaaa', 2, 'update');
+	insert into trade_detail values(3, 'aaaaaaaa', 3, 'commit');
+	insert into trade_detail values(4, 'aaaaaaab', 1, 'add');
+	insert into trade_detail values(5, 'aaaaaaab', 2, 'update');
+	insert into trade_detail values(6, 'aaaaaaab', 3, 'update again');
+	insert into trade_detail values(7, 'aaaaaaab', 4, 'commit');
+	insert into trade_detail values(8, 'aaaaaaac', 1, 'add');
+	insert into trade_detail values(9, 'aaaaaaac', 2, 'update');
+	insert into trade_detail values(10, 'aaaaaaac', 3, 'update again');
+	insert into trade_detail values(11, 'aaaaaaac', 4, 'commit');
+
+要查询 id=2 的交易的所有操作步骤信息
+
+	mysql> select d.* from tradelog l, trade_detail d where d.tradeid=l.tradeid and l.id=2; /*语句Q1*/
+
+1. 第一行显示优化器会先在交易记录表 tradelog 上查到 id=2 的行，这个步骤用上了主键索引，rows=1 表示只扫描一行；
+2. 第二行 key=NULL，表示没有用上交易详情表 trade_detail 上的 tradeid 索引，进行了全表扫描。
+
+在执行计划里，是从 tradelog 表中取 tradeid 字段，再去 trade_detail 表里查询匹配字段。我们把 tradelog 称为驱动表，把 trade_detail 称为被驱动表，把 tradeid 称为关联字段。
+
+1. 是根据 id 在 tradelog 表里找到 L2 这一行；
+2. 是从 L2 中取出 tradeid 字段的值；
+3. 是根据 tradeid 值到 trade_detail 表中查找条件匹配的行。explain 的结果里面第二行的 key=NULL 表示的就是，这个过程是通过遍历主键索引的方式，一个一个地判断 tradeid 的值是否匹配。
+
+因为表 trade_detail 里 tradeid 字段上是有索引的，本来是希望通过使用 tradeid 索引能够快速定位到等值的行。
+
+因为这两个表的字符集不同，一个是 utf8，一个是 utf8mb4，所以做表连接查询的时候用不上关联字段的索引。
+
+连接过程中要求在被驱动表的索引字段上加函数操作
+
+	mysql>select l.operator from tradelog l , trade_detail d where d.tradeid=l.tradeid and d.id=4;
+
+* 比较常见的优化方法是，把 trade_detail 表上的 tradeid 字段的字符集也改成 utf8mb4 
+
+    alter table trade_detail modify tradeid varchar(32) CHARACTER SET utf8mb4 default null;
+
+* 能够修改字段的字符集的话，是最好不过了。但如果数据量比较大， 或者业务上暂时不能做这个 DDL 的话，那就只能采用修改 SQL 语句的方法了
+
+	mysql> select d.* from tradelog l , trade_detail d where d.tradeid=CONVERT(l.tradeid USING utf8) and l.id=2; 
+
+### 小结 ###
+
+对索引字段做函数操作，可能会破坏索引值的有序性，因此优化器就决定放弃走树搜索功能。
+
 ## 19 | 为什么我只查一行的语句，也执行这么慢？ ##
 
 	mysql> CREATE TABLE `t19` (
