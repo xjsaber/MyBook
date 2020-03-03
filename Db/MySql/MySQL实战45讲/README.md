@@ -1536,6 +1536,116 @@ tmp_table_size这个配置限制了内存临时表的大小，默认值是16M。
 
 ## 18 | 为什么这些SQL语句逻辑相同，性能却差异巨大？ ##
 
+### 案例一：条件字段函数操作 ###
+
+	mysql> CREATE TABLE `tradelog` (
+	  `id` int(11) NOT NULL,
+	  `tradeid` varchar(32) DEFAULT NULL,
+	  `operator` int(11) DEFAULT NULL,
+	  `t_modified` datetime DEFAULT NULL,
+	  PRIMARY KEY (`id`),
+	  KEY `tradeid` (`tradeid`),
+	  KEY `t_modified` (`t_modified`)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+	mysql> select count(*) from tradelog where month(t_modified)=7;
+
+其中对索引字段做函数操作，可能会破坏索引值的有序性，因此优化器就决定放弃走树搜索功能。
+
+但并没有放弃使用这个索引，优化器选择遍历主键索引，也可以选择索引t_modified，优化器对比索引大小后发现，索引 t_modified 更小，遍历这个索引比遍历主键索引来得更快。
+
+使用explain命令查看，key="t_modified"表示的是，使用了 t_modified 这个索引；我在测试表数据中插入了 10 万行数据，rows=100335，说明这条语句扫描了整个索引的所有值；Extra 字段的 Using index，表示的是使用了覆盖索引。
+
+	mysql> select count(*) from tradelog where
+	    -> (t_modified >= '2016-7-1' and t_modified<'2016-8-1') or
+	    -> (t_modified >= '2017-7-1' and t_modified<'2017-8-1') or 
+	    -> (t_modified >= '2018-7-1' and t_modified<'2018-8-1');
+
+把 SQL 语句改成基于字段本身的范围查询。按照下面这个写法，优化器就能按照我们预期的，用上 t_modified 索引的快速定位能力了。
+
+### 案例二：隐式类型转换 ###
+
+	mysql> select * from tradelog where tradeid=110717;
+
+1. 类型转换的规则是什么？
+2. 为什么有数据类型转换，就需要走全索引扫描？
+
+在MySQL中，select "10" > 9返回的是1，字符串和数字做比较的话，是将字符串转换成数字。
+
+	mysql> select * from tradelog where tradeid=110717;
+
+对于优化器来说，这个语句相当于：
+
+	mysql> select * from tradelog where  CAST(tradid AS signed int) = 110717;
+
+对索引字段做函数操作，优化器会放弃走树搜索功能。
+
+id 的类型是 int，如果执行下面这个语句，是否会导致全表扫描呢？
+
+	select * from tradelog where id="83126";
+
+### 案例三：隐式字符编码转换 ###
+
+假设系统里还有另外一个表 trade_detail，用于记录交易的操作细节。
+
+	mysql> CREATE TABLE `trade_detail` (
+	  `id` int(11) NOT NULL,
+	  `tradeid` varchar(32) DEFAULT NULL,
+	  `trade_step` int(11) DEFAULT NULL, /*操作步骤*/
+	  `step_info` varchar(32) DEFAULT NULL, /*步骤信息*/
+	  PRIMARY KEY (`id`),
+	  KEY `tradeid` (`tradeid`)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+	
+	insert into tradelog values(1, 'aaaaaaaa', 1000, now());
+	insert into tradelog values(2, 'aaaaaaab', 1000, now());
+	insert into tradelog values(3, 'aaaaaaac', 1000, now());
+	
+	insert into trade_detail values(1, 'aaaaaaaa', 1, 'add');
+	insert into trade_detail values(2, 'aaaaaaaa', 2, 'update');
+	insert into trade_detail values(3, 'aaaaaaaa', 3, 'commit');
+	insert into trade_detail values(4, 'aaaaaaab', 1, 'add');
+	insert into trade_detail values(5, 'aaaaaaab', 2, 'update');
+	insert into trade_detail values(6, 'aaaaaaab', 3, 'update again');
+	insert into trade_detail values(7, 'aaaaaaab', 4, 'commit');
+	insert into trade_detail values(8, 'aaaaaaac', 1, 'add');
+	insert into trade_detail values(9, 'aaaaaaac', 2, 'update');
+	insert into trade_detail values(10, 'aaaaaaac', 3, 'update again');
+	insert into trade_detail values(11, 'aaaaaaac', 4, 'commit');
+
+要查询 id=2 的交易的所有操作步骤信息
+
+	mysql> select d.* from tradelog l, trade_detail d where d.tradeid=l.tradeid and l.id=2; /*语句Q1*/
+
+1. 第一行显示优化器会先在交易记录表 tradelog 上查到 id=2 的行，这个步骤用上了主键索引，rows=1 表示只扫描一行；
+2. 第二行 key=NULL，表示没有用上交易详情表 trade_detail 上的 tradeid 索引，进行了全表扫描。
+
+在执行计划里，是从 tradelog 表中取 tradeid 字段，再去 trade_detail 表里查询匹配字段。我们把 tradelog 称为驱动表，把 trade_detail 称为被驱动表，把 tradeid 称为关联字段。
+
+1. 是根据 id 在 tradelog 表里找到 L2 这一行；
+2. 是从 L2 中取出 tradeid 字段的值；
+3. 是根据 tradeid 值到 trade_detail 表中查找条件匹配的行。explain 的结果里面第二行的 key=NULL 表示的就是，这个过程是通过遍历主键索引的方式，一个一个地判断 tradeid 的值是否匹配。
+
+因为表 trade_detail 里 tradeid 字段上是有索引的，本来是希望通过使用 tradeid 索引能够快速定位到等值的行。
+
+因为这两个表的字符集不同，一个是 utf8，一个是 utf8mb4，所以做表连接查询的时候用不上关联字段的索引。
+
+连接过程中要求在被驱动表的索引字段上加函数操作
+
+	mysql>select l.operator from tradelog l , trade_detail d where d.tradeid=l.tradeid and d.id=4;
+
+* 比较常见的优化方法是，把 trade_detail 表上的 tradeid 字段的字符集也改成 utf8mb4 
+
+    alter table trade_detail modify tradeid varchar(32) CHARACTER SET utf8mb4 default null;
+
+* 能够修改字段的字符集的话，是最好不过了。但如果数据量比较大， 或者业务上暂时不能做这个 DDL 的话，那就只能采用修改 SQL 语句的方法了
+
+	mysql> select d.* from tradelog l , trade_detail d where d.tradeid=CONVERT(l.tradeid USING utf8) and l.id=2; 
+
+### 小结 ###
+
+对索引字段做函数操作，可能会破坏索引值的有序性，因此优化器就决定放弃走树搜索功能。
+
 ## 19 | 为什么我只查一行的语句，也执行这么慢？ ##
 
 	mysql> CREATE TABLE `t19` (
@@ -1648,6 +1758,12 @@ select * from t where id=1 lock in share mode。由于 id 上有索引，所以�
 	(10,10,10),(15,15,15),(20,20,20),(25,25,25);
 这个表除了主键 id 外，还有一个索引 c，初始化语句在表中插入了 6 行数据。
 
+下面的语句序列，是怎么加锁的，加的锁又是什么时候释放的呢？
+	begin;
+	select * from t20 where d=5 for update;
+	commit;
+在命中d=5的这一行，对应的主键id=5，因此在select语句执行完成后，id=5这一行会加一个写锁，而且由于两阶段锁协议，这个写锁再执行commit语句的时候释放。
+
 ### 幻读是什么？ ###
 
 ||session A|session B|session C|
@@ -1664,6 +1780,12 @@ select * from t where id=1 lock in share mode。由于 id 上有索引，所以�
 ||result:(0,0,5),(1,1,5),(5,5,5)|||
 |T6|commit;|||
 
+session A里执行了三次查询，分别是Q1、Q2和Q3。
+
+1. Q1只返回id=这一行；
+2. 在T2时刻，session B把id=0这一行的d值改成了5，因此T3时刻Q2查出来的是id=0和id=5这两行；
+3. 在T4时刻，session C又插入一行（1，1，5），因此T5时刻Q3查出来的事id=0，id=1和id=5这三行。
+
 幻读指的是一个事务在前后两次查询同一个范围的时候，后一次查询看到了前一次查询没有看到的行。
 
 幻读：
@@ -1671,13 +1793,14 @@ select * from t where id=1 lock in share mode。由于 id 上有索引，所以�
 1. 在可重复读隔离级别下，普通的查询是快照读，是不会看到别的事务插入的数据的。因此，幻读在“当前读”下才会出现。
 2. 上面 session B 的修改结果，被 session A 之后的 select 语句用“当前读”看到，不能称为幻读。幻读仅专指“新插入的行”。
 
-
+查询加了for update，都是当前读。而当前读的规则，就是要能读到所有已经提交的纪录的最新值。并且，session B 和 sessionC 的两条语句，执行后就会提交，所以 Q2 和 Q3 就是应该看到这两个事务的操作效果，而且也看到了，这跟事务的可见性规则并不矛盾。
 
 ### 幻读有什么问题？ ###
 
 1. 语义上
 2. 数据一致性的问题：锁的设计是为了保证数据的一致性。而这个一致性，不止是数据库内部数据状态在此刻的一致性，还包含了数据和日志在逻辑上的一致性。
 
+给session A中的所有行都加了写锁 =>
 即使把所有的记录都加上锁，还是阻止不了新插入的记录。
 
 ### 如何解决幻读 ###
@@ -1690,11 +1813,13 @@ select * from t where id=1 lock in share mode。由于 id 上有索引，所以�
 
 间隙锁，锁的就是两个值之间的空隙。比如文章开头的表 t20，初始化插入了 6 个记录，这就产生了 7 个间隙。
 
-跟间隙锁存在冲突关系的，是“往这个间隙中插入一个记录”这个操作。间隙锁之间都不存在冲突关系。
+跟间隙锁存在冲突关系的，是“往这个间隙中插入一个记录”这个操作。**间隙锁之间都不存在冲突关系。**
 
 间隙锁和行锁合称next-key lock，每个next-ket lock是前开后闭区间。我们的表t20初始化以后，如果用select * from t20 for update要把整个表所有记录锁起来，就形成了7个next-key lock，分别是(负无穷,0]、(0,5]、(5,10]、(10,15]、(15,20]、(20,25]、(25,+supernum]。
 
 间隙锁和next-key lock的引入，解决幻读的问题，但同时也带来了一些“困扰”。
+
+间隙锁是在可重复读隔离级别下才会生效的。所以，你如果把隔离级别设置为读提交的话，就没有间隙锁了。但同时，你要解决可能出现的数据和日志不一致问题，需要把 binlog 格式设置为 row。这，也是现在不少公司使用的配置组合。
 
 ### 小结 ###
 
@@ -1877,7 +2002,23 @@ DBA 虽然可以通过语句重写来暂时处理问题，但是这本身是一�
 
 事务提交的时候，执行器把 binlog cache 里的完整事务写入到 binlog 中，并清空 binlog cache。
 
+![binlog写盘状态](img/9ed86644d5f39efb0efec595abb92e3e.png)
+
 每个线程有自己的binlog cache，但是共用同一份binlog文件。
+
+* 图中的write，指的就是指把日志写入到文件系统的page cache，并没有把数据持久化到磁盘，所以速度比较快。
+* 图中的fsync，才是将数据持久化到磁盘的操作。一般情况下，人为fsync才占磁盘的IOPS（IOPS（Input/Output Operations Per Second）是一个用于计算机存储设备（如硬盘（HDD）、固态硬盘（SSD）或存储区域网络（SAN））性能测试的量测方式，可以视为是每秒的读写次数。）。
+
+由参数sync_binlog控制的，write和fsync的时机：
+
+1. sync_binlog=0的时候，表示每次提交事务都只write，不fsync
+2. sync_binlog=1的时候，表示每次提交事务都会执行fsync；
+3. sync_binlog=N(N>1)的时候，表示每次提交事务都write，但累积N个事务后才fsync。
+
+出现IO瓶颈的场景里，将sync_binlog设置成一个比较大的值，可以提升性能。
+
+* 在实际的业务场景中，考虑到丢失日志量的可控性，一般不建议将这个参数设成 0，比较常见的是将其设置为 100~1000 中的某个数值。
+* 将 sync_binlog 设置为 N，对应的风险是：如果主机发生异常重启，会丢失最近 N 个事务的 binlog 日志。
 
 ### redo log的写入机制 ###
 
@@ -1899,6 +2040,13 @@ redo log存在的三种状态：
 2. 设置为1的时候，表示每次事务提交都将redo log直接持久化到磁盘；
 3. 设置为2的时候，表示每次事务提交时都只是把redo log写到page cache。
 
+InnoDB有一个后台线程，每隔1秒，就会把redo log buffer中的日志，调用write写到文件系统的page cache，然后调用fsync持久化到磁盘。
+
+后台线程每秒一次的轮询外，还有两种场景会让一个没有提交的事务的redo log写入到磁盘中。
+
+1. redo log buffer占用的空间即将达到innodb_log_buffer_size一半的时候，后台线程会主动写盘。（写盘动作只是 write，而没有调用 fsync，也就是只留在了文件系统的 page cache）
+2. 并行的事务提交的时候，顺带将这个事务的 redo log buffer 持久化到磁盘。
+
 WAL机制主要得益于l两个方面：
 
 1. redo log和binlog都是顺序写，磁盘的顺序写比随机写速度要快
@@ -1907,11 +2055,21 @@ WAL机制主要得益于l两个方面：
 
 ### 小结 ###
 
+* 问题1
+* 问题2：为什么binlog cache是每个线程自己维护的，而redo log buffer是全局共用的？
+	* MySQL中binlog是不能“被打断的”。一个事务的binlog必须连续写，因此要整个事务完成后，再一起写到文件里。
+	* redo log没有这个要求，中间有生成的日志可以写到redo logbuffer中。redo log buffer中的内容还能“搭便车”，其他事务提交的时候可以被一起写到磁盘中
+	
+* 问题3
+* 问题4
+
+### 精选留言 ###
+
 
 
 ## 24 | MySQL是怎么保证主备一致的？ ##
 
-binlog可以用来归档，也可以用来主备同步。
+binlog可以用来归档，也可以用来主备同步。高可用架构，都直接依赖于 binlog。
 
 ### MySQL主备的基本原理 ###
 
@@ -1924,6 +2082,14 @@ binlog可以用来归档，也可以用来主备同步。
 1. 有时候一些运营类的查询语句会被放到备库上去查，设置为只读可以防止误操作；
 2. 防止切换逻辑有 bug，比如切换过程中出现双写，造成主备不一致；
 3. 可以用 readonly 状态，来判断节点的角色。
+
+因为 readonly 设置对超级 (super) 权限用户是无效的，而用于同步更新的线程，就拥有超级权限。
+
+1. 在备库 B 上通过 change master 命令，设置主库 A 的 IP、端口、用户名、密码，以及要从哪个位置开始请求 binlog，这个位置包含文件名和日志偏移量。
+2. 在备库 B 上执行 start slave 命令，这时候备库会启动两个线程，就是图中的 io_thread 和 sql_thread。其中 io_thread 负责与主库建立连接。
+3. 主库 A 校验完用户名、密码后，开始按照备库 B 传过来的位置，从本地读取 binlog，发给 B。
+4. 备库 B 拿到 binlog 后，写到本地文件，称为中转日志（relay log）。
+5. sql_thread 读取中转日志，解析出日志里的命令，并执行。
 
 ### binlog的三种格式对比 ###
 
@@ -1946,7 +2112,7 @@ binlog可以用来归档，也可以用来主备同步。
 	insert into t24 values(4,4,'2018-11-10');
 	insert into t24 values(5,5,'2018-11-09');
 
-### 为什么会右mixed格式的binlog？ ###
+### 为什么会有mixed格式的binlog？ ###
 
 为什么会有 mixed 这种 binlog 格式的存在场景？
 
@@ -1958,6 +2124,18 @@ binlog可以用来归档，也可以用来主备同步。
 
 binlog 的特性确保了在备库执行相同的 binlog，可以得到与主库相同的状态。
 
+MySQL 在 binlog 中记录了这个命令第一次执行时所在实例的 server id
+
+1. 规定两个库的 server id 必须不同，如果相同，则它们之间不能设定为主备关系；
+2. 一个备库接到 binlog 并在重放的过程中，生成与原 binlog 的 server id 相同的新的 binlog；
+3. 每个库在收到从自己的主库发过来的日志后，先判断 server id，如果跟自己的相同，表示这个日志是自己生成的，就直接丢弃这个日志。
+
+按照这个逻辑，如果我们设置了双 M 结构，日志的执行流就会变成这样：
+
+1. 从节点 A 更新的事务，binlog 里面记的都是 A 的 server id；
+2. 传到节点 B 执行一次以后，节点 B 生成的 binlog 的 server id 也是 A 的 server id；
+3. 再传回给节点 A，A 判断到这个 server id 与自己的相同，就不会再处理这个日志。所以，死循环在这里就断掉了。
+
 ### 小结 ###
 
 介绍了MySQL binlog的格式和一些基本机制，时后面要介绍读写分离等系列文章的背景知识
@@ -1967,6 +2145,10 @@ MySQL高可用方案的基础，演化出了诸如多节点、半同步、MySQL 
 ### 精选留言 ###
 
 我们说 MySQL 通过判断 server id 的方式，断掉死循环。但是，这个机制其实并不完备，在某些场景下，还是有可能出现死循环。
+
+#### Q ####
+
+#### A ####
 
 ## 25 | MySQL时怎么保证高可用的？ ##
 
@@ -2077,6 +2259,20 @@ contdinator再分发的时候，需要满足以下两个基本要求：
 
 ## 27 | 主库出问题了，从库怎么办？ ##
 
+读多写少，读性能的问题。而在数据库层解决读性能问题，就要涉及到接下来两篇文章要讨论的架构：一主多从。
+
+### 基于位点的主备切换 ###
+
+### GTID ###
+
+### 基于 GTID 的主备切换 ###
+
+### GTID 和在线 DDL ###
+
+### 小结 ###
+
+
+
 ## 28 | 读写分离有哪些坑？ ##
 
 读写分离的主要目标是分摊主库的压力。
@@ -2132,11 +2328,63 @@ contdinator再分发的时候，需要满足以下两个基本要求：
 
 #### 可能出现问题 ####
 
-
+过期读的问题
 
 ### 配合 semi-sync ###
 
+引入半同步复制，也就是 semi-sync replication
 
+semi-sync：
+
+1. 事务提交的时候，主库把 binlog 发给从库；
+2. 从库收到 binlog 以后，发回给主库一个 ack，表示收到了；
+3. 主库收到这个 ack 以后，才能给客户端返回“事务完成”的确认
+
+主库掉电的时候，有些binlog还来不及发给从库，会导致系统数据丢失。
+
+semi-sync + 位点判断的方案，只对一主一备的场景是成立的。在一主多从场景中，主库只要等到一个从库的 ack，就开始给客户端返回确认。
+
+1. 如果查询是落在这个响应了 ack 的从库上，是能够确保读到最新数据；
+2. 但如果是查询落到其他从库上，它们可能还没有收到最新的日志，就会产生过期读的问题。
+
+#### 可能出现问题 ####
+
+* 一主多从的时候，在某些从库执行查询请求会存在过期读的现象
+* 在持续延迟的情况下，可能出现过度等待的问题
+
+### 等主库位点方案 ###
+
+主库定位点方案
+
+	select master_pos_wait(file, pos[, timeout]);
+
+1. 在从库执行的；
+2. 参数file和pos指的是主库上的文件名和位置；
+3. timeout可选，设置为正整数N表示这个函数最多等待N秒。
+
+结果
+
+* M：表示从命令开始执行，到应用完 file 和 pos 表示的 binlog 位置，执行了多少事务。
+* 如果等待超过 N 秒，就返回 -1；
+* 如果刚开始执行的时候，就发现已经执行过这个位置了，则返回 0。
+
+按照不允许过期读的要求，只有两种选择
+
+1. 超时放弃
+2. 转到主库查询
+
+### GTID方案 ###
+
+	select wait_for_executed_gtid_set(gtid_set, 1);
+
+1. 等待，直到这个库执行的事务中包含传入的 gtid_set，返回 0；
+2. 超时返回1.
+
+
+
+### 小结 ###
+
+过期读在本质上是由一写多读导致的。在实际应用中，可能会有别的不需要等待就可以水平扩展的数据库方案，但这往往是用牺牲写性能换来的，也就是需要在读性能和写性能中取权衡。
 
 ## 29 | 如何判断一个数据库是不是出问题了？ ##
 
@@ -2515,4 +2763,70 @@ MySQL里有两个日志，即：重做日志（redo log）和归档日志（binl
 # 直播回顾 #
 
 ## 直播回顾 | 林晓斌：我的 MySQL 心路历程 ##
+
+1. 我和MySQL打交道的经历；
+2. 你为什么要了解数据库原理；
+3. 我建议的MySQL学习路径；
+4. DBA的修炼之道。
+
+### 为什么要了解数据库原理？ ###
+
+#### 了解原理能帮你更好地定位问题 ####
+
+#### 了解原理能够让你更巧妙地解决问题 ####
+
+#### 看得懂源码让你有更多的方法 ####
+
+### MySQL学习路径 ###
+
+学习路径：
+
+1. 会用，了解每个参数的意义，要去了解每个参数的实现原理，一旦你了解了这些原理。不要别人怎么用，自己就怎么用。
+	* 了解原理
+	* 看懂源码
+2. 会用，然后发现问题
+3. 实践：去看 MySQL 的官方手册
+	* 先要有自己的脉络
+	* 搭建自己的知识网络
+	* 看手册查漏补缺
+	* 搭配《高性能MySQL》
+
+### DBA的修炼 ###
+
+#### DBA 和开发工程师有什么相同点？ ####
+
+开发要了解数据库原理，DBA 要了解业务和开发。
+
+#### DBA 有前途吗？ ####
+
+每个岗位都有前途，只需要根据时代变迁稍微调整一下方向。
+
+To：
+
+* 了解业务，做业务的架构师
+* 是要有前瞻性，做主动诊断系统
+
+#### 有哪些比较好的习惯和提高 SQL 效率的方法？ ####
+
+要多写 SQL，培养自己对 SQL 语句执行效率的感觉。以后再写或者建索引的时候，知道这个语句执行下去大概的时间复杂度，是全表扫描还是索引扫描、是不是需要回表，在心里都有一个大概的概念。
+
+这样每次写出来的 SQL 都会快一点，而且不容易犯低级错误。
+
+#### 看源码需要什么技术？ ####
+
+看源码的话，一是要掌握 C 和 C++；另外还要熟悉一些调试工具。因为代码是静态的，运行起来是动态的，看代码是单线程的，运行起来是多线程的，所以要会调试。
+
+尽量手写代码
+
+#### 怎么学习 C、C++？ ####
+
+有的人看完技术博客和专栏，会把这篇文章的提纲列一下，写写自己的问题和对这篇文章的理解。这个过程，是非常利于学习的。因为你听进来是一回事儿，讲出去则是另一回事儿。
+
+能落地到文本当中，过一段时间回来看能看得懂
+
+#### 学数据库要保持什么心态？ ####
+
+不只是数据库，所有多线程的服务，调试和追查问题的过程都是很枯燥的，遇到问题都会很麻烦。
+
+鼓噪乏味，但需要坚持
 
