@@ -1418,7 +1418,6 @@ InnoDB引擎支持事务，利用好事务的原子性和隔离性，简化在�
 	  KEY `city` (`city`)
 	) ENGINE=InnoDB;
 
-
 	select city,name,age from t16 where city='杭州' order by name limit 1000 ;
 
 ### 全字段排序 ###
@@ -1679,6 +1678,7 @@ id 的类型是 int，如果执行下面这个语句，是否会导致全表扫�
 3. 针对每种状态，分析他们产生的原因、如何复现，以及如何处理
 
 ### 等MDL锁 ###
+
 使用`show processlist`命令查看`Waiting for table metadata lock`
 
 如果出现`Sleep`*这个状态表示的是，现在有一个线程正在表 t 上请求或者持有 MDL 写锁，把 select 语句堵住了。*
@@ -1711,6 +1711,7 @@ session A通过lock table命令持有表t的MDL写锁，而session B的查询需
 正常这两个语句执行起来比较快，但可能也被其他的线程堵住了；出现`Waiting for table flush`状态可能是：有一个flush tables命令被别的语句堵住了，然后它又堵住了select语句。
 
 ### 等行锁 ###
+
 	mysql> select * from t where id=1 lock in share mode;
 由于访问id=1这个记录时要加读锁，如果这时候已经有一个事务在这行记录上持有一个写锁。select语句就会被堵住。 
 
@@ -1724,7 +1725,6 @@ session A通过lock table命令持有表t的MDL写锁，而session B的查询需
 	mysql> select * from t sys.innodb_lock_waits where locked_table=`'test'.'t'`\G
 
     KILL4和KILL QUERY 4
-TODO kill query4 
 
 ### 查询慢 ###
 
@@ -1806,6 +1806,7 @@ session A里执行了三次查询，分别是Q1、Q2和Q3。
 ### 如何解决幻读 ###
 
 ||读锁|写锁|
+|--|--|--|
 |读锁|兼容|冲突|
 |写锁|冲突|冲突|
 
