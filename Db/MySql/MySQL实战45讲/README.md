@@ -2484,6 +2484,51 @@ InnoDB的间隙锁、next-key lock，以及加锁规则。
 
 ## 31 | 误删数据后除了跑路，还能怎么办？ ##
 
+1. 使用 delete 语句误删数据行；
+2. 使用 drop table 或者 truncate table 语句误删数据表；
+3. 使用 drop database 语句误删数据库；
+4. 使用 rm 命令误删整个 MySQL 实例。
+
+### 误删行 ###
+
+如果是使用 delete 语句误删了数据行，可以用 Flashback 工具通过闪回把数据恢复回来。（恢复数据的原理是修改binlog的内容，拿回原库重放。能够使用这个方案的前提是，需要确保binlog_format=row 和 binlog_row_image=FULL）
+
+具体恢复数据时，对单个事务做如下处理：
+
+1. 对于 insert 语句，对应的 binlog event 类型是 Write_rows event，把它改成 Delete_rows event 即可；
+2. 同理，对于 delete 语句，也是将 Delete_rows event 改为 Write_rows event；
+3. 而如果是 Update_rows 的话，binlog 里面记录了数据行修改前和修改后的值，对调这两行的位置即可。
+
+如果是多个事务，则需要把涉及的事务倒置。
+
+(A)delete ...	(reverse C)update ... 
+(B)insert ... ->(reverse B)delete ...
+(C)update ...	(reverse A)insert ...
+
+需要说明的是，我不建议你直接在主库上执行这些操作。(恢复数据比较安全的做法，是恢复出一个备份，或者找一个从库作为临时库，在这个临时库上执行这些操作，然后再将确认过的临时库的数据，恢复回主库。)
+
+做到事前预防，有两个建议：
+
+1. 把 sql_safe_updates 参数设置为 on。这样一来，如果我们忘记在 delete 或者 update 语句中写 where 条件，或者 where 条件里面没有包含索引字段的话，这条语句的执行就会报错。
+2. 代码上线前，必须经过 SQL 审计。
+
+delete 全表是很慢的，需要生成回滚日志、写 redo、写 binlog。所以，从性能角度考虑，你应该优先考虑使用 truncate table 或者 drop table 命令。
+
+使用 delete 命令删除的数据，你还可以用 Flashback 来恢复。而使用 truncate /drop table 和 drop database 命令删除的数据，就没办法通过 Flashback 来恢复了。因为即使我们配置了 binlog_format=row，执行这三个命令时，记录的 binlog 还是 statement 格式。binlog 里面就只有一个 truncate/drop 语句，这些信息是恢复不出数据的。
+
+### 误删库/表 ###
+
+要想恢复数据，就需要使用全量备份，加增量日志的方式了。这个方案要求线上有定期的全量备份，并且实时备份 binlog。
+
+在这两个条件都具备的情况下，假如有人中午 12 点误删了一个库，恢复数据的流程如下：
+
+1. 取最近一次全量备份，假设这个库是一天一备，上次备份是当天 0 点；
+2. 用备份恢复出一个临时库；
+3. 从日志备份里面，取出凌晨 0 点之后的日志；
+4. 把这些日志，除了误删除数据的语句外，全部应用到临时库。
+
+### 延迟复制备库 ###
+
 ## 32 | 为什么还有kill不掉的语句？ ##
 
 ## 33 | 我查这么多数据，会不会数据库内存打爆？ ##
