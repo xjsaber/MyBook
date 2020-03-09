@@ -2680,6 +2680,29 @@ N+N*2*log2^M
 
 ### Simple Nested-Loop Join ###
 
+	select * from t1 straight_join t2 on (t1.a=t2.b);
+
+由于表 t2 的字段 b 上没有索引，因此再用图 2 的执行流程时，每次到 t2 去匹配的时候，就要做一次全表扫描。
+
+### Block Nested-Loop Join ###
+
+1. 把表 t1 的数据读入线程内存 join_buffer 中，由于我们这个语句中写的是 select *，因此是把整个表 t1 放入了内存；
+2. 扫描表 t2，把表 t2 中的每一行取出来，跟 join_buffer 中的数据做对比，满足 join 条件的，作为结果集的一部分返回。
+
+能不能使用 join 语句？
+
+1. 如果可以使用 Index Nested-Loop Join 算法，也就是说可以用上被驱动表上的索引，其实是没问题的；
+2. 如果使用 Block Nested-Loop Join 算法，扫描行数就会过多。尤其是在大表上的 join 操作，这样可能要扫描被驱动表很多次，会占用大量的系统资源。所以这种 join 尽量不要用。
+
+如果要使用 join，应该选择大表做驱动表还是选择小表做驱动表？
+
+1. 如果是 Index Nested-Loop Join 算法，应该选择小表做驱动表；
+2. 如果是 Block Nested-Loop Join 算法：
+	* 在 join_buffer_size 足够大的时候，是一样的；
+	* 在 join_buffer_size 不够大的时候（这种情况更常见），应该选择小表做驱动表。
+
+决定哪个表做驱动表的时候，应该是两个表按照各自的条件过滤，过滤完成之后，计算参与 join 的各个字段的总数据量，数据量小的那个表，就是“小表”，应该作为驱动表。
+
 ### 小结 ###
 
 MySQL 执行 join 语句的两种可能算法，这两种算法是由能否使用被驱动表的索引决定的。而能否用上被驱动表的索引，对 join 语句的性能影响很大。
