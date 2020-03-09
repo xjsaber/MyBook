@@ -2680,11 +2680,66 @@ N+N*2*log2^M
 
 ### Simple Nested-Loop Join ###
 
+### 小结 ###
 
+MySQL 执行 join 语句的两种可能算法，这两种算法是由能否使用被驱动表的索引决定的。而能否用上被驱动表的索引，对 join 语句的性能影响很大。
+
+通过对 Index Nested-Loop Join 和 Block Nested-Loop Join 两个算法执行过程的分析
+
+1. 如果可以使用被驱动表的索引，join 语句还是有其优势的；
+2. 不能使用被驱动表的索引，只能使用 Block Nested-Loop Join 算法，这样的语句就尽量不要使用；
+3. 在使用 join 的时候，应该让小表做驱动表。
+
+使用 Block Nested-Loop Join 算法，可能会因为 join_buffer 不够大，需要对被驱动表做多次全表扫描。
+
+### 精选留言 ###
 
 ## 35 | join语句怎么优化？ ##
 
+join 语句的两种算法，分别是 Index Nested-Loop Join(NLJ) 和 Block Nested-Loop Join(BNL)。
+
+
+	create table t35_1(id int primary key, a int, b int, index(a));
+	create table t35_2 like t35_1;
+	drop procedure it35data;
+	delimiter ;;
+	create procedure it35data()
+	begin
+	  declare i int;
+	  set i=1;
+	  while(i<=1000)do
+	    insert into t35_1 values(i, 1001-i, i);
+	    set i=i+1;
+	  end while;
+	  
+	  set i=1;
+	  while(i<=1000000)do
+	    insert into t35_2 values(i, i, i);
+	    set i=i+1;
+	  end while;
+	
+	end;;
+	delimiter ;
+	call it35data();
+
+### Multi-Range Read优化 ###
+
+### 小结 ###
+
+分享了 Index Nested-Loop Join（NLJ）和 Block Nested-Loop Join（BNL）的优化方法。
+
+1. BKA 优化是 MySQL 已经内置支持的，建议你默认使用；
+2. BNL 算法效率低，建议你都尽量转成 BKA 算法。优化的方向就是给被驱动表的关联字段加上索引；
+3. 基于临时表的改进方案，对于能够提前过滤出小数据的 join 语句来说，效果还是很好的；
+4. MySQL 目前的版本还不支持 hash join，但你可以配合应用端自己模拟出来，理论上效果要好于临时表的方案。
+
+### 思考题 ###
+
+
+
 ## 36 | 为什么临时表可以重名？ ##
+
+
 
 ## 37 | 什么时候会使用内部临时表？ ##
 
