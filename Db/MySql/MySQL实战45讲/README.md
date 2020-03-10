@@ -2810,6 +2810,49 @@ BNL 算法对系统的影响主要包括三个方面：
 
 ## 37 | 什么时候会使用内部临时表？ ##
 
+	create table t37_1(id int primary key, a int, b int, index(a));
+	delimiter ;;
+	create procedure idatat37_1()
+	begin
+	  declare i int;
+
+	  set i=1;
+	  while(i<=1000)do
+	    insert into t37_1 values(i, i, i);
+	    set i=i+1;
+	  end while;
+	end;;
+	delimiter ;
+	call idatat37_1();
+
+### union执行流程 ###
+
+	(select 1000 as f) union (select id from t35_1 order by id desc limit 2);
+
+1. 第二行的 key=PRIMARY，说明第二个子句用到了索引 id。
+2. 第三行的 Extra 字段，表示在对子查询的结果集做 union 的时候，使用了临时表 (Using temporary)。
+
+语句的执行流程：
+
+1. 创建一个内存临时表，这个临时表只有一个整型字段f，并且f是主键字段。
+2. 执行第一个子查询，得到1000这个值，并存入临时表。
+3. 执行第二个子查询：
+	* 拿到第一行id=1000，试图插入临时表。但由于1000这个值已经存在于临时表了，违反了唯一性约束，所以插入失败，然后继续执行；
+	* 取到第二行id=999，插入临时表成功。
+4. 从临时表中按行取出数据，返回结果，并删除临时表，结果中包含两行数据分别是1000和999。
+
+内存临时表起到了暂存数据的作用，而且计算过程用上了临时表主键id的唯一性约束，实现了union的语义。
+
+### group by 执行流程 ###
+
+常见的使用临时表的例子是 group by
+
+	select id%10 as m, count(*) as c from t37_1 group by m;
+
+这个语句的逻辑是把表 t37_1 里的数据，按照 id%10 进行分组统计，并按照 m 的结果排序后输出
+
+1. 创建一个内存临时表，这个临时表只有一个整型字段f，并且字段f是主键字段。
+2. 执行第一个子查询
 
 
 ## 38 | 都说InnoDB好，还要不要使用Memory引擎 ##
