@@ -433,6 +433,9 @@ Apache Kafka 为例来讲述整个全新架构的过程
 
 ## 12 | 我们为什么需要Spark？ ##
 
+### Spark的优势 ###
+
+Spark最基本的数据抽象叫做弹性分布式数据集（Resilient Distributed Dataset，RDD），它代表一个可以被分区（partition）的只读数据集，
 ## 13 | 弹性分布式数据集：Spark大厦的地基（上） ##
 
 ### 为什么需要新的数据抽象模型？ ###
