@@ -459,6 +459,151 @@ Spark最基本的数据抽象叫做弹性分布式数据集（Resilient Distribu
 
 ## 15 | Spark SQL:Spark数据查询的利器 ##
 
+## 18 | Word Count：从零开始运行你的第一个Spark应用 ##
+
+1. 浅入深地学习了 Spark 的基本数据结构 RDD，了解了它这样设计的原因，以及它所支持的 API。
+2. 学习了 Spark SQL 的 DataSet/DataFrame API，了解到它不仅提供类似于 SQL query 的接口，大大提高了开发者的工作效率，还集成了 Catalyst 优化器，可以提升程序的性能。
+3. Spark Streaming 和 Structured Streaming。两者都是基于微批处理（Micro batch processing）的思想，将流数据按时间间隔分割成小的数据块进行批处理，实时更新计算结果。
+
+### 安装Spark ###
+
+#### 判断java版本 ####
+
+java -version
+
+#### 安装python3 ####
+
+yum install python3
+
+#### 安装spark ####
+
+$ tar -xzf ~/Dowmloads/spark-2.4.3-bin-hadoop2.7.tg
+$ mv spark-2.4.3-bin-hadoop2.7.tgz /usr/local/spark
+
+vim ~/.bash_profile
+
+export SPARK_HOME=/usr/local/spark
+export PATH=$PATH:$SPARK_HOME/bin
+
+source ~/.bash_profile
+
+### 基于RDD API的Word Count程序 ###
+
+对中间的先map再reduce的处理。
+
+* Spark2.0之前
+	* SparkContext 是所有 Spark 任务的入口，包含了 Spark 程序的基本设置，比如程序的名字、内存大小、并行处理的粒度等，Spark 的驱动程序需要利用它来连接到集群。
+	* 无论Spark集群有多少个节点做并行处理，每个程序只可以有唯一的SparkContext，它可以被SparkConf对象初始化。
+	* 
+			conf = SparkConf().setAppName(appName).setMaster(master)
+			sc = SparkContext(conf=conf)
+* Spark2.0之后，随着新的DataFrame/DataSet API的普及化，Spark引入了新的SparkSession对象作为Spark任务的入口。
+	* SparkSession不仅有SparkContext的所有功能，集成了所有Spark提供的API，比如 DataFrame、Spark Streaming 和 Structured Streaming。
+
+--
+
+SparkSession不仅有SparkContext的所有功能，集成了所有Spark提供的API，比如DataFrame、Spark Streaming和Structured Streaming，我们再也不用为不同的功能分别定义 Context。 
+
+	spark = SparkSession
+	       .builder
+	       .appName(appName)
+	       .getOrCreate()
+	text_file = spark.read.text("file://….").rdd.map(lambda r: r[0])
+--	
+
+在创建好代表每一行文本的RDD之后，接下来需要两个步骤
+
+1. 把每行的文本拆分成一个个词语；（使用flatMap去行转换成词语）
+2. 统计每个词语的频率（把每个词语转换成（word, 1）的形式，然后用reduceByKey去相同词语的次数相加起来）
+
+	counts = lines.flatMap(lambda x: x.split(' '))
+		.map(lambda x: (x, 1))
+        .reduceByKey(add)
+
+
+### 基于DataFrame Api的Word Count程序 ###
+
+在 DataFrame 的世界中，我们可以把所有的词语放入一张表，表中的每一行代表一个词语，当然这个表只有一列。我们可以对这个表用一个 groupBy() 操作把所有相同的词语聚合起来，然后用 count() 来统计出每个 group 的数量。
+
+	from pyspark.sql import SparkSession
+	from pyspark.sql.functions import *
+	
+	if __name__ == "__main__":
+	   spark = SparkSession
+	       .builder
+	       .appName(‘WordCount’)
+	       .getOrCreate()
+	   lines = spark.read.text("sample.txt")
+	   wordCounts = lines
+	       .select(explode(split(lines.value, " "))
+	       .alias("word"))
+	       .groupBy("word")
+	       .count()
+	   wordCounts.show()
+	   
+	   spark.stop()
+
+### 小结 ###
+
+如何从零开始创建一个简单的 Spark 的应用程序，包括如何安装 Spark、如何配置环境、Spark 程序的基本结构等等。
+
+## 19 | 综合案例实战：处理加州房屋信息，构建线性回归模型 ##
+
+对 Spark 各种 API 的基本用法有了一定的了解，还通过统计词频的实例掌握了如何从零开始写一个 Spark 程序。让我们从一个真实的数据集出发，看看如何用 Spark 解决实际问题。
+
+### 数据集介绍 ###
+
+用已有的数据，构建一个**线性回归模型**。
+
+类似 A=bB+cC+dD+…+iI 的公式，A代表房价，B到I分别代表另外八个属性。
+
+### 进一步了解数据集 ###
+
+每当我们需要对某个数据集进行处理时，了解它的特性，并尝试对它做一些简单的预处理，让数据的可读性更好。这些工作我们最好在 Spark 的交互式 Shell 上完成，而不是创建 python 的源文件并执行。
+
+1. 让我们把数据集读入 Spark
+
+	from pyspark.sql import SparkSession	
+
+2. 把房屋信息数据和每个属性的定义读入了Spark，并创建了两个相应的RDD。RDD是有一个惰性求值的特性的，所以，可以用collect()函数来把数据输出到Shell上。
+
+	header.collect()
+
+	[u'longitude: continuous.', u'latitude: continuous.', u'housingMedianAge: continuous. ', u'totalRooms: continuous. ', u'totalBedrooms: continuous. ', u'population: continuous. ', u'households: continuous. ', u'medianIncome: continuous. ', u'medianHouseValue: continuous. ']
+
+
+### 预处理 ###
+
+### 创建模型 ###
+
+### 模型评估 ###
+
+### 小结 ###
+
+这一讲我们通过一个真实的数据集，通过以下步骤解决了一个实际的数据处理问题：
+
+1. 观察并了解数据集
+2. 数据清洗
+3. 数据的预处理
+4. 训练模型
+5. 评估模型
+
+-- 
+1. 熟悉与使用 Spark 各类 API
+2. 了解数据处理的一般思路，并强化了对RDD、DataFrame和机器学习API的使用。
+
+### 实践与思考题 ###
+
+## 20 | 流处理案例实战：分析纽约市出租车载客信息 ##
+
+### 数据集介绍 ###
+
+### 流数据输入 ###
+
+### 数据清洗 ###
+
+
+
 # 模块四 | Apache Beam为何能一统江湖 #
 
 # 模块五 | 决战Apache Beam真实硅谷案例 #
