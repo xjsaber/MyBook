@@ -602,7 +602,12 @@ SparkSession不仅有SparkContext的所有功能，集成了所有Spark提供的
 
 ### 数据清洗 ###
 
+## 21 | 深入对比Spark与Flink：帮你系统设计两开花 ##
 
+1. 从MapReduce框架存在的问题入手，知道了Spark的主要优点，比如用内存运算来提高性能；提供很多High-level API；开发者无需用map和reduce两个操作实现复杂逻辑；支持流处理等等。
+2. Spark的数据抽象——RDD。RDD是整个Spark的核心概念，所有的新API在底层都是基于RDD实现的。很底层，不方便开发者使用，而且用RDD API写的应用程序需要大量的人工调优来提高性能。
+3. Spark SQL提供的DataFrame/DataSetAPI解决，使用类似SQL的查询接口，把数据看成关系型数据库的表，提升了熟悉关系型数据库的
+4. Spark Streaming和
 
 # 模块四 | Apache Beam为何能一统江湖 #
 
