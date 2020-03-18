@@ -3221,6 +3221,33 @@ MyISAM 分区表使用的分区策略，我们称为**通用分区策略**（gen
 
 ## 45 | 自增id用完怎么办？ ##
 
+### 表定义自增值 id ###
+
+表定义的自增值达到上限后的逻辑是，再申请下一个id时，得到的值保持不变。
+
+	create table t45(id int unsigned auto_increment primary key) auto_increment=4294967295;
+	insert into t45 values(null);
+	//成功插入一行 4294967295
+	show create table t45;
+	/* CREATE TABLE `t45` (
+	  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+	  PRIMARY KEY (`id`)
+	) ENGINE=InnoDB AUTO_INCREMENT=4294967295;
+	*/
+	
+	insert into t45 values(null);
+	//Duplicate entry '4294967295' for key 'PRIMARY'
+
+第一个 insert 语句插入数据成功后，这个表的 AUTO_INCREMENT 没有改变（还是 4294967295），就导致了第二个 insert 语句又拿到相同的自增 id 值，再试图执行插入语句，报主键冲突错误。
+
+232-1（4294967295）不是一个特别大的数，对于一个频繁插入删除数据的表来说，是可能会被用完的。因此在建表的时候你需要考察你的表是否有可能达到这个上限，如果有可能，就应该创建成 8 个字节的 bigint unsigned。
+
+### InnoDB系统自增row_id ###
+
+如果你创建的 InnoDB 表没有指定主键，那么 InnoDB 会给你创建一个不可见的，长度为 6 个字节的 row_id。InnoDB 维护了一个全局的 dict_sys.row_id 值，所有无主键的 InnoDB 表，每插入一行数据，都将当前的 dict_sys.row_id 值作为要插入数据的 row_id，然后把 dict_sys.row_id 的值加 1。
+
+1. row_id 写入表中的值范围，是从 0 到 248-1；
+2. 当 dict_sys.row_id=248时，如果再有插入数据的行为要来申请 row_id，拿到以后再取最后 6 个字节的话就是 0。
 
 ## 直播回顾 | 林晓斌：我的 MySQL 心路历程 ##
 
