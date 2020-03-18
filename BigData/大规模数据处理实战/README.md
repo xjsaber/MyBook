@@ -459,6 +459,30 @@ Spark最基本的数据抽象叫做弹性分布式数据集（Resilient Distribu
 
 ## 15 | Spark SQL:Spark数据查询的利器 ##
 
+## 16 | Spark Streaming：Spark的实时流计算API ##
+
+通过Spark SQL API像查询关系型数据库一样查询Spark的数据
+
+### Spark Streaming的原理 ###
+
+Spark Streaming 的原理与微积分的思想很类似。Spark Streaming 用时间片拆分了无限的数据流，然后对每一个数据片用类似于批处理的方法进行处理，输出的数据也是一块一块的。
+
+SparK Streaming提供一个对于流数据的抽象DStream。DStream可以由Apache Kafka、Flume或者HDFS的流数据生成，也可以由别的DStream经过各种转换操作得来。
+
+底层
+
+对DStream的转换操作，意味着对它包含的每一个RDD进行同样的转换操作。
+
+
+
+### DStream ###
+
+DStream的内部形式，即一个连续的RDD序列，每一个RDD代表一个时间窗口的输入数据流。
+
+
+
+## 17 | Structured Streaming：如何用DataFrame API进行实时数据分析 ##
+
 ## 18 | Word Count：从零开始运行你的第一个Spark应用 ##
 
 1. 浅入深地学习了 Spark 的基本数据结构 RDD，了解了它这样设计的原因，以及它所支持的 API。
@@ -607,7 +631,15 @@ SparkSession不仅有SparkContext的所有功能，集成了所有Spark提供的
 1. 从MapReduce框架存在的问题入手，知道了Spark的主要优点，比如用内存运算来提高性能；提供很多High-level API；开发者无需用map和reduce两个操作实现复杂逻辑；支持流处理等等。
 2. Spark的数据抽象——RDD。RDD是整个Spark的核心概念，所有的新API在底层都是基于RDD实现的。很底层，不方便开发者使用，而且用RDD API写的应用程序需要大量的人工调优来提高性能。
 3. Spark SQL提供的DataFrame/DataSetAPI解决，使用类似SQL的查询接口，把数据看成关系型数据库的表，提升了熟悉关系型数据库的
-4. Spark Streaming和
+4. Spark Streaming和Structured Streaming，这是Spark的流处理组件，其中Structured Streaming也可以使用DataSet/DataFrame API，这就实现了 Spark 批流处理的统一。
+
+这是因为 Spark 的流处理是基于所谓微批处理（Micro-batch processing）的思想，即它把流处理看作是批处理的一种特殊形式，每次接收到一个时间间隔的数据才会去处理，所以天生很难在实时性上有所提升。
+
+虽然在 Spark 2.3 中提出了连续处理模型（Continuous Processing Model），但是现在只支持很有限的功能，并不能在大的项目中使用。Spark 还需要做出很大的努力才能改进现有的流处理模型。
+
+Apache Flink 就是其中的翘楚。它采用了基于操作符（Operator）的连续流模型，可以做到微秒级别的延迟。今天我就带你一起了解一下这个流行的数据处理平台，并将 Flink 与 Spark 做深入对比，方便你在今后的实际项目中做出选择。
+
+### Flink 核心模型简介 ###
 
 # 模块四 | Apache Beam为何能一统江湖 #
 
