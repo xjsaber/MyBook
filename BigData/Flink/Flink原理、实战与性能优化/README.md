@@ -151,12 +151,30 @@ Value数据类型实现了org.apache.flink.types.Value，其中包括read()和wr
 
 ### 3.5 本章小结 ###
 
-
-
-
 ## 第4章 DataStream API介绍与使用 ##
 
+DataStream API开发流式应用：其中包括基本的编程模型、常用操作、时间概念、窗口计算、作业链等。
 
+### 4.1 DataStream编程模型 ###
+
+在Flink整个系统架构中，对流计算的支持是其最重要的功能之一，Flink基于Google提出的DataFlow模型，实现了支持原生数据流处理的计算引擎。Flink中定义了DataStream API让用户灵活且高效地编写Flink流式应用。
+
+DataStream API主要可为分为三个部分：
+
+1. DataSource模块
+2. Transformation模块
+3. DataSink模块
+
+#### 4.1.1 DataSources数据输入 ####
+
+DataSources模块定义了DataStream API中的数据输入操作，Flink将数据源主要分为的内置数据源和第三方数据源两种类型。
+
+* 内置数据源包含文件、Socket网络端口以及集合类型数据，其不需要引入其他依赖库，且在Flink系统内部已经实现，用户可以直接调用相关方法使用。
+* 第三方数据源定义了Flink和外部系统数据交互的逻辑，包括数据的读写接口。在Flink中定义了非常丰富的第三方数据源连接器（Connector）。
+
+**1. 内置数据源**
+
+（1）文件数据源
 
 ## 第5章 Flink状态管理和容错 ##
 
