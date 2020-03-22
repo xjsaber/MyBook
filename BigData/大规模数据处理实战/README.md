@@ -499,17 +499,29 @@ java -version
 
 yum install python3
 
+#### 安装scala ####
+
+	$ tar -xzf ~/Dowmloads/scala-2.13.1.tgz
+	$ mv scala-2.13.1 /usr/local/scala
+	
+	vim ~/.bash_profile
+	
+	export SCALA_HOME=/usr/local/scala
+	export PATH=$PATH:$SCALA_HOME/bin
+	
+	source ~/.bash_profile
+
 #### 安装spark ####
 
-$ tar -xzf ~/Dowmloads/spark-2.4.3-bin-hadoop2.7.tg
-$ mv spark-2.4.3-bin-hadoop2.7.tgz /usr/local/spark
-
-vim ~/.bash_profile
-
-export SPARK_HOME=/usr/local/spark
-export PATH=$PATH:$SPARK_HOME/bin
-
-source ~/.bash_profile
+	$ tar -xzf ~/Dowmloads/spark-2.4.3-bin-hadoop2.7.tg
+	$ mv spark-2.4.3-bin-hadoop2.7.tgz /usr/local/spark
+	
+	vim ~/.bash_profile
+	
+	export SPARK_HOME=/usr/local/spark
+	export PATH=$PATH:$SPARK_HOME/bin
+	
+	source ~/.bash_profile
 
 ### 基于RDD API的Word Count程序 ###
 

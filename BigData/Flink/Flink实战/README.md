@@ -10,7 +10,12 @@
 
 centos75
 
-	wget xxxx
+	wget flink-1.10.0-bin-scala_2.12.tgz
+	tar -zxvf flink-1.10.0-bin-scala_2.12.tgz
+	mv flink-1.10.0-bin-scala_2.12.tgz flink
+	mv flink /usr/local/
+	vim ~/.bash_profile
+	source ~/.bash_profile
 
 查看版本号
 
@@ -22,7 +27,7 @@ centos75
 
 编写WordsCount
 
-	
+	./stop-cluster.sh
 
 
 
