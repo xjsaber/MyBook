@@ -3217,7 +3217,75 @@ MyISAM 分区表使用的分区策略，我们称为**通用分区策略**（gen
 1. 如果用 left join 的话，左边的表一定是驱动表吗？
 2. 如果两个表的 join 包含多个条件的等值匹配，是都要写到 on 里面呢，还是只把一个条件写到 on 里面，其他条件写到 where 部分？
 
+	create table t44_a(f1 int, f2 int, index(f1))engine=innodb;
+	create table t44_b(f1 int, f2 int)engine=innodb;
+	insert into t44_a values(1,1),(2,2),(3,3),(4,4),(5,5),(6,6);
+	insert into t44_b values(3,3),(4,4),(5,5),(6,6),(7,7),(8,8);
 
+Q1
+
+	select * from t44_a left join t44_b on(t44_a.f1=t44_b.f1) and (t44_a.f2=t44_b.f2); /*Q1*/
+
+返回6行
+
+* 驱动表是表a，被驱动表是表b
+* 由于表 b 的 f1 字段上没有索引，所以使用的是 Block Nested Loop Join（简称 BNL） 算法。
+
+BNL算法：
+
+1. 把表 a 的内容读入 join_buffer 中。因为是 select * ，所以字段 f1 和 f2 都被放入 join_buffer 了。
+2. 顺序扫描表 b，对于每一行数据，判断 join 条件（也就是 (a.f1=b.f1) and (a.f1=1)）是否满足，满足条件的记录, 作为结果集的一行返回。如果语句中有 where 子句，需要先判断 where 部分满足条件后，再返回。
+3. 表 b 扫描完成后，对于没有被匹配的表 a 的行（在这个例子中就是 (1,1)、(2,2) 这两行），把剩余字段补上 NULL，再放入结果集中。
+
+Q2
+
+	select * from a left join b on(a.f1=b.f1) where (a.f2=b.f2);/*Q2*/
+
+返回4行
+
+* 以表b为驱动表的。而如果一条join语句的Extra什么都不写，就表示使用的是Index Nested-Loop Join（简称NLJ）算法。
+* 顺序扫描表 b，每一行用 b.f1 到表 a 中去查，匹配到记录后判断 a.f2=b.f2 是否满足，满足条件的话就作为结果集的一部分返回。
+
+为什么语句 Q1 和 Q2 这两个查询的执行流程会差距这么大呢？这是因为优化器基于 Q2 这个查询的语义做了优化。
+
+使用left join时，左边的表不一定是驱动表。
+
+如果需要 left join 的语义，就不能把被驱动表的字段放在 where 条件里面做等值判断或不等值判断，必须都写在 on 里面。
+
+### Simple Nested Loop Join 的性能问题 ###
+
+BNL 算法和 Simple Nested Loop Join 算法都是要判断 M*N 次（M 和 N 分别是 join 的两个表的行数），但是 Simple Nested Loop Join 算法的每轮判断都要走全表扫描，因此性能上 BNL 算法执行起来会快很多。
+
+BNL 算法的执行逻辑是：
+
+1. 将驱动表的数据全部读入内存 join_buffer 中，这里 join_buffer 是无序数组；
+2. 顺序遍历被驱动表的所有行，每一行数据都跟 join_buffer 中的数据进行匹配，匹配成功则作为结果集的一部分返回。
+
+Simple Nested Loop Join 算法的执行逻辑是：顺序取出驱动表中的每一行数据，到被驱动表去做全表扫描匹配，匹配成功则作为结果集的一部分返回。
+
+1. 在对被驱动表做全表扫描的时候，如果数据没有在 Buffer Pool 中，就需要等待这部分数据从磁盘读入；从磁盘读入数据到内存中，会影响正常业务的 Buffer Pool 命中率，而且这个算法天然会对被驱动表的数据做多次访问，更容易将这些数据页放到 Buffer Pool 的头部
+2. 即使被驱动表数据都在内存中，每次查找“下一个记录的操作”，都是类似指针操作。而 join_buffer 中是数组，遍历的成本更低。
+
+BNL算法的性能更好
+
+### distinct 和 group by 的性能 ###
+
+如果表t的字段a上没有索引
+
+	select a from t group by a order by null;
+	select distinct a from t;
+
+没有了 count(*) 以后，也就是不再需要执行“计算总数”的逻辑时，第一条语句的逻辑就变成是：按照字段 a 做分组，相同的 a 的值只返回一行。而这就是 distinct 的语义，所以不需要执行聚合函数时，distinct 和 group by 这两条语句的语义和执行流程是相同的，因此执行性能也相同。
+
+1. 创建一个临时表，临时表有一个字段 a，并且在这个字段 a 上创建一个唯一索引；
+2. 遍历表 t，依次取数据插入临时表中：
+	* 如果发现唯一键冲突，就跳过；
+	* 否则插入成功
+3. 遍历完成后，将临时表作为结果集返回给客户端。 
+
+### 备库自增主键问题 ###
+
+### 小结 ###
 
 ## 45 | 自增id用完怎么办？ ##
 
