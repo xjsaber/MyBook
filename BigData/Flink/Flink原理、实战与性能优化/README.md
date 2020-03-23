@@ -88,6 +88,21 @@ Stateful Stream Process API是Flink中处理Stateful Stream最底层的接口，
 
 ### 3.3 Flink程序结构 ###
 
+整个Flink程序一共分为5步：
+
+1. 设定Flink执行环境
+2. 创建和加载数据集
+3. 对数据集指定转换操作逻辑
+4. 指定计算结果输出位置
+5. 调用execute方法触发程序执行
+
+#### 1. Execution Environment ####
+
+批量处理作业和流式处理作业分别使用的式不同的Execution Environment。
+
+#### 2. 初始化数据 ####
+
+
 
 ### 3.4 Flink数据类型 ###
 

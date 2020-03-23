@@ -10,15 +10,9 @@ object StarterJob {
   def main(args: Array[String]): Unit = {
     var env = ExecutionEnvironment.getExecutionEnvironment
 
-    //  BasicTypeInfo
-    val intStream:DataSource[Int] = env.fromElements(3, 1, 2, 1, 5)
-    val dataStream:DataSource[String] = env.fromElements("hello", "flink")
-    intStream.print()
-    dataStream.print()
 
-    //  TypeInformation
-//    val dataStream:DataSource[Int] = env.fromCollection(Array<Int>(3, 1, 2, 1, 5));
-//    val dataStream:DataSource[Int] = env.fromCollection(List<Int>(3, 1, 2, 1, 5));
+
+
 
     //  通过实例化Tuple2创建具有两个元素的数据集
 //    val tupleStream2: DataSource[(String, Int)] = env.fromElements(Tuple2("a", 1), Tuple2("c", 2))
