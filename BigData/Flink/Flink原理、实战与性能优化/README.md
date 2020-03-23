@@ -176,6 +176,60 @@ DataSources模块定义了DataStream API中的数据输入操作，Flink将数�
 
 （1）文件数据源
 
+
+### 4.2 时间概念与Watermark ###
+
+#### 4.2.1 时间概念类型 ####
+
+对于流式数据处理，最大的特点是数据上具有时间的属性特征，Flink跟布局时间产生的位置不同，将时间区分为三种时间概念，分别为事件生成时间（Event Time）、事件接入时间（Ingestion Time）和事件处理时间（Processing Time）。
+
+Source Operator -> Windows Operator -> DataSink Operator
+
+**1. 事件时间（Event Time）**
+
+事件时间（Event Time）是每个独立时间在产生它的设备上发生的时间，这个时间通常在事件进入Flink之前就已经嵌入到事件中，时间顺序取决于事件产生的地方，和下游数据处理系统的时间无关。
+
+**2. 接入时间（Ingestion）**
+
+接入时间（Ingestion Time）是数据进入Flink系统的时间，Ingestion Time依赖于Source Operator所在主机的系统时钟。
+
+**3. 处理时间（Processing TIme）**
+
+处理时间（Processing Time）是指数据在操作算子计算过程中获取到的所在主机时间。当用户选择使用Processing Time时，所有和时间相关的计算算子。
+
+**4. 时间概念指定**
+
+在Flink中默认情况下使用是Process Time时间概念，如果用户选择使用 Event Time或者Ingestion Time概念，则需要在创建StreamExecutionEnvironment中调用setStream-TimeCharacteristic()方法设定系统的时间概念。
+
+#### 4.2.2 EventTime和Watermark ####
+
+（1）顺序事件中的Watermarks
+**（2）乱序事件中的Watermarks**
+
+现实情况下数据元素往往并不是按照其产生顺序接入到Flink系统中进行处理，而频繁出现乱序或迟到的情况，这种情况就需要使用Watermarks来应对。
+
+（3）并行数据流中的Watermarks
+
+### 4.3 Windows窗口计算 ###
+
+#### 4.3.1 Windows Assigner ####
+
+**1. Keyed和Non-Keyed窗口**
+
+在运用窗口计算时，Flink根据上游数据集是否为KeyedStream类型（讲数据集按照Key分区），对应的Windows Assigned也会有所不同。
+
+**2. Windows Assigner**
+
+Flink支持两种类型的窗口，一种是基于时间的窗口，窗口基于起始时间戳（闭区间）和终止时间戳（开区间）来决定窗口的大小，数据根据时间戳被分配到不同的窗口中完成计算。
+
+（1）滚动窗口
+
+滚动窗口是根据固定时间或大小进行切分，且窗口和窗口之间的元素互不重叠。这种类型的窗口
+
+### 4.6 小结 ###
+
+DreamStream API编程模型以及开发环境准备，并通过简单的实例介绍如何使用DataStream API编写简单的流式应用，同时介绍了DataStream API中DataSource数据源支持，包括基本数据源和外部第三方数据源，以及DataStream API提供的常规的数据处理方法，包括针对单个Stream和多个Stream的转换方法，然后介绍利用DataSink组件将DataStream的数据输出到外部系统中。
+
 ## 第5章 Flink状态管理和容错 ##
 
 ## 第6章 DataSet API介绍与使用 ##
