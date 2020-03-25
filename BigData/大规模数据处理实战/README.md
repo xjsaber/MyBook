@@ -632,7 +632,16 @@ SparkSession不仅有SparkContext的所有功能，集成了所有Spark提供的
 
 ## 20 | 流处理案例实战：分析纽约市出租车载客信息 ##
 
+批处理，处理的数据是静态的而有边界的。
+
+Spark用于流处理的组件——Spark Streaming和Structured Streaming。
+
+* Spark Streaming：Spark 2.0 版本前的的流处理库
+* Structured Streaming：在 Spark 2.0 之后，集成了 DataFrame/DataSet API 的 Structured Streaming 成为 Spark 流处理的主力
+
 ### 数据集介绍 ###
+
+数据集，
 
 ### 流数据输入 ###
 

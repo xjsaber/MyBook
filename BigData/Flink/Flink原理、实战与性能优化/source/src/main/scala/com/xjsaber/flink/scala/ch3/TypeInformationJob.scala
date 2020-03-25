@@ -1,8 +1,7 @@
-package com.xjsaber.flink.scala
+package com.xjsaber.flink.scala.ch3
 
 import org.apache.flink.api.java.ExecutionEnvironment
 import org.apache.flink.api.java.operators.DataSource
-import org.apache.flink.api.scala.DataSet
 
 object TypeInformationJob {
 
