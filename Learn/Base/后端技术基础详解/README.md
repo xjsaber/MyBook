@@ -379,6 +379,19 @@ MySQL数据库还有binlog日志文件，记录全部的数据更新操作记录
 
 ## 07 | 编程语言原理：面向对象编程是编程的终极形态？ ##
 
+## 答疑 | Java Web程序的运行时环境到底是怎样的？ ##
+
+### 问题一 ###
+
+
+	java org.apache.catalina.startup.Bootstrap "$@" start 
+
+我们在 Linux 操作系统执行 Tomcat 的 Shell 启动脚本，Tomcat 启动以后，其实在操作系统里看到的是一个 JVM 虚拟机进程。这个虚拟机进程启动以后，加载 class 进来执行，首先加载的就这个org.apache.catalina.startup.Bootstrap类，这个类里面有一个main()函数，是整个 Tomcat 的入口函数，JVM 虚拟机会启动一个主线程从这个入口函数开始执行。
+
+
+
+
+
 ## 08 | 软件设计的方法论：软件为什么要建模？ ##
 
 ## 09 | 软件设计实践：如合使用UML完成一个设计文档 ##
