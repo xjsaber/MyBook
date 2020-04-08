@@ -1,5 +1,7 @@
 # ZooKeeper分布式过程协同技术详解  #
 
+第一部分 ZooKeeper的概念和基础
+
 ## 第1章 简介 ##
 
 ### 1.1 Zookeeper的使命 ###
