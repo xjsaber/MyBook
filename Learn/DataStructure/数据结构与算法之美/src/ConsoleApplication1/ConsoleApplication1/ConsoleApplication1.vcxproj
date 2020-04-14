@@ -150,6 +150,10 @@
     <ClCompile Include="ConsoleApplication1.cpp" />
     <ClCompile Include="ListApp.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ConsoleApplication1.h" />
+    <ClInclude Include="ListApp.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
