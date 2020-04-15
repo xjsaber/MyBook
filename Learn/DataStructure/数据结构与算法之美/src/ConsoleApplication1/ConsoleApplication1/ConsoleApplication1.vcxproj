@@ -147,12 +147,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ArrayStack.cpp" />
     <ClCompile Include="ConsoleApplication1.cpp" />
     <ClCompile Include="ListApp.cpp" />
+    <ClCompile Include="SearchFunc.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ArrayStack.h" />
     <ClInclude Include="ConsoleApplication1.h" />
     <ClInclude Include="ListApp.h" />
+    <ClInclude Include="SearchFunc.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

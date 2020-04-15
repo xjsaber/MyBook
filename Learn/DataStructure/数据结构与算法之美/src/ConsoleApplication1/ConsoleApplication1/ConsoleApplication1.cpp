@@ -2,14 +2,8 @@
 //
 
 #include <iostream>
-
-#define maxSize 100
-
-typedef struct SqlList
-{
-    int data[maxSize];
-    int length;
-} SqlList;
+#include "ListApp.h"
+#include "SearchFunc.h"
 
 typedef struct LNode
 {
@@ -24,36 +18,17 @@ typedef struct DLNode
     struct DLNode* prev;
 }DLNode;
 
-SqlList createList(int length) 
-{
-    struct SqlList l;
-
-    for (int i = 0; i < length; i++) {
-        l.data[i] = i;
-    }
-    l.length = length;
-    return l;
-}
-
-int findElem(SqlList l, int item) 
-{
-    int index = -1;
-    for (int i = 0; i < l.length; i++) {
-        if (item == l.data[i]) {
-            // 序号是从1开始，i是从0开始
-            index = i + 1;
-            break;
-        }
-    }
-    return index;
-}
+using namespace std;
 
 int main()
 {
     int length = 50;
-    SqlList l = createList(50);
-    int index = findElem(l, 0);
-    std::cout << index;
+    int n = 10;
+    int arr[10] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+    int value = 3;
+
+    int result = bSearch(arr, n, value);
+    cout << result << endl;
 }
 
 // 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单
