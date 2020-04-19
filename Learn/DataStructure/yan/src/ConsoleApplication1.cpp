@@ -2,7 +2,7 @@
 //
 
 #include <iostream>
-#include "ListApp.h"
+#include "ArrayList.h"
 #include "SearchFunc.h"
 
 typedef struct LNode

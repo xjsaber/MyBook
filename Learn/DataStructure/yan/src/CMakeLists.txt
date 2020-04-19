@@ -3,4 +3,4 @@ project(src)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(src ListApp.h ListApp.cpp main.cpp)
+add_executable(src ArrayList.h ArrayList.cpp main.cpp LinkedList.h LinkedList.cpp DLinkedList.cpp DLinkedList.h)
