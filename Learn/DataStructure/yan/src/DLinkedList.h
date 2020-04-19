@@ -4,11 +4,11 @@
 
 #ifndef SRC_DLINKEDLIST_H
 #define SRC_DLINKEDLIST_H
+#define ElemType int
 
-
-class DLinkedList {
-
-};
-
+typedef struct DNode {
+    ElemType data;
+    struct DNode *prior, *next;
+}DNode, *DLinkedList;
 
 #endif //SRC_DLINKEDLIST_H
