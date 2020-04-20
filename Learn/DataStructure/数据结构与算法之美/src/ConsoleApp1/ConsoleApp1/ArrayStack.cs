@@ -4,7 +4,33 @@ using System.Text;
 
 namespace ConsoleApp1
 {
-    class ArrayStack
+    class ArrayStack<T>
     {
+        private T[] items;
+        private int count;
+        private int n;
+
+        public ArrayStack(int n)
+        {
+            this.items = new T[n];
+            this.n = n;
+            this.count = 0;
+        }
+
+        public bool push(T item)
+        {
+            if (count == n) return false;
+            items[count] = item;
+            ++count;
+            return true;
+        }
+
+        public T pop()
+        {
+            if (count == 0) return default;
+            T item = items[count-1];
+            --count;
+            return item;
+        }
     }
 }
