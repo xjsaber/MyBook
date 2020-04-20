@@ -6,7 +6,13 @@ namespace ConsoleApp1
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            MySort mySort = new MySort();
+            int[] array = { 3, 5, 4, 1, 2, 6 };
+            mySort.BubbleSort(array, 6);
+            foreach (int item in array)
+            {
+                Console.WriteLine(item);
+            }
         }
     }
 }
