@@ -17,7 +17,7 @@ namespace ConsoleApp1
             this.count = 0;
         }
 
-        public bool push(T item)
+        public bool Push(T item)
         {
             if (count == n) return false;
             items[count] = item;
@@ -25,7 +25,7 @@ namespace ConsoleApp1
             return true;
         }
 
-        public T pop()
+        public T Pop()
         {
             if (count == 0) return default;
             T item = items[count-1];

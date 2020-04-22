@@ -9,8 +9,8 @@ namespace ConsoleApp1
             MySort mySort = new MySort();
             //int[] array = new int[2000];
             //Init(array);
-            int[] array = new int[] { 3, 5, 8, 11, 9, 7, 5, 2 };
-            mySort.BubbleSort(array, 2000);
+            int[] array = new int[] { 3, 5, 2, 11, 9, 7, 5, 2 };
+            mySort.InsertSort(array, 8);
             foreach (int item in array)
             {
                 Console.WriteLine(item);
