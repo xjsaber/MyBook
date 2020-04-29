@@ -96,8 +96,27 @@ func (node *Node)InOrder(n *Node) {
 	}
 }
 
+/**
+功能：递归后序遍历二叉树
+参数：根节点
+返回值：nil
+ */
 func (node *Node)PostOrder(n *Node) {
-	
+	if n != nil {
+		n.PostOrder(n.left)
+		n.PostOrder(n.right)
+		fmt.Print("%d ", n.value)
+	}
+}
+
+func (node *Node)GetLeafNode(n *Node) {
+	if n != nil {
+		if n.left == nil && n.right == nil {
+			fmt.Print("%d ", n.value)
+		}
+		node.GetLeafNode(n.left)
+		node.GetLeafNode(n.right)
+	}
 }
 
 func main() {

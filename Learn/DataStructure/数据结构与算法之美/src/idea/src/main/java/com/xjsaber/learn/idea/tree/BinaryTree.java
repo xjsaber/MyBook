@@ -8,6 +8,14 @@ public class BinaryTree {
         }
     }
 
+    Node createNode(int value){
+        Node node = new Node();
+        node.setValue(value);
+        node.setLeft(null);
+        node.setRight(null);
+        return  node;
+    }
+
     /*
     前序遍历
      */
@@ -16,6 +24,16 @@ public class BinaryTree {
         print(root);
         preOrder(root.left);
         preOrder(root.right);
+    }
+
+    /**
+     * 查找节点
+     * @param root 根节点
+     * @param x 查找的值
+     * @return 返回的node
+     */
+    Node FindNode(Node root, int x){
+        return null;
     }
 
     /*
