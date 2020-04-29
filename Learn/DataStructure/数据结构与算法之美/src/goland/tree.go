@@ -120,5 +120,7 @@ func (node *Node)GetLeafNode(n *Node) {
 }
 
 func main() {
-	
+	root := CreateNode(5)
+	root.left = CreateNode(2)
+
 }
