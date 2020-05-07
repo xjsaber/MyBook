@@ -93,6 +93,22 @@
 
 最佳的方式就是先看它的文档。
 
+以kafka为例子，如果完全不了解这个项目：
+
+1. 首先去查看[QuickStart](http://kafka.apache.org/documentation/#quickstart)，快速吧环境搭起来
+	* 对这个项目有个感性的认识
+	* 后续深入学习的时候“跑”一些例子
+2. 看一下它的[Introduction](http://kafka.apache.org/documentation/#introduction)，了解项目用到的基本概念或者名词，比如Topic、Producer、Consumer、Partition
+3. 有些开源项目会单独有一个 Basic Concepts 文档来讲这些基础概念
+4. 看一下它的使用场景、功能特性以及相关的生态系统的介绍。在 Kafka 中功能相关的内容在[Use cases](http://kafka.apache.org/documentation/#uses)和[EcoSystem](https://cwiki.apache.org/confluence/display/KAFKA/Ecosystem)两篇文章中，有些项目中会有类似名为 Features 的文档介绍功能和特性。
+5. 对这个项目的整体应该会有一个比较全面的了解了，比如说：
+	* 这个项目是干什么的？
+	* 能解决哪些问题？
+	* 适合在哪些场景使用？
+	* 有哪些功能？
+	* 如何使用？
+6. 接下来就可以去深入学习它的实现原理了，它背后的这篇论文就是整个项目的灵魂，对于 Kafka 来说，它的灵魂是这篇博文：[The Log: What every software engineer should know about real-time data’s unifying abstraction](https://engineering.linkedin.com/distributed-systems/log-what-every-software-engineer-should-know-about-real-time-datas-unifying)，对应的中文译稿在这里：《[日志：每个软件工程师都应该知道的有关实时数据的统一抽象](https://www.kancloud.cn/kancloud/log-real-time-datas-unifying/58708)》。
+
 ### 用以点带面的方式来阅读源码 ###
 
 **带着问题去读源码，最好是带着问题的答案去读源码。**
@@ -100,15 +116,27 @@
 * RocketMQ的消息是怎么写到文件里的？
 * Kafka的Coordinator是怎么维护消息位置的？
 
+确定问题后，先不要着急看源代码，而是应该先找一下是否有对应的实现文档，一般来说，核心功能都会有专门的文档来说明它的实现原理，比如在 Kafka 的文档中，[DESIGN](http://kafka.apache.org/documentation/#design)和[IMPLEMENTATION](http://kafka.apache.org/documentation/#implementation)两个章节中，介绍了 Kafka 很多功能的实现原理和细节。一些更细节的非核心的功能不一定有专门的文档来说明，但是我们可以去找一找是否有对应的 Improvement Proposal。（Kafka 的所有 Improvement Proposals 在[这里](https://cwiki.apache.org/confluence/display/KAFKA/Kafka+Improvement+Proposals)。）
+
+Improvement Proposal——它是描述一个新功能的文档，一般开源项目需要增加一个新的功能或者特性的时候，都会创建一个 Improvement Proposal，一般标题都是"xIP- 新功能名称"，其中 IP 就是 Improvement Proposal 的缩写，x 一般就是这个开源项目的名称的首字母，比如 Kafka 中 Improvement Proposal 的标题就都是以 KIP 来开头。
+
+每个 Improvement Proposal 都是有固定格式的，一般要说明为什么需要增加这个功能，会对系统产生那些影响和改变，还有我们最关心的设计和实现原理的简述。
+
+读完讲解的文档再去看源代码，不只是带着问题去读，而是带着答案去读源码，不仅仅是更容易理解源代码，还可以把更多的精力放在一些实现细节上，这样阅读源码的效果会更好。
+
 ### 小结 ###
 
-学习它的代码，最佳的切入点是去读它的官方文档。
+学习它的代码，最佳的切入点是去读它的官方文档，这些文档里面，最重要的灵魂就是项目背后的那篇论文，它一般是这个开源项目的理论基础。
 
 最佳的方式带着问题去阅读，最好是带着问题的答案去读，这样难度低、周期短、收获快。不要想着一定要从总体上去全面掌握一个项目的所有项目源代码。
 
 ### 思考题 ###
 
+带着问题和答案去读源码”的方法，去读一点源码。然后，最重要的是，把主要的流程用流程图或者时序图画出来，把重点的算法、原理用文字写出来。
+
 ## 10 | 如何使用异步设计提升系统性能？ ##
+
+对于开发者来说，异步是一种程序设计的思想，使用异步模式设计的程序可以显著减少线程等待，从而在高吞吐量的场景中，极大提升系统的整体性能，显著降低时延。像消息队列这种需要超高吞吐量和超低时延的中间件系统，在其核心流程中，一定会大量采用异步的设计思想。
 
 ### 异步设计如何提升系统性能？ ###
 
@@ -121,9 +149,17 @@
 * OnDebit()
 * OnAllDone()
 
+整个异步实现的语义相当于：
+
+1. 异步从 accountFrom 的账户中减去相应的钱数，然后调用 OnDebit 方法；
+2. 在 OnDebit 方法中，异步把减去的钱数加到 accountTo 的账户中，然后执行 OnAllDone 方法；
+3. 在 OnAllDone 方法中，调用 OnComplete 方法。
+
 区别只是在线程模型由同步顺序调用改为了异步调用和回调。
 
 ### 简单实用的异步框架：CompletableFuture ###
+
+Java 中比较常用的异步框架有 Java8 内置的[CompletableFuture](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html)和 ReactiveX 的[RxJava](https://github.com/ReactiveX/RxJava)，我个人比较喜欢简单实用易于理解的 CompletableFuture，但是 RxJava 的功能更加强大。
 
 ### 小结 ###
 
@@ -139,13 +175,13 @@
 
 #### 1. 没有攷虑失败如果第一次失败，第二次成功 ####
 
-
-
 #### 2. OnComplete()方法是在什么线程中运行的 ####
 
 主线程
 
 ## 11 | 如何实现高性能的异步网络传输？ ##
+
+### 理想的异步网络框架应该是什么样的？ ###
 
 ## 12 | 序列化与反序列化：如何通过网络传输结构化的数据？ ##
 
