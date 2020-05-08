@@ -1,6 +1,5 @@
 #pragma once
-#define maxSize 50
-#define ElemType int
+#include "Base.h"
 
 typedef struct SqlList{
     ElemType data[maxSize];
