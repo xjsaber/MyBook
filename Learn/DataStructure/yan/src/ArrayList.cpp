@@ -1,6 +1,5 @@
-#include "ArrayList.h"
-#include <cstddef>
 #include <iostream>
+#include "ArrayList.h"
 
 SqlList createList(int length) 
 {
@@ -42,7 +41,7 @@ bool remove(SqlList &l, int p, ElemType &e){
     for (int i = p - 1; i < l.length - 1; i++){
         l.data[p - 1] = l.data[p];
     }
-    l.data[l.length - 1] = NULL;
+    l.data[l.length - 1] = 0;
     l.length--;
     return true;
 }
