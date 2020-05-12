@@ -6,6 +6,30 @@ package com.xjsaber.learn.idea.algorithm;
 public class DynamicProgramming {
 
     /**
+     * 使用回溯算法实现0-1背包
+     */
+    //结果放到maxW中
+    private int maxW = Integer.MIN_VALUE;
+    //物品重量
+    private int[] weight = {2, 2, 4, 6, 3};
+    //物品个数
+    private int n = 5;
+    //背包承受的最大重量
+    private int w = 9;
+    public void f(int i, int cw){
+        if (cw == w || i == n){
+            if (cw > maxW) maxW = cw;
+            return;
+        }
+        // 选择不装第i个物品
+        f (i+1, cw);
+        if (cw + weight[i] <= w){
+            // 选择装第i个物品
+            f(i+1, cw+weight[i]);
+        }
+    }
+
+    /**
      * 01背包问题
      * @param weight 重量
      * @param n
