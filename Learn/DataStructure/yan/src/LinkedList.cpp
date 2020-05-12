@@ -36,4 +36,17 @@ LinkedList List_TailInsert(LinkedList &l){
     return l;
 }
 
+LNode* GetElem(LinkedList l, int i){
+    int j = 1;
+    LNode *p = l->next;
+    if (i == 0)
+        return l;
+    if (i < 1)
+        return NULL;
+    while (p && j < i) {
+        p = p->next;
+        j++;
+    }
+    return p; //返回第i个结点的指针，若i大于表长返回NULL
+}
 

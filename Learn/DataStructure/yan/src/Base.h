@@ -5,7 +5,7 @@
 #ifndef SRC_BASE_H
 #define SRC_BASE_H
 
-#define maxSize 50
 #define ElemType int
+#define maxSize 50
 
 #endif //SRC_BASE_H

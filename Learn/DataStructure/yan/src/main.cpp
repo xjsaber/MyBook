@@ -2,6 +2,6 @@
 #include "ArrayList.h"
 
 int main() {
-    std::cout << "Hello, World!" << std::endl;
+    //std::cout << result << std::endl;
     return 0;
 }
