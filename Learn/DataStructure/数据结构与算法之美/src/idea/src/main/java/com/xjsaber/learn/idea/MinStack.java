@@ -1,11 +1,14 @@
 package com.xjsaber.learn.idea;
 
+import com.xjsaber.learn.idea.algorithm.Backtracking;
+
 import java.util.Stack;
 
 class MinStack {
 
     public static void main(String[] args) {
-
+        Backtracking backtracking = new Backtracking();
+        backtracking.cal8queens(0);
     }
 
     Stack<Integer> stack = new Stack<>();
