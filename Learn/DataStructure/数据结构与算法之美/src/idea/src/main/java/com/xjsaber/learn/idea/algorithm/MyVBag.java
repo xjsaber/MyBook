@@ -12,14 +12,14 @@ public class MyVBag {
     private int n = 5;
     private int w = 9;
 
-    public void f(int i, int cw, int cv) {
-        if (cw == w || i == n){
-            if(cv > maxV) {
-                maxV = cv;
-                return;
-            }
-        }
-        f(i+1, cw, cv);
-        if (cw)
-    })
+//    public void f(int i, int cw, int cv) {
+//        if (cw == w || i == n){
+//            if(cv > maxV) {
+//                maxV = cv;
+//                return;
+//            }
+//        }
+//        f(i+1, cw, cv);
+//        if (cw)
+//    })
 }
