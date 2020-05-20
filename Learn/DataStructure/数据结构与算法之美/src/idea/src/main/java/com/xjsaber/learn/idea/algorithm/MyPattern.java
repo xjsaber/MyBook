@@ -15,10 +15,10 @@ public class MyPattern {
         this.plen = plen;
     }
 
-    public boolean match(char[] text, int tlen){
-        matched = false;
-
-    }
+//    public boolean match(char[] text, int tlen){
+//        matched = false;
+//
+//    }
 
     private void rmatch(int ti, int pj, char[] text, int tlen){
         // 如果已经匹配了，就不要继续递归了
