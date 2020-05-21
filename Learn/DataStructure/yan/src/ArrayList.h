@@ -2,7 +2,7 @@
 #include "Base.h"
 
 typedef struct SqlList{
-    ElemType data[maxSize];
+    ElemType data[MAXSIZE];
     int length;
 } SqlList;
 
