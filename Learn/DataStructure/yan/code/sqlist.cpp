@@ -3,8 +3,8 @@
 //
 #include "sqlist.h"
 
-Status InitList_Sq(SqList &L){
-
+Status SqLList_Class::InitList(SqList &L){
+    L.elem
 }
 
 Status SqList_Class::LocateElem(SqList L, ElemType e){
