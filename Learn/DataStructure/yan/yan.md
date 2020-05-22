@@ -136,11 +136,9 @@ ADT
 4. 算法是为了解决某类问题而规定的一个有限长的操作序列。
 5. 算法分析的两个主要方面是分析算法的时间复杂度和空间复杂度，以考察算法的时间和空间效率。  
 
-
-
 ## 第2章 线性表 ##
 
-### 2.1 线性表的类型定义 ###
+### 2.1 线性表的类型定义和特点 ###
 
 **线性表**是最常用且最简单的一种数据结构。
 
@@ -167,17 +165,39 @@ ADT
 算法2.2
 GetElem和ListInsert这两个操作的执行时间和表长无关，LocateElem的执行时间和表长成正比。·
 
-### 2.2 线性表的顺序表示和实现 ###
+### 2.2 案例引入 ###
 
 线性表的顺序表示指的是用一组地址连续的存储单元依次存储线性表的数据元素。
 
 ### 2.3 线性表的类型定义 ###
+
+	ADT LIST {
+		InitList(&L)
+		DestoryList(&L)
+		ClearList(&L)
+		ListEmpty(&L)
+		ListLength(L)
+		GetElem(L, i, &e)
+		LocateElem(L, e)
+		PriorElem(L, cur_e, &pre_e)
+		NextElem(L, cur_e, &next_e)
+		ListInsert(&L, i, e)
+		ListDelete(&L, i)
+		TraverseList(L)
+	}
 
 ### 2.4 线性表的顺序表示和实现 ###
 
 #### 2.4.1 线性表的顺序存储表示 ####
 
 线性表的顺序表示指的是用一组地址连续的存储单元依次存储线性的表的数据元素，这种表示也称作线性表的顺序存储结构。
+
+	#define MAXSIZE 100
+	typedef struct
+	{
+		ElemType *elem;
+		int length;
+	} SqList;
 
 #### 2.4.2 顺序表中基本操作的实现 ####
 
@@ -215,6 +235,15 @@ GetElem和ListInsert这两个操作的执行时间和表长无关，LocateElem�
 ### 2.5 线性表的链式表示和实现 ###
 
 #### 2.5.1 单链表的定义和表示 ####
+
+	typedef struct LNode
+	{
+		ElemType data;
+		struct LNode *next;
+	}LNode, *LinkList;
+
+1. 单链表每个节点的存储结构
+2. 在此对同一结构体指针类型起了两个名称，LinkList与LNode 、\*，两者本质上是等价的。例如，若定义LinkList L，则L为单链表的头指针，若定义LNode *p，则p为指向单链表中某个结点的指针，用*p代表该结点。
 
 #### 2.5.2 单链表基本操作的实现 ####
 
