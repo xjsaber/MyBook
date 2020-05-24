@@ -180,3 +180,35 @@ vim 就像 Windows 里面的 notepad 一样，是我们第一个要学会的工�
 ### 课堂练习 ###
 
 mov, call, jmp, int, ret, add, or, xor, shl, shr, push, pop, inc, dec, sub, cmp。
+
+## 07 | 从BIOS到bootloader：创业伊始，有活儿老板自己上 ##
+
+两种模式：
+
+* 实模式
+* 保护模式
+
+### BIOS时期 ###
+
+ROM（Read Only Memory，只读存储器），上面固化了一些初始化程序，BIOS（Basic Input and Output System。基本输入输出系统）。
+
+![5f364ef5c9d1a3b1d9bb7153bd166bfc.jpeg](img/5f364ef5c9d1a3b1d9bb7153bd166bfc.jpeg)
+
+BIOS开始进行初始化的工作：
+
+1. BIOS检查系统硬件情况
+2. 建立中断向量表和中断服务程序
+
+### bootloader 时期 ###
+
+Grub2， 全称 Grand Unified Bootloader Version 2
+
+### 从实模式切换到保护模式 ###
+
+## 09 | 系统调用：公司成立好了就要开始接项目 ##
+
+
+
+核心原理篇：第三部分 进程管理
+
+## 10 | 进程：公司接这么多项目，如何管？ ##
