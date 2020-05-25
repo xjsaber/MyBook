@@ -16,6 +16,12 @@ Status InitList(LinkList &L);
 
 Status GetElem(LinkList L, int i, ElemType &e);
 
+LNode * LocalElem(LinkList L, ElemType e);
 
+Status ListInsert(LinkList &L, int i, ElemType e);
+
+Status ListDelete(LinkList &L, int i);
+
+void CreateList_H(LinkList &L, int n);
 
 #endif //SRC_LINKLIST_H
