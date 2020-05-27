@@ -54,4 +54,19 @@ Status ListDelete(SqList &L, int i)
     return OK;
 }
 
+void MergeList(SqList &LA, SqList LB)
+{
+    int m = LA.length;
+    int n = LB.length;
+    for (int i = 0; i < n; i++)
+    {
+        ElemType e;
+        GetElem(LB, i, e);
+        if (!LocateElem(LA, e))
+        {
+            ListInsert(LA, ++m, e);
+        }
+    }
+}
+
 

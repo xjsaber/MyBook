@@ -1,7 +1,9 @@
 #include <iostream>
-#include "ArrayList.h"
+#include "yan/SqList.h"
 
 int main() {
-    //std::cout << result << std::endl;
+    SqList L;
+    InitList(L);
+    std::cout << L.length << std::endl;
     return 0;
 }

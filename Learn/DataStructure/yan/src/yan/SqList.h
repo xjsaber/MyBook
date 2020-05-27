@@ -23,4 +23,13 @@ Status ListInsert(SqList &L, int i, ElemType e);
 
 Status ListDelete(SqList &L, int i);
 
+/**
+ * 合并顺序表
+ * @param LA 顺序表A
+ * @param LB 顺序表B
+ */
+void MergeList(SqList &LA, SqList LB);
+
+void MergeList_Sq(SqList LA, SqList LB, SqList &LC);
+
 #endif //SRC_SQLIST_H
