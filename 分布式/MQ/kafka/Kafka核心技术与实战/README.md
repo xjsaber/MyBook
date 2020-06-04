@@ -202,7 +202,23 @@ HTTP库在很多编程语言中略显简陋
 
 ### Kafka 生产者程序概览 ###
 
+Kafka 的 Java 生产者 API 主要的对象就是 KafkaProducer。
 
+1. 构造生产者对象所需的参数对象。
+2. 利用第 1 步的参数对象，创建 KafkaProducer 对象实例。
+3. 使用 KafkaProducer 的 send 方法发送消息。
+4. 调用 KafkaProducer 的 close 方法关闭生产者并释放各种系统资源。
+
+当我们开发一个 Producer 应用时，生产者会向 Kafka 集群中指定的主题（Topic）发送消息，这必然涉及与 Kafka Broker 创建 TCP 连接。*那么，Kafka 的 Producer 客户端是如何管理这些 TCP 连接的呢？*
+
+### 何时创建 TCP 连接？ ###
+
+生产者代码是什么时候创建 TCP 连接的
+
+* Producer producer = new KafkaProducer(props)
+* producer.send(msg, callback)。
+
+*在创建 KafkaProducer 实例时，生产者应用会在后台创建并启动一个名为 Sender 的线程，该 Sender 线程开始运行时首先会创建与 Broker 的连接*。
 
 ## 23 | Kafka副本机制详解 ##
 
