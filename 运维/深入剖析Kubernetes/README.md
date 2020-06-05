@@ -86,8 +86,6 @@ Namespace技术实际上修改了应用进程看待整个计算机“视图”�
 1. 既然容器只是运行在宿主机上的一种特殊的进程，那么多个容器之间使用的就还是同一个宿主机的操作系统内核。
 2. 在Linux内核中，有很多资源和对象是不呢功能被Namespace化的，最典型的例子就是：时间。
 
-
-
 ## 07 | 白话容器基础（三）：深入理解容器镜像 ##
 
 Namespace和Cgroups
@@ -101,6 +99,14 @@ Namespace和Cgroups
 ## 总结 ##
 
 ## 08 | 白话容器基础（四）：重新认识Docker容器 ##
+
+分别从 Linux Namespace 的隔离能力、Linux Cgroups 的限制能力，以及基于 rootfs 的文件系统三个角度，为你剖析了一个 Linux 容器的核心实现原理。
+
+	备注：之所以要强调 Linux 容器，是因为比如 Docker on Mac，以及 Windows Docker（Hyper-V 实现），实际上是基于虚拟化技术实现的，跟我们这个专栏着重介绍的 Linux 容器完全不同。
+
+### 总结 ###
+
+介绍了如何使用 Linux Namespace、Cgroups，以及 rootfs 的知识，对容器进行了一次庖丁解牛似的解读。
 
 ## 09 | 从容器到容器云：谈谈Kubernetes的本质 ##
 
