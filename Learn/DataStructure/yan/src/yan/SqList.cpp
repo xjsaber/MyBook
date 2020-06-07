@@ -23,8 +23,8 @@ Status InitList(SeqList &L)
 
 Status GetElem(SeqList L, int i, ElemType &e)
 {
-    if (i<1 || i>L.length) return ERROR;
-    e = L.data[i-1];
+    if (i<0 || i>L.length-1) return ERROR;
+    e = L.data[i];
     return OK;
 }
 
@@ -32,10 +32,10 @@ int LocateElem(SeqList L, ElemType e)
 {
     for (int i = 0; i < L.length; i++){
         if (L.data[i] == e){
-            return i + 1;
+            return i;
         }
     }
-    return 0;
+    return -1;
 }
 
 Status ListInsert(SeqList &L, int i, ElemType e)
@@ -70,7 +70,7 @@ void MergeList(SeqList &LA, SeqList LB)
     {
         ElemType e;
         GetElem(LB, i, e);
-        if (LocateElem(LA, e) != 0)
+        if (LocateElem(LA, e) != -1)
         {
             ListInsert(LA, ++m, e);
         }

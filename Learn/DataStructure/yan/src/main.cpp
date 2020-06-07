@@ -26,6 +26,7 @@ int main() {
     std::cout << "RESULT" << std::endl;
     for (int i = 0; i < LA.length; i++)
     {
+        //TODO 输出的时候有问题
         std::cout << LA.data[i] << "," << std::ends;
     }
     return 0;
