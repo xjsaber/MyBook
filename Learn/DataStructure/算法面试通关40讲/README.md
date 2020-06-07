@@ -16,4 +16,23 @@ topic分类
 
 ## 05 | 理论讲解：数组&链表 ##
 
+### Array ###
+
+* Access：O(1)
+* Insert：平均O(n)
+* Delete：平均O(n)
+
+### Linked List ###
+
+特点
+
+* 改善插入和删除
+* 不知道有多少个元素在
+
+* Space：O(n)
+* Prepend：O(1)
+* Append:O(1)
+* Lookup：O(n)
+* Insert：O(1)
+* Delete：O(1)
 

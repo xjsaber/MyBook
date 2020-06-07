@@ -97,3 +97,18 @@ void CreateList_R(LinkList &L, int n)
         r = p;
     }
 }
+
+void MergeList_L(LinkList &LA, LinkList &LB, LinkList &LC)
+{
+    LNode *pa = LA->next;
+    LNode *pb = LB->next;
+    LC = LA;
+    LNode *pc = LC;
+    while (pa && pb)
+    {
+        if (pa->data <= pb->data)
+        {
+            pc->next = pa;
+        }
+    }
+}

@@ -7,29 +7,25 @@
 
 #include "../Base.h"
 
-typedef struct
-{
-    ElemType *elem; //存储基地址
-    int length; //当前长度
-}SqList; //顺序表的结构类型韦SqList
+void CreateList(SeqList &L,int length);
 
-Status InitList(SqList &L);
+Status InitList(SeqList &L);
 
-Status GetElem(SqList L, int i, ElemType &e);
+Status GetElem(SeqList L, int i, ElemType &e);
 
-int LocateElem(SqList, ElemType e);
+int LocateElem(SeqList, ElemType e);
 
-Status ListInsert(SqList &L, int i, ElemType e);
+Status ListInsert(SeqList &L, int i, ElemType e);
 
-Status ListDelete(SqList &L, int i);
+Status ListDelete(SeqList &L, int i);
 
 /**
  * 合并顺序表
  * @param LA 顺序表A
  * @param LB 顺序表B
  */
-void MergeList(SqList &LA, SqList LB);
+void MergeList(SeqList &LA, SeqList LB);
 
-void MergeList_Sq(SqList LA, SqList LB, SqList &LC);
+void MergeList_Sq(SeqList LA, SeqList LB, SeqList &LC);
 
 #endif //SRC_SQLIST_H

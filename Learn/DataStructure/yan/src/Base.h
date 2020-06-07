@@ -15,4 +15,14 @@
 // Status是函数返回值类型，其值是函数结果状态代码
 typedef int Status ;
 
+typedef struct SqlList{
+    ElemType data[MAXSIZE];
+    int length;
+} SqlList;
+
+typedef struct SeqList{
+    ElemType *data;
+    int length;
+} SeqList;
+
 #endif //SRC_BASE_H

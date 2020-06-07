@@ -5,56 +5,64 @@
 // Created by xjsaber on 2020/5/21.
 //
 
-Status InitList(SqList &L)
+void CreateList(SeqList &L,int length)
 {
-    L.elem = new ElemType[MAXSIZE];
-    if (!L.elem) exit(OVERFLOW);
+    for (int i = 0; i < length; i++) {
+        L.data[i] = i;
+    }
+    L.length = length;
+}
+
+Status InitList(SeqList &L)
+{
+    L.data = new ElemType[MAXSIZE];
+    if (!L.data) exit(OVERFLOW);
     L.length = 0;
     return OK;
 }
 
-Status GetElem(SqList L, int i, ElemType &e)
+Status GetElem(SeqList L, int i, ElemType &e)
 {
     if (i<1 || i>L.length) return ERROR;
-    e = L.elem[i-1];
+    e = L.data[i-1];
     return OK;
 }
 
-int LocateElem(SqList L, ElemType e)
+int LocateElem(SeqList L, ElemType e)
 {
     for (int i = 0; i < L.length; i++){
-        if (L.elem[i] == e){
+        if (L.data[i] == e){
             return i + 1;
         }
     }
     return 0;
 }
 
-Status ListInsert(SqList &L, int i, ElemType e)
+Status ListInsert(SeqList &L, int i, ElemType e)
 {
     if (i<1 || i>L.length) return ERROR;
     if (L.length == MAXSIZE) return ERROR;
     for (int j = L.length - 1; j > i-1; j--)
     {
-        L.elem[j+1] = L.elem[j];
+        L.data[j+1] = L.data[j];
     }
-    L.elem[i-1] = e;
+    L.data[i-1] = e;
     L.length++;
     return OK;
 }
 
-Status ListDelete(SqList &L, int i)
+Status ListDelete(SeqList &L, int i)
 {
     if (i<1 || i>L.length) return ERROR;
     if (L.length == 0) return ERROR;
     for (int j = i; j < L.length; j++){
-        L.elem[j - 1] = L.elem[j];
+        L.data[j - 1] = L.data[j];
     }
     L.length--;
     return OK;
 }
 
-void MergeList(SqList &LA, SqList LB)
+void MergeList(SeqList &LA, SeqList LB)
 {
     int m = LA.length;
     int n = LB.length;
@@ -62,11 +70,29 @@ void MergeList(SqList &LA, SqList LB)
     {
         ElemType e;
         GetElem(LB, i, e);
-        if (!LocateElem(LA, e))
+        if (LocateElem(LA, e) != 0)
         {
             ListInsert(LA, ++m, e);
         }
     }
 }
 
+void MergeList_Sq(SeqList LA, SeqList LB, SeqList &LC)
+{
+    //
+    LC.length = LA.length + LB.length;
+    LC.data = new ElemType[LC.length];
+    ElemType *pa = LA.data;
+    ElemType *pb = LB.data;
+    ElemType *pc = LC.data;
+    ElemType *pa_last = LA.data + LA.length - 1;
+    ElemType *pb_last = LB.data + LB.length - 1;
+    while ((pa <= pa_last) && (pb <= pb_last))
+    {
+        if (*pa <= *pb) *pc++ = *pa++;
+        else *pc++ = *pb++;
+    }
+    while (pa <= pa_last) *pc++ = *pa++;
+    while (pb <= pb_last) *pc++ = *pb++;
+}
 

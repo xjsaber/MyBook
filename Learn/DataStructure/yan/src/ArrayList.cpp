@@ -1,12 +1,12 @@
 #include <iostream>
 #include "ArrayList.h"
 
-SqlList createList(int length) 
+SqlList createList(int length)
 {
     SqlList l;
 
     for (int i = 0; i < length; i++) {
-        l.data[i] = i;
+        l.data[i] = temp;
     }
     l.length = length;
     return l;

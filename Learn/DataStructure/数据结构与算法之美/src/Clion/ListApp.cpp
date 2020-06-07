@@ -16,7 +16,6 @@ int findElem(SqlList l, int item)
     int index = -1;
     for (int i = 0; i < l.length; i++) {
         if (item == l.data[i]) {
-            // 序号是从1开始，i是从0开始
             index = i + 1;
             break;
         }
