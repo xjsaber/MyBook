@@ -3,4 +3,4 @@ project(src)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(main main.cpp Base.h yan/SqList.h yan/SqList.cpp)
+add_executable(main main.cpp Base.h yan/LinkList.h yan/LinkList.cpp)

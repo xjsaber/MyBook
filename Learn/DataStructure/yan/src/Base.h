@@ -25,4 +25,10 @@ typedef struct SeqList{
     int length;
 } SeqList;
 
+typedef struct LNode
+{
+    ElemType data;
+    struct LNode *next;
+}LNode, *LinkList;
+
 #endif //SRC_BASE_H

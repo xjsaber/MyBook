@@ -1,35 +1,43 @@
 #include <iostream>
-#include "yan/SqList.h"
+#include "yan/LinkList.h"
 
 int main() {
-    SeqList LA;
-    SeqList LB;
+
+    LinkList LA;
+    LinkList LB;
     InitList(LA);
     InitList(LB);
-    CreateList(LA, 4);
-    CreateList(LB, 6);
+    CreateList_H(LA, 4);
+    CreateList_H(LB, 6);
+
+    LNode *pa = LA->next;
+    LNode *pb = LB->next;
 
     std::cout << "LA" << std::endl;
-    for (int i = 0; i < LA.length; i++)
+    while (pa)
     {
-        std::cout << LA.data[i] << "," << std::ends;
+        std::cout << pa->data << "," << std::ends;
+        pa = pa->next;
     }
     std::cout << "" << std::endl;
     std::cout << "LB" << std::endl;
-    for (int i = 0; i < LB.length; i++)
+    while (pb)
     {
-        std::cout << LB.data[i] << "," << std::ends;
+        std::cout << pb->data << "," << std::ends;
+        pb = pb->next;
     }
     std::cout << "" << std::endl;
 
-    MergeList(LA, LB);
-//    SeqList LC;
-//    InitList(LC);
-//    MergeList_Sq(LA, LB, LC);
+    LinkList LC;
+    InitList(LC);
+    MergeList_L(LA, LB, LC);
+
+    LNode *pc = LC->next;
     std::cout << "RESULT" << std::endl;
-    for (int i = 0; i < LA.length; i++)
+    while (pc)
     {
-        std::cout << LA.data[i] << "," << std::ends;
+        std::cout << pc->data << "," << std::ends;
+        pc = pc->next;
     }
     return 0;
 }

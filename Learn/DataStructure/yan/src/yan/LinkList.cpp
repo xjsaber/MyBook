@@ -77,7 +77,7 @@ void CreateList_H(LinkList &L, int n)
     for (int i = 0; i < n; i++)
     {
         auto *p = new LNode;
-        std::cin >> p->data;
+        p->data = i;
         p->next = L->next;
         L->next = p;
     }
@@ -108,7 +108,24 @@ void MergeList_L(LinkList &LA, LinkList &LB, LinkList &LC)
     {
         if (pa->data <= pb->data)
         {
+            pc->next = pb;
+            pb = pb->next;
+        } else {
             pc->next = pa;
+            pa = pa->next;
         }
+        pc = pc->next;
+    }
+    while (pa)
+    {
+        pc->next = pa;
+        pa = pa->next;
+        pc = pc->next;
+    }
+    while (pb)
+    {
+        pc->next = pb;
+        pb = pb->next;
+        pc = pc->next;
     }
 }
