@@ -108,6 +108,15 @@ Namespace和Cgroups
 
 ## 09 | 从容器到容器云：谈谈Kubernetes的本质 ##
 
+一个“容器”，实际上是一个由 Linux Namespace、Linux Cgroups 和 rootfs 三种技术构建出来的进程的隔离环境。
+
+一个正在运行的Linux容器，其实可以被“一分为二”地看待：
+
+1. 一组联合挂载在 /var/lib/docker/aufs/mnt 上的 rootfs，这一部分我们称为“容器镜像”（Container Image），是容器的静态视图；
+2. 一个由 Namespace+Cgroups 构成的隔离环境，这一部分我们称为“容器运行时”（Container Runtime），是容器的动态视图。
+
+
+
 ## 10 | Kubernetes一键部署利器：kubeadm ##
 
 *要真正发挥容器技术的实力，就不能仅仅局限于对Linux容器本身的钻研和使用。*这些知识更适合作为你的技术储备，以便在需要的时候可以帮你更快地定位问题，并解决问题。*如何使用这些技术来“容器化”你的应用。*
