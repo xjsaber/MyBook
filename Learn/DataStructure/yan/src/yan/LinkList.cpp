@@ -83,7 +83,7 @@ void CreateList_H(LinkList &L, int n)
     }
 }
 
-void CreateList_R(LinkList &L, int n)
+    void CreateList_R(LinkList &L, int n)
 {
     L = new LNode;
     L->next = nullptr;
