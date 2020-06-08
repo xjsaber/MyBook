@@ -23,10 +23,12 @@ int main() {
     std::cout << "" << std::endl;
 
     MergeList(LA, LB);
+//    SeqList LC;
+//    InitList(LC);
+//    MergeList_Sq(LA, LB, LC);
     std::cout << "RESULT" << std::endl;
     for (int i = 0; i < LA.length; i++)
     {
-        //TODO 输出的时候有问题
         std::cout << LA.data[i] << "," << std::ends;
     }
     return 0;

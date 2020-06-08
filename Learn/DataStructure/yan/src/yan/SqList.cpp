@@ -42,11 +42,11 @@ Status ListInsert(SeqList &L, int i, ElemType e)
 {
     if (i<1 || i>L.length) return ERROR;
     if (L.length == MAXSIZE) return ERROR;
-    for (int j = L.length - 1; j > i-1; j--)
+    for (int j = L.length; j > i; j--)
     {
         L.data[j+1] = L.data[j];
     }
-    L.data[i-1] = e;
+    L.data[i] = e;
     L.length++;
     return OK;
 }
@@ -70,9 +70,13 @@ void MergeList(SeqList &LA, SeqList LB)
     {
         ElemType e;
         GetElem(LB, i, e);
-        if (LocateElem(LA, e) != -1)
+        if (LocateElem(LA, e) == -1)
         {
-            ListInsert(LA, ++m, e);
+            /**
+             * 需要关注的是这里的m必须是m++，因为m基本等于LA的length，
+             * 类似在LA的尾部追加节点数值
+             */
+            ListInsert(LA, m++, e);
         }
     }
 }
