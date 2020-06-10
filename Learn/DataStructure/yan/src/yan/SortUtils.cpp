@@ -3,3 +3,14 @@
 //
 
 #include "SortUtils.h"
+
+void InsertSort(SqList &L)
+{
+    for (int i = 1; i < L.length; i++ )
+    {
+        if (L.r[i].key < L.r[i-1].key)
+        {
+            
+        }
+    }
+}

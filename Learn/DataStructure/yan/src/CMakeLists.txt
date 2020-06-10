@@ -3,4 +3,4 @@ project(src)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(main main.cpp Base.h yan/LinkQueue.h yan/LinkQueue.cpp)
+add_executable(main main.cpp Base.h yan/LinkQueue.h yan/LinkQueue.cpp yan/SString.cpp yan/SString.h yan/SortUtils.cpp yan/SortUtils.h)

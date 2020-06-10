@@ -10,6 +10,7 @@
 #define QElemType int
 #define MAXSIZE 100
 #define MAXQSIZE 100
+#define MAXLEN 255
 
 // 函数结果状态代码
 #define OK 1
@@ -65,5 +66,21 @@ typedef struct
     QueuePtr front; //队头指针
     QueuePtr rear; //队尾指针
 }LinkQueue;
+
+/**
+ * 串的定长顺序存储结构
+ */
+typedef struct{
+    char ch[MAXLEN + 1];
+    int length;
+} SString;
+
+/**
+ * 串的堆式顺序存储结构
+ */
+typedef struct{
+    char ch[MAXLEN + 1];
+    int length;
+} HString;
 
 #endif //SRC_BASE_H
