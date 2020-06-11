@@ -246,23 +246,78 @@ Replication
 
 ## 24 | 请求是怎么被处理 ##
 
-
+特别放送
 
 ## 加餐 | 搭建开发环境、阅读源码方法、经典学习资料大揭秘 ##
 
+1. 如何搭建 Kafka 开发环境？
+2. 如何阅读 Kafka 源码？
+3. Kafka 的学习资料。
+
 ### Kafka开发环境搭建 ###
 
-第1步：安装Java和Gradle
+#### 第1步：安装Java和Gradle ####
 
-第2步：下载Kafka的源码
+安装好 Java 和 Gradle，同时在 IDEA 中安装 Scala 插件。你最好把 Java 和 Gradle 环境加入到环境变量中。
+
+#### 第2步：下载Kafka的源码 ####
+
+下载Kafka的源码
+
+	$ cd Projects
+	$ git clone https://github.com/apache/kafka.git
+
+#### 第 3 步：下载 Gradle 的 Wrapper 程序套件 ####
+
+代码下载完成之后，会自动创建一个名为 kafka 的子目录，此时需要进入到该目录下，执行下面的这条命令，主要目的是下载 Gradle 的 Wrapper 程序套件。
+
+
+	$ gradle
+	Starting a Gradle Daemon (subsequent builds will be faster)
+	
+	> Configure project :
+	Building project 'core' with Scala version 2.12.9
+	Building project 'streams-scala' with Scala version 2.12.9
+	
+	Deprecated Gradle features were used in this build, making it incompatible with Gradle 6.0.
+	Use '--warning-mode all' to show the individual deprecation warnings.
+	See https://docs.gradle.org/5.3/userguide/command_line_interface.html#sec:command_line_warning
+
+#### 第 4 步：将 Kafka 源码编译打包成 Jar 文件 ####
+
+	./gradlew clean releaseTarGz
+
+#### 第 5 步：把 Kafka 源码工程导入到 IDEA 中 ####
+
+	$ ./gradlew idea  #如果你用的是Eclipse，执行./gradlew eclipse即可
+
+## Kafka 源码阅读方法 ###
+
+## 用户故事 | 黄云；行百里者半九十 ##
+
+结束语
 
 ## 结束语 | 以梦为马，莫负韶华！ ##
 
-1. 持续精进自己的Java功底
-2. 提升自己的Java多线程开发以及I/O开发能力
-3. 掌握JVM调优和GC
+10000 个小时的锤炼，是所有人从平凡人变成世界级大师的必要条件。
 
-* 真正的实践一定要包含你自己的思考和验证，而且曜与真是
+*1. 首先，最重要的就是夯实技术基本功。这是我们 IT 从业者赖以生存的基石。*
+
+基本功：比如*操作系统、数据结构*等，*对 Java 语言的掌握*。
+
+熟练掌握甚至精通 Java，是学好大数据框架的基石！所谓精通，*不仅仅是要求你熟练使用 Java 进行代码开发*，更要求你对 JVM 底层有详细的了解。
+
+1. *持续精进自己的Java功底*，可以去 Java 官网上，把 Java 语言规范和 JVM 规范熟读一遍
+2. *提升自己的Java多线程开发以及I/O开发能力*，Kafka 可是大量使用 NIO 实现网络通信的
+3. *掌握JVM调优和GC*，尝试去读一读《Java Performance》
+
+*理论*
+
+分布式系统领域内的诸多经典问题，是设计并开发任何一款分布式系统都要面临和解决的问题，比如我们耳熟能详的一致性问题、领导者选举问题、分区备份问题等。这些问题在 Kafka 中都有体现，我们在专栏里面也有所涉及。因此，*分布式系统的诸多基础性概念，是帮助你日后深入掌握大数据分布式框架的重要因素*。
+
+强调完理论，自然就要引出*实践*了。
+
+* *真正的实践一定要包含你自己的思考和验证，而且要与真实业务相绑定*。在实际工作中进行学习，往往是学得最快、掌握得也最扎实的学习方式。
 * 在实际工作工程中，记录下遇到问题、解决问题的点点滴滴，并不断积累。
 * 不重复犯错
 
