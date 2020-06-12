@@ -224,13 +224,89 @@ Spring Framwork总览
 
 ## 14 | IoC主要实现策略 ##
 
+*面试官总问IoC和DI的区别，他真的理解吗？*
+
 维基百科
 
 Implementation techniques
 
+* Using a service locator pattern
+* Using dependency injection,for example
+	* Constructor injection
+	* Parameter injection
+	* Setter injection
+	* Interface injection 
 * Using a contextualized lookup：Java Beans -> beancontext
 * Using template method design pattern
 * Using strategy design pattern
+
+IoC实现的策略：依赖查找和依赖注入
+
+## 15 | IoC容器的职责 ##
+
+*IoC除了依赖注入，还涵盖哪些职责呢？*
+
+1. 解耦
+2. 设计的最终目的
+
+### 通用职责 ###
+
+* 依赖处理
+	* 依赖查找
+	* 依赖注入 
+* 生命周期管理
+	* 容器
+	* 托管资源（Java Beans或其他资源） 
+* 配置
+	* 容器
+	* 外部化配置
+	* 托管资源（Java Beans或其他资源） 
+
+容器告诉你什么时候执行，便什么时候执行
+
+## 16 | IoC容器的实现 ##
+
+*除了Spring，还有其他的IOC容器实现么？*
+
+### 主要实现 ###
+
+* Java SE
+	* Java Beans
+	* Java ServiceLoader SPI（NetBeans中被大量使用，加载一些所谓的组件）
+	* JNDI 
+* Java EE
+	* EJB（3.0 依赖注入和依赖查找并存的方式）
+	* Servlet
+* 开源
+	* Apache Avalon
+	* PicoContainer
+	* Google Guice
+	* Spring Framework   
+
+TODO
+
+## 17 | 传统IoC容器实现： ##
+
+JavaBeans
+
+### Java Beans作为IoC容器 ###
+
+#### 特性 ####
+
+* 依赖查找
+* 生命周期管理
+* 配置元信息
+* 事件：spring也是借鉴
+* 自定义
+* 资源管理：spring相似
+* 持久化
+
+#### 规范 ####
+
+*  JavaBeans：https://www.oracle.com/technetwork/java/javase/tech/index-jsp-138795.html，这个页面没访问到，进一步跟进[TODO]
+*  BeanContext：https://docs.oracle.com/javase/8/docs/technotes/guides/beans/sepc/beancontext.html，这个页面没访问到，进一步跟进[TODO]
+
+*什么才是我们的Java Beans*
 
 ## 20 | 构造器注入 VS. Setter注入：为什么Spring官方文档的解读会与作者的初心出现偏差？ ##
 
@@ -281,4 +357,44 @@ IoC是推的模式
 	* 单个Bean对象   
 
 
+第四章：Spring Bean基础
+
+## 31 | 定义Bean：什么是BeanDefinition？ ##
+
+1. 定义Spring Bean
+2. BeanFefinition元信息
+3. 命名Spring Bean
+4. Spring Bean的别名
+5. 注册Spring Bean
+6. 实例化Spring Bean
+7. 初始化Spring Bean
+8. 延迟初始化Spring Bean
+9. 销毁Spring Bean
+10. 垃圾回收Spring Bean
+
+* 什么是BeanDefinition？
+* BeanDefinition是Spring Framework中定义Bean的配置信息接口，包含：
+	* Bean的类名
+	* Bean行为配置元素，如作用域、自动绑定的模式、生命周期回调等
+	* 其他Bean引用，又可称作合作者（Collaborators）或者依赖（Dependencies）
+	* 配置设置，比如Bean属性（Properties）
+
+## 32 | BeanDefinition元信息：除了Bean名称和类名，还有哪些Bean元信息值得关注？ ##
+
+### BeanDefinition元信息 ###
+
+* Class
+* Name
+* Scope
+* Constructor arguments（依赖注入）
+* Properties（依赖注入）
+* Autowiring mode
+* Lazy Initialization mode（延迟和非延迟【默认】）
+* Initialization method
+* Destruction method
+	
+### BeanDefinition构建 ### 
+
+* 通过BeanDefinitionBuilder
+* 通过AbstractBeanDefinition以及派生类
 
