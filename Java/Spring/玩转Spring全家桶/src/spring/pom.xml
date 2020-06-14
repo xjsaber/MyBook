@@ -21,6 +21,7 @@
 	<modules>
 		<module>01helloworld</module>
 		<module>02jdbc</module>
+		<module>05reactor</module>
 	</modules>
 
 	<dependencies>

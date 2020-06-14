@@ -180,9 +180,87 @@ Spring Boot 2.x
 * update
 * execute
 
+### SQL批处理 ###
+
+#### JdbcTemplate ####
+
+* batchUpdate
+	* BatchPreparedStatementSetter 
+
+#### NamedParameterJdbcTemplate ####
   
+* batchUpdate
+	* SqlParameterSourceUtils.createBatch 
+
 ## 10 | 什么是Spring的事务抽象（上） ##
 
 ## 11 | 什么是Spring的事务抽象（下） ##
 
 ## 13 | 了解Spring的JDBC异常抽象 ##
+
+# 第四章：NoSQL实践 #
+
+## 24 | 通过Docker辅助开发 ##
+
+### Docker常用命令 ###
+
+#### 镜像相关 ####
+
+* docker pull <image>
+* docker search <image>
+
+#### 容器相关 ####
+
+* docker run
+* docker start/stop<容器名>
+* docker ps<容器名>
+* docker logs<容器名>
+
+dokcer run的常用选项
+
+### 通过Docker启动MongoDB ###
+
+#### 官方指引 ####
+
+#### 获取镜像 ####
+
+#### 运行MongoDB镜像 ####
+
+25 | 在Spring中访问MongoDB
+
+26 | 在Spring中访问Redis
+
+
+27 | 在Spring中访问Redis
+
+# 第五章：数据访问进阶 #
+
+## 31 | Project Reactor介绍（上） ##
+
+Project Reactor
+
+## 32 | Project Reactor介绍（下） ##
+
+### 一些核心的概念 ###
+
+#### Operators - Publisher / Subscriber ####
+
+* Nothing Happens Until You subscribe()
+* Flux[0..N] - onNext()、onComplete()、onError()
+* Mono[0..1] - onNext()、onComplete()、onError()
+
+#### Backpressure ####
+
+* Subscription
+* onRequest()、onCancel()、onDispose()
+
+#### 线程调度Schedulers ####
+
+* immediate() / single() / newSingle()
+* elastic()【缓存，60秒之后会被回收】 / parallel() 【固定线程池】/ newParallel()
+
+#### 错误处理 ####
+
+* onError / onErrorReturn / onErrorResume
+* doOnError / doFinally
+
