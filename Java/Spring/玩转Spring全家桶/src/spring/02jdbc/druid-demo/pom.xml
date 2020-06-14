@@ -6,29 +6,29 @@
 
     <parent>
         <groupId>com.xjsaber.learn</groupId>
-        <artifactId>spring</artifactId>
+        <artifactId>02jdbc</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>02jdbc</artifactId>
-
-    <modules>
-        <module>datasource-demo</module>
-        <module>multi-datasource-demo</module>
-        <module>pure-spring-datasource-demo</module>
-        <module>druid-demo</module>
-        <module>simple-jdbc</module>
-    </modules>
+    <artifactId>druid-demo</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>HikariCP</artifactId>
+                    <groupId>com.zaxxer</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.alibaba/druid-spring-boot-starter -->
         <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>runtime</scope>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid-spring-boot-starter</artifactId>
+            <version>1.1.22</version>
         </dependency>
     </dependencies>
+
 </project>
