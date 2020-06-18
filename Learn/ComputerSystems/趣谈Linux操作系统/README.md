@@ -243,11 +243,139 @@ Grub2， 全称 Grand Unified Bootloader Version 2
 
 ## 09 | 系统调用：公司成立好了就要开始接项目 ##
 
-
+	cmake-3.17.0-Linux-x86_64.tar.gz
 
 核心原理篇：第三部分 进程管理
 
 ## 10 | 进程：公司接这么多项目，如何管？ ##
+
+### 写代码：用系统调用创建进程 ###
+
+我们先来创建一个文件，里面用一个函数封装通用的创建进程的逻辑，名字叫 process.c。
+
+### 进行编译：程序的二进制格式 ###
+
+编译（Compile）
+
+### 运行程序为进程 ###
+
+在内核中，有这样一个数据结构，用来定义加载二进制文件的方法。
+
+do_execve->do_execveat_common->exec_binprm->search_binary_handler。
+
+### 进程树 ###
+
+既然所有的进程都是从父进程 fork 过来的，那总归有一个祖宗进程，这就是咱们系统启动的 init 进程。
+
+在解析 Linux 的启动过程的时候，1 号进程是 /sbin/init。如果在 centOS 7 里面，我们 ls 一下，可以看到，这个进程是被软链接到 systemd 的。
+
+	/sbin/init -> ../lib/systemd/systemd
+
+
+## 11 | 线程：如何让复杂的项目并行执行？ ##
+
+### 为什么要有线程？ ###
+
+**进程相当于一个项目，而线程就是为了完成项目需求，而建立的一个个开发任务。**
+
+### 如何创建线程？ ###
+
+一个运行中的线程可以调用 pthread_exit 退出线程。这个函数可以传入一个参数转换为 (void *) 类型。这是线程退出的返回值。
+
+![e38c28b0972581d009ef16f1ebdee2bd.jpg](img/e38c28b0972581d009ef16f1ebdee2bd.jpg)
+
+### 线程的数据 ###
+
+线程访问的数据细分成三类。
+
+![e7b06dcf431f388170ab0a79677ee43f.jpg](img/e7b06dcf431f388170ab0a79677ee43f.jpg)
+
+**1. 线程栈上的本地数据**
+
+**2. 在整个进程里共享的全局数据**
+
+**3. 线程私有数据（Thread Specific Data）**
+	
+	int pthread_key_create(pthread_key_t *key, void (*destructor)(void*))
+
+## 15 | 调度（上）：如何制定项目管理流程？ ##
+
+task_struct 仅仅能够解决“**看到**”的问题，咱们还要解决如何制定流程，进行项目调度的问题，也就是“**做到**”的问题。
+
+### 调度策略与调度类 ###
+
+在 Linux 里面，进程大概可以分成两种。
+
+1. 一种称为**实时进程**，也就是需要尽快执行返回结果的那种。
+2. 另一种是**普通进程**，大部分的进程其实都是这种。
+
+在 task_struct 中，有一个成员变量，我们叫**调度策略**。
+	
+	调度策略：
+	unsigned int policy; 
+	以下的几个定义：
+	#define SCHED_NORMAL    0
+	#define SCHED_FIFO    1
+	#define SCHED_RR    2
+	#define SCHED_BATCH    3
+	#define SCHED_IDLE    5
+	#define SCHED_DEADLINE    6
+
+配合调度策略的，还有**优先级**。
+
+	int prio, static_prio, normal_prio;
+	unsigned int rt_priority;
+
+优先级其实就是一个数值，
+
+* 对于实时进程，优先级的范围是 0～99；
+* 对于普通进程，优先级的范围是 100～139。
+* 数值越小，优先级越高。从这里可以看出，所有的实时进程都比普通进程优先级要高。
+
+### 实时调度策略 ###
+
+	#define SCHED_FIFO    1
+	#define SCHED_RR    2
+	#define SCHED_DEADLINE    6
+
+对于调度策略，其中 SCHED_FIFO、SCHED_RR、SCHED_DEADLINE 是实时进程的调度策略。
+
+* SCHED_FIFO，高优先级的进程可以抢占低优先级的进程，而相同优先级的进程，我们遵循先来先得。
+*  SCHED_RR 轮流调度算法，采用时间片，相同优先级的任务当用完时间片会被放到队列尾部，以保证公平性，而高优先级的任务也是可以抢占低优先级的任务。
+* SCHED_DEADLINE，是按照任务的 deadline 进行调度的。当产生一个调度点的时候，DL 调度器总是选择其 deadline 距离当前时间点最近的那个任务，并调度它执行。
+
+### 普通调度策略 ###
+
+对于普通进程的调度策略有，SCHED_NORMAL、SCHED_BATCH、SCHED_IDLE。
+
+	#define SCHED_NORMAL    0
+	#define SCHED_BATCH    3
+	#define SCHED_IDLE    5
+
+* SCHED_NORMAL 是普通的进程
+* SCHED_BATCH 是后台进程，这类项目可以默默执行，不要影响需要交互的进程，可以降低它的优先级。
+* SCHED_IDLE 是特别空闲的时候才跑的进程
+
+在 task_struct 里面，还有这样的成员变量：
+
+	const struct sched_class *sched_class; //调度策略的执行逻辑，就封装在这里面，它是真正干活的那个。
+
+sched_class 有几种实现：
+
+* stop_sched_class 优先级最高的任务会使用这种策略，会中断所有其他线程，且不会被其他任务打断；
+* dl_sched_class 就对应上面的 deadline 调度策略；
+* rt_sched_class 就对应 RR 算法或者 FIFO 算法的调度策略，具体调度策略由进程的 task_struct->policy 指定；
+* fair_sched_class 就是普通进程的调度策略；
+* idle_sched_class 就是空闲进程的调度策略。
+
+### 完全公平调度算法 ###
+
+在 Linux 里面，实现了一个基于 CFS 的调度算法。CFS 全称 Completely Fair Scheduling，叫完全公平调度。
+
+1.在 Linux 里面，实现了一个基于 CFS 的调度算法。CFS 全称 Completely Fair Scheduling，叫完全公平调度。
+	* 记录下进程的运行时间。CPU 会提供一个时钟，过一段时间就触发一个时钟中断（Tick）。 
+
+## 18 | 进程的创建：如何发起一个新项目？ ##
 
 核心原理篇：第四部分 内存管理 (7讲)
 
