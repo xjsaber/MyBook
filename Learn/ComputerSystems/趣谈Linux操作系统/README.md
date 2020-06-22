@@ -89,25 +89,100 @@ QQ 的二进制文件是静态的，称为程序（Program），而运行起来�
 
 ### 用户与密码 ###
 
-* passwd
-* useradd
+* passwd，修改密码
+* useradd，创建其他用户
 
 ### 浏览文件 ###
 
-* cd
-* ls
+* cd，切换目录
+* dir，可以列出当前目录下的文件
+* ls -l，用列表的方式列出文件
 
+	```drwxr-xr-x 6 root root    4096 Oct 20  2017 apt
+    -rw-r--r-- 1 root root     211 Oct 20  2017 hosts
+
+1. 其中第一个字段的第一个字符是**文件类型**。
+	* 如果是“-”，表示普通文件；
+	* 如果是 d，就表示目录。
+2. 第一个字段剩下的 9 个字符是**模式**，其实就是**权限位**（access permission bits）。3 个一组，每一组 rwx 表示“读（read）”“写（write）”“执行（execute）”。如果是字母，就说明有这个权限；如果是横线，就是没有这个权限。
+	* 这三组分别表示文件所属的用户权限、文件所属的组权限以及其他用户的权限。例如，上面的例子中，-rw-r–r-- 就可以翻译为，这是一个普通文件，对于所属用户，可读可写不能执行；对于所属的组，仅仅可读；对于其他用户，也是仅仅可读。如果想改变权限，可以使用命令 chmod 711 hosts。
+3. 第二个字段是**硬链接**（hard link）**数目**
+4. 第三个字段是**所属用户**，第四个字段是**所属组**。第五个字段是文件的大小，第六个字段是**文件被修改的日期**，最后是**文件名**。你可以通过命令chown改变所属用户，chgrp改变所属组。 
+ 
 ### 安装软件 ###
 
-rpm -qa | grep jdk，\| 是管道，用于连接两个程序，前面 rpm -qa 的输出就放进管道里面，然后作为 grep 的输入，grep 将在里面进行搜索带关键词 jdk 的行，并且输出出来。
+#### 应用安装 ####
 
-more 是分页后只能往后翻页，翻到最后一页自动结束返回命令行，less 是往前往后都能翻页，需要输入 q 返回命令行，q 就是 quit。
+Linux：可以下载 rpm 或者 deb
 
+* 一个是 CentOS 体系，前者使用 rpm，使用`rpm -i jdk-XXX_linux-x64_bin.rpm`进行安装
+* 一个是 Ubuntu 体系，后者使用 deb，使用`dpkg -i jdk-XXX_linux-x64_bin.deb`。其中 -i 就是 install 的意思。
 
-export JAVA_HOME=/root/jdk-XXX_linux-x64
-export PATH=$JAVA_HOME/bin:$PATH
+在 Linux 下面，凭借rpm -qa和dpkg -l就可以查看安装的软件列表，-q 就是 query，a 就是 all，-l 的意思就是 list。
+
+rpm -qa | grep jdk，\| 是管道，用于连接两个程序，前面 rpm -qa 的输出就放进管道里面，然后作为 grep 的输入，grep 将在里面进行搜索带关键词 jdk 的行，并且输出出来。grep 支持正则表达式，因此搜索的时候很灵活，再加上管道，这是一个很常用的模式。同理dpkg -l | grep jdk也是能够找到的。
+
+如果你不知道关键词，可以使用rpm -qa | more和rpm -qa | less这两个命令，它们可以将很长的结果分页展示出来。
+
+* more 是分页后只能往后翻页，翻到最后一页自动结束返回命令行
+* less 是往前往后都能翻页，需要输入 q 返回命令行，q 就是 quit。
+
+如果要删除，可以用rpm -e和dpkg -r。-e 就是 erase，-r 就是 remove。
+
+#### 软件管家 ####
+
+Linux 也有自己的软件管家，CentOS 下面是 yum，Ubuntu 下面是 apt-get。可以根据关键词搜索，例如搜索jdk、yum search jdk和apt-cache search jdk，可以搜索出很多很多可以安装的 jdk 版本。如果数目太多，你可以通过管道 grep、more、less 来进行过滤。
+
+* 可以用yum install java-11-openjdk.x86_64
+* apt-get purge openjdk-9-jdk。
+
+卸载可以使用yum erase java-11-openjdk.x86_64和apt-get purge openjdk-9-jdk。
+
+#### 配置路径 ####
+
+Linux 允许我们配置从哪里下载这些软件的，地点就在配置文件里面
+
+* 对于 CentOS 来讲，配置文件在/etc/yum.repos.d/CentOS-Base.repo里。
+
+    [base]
+    name=CentOS-$releasever - Base - 163.com
+    baseurl=http://mirrors.163.com/centos/$releasever/os/$basearch/
+    gpgcheck=1
+    gpgkey=http://mirrors.163.com/centos/RPM-GPG-KEY-CentOS-7
+
+* 对于 Ubuntu 来讲，配置文件在/etc/apt/sources.list里。
+
+    deb http://mirrors.163.com/ubuntu/ xenial main restricted universe multiverse
+    deb http://mirrors.163.com/ubuntu/ xenial-security main restricted universe multiverse
+    deb http://mirrors.163.com/ubuntu/ xenial-updates main restricted universe multiverse
+    deb http://mirrors.163.com/ubuntu/ xenial-proposed main restricted universe multiverse
+    deb http://mirrors.163.com/ubuntu/ xenial-backports main restricted universe multiverse
+
+#### 直接下载 ####
+
+其实还有一种简单粗暴的方法，就是将安装好的路径直接下载下来，然后解压缩成为一个整的路径。inux 上面有一个工具 wget，后面加上链接，就能从网上下载了。
+
+	yum install zip.x86_64 unzip.x86_64
+	apt-get install zip unzip
+
+如果采取这种下载压缩包的格式，需要在系统设置的环境变量配置里面设置JAVA_HOME和PATH。
+
+	export JAVA_HOME=/root/jdk-XXX_linux-x64
+	export PATH=$JAVA_HOME/bin:$PATH
+
+export 命令仅在当前命令行的会话中管用
+
+在当前用户的默认工作目录，例如 /root 或者 /home/cliu8 下面，有一个.bashrc 文件，这个文件是以点开头的，这个文件默认看不到，需要 ls -la 才能看到，a 就是 all。每次登录的时候，这个文件都会运行，因而把它放在这里。这样登录进来就会自动执行。当然也可以通过 source .bashrc 手动执行。
+
+#### Vim ####
 
 vim 就像 Windows 里面的 notepad 一样，是我们第一个要学会的工具。
+
+* 如果文件有内容，就会显示出来。移动光标的位置，通过上下左右键就行。
+* 如果想要编辑，就把光标移动到相应的位置，输入i，意思是 insert。
+* 进入编辑模式，可以插入、删除字符，这些都和 notepad 很像。
+* 要想保存编辑的文本，我们使用esc键退出编辑模式，然后输入“:”，然后在“:”后面输入命令w，意思是 write，这样就可以保存文本，冒号后面输入q，意思是 quit，这样就会退出 vim。
+* 如果编辑了，还没保存，不想要了，可以输入q!。
 
 ### 运行程序 ###
 
@@ -116,6 +191,8 @@ vim 就像 Windows 里面的 notepad 一样，是我们第一个要学会的工�
 	* nohup——no hang up（不挂起）
 	* nohup command >out.file 2>&1 &，“1”表示文件描述符 1，表示标准输出，“2”表示文件描述符 2，意思是标准错误输出，“2>&1”表示标准输出和错误输出合并了。合并到哪里去呢？到 out.file 里。
 * 程序运行的第三种方式，以服务的方式运行，systemctl start mysql
+
+    ps -ef |grep 关键字  |awk '{print $2}'|xargs kill -9
 
 关机和重启：
 * shutdown -h now
