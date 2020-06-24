@@ -7,4 +7,5 @@ add_executable(src
         add_lib.c
         for.c
         function_example.c
-        ifelse.c link_example.cpp)
+        ifelse.c
+        link_example.c)
