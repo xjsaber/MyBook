@@ -1,5 +1,6 @@
 package com.xjsaber.learn.java.kafka.producer;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.Partitioner;
 import org.apache.kafka.common.Cluster;
 import org.apache.kafka.common.PartitionInfo;
