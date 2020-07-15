@@ -70,3 +70,48 @@ Maven构建与运行
 
 ### 3.1 RDD基础 ###
 
+用户可以使用两种方法创建 RDD：读取一个外部数据集，或在驱动器程序里分发驱动器程 序中的对象集合（比如 list 和 set）。
+
+	 lines = sc.textFile("README.md")
+
+创建出来后，RDD支持两种类型的操作：转化操作（transformation）和行动操作（action）。
+
+1. 转化操作会由一个RDD生成一个新的RDD。
+2. 行动操作会对RDD计算出一个结果，并把结果返回到驱动器程序中，或把结果存储到外部存储系统（如HDFS）中。
+
+### 3.2 创建RDD ###
+
+ Spark提供了两种创建RDD的方式：
+
+* 读取外部数据集
+* 在驱动器程序中对一个数据集进行并行化
+
+创建RDD最简单地方式就是把程序中一个已有的集合传给SparkContext的parallelize()方法。这种方法虽然可以在shell中快速创建出自己的RDD，然后对这些RDD进行操作。但除了开发原型和测试时，这种方式用得并不多，因为它需要把整个数据集先放在一台机器的内存中。
+
+	val lines = sc.parallelize(List("pandas", "i like pandas"))
+
+	val lines = sc.textFile("path/to/README.md")
+
+### 3.3 RDD操作 ###
+
+RDD支持两种操作：转化操作和行动操作。
+
+* RDD的转化操作是返回一个新的RDD的操作，比如map()和filter()
+* 行动操作则是向驱动器程序返回结果或把结果写入外部系统的操作，会触发实际的计算，比如count()和first()。
+* 转化操作返回的是RDD，而行动操作返回的是其他的数据类型。
+
+#### 3.3.1 转化操作 ####
+
+RDD的转化操作是返回新RDD的操作。
+
+	val inputRDD = sc.textFile("log.txt")
+	errorRDD = inputRDD.filter(line => line.contains("error"))
+
+通过转化操作，从已有的RDD中派生出新的RDD，Spark会使用谱系图（lineage graph）来记录这些不同RDD之间的依赖关系。Spark需要用这些信息来按需计算每个RDD，也可以依靠谱系图在持久化的RDD丢失部分数据时恢复所丢失的数据。
+
+#### 3.3.2 行动操作 ####
+
+	println("Input")
+
+
+
