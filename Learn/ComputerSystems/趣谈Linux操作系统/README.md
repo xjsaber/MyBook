@@ -450,6 +450,22 @@ https://opensource.com/article/17/3/introduction-grub2-configuration-linux
 之前课上说的，如果没有理解错的话：
 32位，分为16位寻址空间和16位偏移量。但通过左移4位的方式，将寻址空间扩充为20位。所以，0xFFFF的位置实际指的是0xFFFF0。
 
+## 08 | 内核初始化：生意做大了就得成立公司 ##
+
+内核的启动从入口函数 start_kernel() 开始。在 init/main.c 文件中，start_kernel 相当于内核的 main 函数（包含各种各样初始化函数）。
+
+![cdfc33db2fe1e07b6acf8faa3959cb01.jpeg](img/cdfc33db2fe1e07b6acf8faa3959cb01.jpeg)
+
+### 初始化公司职能部门 ###
+
+1. 项目管理部门
+	1. 创始进程，有一行指令`set_task_stack_end_magic(&init_task)`。这里面有一个参数 init_task，它的定义是 struct task_struct init_task = INIT_TASK(init_task)。它是系统创建的第一个进程，我们称为 0 号进程。这是唯一一个没有通过 fork 或者 kernel_thread 产生的进程，是进程列表的第一个。
+	2. 所谓进程列表（Process List），就是咱们前面说的项目管理工具，里面列着我们所有接的项目。
+2. 初始化的就是**办事大厅**，响应客户的需求
+	1. `trap_init()`，里面设置了中断门（Interrupt Gate），用于处理各种中断。 
+
+
+
 ## 09 | 系统调用：公司成立好了就要开始接项目 ##
 
 	cmake-3.17.0-Linux-x86_64.tar.gz
