@@ -344,9 +344,13 @@ mov, call, jmp, int, ret, add, or, xor, shl, shr, push, pop, inc, dec, sub, cmp�
 
 ### BIOS时期 ###
 
-ROM（Read Only Memory，只读存储器），上面固化了一些初始化程序，BIOS（Basic Input and Output System。基本输入输出系统）。
+在主板上**ROM**（Read Only Memory，只读存储器），上面固化了一些初始化程序，BIOS（Basic Input and Output System。基本输入输出系统）。
 
 ![5f364ef5c9d1a3b1d9bb7153bd166bfc.jpeg](img/5f364ef5c9d1a3b1d9bb7153bd166bfc.jpeg)
+
+在 x86 系统中，将 1M 空间最上面的 0xF0000 到 0xFFFFF 这 64K 映射给 ROM，也就是说，到这部分地址访问的时候，会访问 ROM。
+
+当电脑刚加电的时候，会做一些重置的工作，将 CS 设置为 0xFFFF，将 IP 设置为 0x0000，所以第一条指令就会指向 0xFFFF0，正是在 ROM 的范围内。在这里，有一个 JMP 命令会跳到 ROM 中做初始化工作的代码，于是，BIOS 开始进行初始化的工作。
 
 BIOS开始进行初始化的工作：
 
@@ -355,9 +359,96 @@ BIOS开始进行初始化的工作：
 
 ### bootloader 时期 ###
 
+操作系统一般都会在安装在硬盘上，在 BIOS 的界面上。你会看到一个启动盘的选项。它一般在第一个扇区，占 512 字节，而且以 0xAA55 结束。这是一个约定，当满足这个条件的时候，就说明这是一个启动盘，在 512 字节以内会启动相关的代码。
+
 Grub2， 全称 Grand Unified Bootloader Version 2
 
+通过 grub2-mkconfig -o /boot/grub2/grub.cfg 来配置系统启动的选项。
+
+使用 grub2-install /dev/sda，可以将启动程序安装到相应的位置。
+
 ### 从实模式切换到保护模式 ###
+
+切换到保护模式要干很多工作，大部分工作都与内存的访问方式有关。
+
+1. 第一项是**启用分段**，就是在内存里面建立段描述符表，将寄存器里面的段寄存器变成段选择子，指向某个段描述符，这样就能实现不同进程的切换了。
+2. 第二项是**启动分页**。能够管理的内存变大了，就需要将内存分成相等大小的块，这些我们放到内存那一节详细再讲。
+
+切换保护模式的函数 DATA32 call real_to_prot 会打开 Gate A20，也就是第 21 根地址线的控制线。
+
+### 总结时刻 ###
+
+BIOS -> 引导扇区boot.img -> diskboot.img -> lzma_decompress.img（实模式到保护模式、建立分段分页、打开地址线） -> kernel.img（选择一个操作系统） -> 启动内核
+
+### 课堂练习 ###
+
+grub2 是一个非常牛的 Linux 启动管理器，请你研究一下 grub2 的命令和配置，并试试通过它启动 Ubuntu 和 centOS 两个操作系统。
+
+### 精选留言 ###
+
+#### 1.  ####
+
+看到很多人留言需要资料，我来推荐一本新书《一个64位操作系统的设计与实现》，如果你有汇编基础，很感兴趣底层的细节，可以看李忠的那本《从实模式到保护模式》
+
+#### 2. ####
+
+- 实模式只有 1MB 内存寻址空间(X86)
+- 加电, 重置 CS 为 0xFFFF , IP 为 0x0000, 对应 BIOS 程序
+- 0xF0000-0xFFFFF 映射到 BIOS 程序(存储在ROM中), BIOS 做以下三件事:
+    - 检查硬件
+    - 提供基本输入(中断)输出(显存映射)服务
+    - 加载 MBR 到内存(0x7c00)
+- MRB: 启动盘第一个扇区(512B, 由 Grub2 写入 boot.img 镜像)
+- boot.img 加载 Grub2 的 core.img 镜像
+- core.img 包括 diskroot.img, lzma_decompress.img, kernel.img 以及其他模块
+- boot.img 先加载运行 diskroot.img, 再由 diskroot.img 加载 core.img 的其他内容
+- diskboot.img 解压运行 lzma_compress.img, 由lzma_compress.img 切换到保护模式
+
+-----------
+
+- 切换到保护模式需要做以下三件事:
+    - 启用分段, 辅助进程管理
+    - 启动分页, 辅助内存管理
+    - 打开其他地址线
+- lzma_compress.img 解压运行 grub 内核 kernel.img, kernel.img 做以下四件事:
+    - 解析 grub.conf 文件
+    - 选择操作系统
+    - 例如选择 linux16, 会先读取内核头部数据进行检查, 检查通过后加载完整系统内核
+    - 启动系统内核
+
+#### 3.  ####
+
+查了一些资料，关于 Gate A20 我的理解是：
+
+- 8086 地址线20根 -> 可用内存 0 ~ FFFFF
+  寄存器却是16位，寻址模式为 segment(16位):offset(16位)， 最大范围变成 0FFFF0(左移了4位) + 0FFFF = 10FFEF
+  后果是多出来了 100000 ~ 10FFEF （访问这些地址时会回绕到 0 ~ FFEF）
+
+- 80286 开始地址线变多，寻址范围大大增大，但是又必须兼容旧程序，8086在访问 100000 ~ 10FFEF时会回绕，但是 80286 不会 ，因为有第21根线的存在，会访问到实际的 100000 ~ 10FFEF 地址的内存。
+于是 Gate A20 开关就诞生了，它的作用是：
+
+- 实模式下 （存在的唯一理由是为了兼容8086）：
+  - 打开 -> 寻址100000 ~ 10FFEF会真正访问
+  - 关闭-> 回绕到 0 ~ FFEF
+
+- 保护模式下：
+  - 打开 -> 可连续访问内存
+  - 关闭 -> 只能访问到奇数的1M段，即 00000-FFFFF, 200000-2FFFFF,300000-3FFFFF… 
+
+#### 4.  ####
+
+总结:ROM只读存储器，ROm固化了一些程序就是BIOS，用来初始化系统，一开始的内存空间比较小，只有1M，最上面的64k映射为BIOS，指针指向这64k，开始进行初始化，有2个事情，一个是检查硬件环境，另一个是建立中断程序和中断向量表，同时把结果显示在显示器上，BIOS只是做初始化工作，真正安装系统了，首先要找系统，grub2是搞系统启动的，他把系统代码放在硬盘上，一般在第一个扇区，以0xAA55结束，512个字节，满足这个条件，就是系统启动的代码，grub2要首先安装的是第一个扇区MBR主引导扇区，他在BIOS初始化完成之后进行，会讲boot.img加载到内存，他能做的另一个事是加载core.img镜像，boot.img先加载core.img 的第一个扇区，diskboot.img，将core.img的其他程序加载进来，然后diskboot.img解压lzma_decompress.img， 再解压kernel.img，再然后是各个模块对应的映像。lzma_decompress在解压之前，调用real_to_prot，切换到保护模式。切换到保护模式，做的事情，启用分段，在内存里建立段描述表，将段寄存器里的段寄存器变成段选择子，指向某个段描述符，就能完成进程的切换，启动分页，管理的内存大了，将内存分成大小相等的块，打开Gate20，第21根地址线的控制线，有空间了，对kernel.img解压缩，开始运行，是一堆.c文件，里面有主函数，显示出操作系统的列表，选择了一个操作系统，开始调用grub_menu_execute_entry()，开始执行选择的那一项，里面的linux16命令，表示装载指定的内核文件，并传递内核启动参数，于是grub_cmd_linux()函数被调用，首先会读取linux内核头部的数据结构，加载到内存中来，检查通过，会加载整个linux内核镜像到内存，当都做完，调用grub_command_execute("boot",0,0)，开始真正的启动内核。
+
+#### 5. ####
+
+补充阅读
+https://opensource.com/article/17/2/linux-boot-and-startup
+https://opensource.com/article/17/3/introduction-grub2-configuration-linux
+
+#### 6. ####
+
+之前课上说的，如果没有理解错的话：
+32位，分为16位寻址空间和16位偏移量。但通过左移4位的方式，将寻址空间扩充为20位。所以，0xFFFF的位置实际指的是0xFFFF0。
 
 ## 09 | 系统调用：公司成立好了就要开始接项目 ##
 
@@ -606,3 +697,95 @@ malloc 会调用系统调用，进入内核，所以这个程序一旦运行起�
 2. 物理内存的管理，物理内存地址只有内存管理模块能够使用；
 3. 内存映射，需要将虚拟内存和物理内存映射、关联起来。
 
+# 核心原理篇：第八部分 网络系统 #
+
+## 43 预习 | Socket通信之网络协议基本原理 ##
+
+进程间通信，其实是通过内核的数据结构完成的，主要用于在一台 Linux 上两个进程之间的通信。但是，一旦超出一台机器的范畴，我们就需要一种跨机器的通信机制。
+
+一台机器将自己想要表达的内容，按照某种约定好的格式发送出去，当另外一台机器收到这些信息后，也能够按照约定好的格式解析出来，从而准确、可靠地获得发送方想要表达的内容。这种约定好的格式就是**网络协议**（Networking Protocol）。
+
+### 网络为什么要分层？ ###
+
+![f6982eb85dc66bd04200474efb3a050e.png](img/f6982eb85dc66bd04200474efb3a050e.png)
+
+两种网络协议：
+
+1. OSI 的标准七层模型
+2. 业界标准的 TCP/IP 模型
+
+### 发送数据包 ###
+
+### 总结时刻 ###
+
+如果只是为了掌握这一章的内容，这一节我们讲的网络协议的七个层次，你不必每一层的每一个协议都很清楚，只要记住 TCP/UDP->IPv4->ARP 这一条链就可以了，因为后面我们的分析都是重点分析这条链。
+
+# 核心原理篇：第十部分 容器化 #
+
+## 56 | 容器：大公司为保持创新，鼓励内部创业 ##
+
+容器实现封闭的环境主要要靠两种技术，一种是看起来是隔离的技术，称为 **namespace**（命名空间）。在每个 namespace 中的应用看到的，都是不同的 IP 地址、用户空间、进程 ID 等。另一种是用起来是隔离的技术，称为 **cgroup**（网络资源限制），即明明整台机器有很多的 CPU、内存，但是一个应用只能用其中的一部分。
+
+所谓**镜像（Image）**，集装箱里的状态就被“定”在了那一刻，然后这一刻的状态会被保存成一系列文件。无论在哪里运行这个镜像，都能完整地还原当时的情况。
+
+体验Linux 上的容器技术：
+
+1. 首先，我们要安装一个目前最主流的容器技术的实现 Docker。假设我们的操作系统是 CentOS，你可以参考[https://docs.docker.com/install/linux/docker-ce/centos/](https://docs.docker.com/install/linux/docker-ce/centos/)这个官方文档，进行安装。
+	1. 删除原有版本的 Docker。	
+	yum remove docker \
+	  docker-client \
+	  docker-client-latest \
+	  docker-common \
+	  docker-latest \
+	  docker-latest-logrotate \
+	  docker-logrotate \
+	  docker-engine
+	2. 安装依赖的包。	
+		yum install -y yum-utils \
+		  device-mapper-persistent-data \
+		  lvm2
+	3. 安装 Docker 所属的库。
+		yum-config-manager \    --add-repo \    https://download.docker.com/linux/centos/docker-ce.repo
+	4. 安装 Docker。	
+		yum install docker-ce docker-ce-cli containerd.io
+	5. 启动 Docker。
+		systemctl start docker
+
+* 第一种就是持续集成
+	*  docker run
+	*  交给测试容器镜像 
+* 第二种就是弹性伸缩
+* 第三种就是跨云迁移
+
+Docker 可以限制对于 CPU 的使用，我们可以分几种的方式。
+
+* Docker 允许用户为每个容器设置一个数字，代表容器的 CPU share，默认情况下每个容器的 share 是 1024。这个数值是相对的，本身并不能代表任何确定的意义。当主机上有多个容器运行时，每个容器占用的 CPU 时间比例为它的 share 在总额中的比例。Docker 为容器设置 CPU share 的参数是 -c --cpu-shares。
+* Docker 提供了 --cpus 参数可以限定容器能使用的 CPU 核数。
+* Docker 可以通过 --cpuset 参数让容器只运行在某些核上
+
+Docker 会限制容器内存使用量，下面是一些具体的参数。
+
+* -m --memory：容器能使用的最大内存大小。
+* –memory-swap：容器能够使用的 swap 大小。
+* –memory-swappiness：默认情况下，主机可以把容器使用的匿名页 swap 出来，你可以设置一个 0-100 之间的值，代表允许 swap 出来的比例。
+* –memory-reservation：设置一个内存使用的 soft limit，如果 docker 发现主机内存不足，会执行 OOM (Out of Memory) 操作。这个值必须小于 --memory 设置的值。
+* –kernel-memory：容器能够使用的 kernel memory 大小。
+* –oom-kill-disable：是否运行 OOM (Out of Memory) 的时候杀死容器。只有设置了 -m，才可以把这个选项设置为 false，否则容器会耗尽主机内存，而且导致主机应用被杀死。
+
+### 总结时刻 ###
+
+无论是容器，还是虚拟机，都依赖于内核中的技术，虚拟机依赖的是 KVM，容器依赖的是 namespace 和 cgroup 对进程进行隔离。
+
+为了运行 Docker，有一个 daemon 进程 Docker Daemon 用于接收命令行。
+
+为了描述 Docker 里面运行的环境和应用，有一个 Dockerfile，通过 build 命令称为容器镜像。容器镜像可以上传到镜像仓库，也可以通过 pull 命令从镜像仓库中下载现成的容器镜像。
+
+通过 Docker run 命令将容器镜像运行为容器，通过 namespace 和 cgroup 进行隔离，容器里面不包含内核，是共享宿主机的内核的。对比虚拟机，虚拟机在 qemu 进程里面是有客户机内核的，应用运行在客户机的用户态。
+
+![5a499cb50a1b214a39ddf19cbb63dcc5.jpg](img/5a499cb50a1b214a39ddf19cbb63dcc5.jpg)
+
+### 课堂练习 ###
+
+请你试着用 Tomcat 的容器镜像启动一个 Java 网站程序，并进行访问。
+
+## 57 | Namespace技术：内部创业公司应该独立运营 ##
