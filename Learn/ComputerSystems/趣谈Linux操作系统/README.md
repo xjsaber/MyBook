@@ -462,11 +462,41 @@ https://opensource.com/article/17/3/introduction-grub2-configuration-linux
 	1. 创始进程，有一行指令`set_task_stack_end_magic(&init_task)`。这里面有一个参数 init_task，它的定义是 struct task_struct init_task = INIT_TASK(init_task)。它是系统创建的第一个进程，我们称为 0 号进程。这是唯一一个没有通过 fork 或者 kernel_thread 产生的进程，是进程列表的第一个。
 	2. 所谓进程列表（Process List），就是咱们前面说的项目管理工具，里面列着我们所有接的项目。
 2. 初始化的就是**办事大厅**，响应客户的需求
-	1. `trap_init()`，里面设置了中断门（Interrupt Gate），用于处理各种中断。 
+	1. `trap_init()`，里面设置了中断门（Interrupt Gate），用于处理各种中断。其中有一个 `set_system_intr_gate(IA32_SYSCALL_VECTOR, entry_INT80_32)`，这是系统调用的中断门
+3. 初始化的是咱们的会议室管理系统。对应的，mm_init() 就是用来初始化内存管理模块。
+	1. 项目需要项目管理进行调度，需要执行一定的调度策略。sched_init() 就是用于初始化调度模块。
+	2. vfs_caches_init() 会用来初始化基于内存的文件系统 rootfs。在这个函数里面，会调用 mnt_init()->init_rootfs()。
+	3. 
+4. start_kernel() 调用的是 rest_init()，用来做其他方面的初始化  
 
+### 初始化1号进程 ###
 
+rest_init 的第一大工作是，用 kernel_thread(kernel_init, NULL, CLONE_FS) 创建第二个进程，这个是 1 号进程。
+
+![2b53b470673cde8f9d8e2573f7d07242.jpg](img/2b53b470673cde8f9d8e2573f7d07242.jpg)
+
+操作系统很好地利用了这个机制，将能够访问关键资源的代码放在 Ring0，我们称为内核态（Kernel Mode）；将普通的程序代码放在 Ring3，我们称为用户态（User Mode）。
+
+如果用户态的代码想要访问核心资源，咱们不是有提供系统调用的办事大厅吗？这里是统一的入口，用户态代码在这里请求就是了。办事大厅后面就是内核态，用户态代码不用管后面发生了什么，做完了返回结果就可以了。
+
+当一个用户态的程序运行到一半，要访问一个核心资源
+
+1. 首先，内核将从系统调用传过来的包，在网卡上排队，轮到的时候就发送。发送完了，系统调用就结束了，返回用户态，让暂停运行的程序接着运行。
+2. 
 
 ## 09 | 系统调用：公司成立好了就要开始接项目 ##
+
+Linux提供了glibc这个中介
+
+### glibc 对系统调用的封装 ###
+
+以打开一个文件为线索：
+
+	int open(const char *pathname, int flags, mode_t mode)
+
+
+
+
 
 	cmake-3.17.0-Linux-x86_64.tar.gz
 
@@ -475,6 +505,10 @@ https://opensource.com/article/17/3/introduction-grub2-configuration-linux
 ## 10 | 进程：公司接这么多项目，如何管？ ##
 
 ### 写代码：用系统调用创建进程 ###
+
+	yum -y groupinstall "Development Tools"
+
+
 
 我们先来创建一个文件，里面用一个函数封装通用的创建进程的逻辑，名字叫 process.c。
 
@@ -496,6 +530,24 @@ do_execve->do_execveat_common->exec_binprm->search_binary_handler。
 
 	/sbin/init -> ../lib/systemd/systemd
 
+### 总结时刻 ###
+
+一个进程从代码到二进制到运行时的一个过程
+
+1. 首先通过图右边的文件编译过程，生成 so 文件和可执行文件，放在硬盘上
+2. 用户态的进程 A 执行 fork，创建进程 B，在进程 B 的处理逻辑中，执行 exec 系列系统调用
+3. 这个系统调用会通过 load_elf_binary 方法，将刚才生成的可执行文件，加载到进程 B 的内存中执行。
+
+![dbd8785da6c3ce3fe1abb7bb5934b7a9.jpeg](img/dbd8785da6c3ce3fe1abb7bb5934b7a9.jpeg)
+
+### 课堂练习 ###
+
+对于 ELF，有几个工具能帮你看这些文件的格式。
+
+* readelf 工具用于分析 ELF 的信息
+* objdump 工具用来显示二进制文件的信息
+* hexdump 工具用来查看文件的十六进制编码
+* nm 工具用来显示关于指定文件中符号的信息。
 
 ## 11 | 线程：如何让复杂的项目并行执行？ ##
 
