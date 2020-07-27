@@ -1,6 +1,6 @@
 package com.xjsaber.learn.datastruct.idea.heap;
 
-import com.xjsaber.learn.idea.SimpleUtils;
+import com.xjsaber.learn.datastruct.idea.SimpleUtils;
 
 public class SimpleHeap {
 
