@@ -65,17 +65,24 @@
 
 ### 2.2 线性表的顺序表示 ###
 
-	#define MaxSize 50	// 定义线性表的最大长度
-	typedef struct {
-		ElemType data[MaxSize]; //顺序表的元素
-		int length;	//顺序表的当前长度
-	}SqList;	// 顺序表的类型定义
-	
-	#define InitSize 100 //表长度的初始定义
-	typedef struct { 
-		ElemType *data; //指示动态分配数组的指针
-		int MaxSize, length; //数组的最大容量和当前个数
-	}SqList; //动态分配数组顺序表的类型定义
+```
+#define MaxSize 50	// 定义线性表的最大长度
+typedef struct {
+	ElemType data[MaxSize]; //顺序表的元素
+	int length;	//顺序表的当前长度
+}SqList;	// 顺序表的类型定义
+```
+
+一维数组可以是静态分配的，也可以是动态分配的。
+
+	* 在静态分配时，由于数组的大小和空间事先已经固定，一旦空间占满，再加入新的数据将会产生溢出，进而导致程序崩溃
+	* 在动态分配时，存储数组的空间是在程序执行过程中通过存储分配语句分配的，一旦数据空间占满，再加上新的数据将会产生溢出，进而
+
+#define InitSize 100 //表长度的初始定义
+typedef struct { 
+	ElemType *data; //指示动态分配数组的指针
+	int MaxSize, length; //数组的最大容量和当前个数
+}SqList; //动态分配数组顺序表的类型定义
 
 #### 2.2.1 顺序表的定义 ####
 
