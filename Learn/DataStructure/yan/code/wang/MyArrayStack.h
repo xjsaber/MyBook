@@ -4,7 +4,7 @@
 
 #ifndef SRC_MYARRAYSTACK_H
 #define SRC_MYARRAYSTACK_H
-#include "../Base.h"
+#include "Base.h"
 
 typedef struct {
     ElemType data[MAXSIZE];
@@ -13,7 +13,7 @@ typedef struct {
 
 void InitStack(MySqStack &S);
 
-bool StackEmpty(MySqStack &S);
+bool StackEmpty(MySqStack S);
 
 bool Push(MySqStack &S, ElemType e);
 

@@ -3,4 +3,4 @@ project(wang)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(wang main.cpp)
+add_executable(wang main.cpp MyArrayQueue.h MyArrayQueue.cpp)
