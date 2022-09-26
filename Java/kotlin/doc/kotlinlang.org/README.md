@@ -6,4 +6,5 @@
 
 Getting Started
 
-Basics
+## Basics syntax
+
