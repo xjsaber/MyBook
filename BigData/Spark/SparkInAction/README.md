@@ -1,2 +1,0 @@
-## Spark in Action ##
-
