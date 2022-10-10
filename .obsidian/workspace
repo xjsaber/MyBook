@@ -7,8 +7,12 @@
         "id": "52b21dc68d405cf0",
         "type": "leaf",
         "state": {
-          "type": "empty",
-          "state": {}
+          "type": "markdown",
+          "state": {
+            "file": "Go/The Go Programming Language/README.md",
+            "mode": "source",
+            "source": false
+          }
         }
       }
     ],
@@ -73,6 +77,7 @@
             "state": {
               "type": "backlink",
               "state": {
+                "file": "Go/The Go Programming Language/README.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -89,6 +94,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
+                "file": "Go/The Go Programming Language/README.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -110,7 +116,9 @@
             "type": "leaf",
             "state": {
               "type": "outline",
-              "state": {}
+              "state": {
+                "file": "Go/The Go Programming Language/README.md"
+              }
             }
           }
         ]
@@ -120,6 +128,8 @@
     "width": 300,
     "collapsed": true
   },
-  "active": "9c3b44ec130f2f55",
-  "lastOpenFiles": []
+  "active": "52b21dc68d405cf0",
+  "lastOpenFiles": [
+    "BigData/设计数据密集型应用.md"
+  ]
 }
