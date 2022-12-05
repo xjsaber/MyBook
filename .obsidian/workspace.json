@@ -1,0 +1,166 @@
+{
+  "main": {
+    "id": "ff290ef74afad5b7",
+    "type": "split",
+    "children": [
+      {
+        "id": "5b5505087793502c",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "52b21dc68d405cf0",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Go/The Go Programming Language/README.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "56d647bb47c6b88b",
+            "type": "leaf",
+            "state": {
+              "type": "release-notes",
+              "state": {
+                "currentVersion": "1.0.0"
+              }
+            }
+          },
+          {
+            "id": "e82ba8d72f211a1c",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Java/Jvm/深入理解Java虚拟机：JVM高级特性与最佳实践/README.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          }
+        ],
+        "currentTab": 2
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "3f2eccabca0aee95",
+    "type": "split",
+    "children": [
+      {
+        "id": "59d218aadc2ac44b",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "9c3b44ec130f2f55",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "61af10b3b8b5156c",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "8dbd4fa2758a48e6",
+            "type": "leaf",
+            "state": {
+              "type": "starred",
+              "state": {}
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "2ea5aeb4ef624c84",
+    "type": "split",
+    "children": [
+      {
+        "id": "90a2e0f1f07c3eff",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "91a007b176999817",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Java/Jvm/深入理解Java虚拟机：JVM高级特性与最佳实践/README.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "ac9803bb78556a44",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "Java/Jvm/深入理解Java虚拟机：JVM高级特性与最佳实践/README.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "c1915369b93c9040",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true
+              }
+            }
+          },
+          {
+            "id": "ff7c9395bc613867",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "Java/Jvm/深入理解Java虚拟机：JVM高级特性与最佳实践/README.md"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "active": "9c3b44ec130f2f55",
+  "lastOpenFiles": [
+    "BigData/设计数据密集型应用.md"
+  ]
+}
